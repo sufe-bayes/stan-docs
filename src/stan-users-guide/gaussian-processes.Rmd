@@ -1,5 +1,5 @@
 # Gaussian Processes  {#gaussian-processes.chapter}
-
+翻译贡献者：王嘉宁
 Gaussian processes are continuous stochastic processes and thus may be
 interpreted as providing a probability distribution over functions.  A
 probability distribution over continuous functions may be viewed,
