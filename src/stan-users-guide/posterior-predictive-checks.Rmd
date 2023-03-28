@@ -1,5 +1,5 @@
 # Posterior and Prior Predictive Checks {#ppcs.chapter}
-
+{本节译者：陈苑莹}
 Posterior predictive checks are a way of measuring whether a model
 does a good job of capturing relevant aspects of the data, such as
 means, standard deviations, and quantiles [@Rubin:1984;
