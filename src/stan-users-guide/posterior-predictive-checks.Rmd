@@ -1,5 +1,6 @@
 # Posterior and Prior Predictive Checks {#ppcs.chapter}
-{本节译者：陈苑莹}
+{本节译者：陈苑莹}后验和先验预测检查
+
 Posterior predictive checks are a way of measuring whether a model
 does a good job of capturing relevant aspects of the data, such as
 means, standard deviations, and quantiles [@Rubin:1984;
@@ -8,11 +9,15 @@ new replicated data sets based on the fitted model parameters and then
 comparing statistics applied to the replicated data set with the same
 statistic applied to the original data set.
 
+后验预测检查是一种衡量一个模型能否很好地捕获数据相关方面的方法，比如数据的均值、标准差和分位数等[@Rubin:1984;@GelmanEtAl:1996]。该方法的工作原理是根据拟合的模型参数模拟新的复制数据集，然后将应用于复制数据集的统计信息与应用于原始数据集的相同统计信息进行比较。
+
 Prior predictive checks evaluate the prior the same way.
 Specifically, they evaluate what data sets would be consistent with
 the prior.  They will not be calibrated with actual data, but extreme
 values help diagnose priors that are either too strong, too weak,
 poorly shaped, or poorly located.
+
+先验预测检查用同样的方式评估先验信息。具体来说，是评估哪些数据集与先验信息一致。 它们不会使用实际数据进行校准，但极值有助于诊断太强、太弱、形状差，或位置差。
 
 Prior and posterior predictive checks are two cases of the general
 concept of predictive checks, just conditioning on different things
@@ -20,7 +25,10 @@ concept of predictive checks, just conditioning on different things
 models, there are intermediate versions, as discussed in the section
 on [hierarchical models and mixed replication](#mixed-replication).
 
+先验和后验预测检查是预测性检查一般概念的两种情况，只是以不同事物为条件（分别是无数据和观察数据）。对于分层模型，存在中间版本，如 [分层模型和混合复制] 一节中所述。
+
 ## Simulating from the posterior predictive distribution
+后验预测分布的模拟
 
 The posterior predictive distribution is the distribution over new
 observations given previous observations.  It's predictive in the
