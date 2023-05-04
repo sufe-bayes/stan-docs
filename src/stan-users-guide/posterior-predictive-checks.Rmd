@@ -332,12 +332,15 @@ functions of two or more parameters.
 尽管有选择范围，但理想情况下，检验统计量应该是辅助的，它们应该检验参数拟合度以外的其他内容。例如，一个简单的正态模型通常可以很好地拟合数据的均值和方差，只要先验不主导后验。相反，如果数据集的均值方差不同，则一个泊松模型就无法同时捕获数据的均值和方差，因此它们需要在泊松情况下进行检查。正如我们在泊松情况下看到的那样，单个比例参数的后验均值位于数据均值附近，而不在数据方差附近。其他分布（如对数正态分布和伽马分布）的均值和方差是两个或多个参数的函数。
 
 ## Prior predictive checks
+先验预测检查
 
 Prior predictive checks generate data according to the prior in order
 to asses whether a prior is appropriate [@GabryEtAl:2019].  A
 posterior predictive check generates replicated data according to the
 posterior predictive distribution.  In contrast, the prior predictive
 check generates data according to the prior predictive distribution,
+
+先验预测检查根据先验生成数据，以评估先验是否合适[@GabryEtAl:2019]。一个后验预测检查根据后验预测分布生成重复数据。相比之下，先验预测检查根据先验预测分布生成数据，
 $$
 y^{\textrm{sim}} \sim p(y).
 $$
@@ -346,27 +349,40 @@ predictive distribution with no observed data, so that a prior
 predictive check is nothing more than the limiting case of a posterior
 predictive check with no data.
 
+先验预测分布就像没有观测数据的后验预测分布，因此，先验预测检查只不过是没有数据的后验预测检查的极限情况。
+
 This is easy to carry out mechanically by simulating parameters
+
+这很容易通过模拟参数来程序化地实现
 $$
 \theta^{\textrm{sim}} \sim p(\theta)
 $$
 according to the priors, then simulating data
+
+根据先验信息，再模拟数据
 $$
 y^{\textrm{sim}} \sim p(y \mid \theta^{\textrm{sim}})
 $$
 according to the sampling distribution given the simulated
 parameters.  The result is a simulation from the joint
 distribution,
+
+根据给出了模拟参数的抽样分布。结果是对联合分布的模拟，
 $$
 (y^{\textrm{sim}}, \theta^{\textrm{sim}}) \sim p(y, \theta)
 $$
 and thus
+
+因此
 $$
 y^{\textrm{sim}} \sim p(y)
 $$
 is a simulation from the prior predictive distribution.
 
+是一个来自先验预测分布的模拟。
+
 ### Coding prior predictive checks in Stan
+在Stan中进行先验预测检查的编程
 
 A prior predictive check is coded just like a posterior predictive
 check.  If a posterior predictive check has already been coded and
@@ -376,12 +392,16 @@ posterior predictive checks with no data is that Markov chain Monte
 Carlo will be used to sample the parameters, which is less efficient
 than taking independent draws using random number generation.
 
+先验预测检查就像后验预测检查一样编写代码。如果一个后验预测检查代码已经被编写，并且可以将数据设置为空，则不需要额外的编程。将先验预测检查编写为没有数据的后验预测检查的缺点是使用马尔可夫链蒙特卡罗对参数进行采样，这比使用随机数生成独立样本效率低。
+
 Prior predictive checks can be coded entirely within the generated
 quantities block using random number generation.  The resulting draws
 will be independent.  Predictors must be read in from the actual data
 set---they do not have a generative model from which to be simulated.
 For a Poisson regression, prior predictive sampling can be
 encoded as the following complete Stan program.
+
+先验预测检查可以完全在使用随机数生成器的“generated quantities”代块内编写，结果将是独立的。预测器必须从实际数据集中读取——它们没有一个生成模型来进行模拟。对于一个泊松回归，先验预测抽样可以编写为以下完整的Stan程序。
 ```stan
 data {
   int<lower=0> N;
@@ -397,7 +417,10 @@ Running this program using Stan's fixed-parameter sampler
 yields draws from the prior.  These may be plotted to
 consider their appropriateness.
 
+使用Stan的固定参数采样器运行这个程序会产生来自先验的结果。这些可能会考虑到它们的适当性。
+
 ## Example of prior predictive checks
+一个关于先验预测检查的例子
 
 Suppose we have a model for a football (aka soccer) league where there
 are $J$ teams.  Each team has a scoring rate $\lambda_j$ and in each
@@ -406,6 +429,9 @@ Yes, this model completely ignores defense.  Suppose the modeler does
 not want to "put their thumb on the scale" and would rather "let the
 data speak for themselves" and so uses a prior with very wide tails,
 because it seems uninformative, such as the widely deployed
+
+假设我们有一个足球联赛的模型，其中有
+$J$个队伍。每个队都有一个得分率$λ_j$以及在每场比赛中的得分认为服从$\textrm{poisson}(\lambda_j)$。是的，该模型完全忽略防守。假设建模者不想“把他们的拇指放在刻度上”，而宁愿“让数据自己说话”，因此使用非常宽尾的先验，因为它看起来没有信息，比如说
 $$
 \lambda_j \sim \textrm{gamma}(\epsilon_1, \epsilon_2).
 $$
@@ -414,10 +440,15 @@ recommends setting $\epsilon = (0.5, 0.00001)$, which
 corresponds to a Jeffreys prior for a Poisson rate parameter prior
 [@LunnEtAl:2012, p. 85].
 
+这不仅仅是一个人为的例子；*The BUGS Book*建议设置$\epsilon = (0.5, 0.00001)$
+，这相当于一个泊松率参数先验的Jeffreys先验[@LunnEtAl:2012, p. 85]。
+
 Suppose the league plays a round-robin tournament wherein every team
 plays every other team.  The following Stan model generates random team
 abilities and the results of such a round-robin tournament, which may
 be used to perform prior predictive checks.
+
+假设联盟进行循环赛，每支球队都会与其他每支球队进行比赛。下面的Stan模型随机生成球队的能力和这种循环赛的结果，可以用来展示先验预测检查的效果。
 ```stan
 data {
   int<lower=0> J;
@@ -439,10 +470,13 @@ once.  This could be made more realistic by controlling the
 combinatorics to only generate a single result for each pair of teams,
 of which there are $\binom{J}{2} = \frac{J \cdot (J - 1)}{2}.$
 
+在这个模拟中，各支队伍对战对方两次，对战自己一次。这可以通过控制组合运算，使每对队伍只产生一个组合结果$\binom{J}{2} = \frac{J \cdot (J - 1)}{2}$来实现。
 
 Using the $\textrm{gamma}(0.5, 0.00001)$ reference prior on team
 abilities, the following are the first 20 simulated point differences
 for the match between the first two teams, $y^{(1:20)}_{1, 2}$.
+
+使用$\textrm{gamma}(0.5, 0.00001)$作为队伍能力的先验分布，下面是前两个队伍比赛的前20个模拟分差，$y^{(1:20)}_{1, 2}$。
 ```
 2597 -26000   5725  22496   1270   1072   4502  -2809   -302   4987
 7513   7527  -3268 -12374   3828   -158 -29889   2986  -1392     66
@@ -456,14 +490,20 @@ prior knowledge about football matches; it is not only consistent with
 outcomes that have never occurred in the history of the sport, it puts
 most of the prior probability mass there.
 
+这是模拟了一些得分很高的足球比赛；除了一个以外，所有的分差都大于100！换句话说，这个$\textrm{gamma}(0.5, 0.00001)$先验分布将95%的权重放在100分以上的分差上。考虑到两支球队加起来很少能得10分，这个先验与足球比赛的先验知识是不一致的；它不仅与体育运动历史上从未发生过的结果一致，而且把大部分先验概率都放在了那里。
+
 The posterior predictive distribution can be strongly affected by the
 prior when there is not much observed data and substantial prior mass
 is concentrated around infeasible values [@Gelman:2006].
+
+当观测数据不多，先验分布大量集中在不可行值周围时，后验预测分布会受到先验的强烈影响[@Gelman:2006]。
 
 Just as with posterior predictive distributions, any statistics of the
 generated data may be evaluated.  Here, the focus was on score
 difference between a single pair of teams, but it could've been on
 maximums, minimums, averages, variances, etc.
+
+就像后验预测分布一样，数据的任何统计量都可以被评估。在这里，我们关注的是两支球队之间的得分差异，但也可以是最大值、最小值、平均值、方差等。
 
 In this textbook example, the prior is univariate and directly related
 to the expected number of points scored, and could thus be directly
@@ -475,18 +515,26 @@ a handle on the implications of a prior in terms of what it says the
 data is going to look like;  for a more complex application involving
 spatially heterogeneous air pollution concentration, see [@GabryEtAl:2019].
 
+在此教材示例中，先验分布是单变量的，并且与得分的预期数直接相关，因此可以直接检查关于足球得分率的先验知识的一致性。当先验分布和抽样分布是多元分布时，不会有类似的直接联系。在这些更具挑战性的情况下，先验预测检查是一种可以处理先验含义的简单方法，即它所描述的数据将是什么样子；可以用于涉及空间异构空气污染浓度的更复杂应用，见[@GabryEtAl:2019]。
+
 Prior predictive checks can also be compared with the data, but one
 should not expect them to be calibrated in the same way as posterior
 predictive checks.  That would require guessing the posterior and
 encoding it in the prior.  The goal is make sure the prior is not so
 wide that it will pull probability mass away from feasible values.
 
+先验预测检查也可以与数据进行比较，但不应期望它们和后验预测检查相同的方式进行校准。这需要猜测后验并将其编程到先验中。我们的目标是确保先验值不会太宽泛，从而使概率质量偏离可行值。
+
 ## Mixed predictive replication for hierarchical models {#mixed-replication}
+分层模型的混合预测重复
 
 @GelmanEtAl:1996 discuss the case of mixed replication for
 hierarchical models in which the hyperparameters remain fixed, but
 varying effects are replicated.  This is neither a purely prior nor
 purely posterior predictive check, but falls somewhere in between.
+
+@GelmanEtAl:1996
+讨论了分层模型的混合复制情况，其中超参数保持固定，但复制了不同的效果。这既不是纯粹的先验也不是纯粹的后验预测检查，而是介于两者之间。
 
 For example, consider a simple varying intercept logistic regression,
 with intercepts $\alpha_k$ for $k \in 1:K$.  Each data item
