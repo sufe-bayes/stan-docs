@@ -540,14 +540,20 @@ For example, consider a simple varying intercept logistic regression,
 with intercepts $\alpha_k$ for $k \in 1:K$.  Each data item
 $y_n \in \{ 0, 1 \}$ is assumed to correspond to group $kk_n \in 1:K.$
 The sampling distribution is thus
+
+例如，考虑一个简单的变截距项逻辑回归，截距项为$\alpha_k$，$k \in 1:K$。假设每个数据项$y_n \in \{ 0, 1 \}$对应于组$kk_n \in 1:K$，因此抽样分布为
 $$
 y_n \sim \textrm{bernoulli}(\textrm{logit}^{-1}(\alpha_{kk[n]})).
 $$
 The varying intercepts have a hierarchical normal prior,
+
+不同的截距项具有一个分层正态先验分布，
 $$
 \alpha_k \sim \textrm{normal}(\mu, \sigma).
 $$
 The hyperparameters are themselves given weakly informative priors,
+
+超参数本身被赋予弱信息先验，
 \begin{eqnarray*}
 \mu & \sim & \textrm{normal}(0, 2)
 \\[4pt]
@@ -556,16 +562,22 @@ The hyperparameters are themselves given weakly informative priors,
 
 Like in a posterior predictive check, the hyperparameters $\mu$ and
 $\sigma$ are drawn from the posterior,
+
+在一个后验预测检查中，超参数$\mu$和$\sigma$都来自后验分布，
 $$
 \mu^{(m)}, \sigma^{(m)} \sim p(\mu, \sigma \mid y)
 $$
 Like in a prior predictive check, replicated values of $\alpha$ are
 drawn from the hyperparameters,
+
+与先验预测检查一样，复制的值$\alpha$是从超参数中提取的，
 $$
 \alpha^{\textrm{rep}(m)}_k \sim \textrm{normal}(\alpha_k \mid
 \mu^{(m)}, \sigma^{(m)}).
 $$
 The data items are then each replicated using the replicated intercepts,
+
+然后，使用复制的截距项来复制每个数据项，
 $$
 y^{\textrm{rep}(m)}_n \sim
 \textrm{bernoulli}
@@ -575,8 +587,12 @@ Thus the $y^{\textrm{rep}(m)}$ can be seen as a kind of posterior
 predictive replication of observations from new groups that were not
 among the original $K$ groups.
 
+因此$y^{\textrm{rep}(m)}$可以看作是来自新群体观测的一种后验预测复制，而不是在原来的$K$组。
+
 In Stan, mixed predictive replications $y^{\textrm{rep}(m)}$ can be
 programmed directly.
+
+在Stan中，混合预测复制量$y^{\textrm{rep}(m)}$可以被直接编程。
 
 ```stan
 data {
@@ -607,15 +623,24 @@ generated quantities {
 
 
 ## Joint model representation
+联合模型表示
 
 Following @GelmanEtAl:1996, prior, posterior, and mixed replications
 may all be defined as posteriors from joint models over parameters and
 observed and replicated data.
 
+根据
+@GelmanEtAl:1996
+，
+先验重复、后验重复和混合重复都可以定义为联合模型在参数、观察和复制数据上的后验。
+
 ### Posterior predictive model
+后验预测模型
 
 For example, posterior predictive replication may be formulated
 using sampling notation as follows.
+
+例如，后验预测复制可以用如下的抽样符号来表示。
 \begin{eqnarray*}
 \theta & \sim & p(\theta)
 \\[2pt]
@@ -629,7 +654,12 @@ or more formally using capital letters to distinguish random
 variables, that the conditional densities $p_{Y^{\textrm{rep}} \mid
 \Theta}$ and $p_{Y \mid \Theta}$ are the same.
 
+过载的抽样符号意味着$y$和$y^{\textrm{rep}}$来自同样的分布，或者更正式地使用大写字母来区分随机变量，条件分布$p_{Y^{\textrm{rep}} \mid
+\Theta}$和$p_{Y \mid \Theta}$是一样的。
+
 The joint density is
+
+联合密度是
 $$
 p(\theta, y, y^{\textrm{rep}})
 = p(\theta) \cdot p(y \mid \theta) \cdot p(y^{\textrm{rep}} \mid \theta).
@@ -637,22 +667,31 @@ $$
 This again is assuming that the two distributions for $y$ and
 $y^{\textrm{rep}}$ are identical.
 
+这里再次假设$y$和$y^{\textrm{rep}}$的分布是一样的。
+
 The variable $y$ is observed, with the predictive simulation
 $y^{\textrm{rep}}$ and parameter vector $\theta$ not observed.  The
 posterior is $p(y^{\textrm{rep}}, \theta \mid y)$.  Given draws from
 the posterior, the posterior predictive simulations $y^{\textrm{rep}}$
 are retained.
 
+变量$y$是被观测到的，而预测模拟$y^{\textrm{rep}}$和参数向量$\theta$是不被观测到的。后验是$p(y^{\textrm{rep}}, \theta \mid y)$。给定来自后验的样本，后验预测模拟$y^{\textrm{rep}}$就得到了。
+
 ### Prior predictive model
+先验预测模型
 
 The prior predictive model simply drops the data component of the
-posterior predictive model.  
+posterior predictive model. 
+
+先验预测模型只是简单地去掉了后验预测模型中的数据部分。
 \begin{eqnarray*}
 \theta & \sim & p(\theta)
 \\[2pt]
 y^{\textrm{rep}} & \sim & p(y \mid \theta)
 \end{eqnarray*}
 This corresponds to the joint density
+
+这对应于联合密度
 $$
 p(\theta, y^{\textrm{rep}}) = p(\theta) \cdot p(y^{\textrm{rep}} \mid
 \theta).
@@ -663,9 +702,14 @@ $y^{\textrm{rep}}$ from the sampling distribution given $\theta$
 efficiently.  In cases where it is not, the model may be coded and
 executed just as the posterior predictive model, only with no data.
 
+从先验中得到$\theta$和从给定$\theta$的抽样分布中得到$y^{\textrm{rep}}$都是很直观高效的。如果不是，则可以像后验预测模型一样对模型进行编码和执行，只是没有数据部分。
+
 ### Mixed replication for hierarchical models
+分层模型的混合复制
 
 The mixed replication corresponds to the model
+
+混合复制和以下模型对应
 \begin{eqnarray*}
 \phi & \sim & p(\phi)
 \\[2pt]
@@ -681,7 +725,11 @@ The notation here is meant to indicate that $\alpha$ and
 $\alpha^{\textrm{rep}}$ have identical distributions, as do $y$ and
 $y^{\textrm{rep}}$.
 
+这里的符号是为了表明$\alpha$和$\alpha^{\textrm{rep}}$有相同的分布，就像$y$和$y^{\textrm{rep}}$一样。
+
 This corresponds to a joint model
+
+这对应于一个联合模型
 $$
 p(\phi, \alpha, \alpha^{\textrm{rep}}, y, y^{\textrm{rep}})
 =
@@ -696,6 +744,11 @@ lower-level parameters and $\phi$ the hyperparameters.  Note that
 $\phi$ is not replicated and instead appears in the distribution for
 both $\alpha$ and $\alpha^{\textrm{rep}}$.
 
+其中$y$是唯一可以被观测的变量，$\alpha$包含低水平参数，$\phi$是超参数。注意$\phi$没有被复制，而是出现在$\alpha$和$\alpha^{\textrm{rep}}$的分布中。
+
 The posterior is $p(\phi, \alpha, \alpha^{\textrm{rep}},
 y^{\textrm{rep}} \mid y)$.  From posterior draws, the posterior
 predictive simulations $y^{\textrm{rep}}$ are kept.
+
+后验是$p(\phi, \alpha, \alpha^{\textrm{rep}},
+y^{\textrm{rep}} \mid y)$。从后验抽样出发，后验预测模拟$y^{\textrm{rep}}$被保留。
