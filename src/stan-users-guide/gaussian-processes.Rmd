@@ -30,7 +30,8 @@ return a mean vector and covariance matrix which provide the mean and
 covariance of the outputs corresponding to those input points in the
 functions drawn from the process.
 
-与由均值向量和协方差矩阵参数化的简单多元正态分布不同，高斯过程由均值函数和协方差函数参数化。均值函数和协方差函数作为输入向量，并返回均值向量和协方差矩阵，这些矩阵提供与从过程中提取的函数中的那些输入点相对应的输出的均值和协方差。
+与由均值向量和协方差矩阵参数化的简单多元正态分布不同，高斯过程由均值函数和协方差函数参数化。均值函数和协方差函数将输入向量返回为均值向量和协方差矩阵，它们表示从 输入位置提取出的多元正态分布对应的均值和协方差矩阵。
+<!-- 提供与从过程中提取的函数中的那些输入点相对应的输出的均值和协方差。 -->
 
 Gaussian processes can be encoded in Stan by implementing their mean and
 covariance functions and plugging the result into the Gaussian form of their
@@ -74,7 +75,7 @@ covariance matrix.  The mean function $m : \mathbb{R}^{N \times D}
 $K : \mathbb{R}^{N \times D} \rightarrow \mathbb{R}^{N \times N}$ must produce
 a positive-definite matrix for any input $x$.^[Gaussian processes can be extended to covariance functions producing positive semi-definite matrices, but Stan does not support inference in the resulting models because the resulting distribution does not have unconstrained support.]
 
-多元高斯过程回归的数据由一系列 $N$ 个输入值 $x_1,\dotsc,x_N \in \mathbb{R}^D$ 和相应的输出值 $y_1,\dotsc,y_N \in \mathbb{R}$ 组成。高斯过程的定义特征在于，给定一组输入值 $x$，有限数量的输出值 $y$ 的概率分布是高斯分布，
+多元高斯过程回归的数据由 $N$ 个输入值 $x_1,\dotsc,x_N \in \mathbb{R}^D$ 和相应的输出值 $y_1,\dotsc,y_N \in \mathbb{R}$ 组成。高斯过程的定义特征在于，给定一组输入值 $x$，有限数量的输出值 $y$ 的概率分布是高斯分布，
 $$
 y \sim \textsf{multivariate normal}(m(x), K(x \mid \theta)),
 $$
@@ -114,9 +115,9 @@ $$
 The addition of $\sigma^2$ on the diagonal is important
 to ensure the positive definiteness of the resulting matrix in the case of
 two identical inputs $x_i = x_j$.  In statistical terms, $\sigma$ is
-the scale of the noise term in the regression.//
+the scale of the noise term in the regression.
 
-指数二次函数是一种常用的协方差函数，将在本章后面的实现中使用。其表达式如下：
+指数二次函数是一种常用的协方差函数，将在本章后面的部分中用到。其表达式如下：
 
 $$
   K(x \mid \alpha, \rho, \sigma)_{i, j}
@@ -127,7 +128,7 @@ $$
 + \delta_{i, j} \sigma^2,
 $$
 
-其中 $\alpha$、$\rho$ 和 $\sigma$ 是定义协方差函数的超参数，$\delta_{i,j}$ 是克罗内克（Kronecker）δ 函数，如果 $i=j$ 则值为 1，否则值为 0（这个测试是针对索引 $i$ 和 $j$，而不是针对值 $x_i$ 和 $x_j$）。该协方差函数通过两个独立的高斯过程 $f_1$ 和 $f_2$ 进行卷积得到，其中 $f_1$ 的核函数为
+其中 $\alpha$、$\rho$ 和 $\sigma$ 是定义协方差函数的超参数，$\delta_{i,j}$ 是克罗内克（Kronecker）$\delta$ 函数，如果 $i=j$ 则值为 1，否则值为 0（针对索引 $i$ 和 $j$，而不是针对值 $x_i$ 和 $x_j$）。该协方差函数通过两个独立的高斯过程 $f_1$ 和 $f_2$ 进行卷积得到，其中 $f_1$ 的核函数为
 
 $$
   K_1(x \mid \alpha, \rho)_{i, j}
@@ -318,7 +319,7 @@ $$
 This transform can be applied directly to Gaussian process
 simulation.
 
-一个更有效的模拟模型可以通过重新定位、重新缩放和旋转各向同性标准正态变量来在 Stan 中编码。假设 $\eta$ 是一个各向同性的标准正态变量
+一个更有效的模拟模型可以通过重新定位、重新缩放和旋转标准多元正态变量来在 Stan 中编码。假设 $\eta$ 是一个标准多元正态变量
 $$
 \eta \sim \textsf{normal}(\textbf{0}, \textbf{1}),
 $$
@@ -373,11 +374,11 @@ encoding of the transform described above.
 
 ### GP with a normal outcome {-}
 
-### 带有正常输出的高斯过程 {-}
+### 带有正态输出的高斯过程 {-}
 
 The full generative model for a GP with a normal outcome,
 
-带有正常输出的高斯过程的完整生成模型：
+带有正态输出的高斯过程的完整生成模型：
 
 $y \in \mathbb{R}^N$, with inputs $x \in \mathbb{R}^N$, for a finite $N$:
 \begin{align*}
@@ -404,7 +405,7 @@ both models in Stan. The former model will be referred to as the latent
 variable GP, while the latter will be called the marginal likelihood
 GP.
 
-在处理正态输出时，通过积分高斯过程可以获得计算上更有效的结果，因为这会产生一个较低维度的参数空间进行推断。我们将在 Stan 中拟合这两个模型。前面的模型称为潜变量高斯过程，而后者称为边缘似然高斯过程。
+在处理正态输出时，通过积分高斯过程可以获得计算上更有效的结果，因为这会产生一个较低维度的参数空间进行推断。我们将在 Stan 中拟合这两个模型。前面的模型称为潜变量高斯过程，而后者称为边际似然高斯过程。
 
 The hyperparameters controlling the covariance function of a Gaussian
 process can be fit by assigning them priors, like we have in the
@@ -417,7 +418,7 @@ the output values ($\alpha$), the scale of the output noise
 for more information about how to specify
 appropriate priors for the hyperparameters.
 
-控制高斯过程协方差函数的超参数可以通过分配先验来进行拟合，就像我们在上面的生成模型中所做的那样，然后计算给定观测数据的超参数的后验分布。关于参数的先验应该根据输出值（$\alpha$）的尺度、输出噪声（$\sigma$）的尺度以及在输入之间测量距离的尺度（$\rho$）的先前知识来定义。有关如何为超参数指定适当的先验的更多信息，请参见[高斯过程先验](#priors-gp.section)部分。
+控制高斯过程协方差函数的超参数可以通过设置先验来进行拟合，就像我们在上面的生成模型中所做的那样，然后计算给定观测数据的超参数的后验分布。关于参数的先验应该根据输出值（$\alpha$）的尺度、输出噪声（$\sigma$）的尺度以及在输入之间测量距离的尺度（$\rho$）的先前知识来定义。有关如何为超参数指定适当的先验的更多信息，请参见[高斯过程先验](#priors-gp.section)部分。
 
 The Stan program implementing the marginal likelihood GP is shown below. The
 program is similar to the Stan programs that implement the simulation GPs
@@ -425,7 +426,7 @@ above, but because we are doing inference on the hyperparameters, we need to
 calculate the covariance matrix `K` in the model block, rather than
 the transformed data block.
 
-下面是实现边缘似然高斯过程的 Stan 程序。该程序类似于上面实现模拟高斯过程的 Stan 程序，但由于我们对超参数进行推断，因此需要在模型块中计算协方差矩阵 `K`，而不是在转换数据块中进行计算。
+下面是实现边际似然高斯过程的 Stan 程序。该程序类似于上面实现模拟高斯过程的 Stan 程序，但由于我们对超参数进行推断，因此需要在模型块中计算协方差矩阵 `K`，而不是在转换数据块中进行计算。
 
 ```stan
 data {
@@ -553,7 +554,7 @@ terms as one $N$-dimensional multivariate normal with an identity covariance
 matrix multiplied by $\sigma^2$. However, it is more efficient to use the
 vectorized statement as shown above.
 
-潜变量GP和边缘似然GP之间的两个差异值得注意。第一个是我们将参数块增加了一个长度为$N$的新参数向量`eta`。在模型块中，它用于生成对应于潜在GP的多元正态向量$f$。我们对`eta`使用$\textsf{normal}(0,1)$先验，就像在模拟部分中Cholesky参数化的GP中所做的那样。第二个区别是我们的似然现在是单变量的，虽然我们可以将$N$个似然项编码为一个具有恒等协方差矩阵乘以$\sigma^2$的$N$维多元正态分布。但是，使用像上面显示的向量化语句更有效率。
+潜变量GP和边际似然GP之间的两个差异值得注意。第一个是我们将参数块增加了一个长度为$N$的新参数向量`eta`。在模型块中，它用于生成对应于潜在GP的多元正态向量$f$。我们对`eta`使用$\textsf{normal}(0,1)$先验，就像在模拟部分中Cholesky参数化的GP中所做的那样。第二个区别是我们的似然现在是单变量的，虽然我们可以将$N$个似然项编码为一个具有恒等协方差矩阵乘以$\sigma^2$的$N$维多元正态分布。但是，使用像上面显示的向量化语句更有效率。
 
 ### Discrete outcomes with Gaussian processes {-}
 
