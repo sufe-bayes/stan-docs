@@ -629,7 +629,7 @@ parameters just to obtain one transformed parameter to use in a model.
 
 
 
-### Multivariate reparameterizations {-}
+### Multivariate reparameterizations 多元重参数化 {-}
 
 The benefits of reparameterization are not limited to univariate
 distributions. A parameter with a multivariate normal prior distribution
@@ -637,6 +637,9 @@ is also an excellent candidate for reparameterization. Suppose you intend
 the prior for $\beta$ to be multivariate normal with mean vector $\mu$
 and covariance matrix $\Sigma$. Such a belief is reflected by the
 following code.
+
+重参数化的好处不仅限于单变量分布。服从多元正态先验分布的参数也是重参数化的优秀候选者。假设你想要$\beta$的先验分布是具有均值向量$\mu$和协方差矩阵$\Sigma$的多元正态分布。这个想法可以通过以下代码来实现。
+
 
 ```stan
 data {
@@ -659,12 +662,16 @@ In this case `mu` and `Sigma` are fixed data, but they could
 be unknown parameters, in which case their priors would be unaffected
 by a reparameterization of `beta`.
 
+在这种情况下，`mu`和`Sigma`是固定数据，但它们也可以是未知参数，此时它们的先验分布不受`beta`的重参数化影响。
+
 If $\alpha$ has the same dimensions as $\beta$ but the elements of
 $\alpha$ are independently and identically distributed standard normal
 such that $\beta = \mu + L\alpha$, where $LL^\top = \Sigma$, then
 $\beta$ is distributed multivariate normal with mean vector $\mu$ and
 covariance matrix $\Sigma$. One choice for $L$ is the Cholesky factor
 of $\Sigma$. Thus, the model above could be reparameterized as follows.
+
+如果$\alpha$具有与$\beta$相同的维度，但$\alpha$的元素独立且同分布于标准正态分布，使得$\beta=\mu+L\alpha$，其中$LL^\top=\Sigma$，那么$\beta$服从具有均值向量$\mu$和协方差矩阵$\Sigma$的多元正态分布。$L$的一个选择是$\Sigma$的Cholesky分解。因此，上面的模型可以重参数化如下。
 
 ```stan
 data {
@@ -697,6 +704,8 @@ reduces dependence among the elements of `alpha` and second, it
 avoids the need to invert `Sigma` every time `multi_normal`
 is evaluated.
 
+这种重参数化有两个优点。首先，它减少了$\alpha$元素之间的相关性；其次，它避免了每次评估`multi_normal`时需要求逆`Sigma`的需要。
+
 The Cholesky factor is also useful when a covariance matrix is
 decomposed into a correlation matrix that is multiplied from both
 sides by a diagonal matrix of standard deviations, where either the
@@ -710,6 +719,8 @@ example the correlation matrix `Tau` were fixed data but the
 vector of standard deviations `sigma` were unknown parameters,
 then a reparameterization of `beta` in terms of `alpha`
 could be implemented as follows.
+
+当将协方差矩阵分解为两边同时乘以标准差对角矩阵的相关系数矩阵时，这个Cholesky分解也非常有用，其中标准差或相关系数是未知参数。协方差矩阵的Cholesky分解等于标准差对角矩阵和相关矩阵的Cholesky分解的乘积。此外，标准差对角矩阵和向量的乘积等于标准差和该向量的逐元素乘积。因此，如果相关系数矩阵`Tau`是固定数据，但标准差向量`sigma`是未知参数，则可以如下实现`beta`相对于`alpha`的重参数化。
 
 ```stan
 data {
@@ -747,6 +758,9 @@ distributions that can be conceptualized as contaminations of the
 multivariate normal, such as the multivariate Student t and the skew
 multivariate normal distribution.
 
+这种标准正态分布的多元正态分布重新参数化的方法可以扩展到其他被概念化为多元正态分布混合的分布，比如多元t分布和偏斜多元正态分布。
+
+
 A Wishart distribution can also be reparameterized in terms of standard
 normal variates and chi-squared variates. Let $L$ be the Cholesky factor
 of a $K \times K$ positive definite scale matrix $S$ and let $\nu$ be
@@ -764,6 +778,15 @@ of freedom and each $z_{ij}$ is distributed standard normal, then
 $W = LAA^{\top}L^{\top}$ is distributed Wishart with scale matrix
 $S = LL^{\top}$ and degrees of freedom $\nu$. Such a reparameterization
 can be implemented by the following Stan code:
+
+Wishart分布也可以用标准正态变量和卡方变量重新参数化。假设$L$是一个$K\times K$正定比例矩阵$S$的Cholesky分解矩阵，$\nu$是自由度。如果$$
+A = \begin{pmatrix}
+\sqrt{c_{1}} & 0            & \cdots                & 0 \\
+z_{21}       & \sqrt{c_{2}} & \ddots                & \vdots \\
+\vdots       & \ddots       & \ddots                & 0 \\
+z_{K1}       & \cdots       & z_{K\left(K-1\right)} & \sqrt{c_{K}}
+\end{pmatrix},
+$$ 其中每个$c_i$是自由度为$\nu-i+1$的卡方分布，每个$z_{ij}$是标准正态分布，那么$W=LAA^{\top}$是具有比例矩阵$S=LL^{\top}$和自由度$\nu$的Wishart分布。这样的重新参数化可以通过以下的Stan代码实现：
 
 ```stan
 data {
@@ -817,6 +840,9 @@ multivariate normal distribution, you can pass $L A$ to the more
 efficient `multi_normal_cholesky` function, rather than passing
 $W$ to `multi_normal`.
 
+这种重新参数化有三个优点。首先, 它减少了 `z`元素之间的依赖性; 其次, 它避免了每次计 算`wishart`时都需要求解协方差矩阵 $W$ 的逆; 第三, 在将 \$ W \$ 与多元正态分布一起使用时, 可以将 \$L A \$ 传递给更有效的`multi_normal_cholesky`函数, 而不是将 \$ W \$ 传递 给`multi_normal`函数。
+
+
 If $W$ is distributed Wishart with scale matrix $S$ and degrees of
 freedom $\nu$, then $W^{-1}$ is distributed inverse Wishart with inverse
 scale matrix $S^{-1}$ and degrees of freedom $\nu$. Thus, the previous
@@ -826,6 +852,9 @@ $W^{-1} = L^{{\top}^{-1}} A^{{\top}^{-1}} A^{-1} L^{-1}$, where all four
 inverses exist, but
 $L^{{-1}^{\top}} = L^{{\top}^{-1}}$ and $A^{{-1}^{\top}} = A^{{\top}^{-1}}$.
 We can slightly modify the above Stan code for this case:
+
+
+如果 \$ W \$ 具有比例矩阵 \$ S \$ 和自由度 $\nu$ 的Wishart分布, 则\$ W\^{-1} \$ 具有逆比例矩阵 \$ S\^{-1} \$ 和自由度 $\nu$ 的逆Wishart分布。因此, 可以使用上述结果来重新参数化逆Wishart分布。由于 \$ W=LAA\^{\top}\$, $W^{-1} = L^{{\top}^{-1}} A^{{\top}^{-1}} A^{-1} L^{-1}$, 其中所有四个矩阵的逆都存在, 但 $L^{{-1}^{\top}} = L^{{\top}^{-1}}$ 和 $A^{{-1}^{\top}} = A^{{\top}^{-1}}$ 。我们可以针对上述情况，稍微修改上述Stan代码：
 
 ```stan
 data {
@@ -890,6 +919,9 @@ parameters equal to $\frac{\beta}{2}$. In particular, if $\beta = 2$,
 then $\rho$ is uniformly distributed on the unit simplex. Thus, we can
 make $\rho$ be a transformed parameter to reduce dependence, as in:
 
+另一个可重参数化的候选是所有 $K$ 个形状参数相等的Dirichlet分布。 \@ZyczkowskiSommers:2001表明, 如果$\theta_i$等于$\beta$个独立标准正态变量的平方 和, 且$\rho_i = \frac{\theta_i}{\sum \theta_i}$, 则 $K$ 向量 $\rho$ 服从所有形状参数相等于 $\frac{\beta}{2}$ 的Dirichlet分布。特别地, 如果$\beta = 2$, 则 $\rho$ 在单位单纯形上服从均匀分布。因此, 我们可以将$\rho$设为一个转换后的参数以减少依赖性, 如下所示:
+
+
 ```stan
 data {
   int<lower=1> beta;
@@ -916,9 +948,9 @@ model {
 ```
 
 
-## Vectorization
+## Vectorization 向量化
 
-### Gradient bottleneck {-}
+### Gradient bottleneck 梯度瓶颈 {-}
 
 Stan spends the vast majority of its time computing the gradient of
 the log probability function, making gradients the obvious target for
@@ -927,7 +959,9 @@ differentiation require a template expression to be allocated
 and constructed for each subexpression of a Stan program involving
 parameters or transformed parameters.^[Stan uses its own arena-based allocation, so allocation and deallocation are faster than with a raw call to `new`.]  This section defines optimization strategies based on vectorizing these subexpressions to reduce the work done during algorithmic differentiation.
 
-### Vectorizing summations {-}
+Stan花费了大部分时间计算对数概率函数的梯度, 因此梯度是优化的明显目标。Stan使用算 法微分进行的梯度计算需要为涉及参数或转换参数的Stan程序的每个子表达式分配和构造一 个模板表达式。^[Stan使用自己的基于区域的分配，因此分配和解除分配比原始调用`new`更快。]本节定义了基于向量化这些子表达式以减少算法微分期间所做的工作量的优化策略。
+
+### Vectorizing summations  向量化求和 {-}
 
 Because of the gradient bottleneck described in the previous section,
 it is more efficient to collect a sequence of summands into a vector
@@ -935,6 +969,8 @@ or array and then apply the `sum()` operation than it is to
 continually increment a variable by assignment and addition.  For
 example, consider the following code snippet, where `foo()` is
 some operation that depends on `n`.
+
+由于前一节中描述的梯度瓶颈,将一系列加和项收集到向量或数组中, 然后应用`sum()`操 作比通过赋值和加法不断递增变量更有效率。例如, 考虑以下代码片段, 其中`foo()`是依赖于 `n` 的某个操作。
 
 ```stan
 for (n in 1:N) {
@@ -945,8 +981,12 @@ for (n in 1:N) {
 This code has to create intermediate representations for each
 of the `N` summands.
 
+此代码必须为每个`N`个加和项创建中间表示。
+
 A faster alternative is to copy the values into a vector, then
 apply the `sum()` operator, as in the following refactoring.
+
+更快的替代方法是将这些值复制到一个向量中, 然后应用`sum()`运算符, 如以下重构所 示。
 
 ```stan
 {
@@ -962,19 +1002,24 @@ Syntactically, the replacement is a statement block delineated
 by curly brackets (`{`, `}`), starting with the definition
 of the local variable `summands`.
 
+在语法上，这个替换是由卷曲描述的语句块 括号 (`{`, `}`)，从局部变量`summands`的定义开始 "总结"。
+
 Even though it involves extra work to allocate the `summands`
 vector and copy `N` values into it, the savings in
 differentiation more than make up for it.  Perhaps surprisingly,
 it will also use substantially less memory overall than incrementing
 `total` within the loop.
 
+即使分配`summands`向量和 将`N`值复制到其中，在差异化中的节省也会大于 为它而做的努力。也许令人惊讶的是，它也会使用更少的时间。总体内存比循环中的`total`递增。
 
-### Vectorization through matrix operations {-}
+### Vectorization through matrix operations 矩阵向量化运算 {-}
 
 The following program directly encodes a linear regression with fixed
 unit noise using a two-dimensional array `x` of predictors, an
 array `y` of outcomes, and an array `beta` of regression
 coefficients.
+
+下面的程序使用二维数组 `x` 作为预测变量，数组 `y`作为结果 和回归系数的数组 `beta`直接编 码了一个具有固定单位噪声的线性回归。
 
 ```stan
 data {
@@ -1001,6 +1046,8 @@ The following model computes the same log probability function as the
 previous model, even supporting the same input files for data and
 initialization.
 
+以下模型计算的对数概率函数与上一个模型相同，甚至支持相同的输入数据和初始化文件。
+
 ```stan
 data {
   int<lower=1> K;
@@ -1021,6 +1068,8 @@ model {
 Although it produces equivalent results, the dot product should not be
 replaced with a transpose and multiply, as in
 
+尽管它产生了等效的结果，但应该不要用转置和乘法替换点积，如下所示：
+
 ```stan
 y[n] ~ normal(x[n]' * beta, 1);
 ```
@@ -1030,9 +1079,13 @@ that the transposition operator allocates a new vector into which the
 result of the transposition is copied.  This consumes both time
 and memory.^[Future versions of Stan may remove this inefficiency by more fully exploiting expression templates inside the Eigen C++ matrix library.  This will require enhancing Eigen to deal with mixed-type arguments, such as the type `double` used for constants and the algorithmic differentiation type `stan::math::var` used for variables.]
 
+转置和乘法的相对低效率在于, 转置操作会分配一个新向量, 将转置的结果复制到其中。这 样会消耗时间和内存。 可以通过重新排序乘积并将转置从循环中拉出来来减轻转置的低效率, 如下所示。^[末来版本的 Stan 可能会通过更充分地利用 Eigen C++ 矩阵库内部的 表达式模板来消除这种低效率。这将需要增强 Eigen 来处理混合类型的参数, 例如用于常量 的`double`类型和用于变量的算法微分类型 `stan::math::var`。]
+
 The inefficiency of transposition could itself be mitigated  by
 reordering the product and pulling the transposition out of the loop,
 as follows.
+
+可以通过重新排序乘积并将循环中拉出来来减轻转置的低效率，如下所示
 
 ```stan
 // ...
@@ -1050,6 +1103,8 @@ model {
 The problem with transposition could be completely solved by directly
 encoding the `x` as a row vector, as in the
 following example.
+
+换位问题可以通过将`x` 编码为行向量直接完全解决 ，如以下示例所示。
 
 ```stan
 data {
@@ -1071,8 +1126,12 @@ Declaring the data as a matrix and then computing all the predictors
 at once using matrix multiplication is more efficient still, as in the
 example discussed in the next section.
 
+声明数据为矩阵, 然后使用矩阵乘法一次性计算所有预测值会更加高效, 例如下一节中讨论 的示例
+
 Having said all this, the most efficient way to code this model is
 with direct matrix multiplication, as in
+
+总之，编写代码的最高效方法是使用直接矩阵乘法，如下所示
 
 ```stan
 data {
@@ -1092,11 +1151,15 @@ will be more efficient in their encapsulated forms.  Rather than
 performing a sequence of row-vector/vector multiplications, it is
 better to encapsulate it as a single matrix/vector multiplication.
 
-### Vectorized probability functions {-}
+通常, 执行循环工作的封装单个操作在其封装形式中更有效。与执行一系列行向量/向量乘法 相比, 更好的方法是将其封装为单个矩阵/向量乘法。
+
+### Vectorized probability functions  向量化的概率函数 {-}
 
 The final and most efficient version replaces the loops and
 transformed parameters by using the vectorized form of the normal
 probability function, as in the following example.
+
+最终且最有效的版本通过使用正态概率函数的向量化形式来替换循环和转换的参数, 如下面的示例所示。
 
 ```stan
 data {
@@ -1117,6 +1180,8 @@ The variables are all declared as either matrix or vector types.
 The result of the matrix-vector multiplication `x * beta` in the
 model block is a vector of the same length as `y`.
 
+变量都声明为矩阵或向量类型。模型块中的矩阵向量乘法`x * beta`的结果是一个与`y`长度相同的向量。
+
 The probability function documentation in the function reference
 manual indicates which of Stan's probability functions support
 vectorization; see the function reference manual for full details.
@@ -1126,15 +1191,21 @@ arguments are the same dimensionality.  In the example above, `y` is a
 vector of size `N`, `x * beta` is a vector of size `N`, and `1` is a
 scalar.
 
-### Reshaping data for vectorization {-}
+在函数参考手册中, 概率函数文档会指出哪些Stan的概率函数支持向量化; 详细信息请参见 函数参考手册。向量化概率函数接受所有参数的向量或标量输入, 唯一的限制是所有向量参 数的维度相同。在上面的示例中, `y`是大小为`N` 的向量, `x * beta` 是大小为`N` 的向 量, `1`是标量。
+
+### Reshaping data for vectorization 重塑数据以进行向量化 {-}
 
 Sometimes data does not arrive in a shape that is ideal for
 vectorization, but can be put into such shape with some munging
 (either inside Stan's transformed data block or outside).
 
+有时, 数据的形状不适合向量化, 但可以通过一些变换（在Stan的变换数据块内部或外部） 将其转换为适合的形状。
+
 John Hall provided a simple example on the Stan users group.
 Simplifying notation a bit, the original model had a sampling
 statement in a loop, as follows.
+
+John Hall在Stan用户组中提供了一个简单的例子。稍微简化一下符号, 原始模型在循环中有 一个采样语句, 如下所示。
 
 ```stan
 for (n in 1:N) {
@@ -1144,6 +1215,8 @@ for (n in 1:N) {
 
 The brute force vectorization would build up a mean vector and then
 vectorize all at once.
+
+粗暴的向量化会建立一个均值向量, 然后一次性向量化所有值。
 
 ```stan
 {
@@ -1161,6 +1234,8 @@ Rather than having a single observation vector `y`, there are K of them.
 And because Stan doesn't support ragged arrays, it means K
 declarations.  For instance, with 5 levels, we have
 
+如果没有很多级别（值`ii[n]` 可以取）, 那么在这种情况下, 将数据按组重新组织会更有 利。与其拥有单个观测向量`y`, 不如拥有 $K$ 个向量。由于Stan不支持不规则数组, 这意味着 K 个声明。例如，有5个级别，我们有
+
 ```stan
 y_1 ~ normal(mu[1], sigma);
 // ...
@@ -1173,13 +1248,16 @@ the data; if the sizes are  small, the simple vectorization may be
 faster, but for moderate to large sized groups, the full expansion
 should be faster.
 
+这种方式, `mu`和`sigma`参数都是共享的。哪种方式更有效取决于数据的形状; 如果规模较 小, 则简单的向量化可能更快, 但对于中等到大型, 完全展开应该更快。
 
-## Exploiting sufficient statistics
+## Exploiting sufficient statistics 利用充分统计量
 
 In some cases, models can be recoded to exploit sufficient statistics
 in estimation.  This can lead to large efficiency gains compared to an
 expanded model.  For example, consider the following Bernoulli
 sampling model.
+
+在某些情况下，模型可以重新编码以利用估计中的充分统计量。这可能与扩展模型相比，会导致大量的效率提升。例如，考虑以下伯努利抽样模型。
 
 ```stan
 data {
@@ -1203,6 +1281,8 @@ In this model, the sum of positive outcomes in `y` is a
 sufficient statistic for the chance of success `theta`.  The
 model may be recoded using the binomial distribution as follows.
 
+在此模型中，`y`中正结果的总和是成功机会`theta`的充分统计量。可以使用二项分布重新编码该模型，如下所示。
+
 ```stan
 theta ~ beta(alpha, beta);
 sum(y) ~ binomial(N, theta);
@@ -1212,12 +1292,16 @@ Because truth is represented as one and falsehood as zero, the sum
 `sum(y)` of a binary vector `y` is equal to the number of
 positive outcomes out of a total of `N` trials.
 
+因为真相用一表示，虚假用零表示，二进制向量 `y`的总和`sum(y)`等于N次试验中的正结果数量。
+
 This can be generalized to other discrete cases (one wouldn't expect
 continuous observations to be duplicated if they are random).  Suppose
 there are only $K$ possible discrete outcomes, $z_1, \dotsc, z_K$, but
 there are $N$ observations, where $N$ is much larger than $K$.  If
 $f_k$ is the frequency of outcome $z_k$, then the entire likelihood
 with distribution `foo` can be coded as follows.
+
+这可以推广到其他离散情况(如果连续观测值是随机的，就不会期望它们重复) 。假设只有$K$ 种可能的离散结果 $z 1,dotsc, z_K$，但有 $N$ 个观测值，其中 $N$ 远大于 $K$。如果 $f k$ 是结果 $z k$ 的频率，则具有分布`foo`的整个似然性可以编码如下。
 
 ```stan
 for (k in 1:K) {
@@ -1230,24 +1314,31 @@ function for distribution `foo` (there's no distribution called
 "foo"; this is just a placeholder for any discrete distribution
 name).
 
+其中省略号是分布`foo`的对数概率质量函数的参数 (没有名为"foo"的分布;这只是任何离散分布名称的占位符)
+
 The resulting program looks like a "weighted" regression, but here
 the weights `f[k]` are counts and thus sufficient statistics for
 the PMF and simply amount to an alternative, more efficient coding of
 the same likelihood.  For efficiency, the frequencies `f[k]`
 should be counted once in the transformed data block and stored.
 
+得到的程序看起来像是一个"加权"回归，但这里的权重`f[k]`是计数，因此是 PMF 的充分统计量，并仅相当于相同似然性的另一种更有效的编码。为了效率，应在转换数据块中计算一次频率 `f[k]` 并存储它们。
 
-## Aggregating common subexpressions
+## Aggregating common subexpressions 聚合常见子表达式
 
 If an expression is calculated once, the value should be saved and
 reused wherever possible.  That is, rather than using
 `exp(theta)` in multiple places, declare a local variable to
 store its value and reuse the local variable.
 
+如果计算表达式一次，则应将值保存并在可能的地方重复使用。也就是说，不要在多个位置使用\~exp(theta)，而是声明一个本地变量来存储其值，并重复使用该本地变量。
+
 Another case that may not be so obvious is with two multilevel
 parameters, say `a[ii[n]] + b[jj[n]]`.  If `a` and `b`
 are small (i.e., do not have many levels), then a table `a_b` of
 their sums can be created, with
+
+另一个可能不太明显的情况是两个多层参数，例如`a[ii[n]] + b[jj[n]]`。如果`a` 和`b`、很小(即没有许多层级) ，则可以创建它们的总和表 `a_b`，其中
 
 ```stan
 matrix[size(a), size(b)] a_b;
@@ -1260,12 +1351,15 @@ for (i in 1:size(a)) {
 
 Then the sum can be replaced with `a_b[ii[n], jj[n]]`.
 
+然后可以用`a_b[ii[n], jj[n]]`替换总和。
 
-## Exploiting conjugacy
+## Exploiting conjugacy 利用共轭性
 
 Continuing the model from the previous section, the conjugacy of the
 beta prior and binomial sampling distribution allow the model to be
 further optimized to the following equivalent form.
+
+继续上一节中的模型，贝塔先验和二项抽样分布的共扼性允许进一步优化模型为以下等效形式。
 
 ```stan
 theta ~ beta(alpha + sum(y), beta + N - sum(y));
@@ -1274,12 +1368,15 @@ theta ~ beta(alpha + sum(y), beta + N - sum(y));
 To make the model even more efficient, a transformed data variable
 defined to be `sum(y)` could be used in the place of `sum(y)`.
 
+为了使模型更加高效，可以使用定义为 `sum(y)`的变换数据变量来代替 `sum(y)`。
 
-## Standardizing predictors and outputs
+## Standardizing predictors and outputs 标准化预测变量和输出变量
 
 Stan programs will run faster if the input is standardized to have a
 zero sample mean and unit sample variance.  This section illustrates
 the principle with a simple linear regression.
+
+如果输入数据是零均值和单位方差的标准化数据，Stan 程序将会运行得更快。本节将通过一个简单的线性回归来说明这个原理。
 
 Suppose that $y = (y_1,\dotsc,y_N)$ is a sequence of $N$ outcomes and
 $x = (x_1,\dotsc,x_N)$ a parallel sequence of $N$ predictors.  A
@@ -1289,6 +1386,13 @@ $$
 y_n = \alpha + \beta x_n + \epsilon_n,
 $$
 where
+$$
+\epsilon_n \sim \textsf{normal}(0,\sigma).
+$$
+
+假设 $y =(y_1,dotsc,y_N)$ 是 $N$ 个观测值的序列，$x = (x_1,dotsc,X_N)$ 是 $N$ 个相应预测变量的序列。涉及截距系数 $alpha$ 和斜率系数 $beta$ 的简单线性回归可以表示为$$
+y_n = \alpha + \beta x_n + \epsilon_n,
+$$，其中
 $$
 \epsilon_n \sim \textsf{normal}(0,\sigma).
 $$
@@ -1322,10 +1426,33 @@ $$
 \textrm{z}_y^{-1}(v) = \texttt{sd}(y) v + \bar{y}.
 $$
 
+如果向量 $x$ 或 svs 中有很大或很小的值，或者样本均值远离0(基于值的度量)，则标准化输出变量 $y_n$ 和预测变量 $x_n$ 可能更有效。数据首先通过减去样本均值来居中，然后通过除以样本标准差来缩放。因此，数据点 $u$ 关于向量 $v$ 的标准化函数 $\textsf{z}_y$定义为
+$$
+\textsf{z}_y(u) = \frac{u - \bar{y}}{\texttt{sd}(y)}
+$$ 
+其中，向量 $y$ 的样本均值为
+$$
+\bar{y}
+= \frac{1}{N} \sum_{n=1}^N y_n,
+$$ 
+向量 $y$ 的样本标准差为
+$$
+\texttt{sd}(y)
+= \left(
+\frac{1}{N} \sum_{n=1}^N (y_n - \bar{y})^2
+\right)^{1/2}.
+$$ 
+逆变换通过颠倒两个归一化步骤来定义，首先通过相同的标准差重新缩放，然后通过样本均值重新定位，
+$$
+\textrm{z}_y^{-1}(v) = \texttt{sd}(y) v + \bar{y}.
+$$
+
 To standardize a regression problem, the predictors and outcomes are
 standardized.  This changes the scale of the variables, and hence
 changes the scale of the priors.  Consider the following initial
 model.
+
+要标准化回归问题，需要对预测变量和输出变量进行标准化。这将改变变量的尺度，从而改变先验的尺度。考虑以下初始模型。
 
 ```stan
 data {
@@ -1354,6 +1481,8 @@ model {
 The data block for the standardized model is identical.  The
 standardized predictors and outputs are defined in the transformed
 data block.
+
+标准化模型的数据块是相同的。标准化预测变量和输出变量在变换数据块中定义。
 
 ```stan
 data {
@@ -1392,6 +1521,8 @@ diffuse priors for standardized data; the priors could be made more
 informative.  For instance, because the outputs $y$ have been
 standardized, the error $\sigma$ should not be greater than 1, because
 that's the scale of the noise for predictors $\alpha = \beta = 0$.
+
+参数被重新命名以表示它们不是"自然"参数，但模型本质上是相同的。特别是，对系数和误差尺度的相当扩散的先验是相同的。这些也可以被转换，但是在这里保持原样，因为对于标准化数据来说，这些尺度作为扩散先验是有意义的;可以使先验更加信息丰富。例如，由于输出 $y$ 已被标准化，误差 $\sigma$ 不应大于1，因为这是预测变量 $\alpha = \beta = 0$的噪声尺度。
 
 The original regression
 $$
@@ -1435,9 +1566,55 @@ $$
 \sigma = \texttt{sd}(y) \sigma'.
 $$
 
+原始回归
+$$
+y_n
+= \alpha + \beta x_n + \epsilon_n
+$$
+已被转换为标准化变量的回归,
+$$
+\textrm{z}_y(y_n)
+= \alpha'
++ \beta' \textrm{z}_x(x_n)
++ \epsilon'_n.
+$$
+一些代数运算可以恢复原始参数，
+\begin{align*}
+y_n &= \textrm{z}_y^{-1}(\textrm{z}_y(y_n)) \\
+    &= \textrm{z}_y^{-1}
+\left( \alpha' + \beta' \textrm{z}_x(x_n) + \epsilon_n' \right) \\
+    &= \textrm{z}_y^{-1}
+\left( \alpha' + \beta' \left( \frac{x_n - \bar{x}}{\texttt{sd}(x)} \right) + \epsilon_n' \right) \\
+    &= \texttt{sd}(y)
+\left( \alpha' + \beta' \left( \frac{x_n - \bar{x}}{\texttt{sd}(x)} \right) + \epsilon_n' \right) + \bar{y} \\
+    &=
+\left( \texttt{sd}(y) \left( \alpha' - \beta' \frac{\bar{x}}{\texttt{sd}(x)} \right) + \bar{y} \right)
++ \left( \beta' \frac{\texttt{sd}(y)}{\texttt{sd}(x)} \right) x_n
++ \texttt{sd}(y) \epsilon'_n,
+\end{align*} ，
+从中可以读取原始尺度参数值，
+$$
+\alpha
+=
+\texttt{sd}(y)
+      \left(
+          \alpha'
+          - \beta' \frac{\bar{x}}{\texttt{sd}(x)}
+      \right)
+  + \bar{y};
+\qquad
+\beta = \beta' \frac{\texttt{sd}(y)}{\texttt{sd}(x)};
+\qquad
+\sigma = \texttt{sd}(y) \sigma'.
+$$
+
+
 These recovered parameter values on the original scales can be
 calculated within Stan using a generated quantities block following
 the model block,
+
+这些在原始尺度上恢复的参数值可以按照下列模型块使用生成的数量块在 Stan 中计算出来，
+
 ```stan
 generated quantities {
   real alpha;
@@ -1455,15 +1632,20 @@ deviations every iteration; for more efficiency, these can be
 calculated once and stored as transformed data.  Furthermore, the
 model sampling statement can be easily vectorized, for instance, in
 the transformed model, to
+
+每次迭代计算所有均值和标准差效率低下 ;为了提高效率，这些可以计算一次 存储为转换后的数据。此外，模型抽样声明 ，在转换后的模型中，可以很容易地矢量化为
+
 ```stan
 y_std ~ normal(alpha_std + beta_std * x_std, sigma_std);
 ```
 
-### Standard normal distribution {-}
+### Standard normal distribution 标准正态分布 {-}
 
 For many applications on the standard scale, normal distributions with
 location zero and scale one will be used.  In these cases, it is more
 efficient to use
+
+对于标准尺度上的许多应用，正态分布 将使用位置参数0和尺度参数 1。在这些情况下，使用第一个比第二个代码更高效
 
 ```stan
 y ~ std_normal();
@@ -1478,12 +1660,16 @@ y ~ normal(0, 1);
 because the subtraction of the location and division by the scale
 cancel, as does subtracting the log of the scale.
 
-## Using map-reduce
+因为位置的减法和除以比例的方法 互相抵消，就像减去尺度的对数一样。
+
+## Using map-reduce 使用map-reduce
 
 The map-reduce operation, even without multi-core MPI support, can be
 used to make programs more scalable and also more efficient.  See the
 [map-reduce chapter](#map-reduce.chapter) for more information on
 implementing map-reduce operations.
+
+即使没有多核MPI支持，map-reduce操作也可以 用来使程序更具可扩展性，也更有效率。参见 [map-reduce章节](#map-reduce.chapter)了解更多关于实现map-reduce操作的信息。
 
 Map-reduce allows greater scalability because only the Jacobian of the
 mapped function for each shard is stored.  The Jacobian consists of
@@ -1493,3 +1679,5 @@ nested automatic differentiation.  As often happens with modern CPUs,
 reduced memory overhead leads to increased memory locality and faster
 execution.  The Jacobians are all computed with local memory and their
 outputs stored contiguously in memory.
+
+Map-reduce允许更大的可扩展性，因为每个分片的Jacobian只有 映射函数的Jacobian被存储。Jacobian包括了所有 的输出相对于参数的导数。在执行过程中 执行过程中，分片的导数是使用嵌套的 自动微分。 正如现代CPU经常发生的那样，内存开销的减少导致了内存位置的增加和更快的执行。 Jacobians的计算都是在本地内存中进行的，其输出 在内存中连续存储。
