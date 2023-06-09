@@ -649,7 +649,16 @@ model {
 }
 ```
 
-其中 `x_beta[n]'`是`x_beta[n]`的转置。`beta`的先验也是向量形式。截至Stan 2.18版本，分类-逻辑分布（categorical-logit distribution）的参数未进行向量化处理，因此需要使用循环。这里用矩阵乘法来定义一个对应所有自变量的局部变量，以提高效率。与伯努利-逻辑（Bernoulli-logit）分布一样，分类-逻辑分布在内部应用softmax函数将任意向量转换为单纯形。
+其中 `x_beta[n]'`是`x_beta[n]`的转置。`beta`的先验也是向量形式。截至Stan 2.18版本，分类-逻辑分布（categorical-logit distribution）的参数未进行向量化处理，因此需要使用循环。这里用矩阵乘法来定义一个对应所有自变量的局部变量，以提高效率。与伯努利-逻辑（Bernoulli-logit）分布一样，分类-逻辑分布在内部应用softmax函数将任意向量转换为单纯形，
+$$
+\texttt{categorical}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right)
+=
+\texttt{categorical}\left(y \mid \texttt{softmax}(\alpha)\right),
+$$
+其中，
+$$
+\texttt{softmax}(u) = \exp(u) / \operatorname{sum}\left(\exp(u)\right).
+$$
 
 The categorical distribution with log-odds (logit) scaled parameters
 used above is equivalent to writing
