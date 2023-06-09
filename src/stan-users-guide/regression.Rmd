@@ -35,7 +35,7 @@ y_n \sim \operatorname{normal}(\alpha + \beta X_n, \, \sigma).
 $$
 
 
-这相当于涉及残差的以下采样，
+这相当于涉及残差的采样，可以写成
 $$
 y_n - (\alpha + \beta X_n) \sim \operatorname{normal}(0,\sigma),
 $$
@@ -46,7 +46,7 @@ $$
 
 This latter form of the model is coded in Stan as follows.
 
-最后一种模型的表述形式在Stan中的代码如下。
+后一种模型的表述形式，在Stan中的代码如下。
 
 ```stan
 data {
@@ -71,7 +71,7 @@ distributed noise term with scale `sigma`.  This model has
 improper priors for the two regression coefficients.
 
 有N个观测值，对于每个观测值，其中$n \in N$，我们有自变量`x[n]`和因变量`y[n]`。截距参数为`alpha`，斜率参数为`beta`。
-该模型假设噪声项服从标准差为`sigma`的正态分布。该模型对于两个回归系数使用了非正常先验分布。
+该模型假设噪声项服从标准差为`sigma`的正态分布。该模型对于两个回归系数使用了非正常（improper）先验分布。
 
 ### Matrix notation and vectorization (矩阵符号和向量化) {- #vectorization.section}
 
@@ -105,7 +105,7 @@ for (n in 1:N) {
 
 In addition to being more concise, the vectorized form is much faster.^[Unlike in Python and R, which are interpreted, Stan is translated to C++ and compiled, so loops and assignment statements are fast.  Vectorized code is faster in Stan because (a) the expression tree used to compute derivatives can be simplified, leading to fewer virtual function calls, and (b) computations that would be repeated in the looping version, such as `log(sigma)` in the above model, will be computed once and reused.]
 
-除了表达更简洁外，向量化形式还具有更高的运行速度。^[与Python和R不同，Stan是被转换为C++并进行编译的，因此循环和赋值语句速度较快。在Stan中，向量化代码更快的原因是：(1) 用于计算导数的表达式树可以简化，从而减少虚函数调用；(2) 在循环版本中会重复进行的计算，例如上述模型中的'log(sigma)'，将只计算一次并被重复使用。]
+除了表达更简洁外，向量化形式还具有更高的运行速度。^[与Python和R不同，Stan是被转换为C++并进行编译的，因此循环和赋值语句速度较快。在Stan中，向量化代码更快的原因是：(1) 用于计算导数的表达式树可以简化，从而减少虚函数调用；(2) 在循环版本中会重复进行的计算，例如上述模型中的`log(sigma)`，将只计算一次并被重复使用。]
 
 In general, Stan allows the arguments to distributions such as
 `normal` to be vectors.  If any of the other arguments are vectors or
@@ -141,7 +141,7 @@ model {
 }
 ```
 
-这种工作的另一个原因是，Stan的算术运算符被重载为在矩阵上执行矩阵运算。在这种情况下，因为`x`的类型是`vector`，`beta`的类型是`real`，所以表达式`beta * x`的类型是`vector`。由于Stan支持向量化，可以直接使用矩阵符号编写具有多个自变量的回归模型。
+这种运算能够运行的另一个原因是，Stan的算术运算符被重载为在矩阵上执行矩阵运算。在这种情况下，因为`x`的类型是`vector`，`beta`的类型是`real`，所以表达式`beta * x`的类型是`vector`。由于Stan支持向量化，可以直接使用矩阵符号编写具有多个自变量的回归模型。
 
 ```stan
 data {
@@ -166,8 +166,8 @@ in the model block, the effect is an improper prior on non-negative
 real numbers.  Although a more informative prior may be added, improper
 priors are acceptable as long as they lead to proper posteriors.
 
-在`sigma`的声明中，约束条件`lower=0`将其值限制在大于等于0的区间上。在模型块中没有给出先验的情况下，将默认使用非正常的先验分布。
-尽管我们可以添加更具信息量的先验分布，但是只要最终能够导出正常的后验分布，使用非正常的先验分布也是可接受的。
+在`sigma`的声明中，约束条件`lower=0`将其值限制在大于等于0的区间上。在模型块（model block）中没有给出先验的情况下，将默认使用非正常（improper）先验分布。
+尽管我们可以添加更具信息量的先验分布，但是只要最终能够导出正常的（proper）后验分布，使用非正常的（improper）先验分布也是可接受的。
 
 In the model above, `x` is an $N \times K$ matrix of predictors
 and `beta` a $K$-vector of coefficients, so `x * beta` is an
@@ -233,7 +233,7 @@ be based on clarity.
 y ~ normal(x * beta, sigma);
 ```
 
-不再存在截距系数`alpha`。取而代之的是，我们假设输入矩阵`x`的第一列是全为1的列。这样，`beta[1]`就扮演截距的角色。如果截距与斜率项有不同的先验分布，那么将其单独分离出来会更清晰。显式地将截距变量单独提出来，在运算上会略微高效一些，因为少了一个乘法操作；不过对速度来说，这并不会有太大的影响，所以我们应当选择更简明清晰的代码表述。
+不再存在截距系数`alpha`。取而代之的是，我们假设输入矩阵`x`的第一列是全为1的列。这样，`beta[1]`就扮演截距的角色。如果截距与斜率项有不同的先验分布，那么将其单独分离出来会更清晰。显式地将截距变量单独提出来，在运算上会略微高效一些，因为少了一个乘法操作；不过对速度来说，这并不会有太大的影响，所以我们应当选择更简明清晰的代码表述方式。
 
 ## The QR reparameterization (QR重参数化) {#QR-reparameterization.section}
 
@@ -290,7 +290,7 @@ generated quantities {
 }
 ```
 
-函数qr_thin_Q和qr_thin_R实现了薄QR分解，薄QR分解比使用qr_Q和qr_R得到的完整QR分解更可取，因为后者更容易耗尽内存（请参阅Stan函数参考手册，了解有关qr_thin_Q和qr_thin_R函数的更多信息）。在实践中，最好将其写成 $x = Q^\ast R^\ast$，其中 $Q^\ast = Q * \sqrt{n - 1}$，$R^\ast = \frac{1}{\sqrt{n - 1}} R$。因此，我们可以等价地写成 $\eta = x\beta = QR\beta = Q^\ast R^\ast\beta$。如果我们令 $\theta = R^\ast\beta$，那么我们有 $\eta = Q^\ast\theta$ 和 $\beta = R^{\ast^{-1}}\theta$。在这种情况下，前面的Stan程序变为：
+函数`qr_thin_Q`和`qr_thin_R`实现了薄QR分解，薄QR分解比使用`qr_Q`和`qr_R`得到的完整QR分解效果更好，因为后者更容易耗尽内存（请参阅Stan函数参考手册，了解有关`qr_thin_Q`和qr_thin_R`函数的更多信息）。在实践中，最好将其写成 $x = Q^\ast R^\ast$，其中 $Q^\ast = Q * \sqrt{n - 1}$，$R^\ast = \frac{1}{\sqrt{n - 1}} R$。因此，我们可以等价地写成 $\eta = x\beta = QR\beta = Q^\ast R^\ast\beta$。如果我们令 $\theta = R^\ast\beta$，那么我们有 $\eta = Q^\ast\theta$ 和 $\beta = R^{\ast^{-1}}\theta$。在这种情况下，前面的Stan程序变为：
 
 ```stan
 data {
@@ -344,7 +344,7 @@ reasoning is threefold:
   efficiently without compromising numerical accuracy.
 
 
-由于这个Stan程序生成的预测值 $y$ 与之前的Stan程序生成的预测值相等，并且二者给出的 $\alpha$、$\beta$ 和 $\sigma$ 的后验分布也相同，许多人想知道为什么具有这种QR重参数化的版本在实践中表现得更好，通常在绝对时间和有效样本量方面都更好。原因有三点：
+由于这个Stan程序生成的预测值 $y$ 与之前的Stan程序生成的预测值相等，并且二者给出的 $\alpha$、$\beta$ 和 $\sigma$ 的后验分布也相同，许多人想知道为什么具有这种QR重参数化的版本在实践中表现得更好，通常是指在绝对时间和有效样本量方面都更好。原因有三点：
 
 1. $Q^\ast$ 的列是正交的，而 $x$ 的列通常不是。因此，马尔可夫链在 $\theta$
 空间中移动比在 $\beta$ 空间中更容易。
@@ -389,7 +389,7 @@ usually does not matter much what prior is used on on the
 reparameterized regression coefficients and almost any weakly
 informative prior that scales with the outcome will do.
 
-然而，如在[QR重参数化章节](#QR-reparameterization.section)所述，如果你对回归系数的*位置*没有信息先验，那么最好对模型进行重参数化，使得回归系数成为输出量。在这种情况下，通常对重参数化后的回归系数使用何种先验并不重要，几乎任何随着结果变化的弱信息先验都可以使用。
+然而，如在[QR重参数化章节](#QR-reparameterization.section)所述，如果你对回归系数的*位置*没有信息先验，那么最好对模型进行重参数化，使得回归系数成为输出量。在这种情况下，对重参数化后的回归系数使用何种先验通常并不重要，几乎任何随着结果变化的弱信息先验都可以使用。
 
 
 ## Robust noise models (鲁棒噪声模型)
@@ -427,7 +427,7 @@ $(-\infty,\infty)$ to probability values in $(0,1)$.  Their respective
 link functions, the logistic function and the standard normal cumulative distribution
 function, are both sigmoid functions (i.e., they are both *S*-shaped).
 
-对于二元结果，可以使用紧密相关的逻辑回归（logistic regression）模型或概率回归（probit regression）模型之一。这些广义线性模型仅在它们用于将线性预测从$(-\infty,\infty)$映射到$(0,1)$的链接函数上有所不同。它们各自的链接函数，即逻辑函数和标准正态累积分布函数，都是S型函数（即这些函数的形状都与字母*S*相同）。
+对于二元结果，可以使用紧密相关的逻辑回归（logistic regression）模型或概率回归（probit regression）模型之一。这些广义线性模型仅在它们用于将线性预测从$(-\infty,\infty)$映射到$(0,1)$的链接函数上有所不同。它们各自的链接函数，即逻辑函数和标准正态累积分布函数，都是S型函数（即这些函数的形状都与字母*S*相近）。
 
 A logistic regression model with one predictor and an intercept is coded as
 follows.
@@ -693,7 +693,7 @@ appropriate argument for `softmax()`.  The categorical outcomes
 discrete sampling to be well defined.
 
 
-上述模型中的数据块没有给`K`、`N`、`D`和`y`定义约束。数据声明的约束可以在读取数据（或定义转换数据）时进行错误检查，该步骤发生在采样开始之前。数据声明的约束还可以使模型作者的意图更加明确，从而提高可读性。上述模型的声明可以进一步加强，如下所示：
+上述模型中的数据块（data block）没有给`K`、`N`、`D`和`y`定义约束。数据声明的约束可以在读取数据（或定义转换数据）时进行错误检查，该步骤发生在采样开始之前。数据声明的约束还可以使模型作者的意图更加明确，从而提高可读性。上述模型的声明可以进一步加强，如下所示：
 
 ```stan
 int<lower=2> K;
@@ -711,7 +711,7 @@ parameter values satisfying their constraints.  Constraints on
 transformed data, transformed parameters, and generated quantities are
 also optional.
 
-数据声明的约束是可选的。另一方面，在参数（parameters）块中声明的约束是不可选的，它们是必需的，以确保所有参数的支撑集满足约束条件。在变换后数据、变换后参数和生成量部分，约束也是可选的。
+数据声明的约束是可选的。另一方面，在参数块（parameters block）中声明的约束是不可选的，它们是必需的，以确保所有参数的支撑集满足约束条件。在变换后数据、变换后参数和生成量部分，约束也是可选的。
 
 ### Identifiability (可识别性) {-}
 
