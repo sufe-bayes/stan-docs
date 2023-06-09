@@ -1,5 +1,7 @@
 # Regression Models (回归模型)
 
+1.1-1.6翻译者：于曙光
+
 Stan supports regression models from simple linear regressions to
 multilevel generalized linear models.
 
