@@ -9,7 +9,7 @@ new replicated data sets based on the fitted model parameters and then
 comparing statistics applied to the replicated data set with the same
 statistic applied to the original data set.
 
-后验预测检查是一种衡量一个模型能否很好地捕获数据相关方面的方法，比如数据的均值、标准差和分位数等[@Rubin:1984;@GelmanEtAl:1996]。该方法的工作原理是根据拟合的模型参数模拟新的复制数据集，然后将应用于复制数据集的统计信息与应用于原始数据集的相同统计信息进行比较。
+后验预测检验是一种衡量模型是否能够很好地捕获数据的相关特征，如均值、标准差和分位数等的方法。[@Rubin:1984;@GelmanEtAl:1996]。该方法的工作原理是基于拟合模型参数（即后验分布）模拟产生新的复制数据集（这里“复制”表示与原始数据集相似），然后将应用于复制数据集的统计量与应用于原始数据集的相同统计量进行比较。
 
 Prior predictive checks evaluate the prior the same way.
 Specifically, they evaluate what data sets would be consistent with
@@ -17,7 +17,7 @@ the prior.  They will not be calibrated with actual data, but extreme
 values help diagnose priors that are either too strong, too weak,
 poorly shaped, or poorly located.
 
-先验预测检查用同样的方式评估先验信息。具体来说，是评估哪些数据集与先验信息一致。 它们不会使用实际数据进行校准，但极值有助于诊断太强、太弱、形状差，或位置差。
+先验预测检查用同样的方式评估先验信息。具体来说，是评估哪些数据集与先验信息一致。 该方法不会使用实际数据进行校准，但极端值有助于诊断先验信息是否太强、太弱、形状不合适或位置不正确。
 
 Prior and posterior predictive checks are two cases of the general
 concept of predictive checks, just conditioning on different things
@@ -25,10 +25,10 @@ concept of predictive checks, just conditioning on different things
 models, there are intermediate versions, as discussed in the section
 on [hierarchical models and mixed replication](#mixed-replication).
 
-先验和后验预测检查是预测性检查一般概念的两种情况，只是以不同事物为条件（分别是无数据和观察数据）。对于分层模型，存在中间版本，如 [分层模型和混合复制] 一节中所述。
+先验和后验预测检查是广义预测检查的两种情况，它们只是基于不同的条件（分别是无数据和观测数据）。对于分层模型，存在一些过渡形式的预测检查，具体讨论见[分层模型和混合复制](#mixed-replication)一节。
 
 ## Simulating from the posterior predictive distribution
-后验预测分布的模拟
+模拟后验预测分布
 
 The posterior predictive distribution is the distribution over new
 observations given previous observations.  It's predictive in the
@@ -36,7 +36,7 @@ sense that it's predicting behavior on new data that is not part of
 the training set.  It's posterior in that everything is conditioned on
 observed data $y$.
 
-后验预测分布是给定先前观测值的新观测值的分布。从某种意义上说，它是预测性的，因为它预测了不属于训练集的新数据的行为。它是后验的，因为一切都取决于观察到的数据$y$。
+后验预测分布是基于先前观测到的数据来预测新观测数据的分布。从某种意义上说，它是预测性的，因为它预测了不属于训练集的新数据的特征；它也是后验的，因为一切都以观测到的数据$y$为条件。
 
 The posterior predictive distribution for replications
 $y^{\textrm{rep}}$ of the original data set $y$ given model parameters
@@ -47,7 +47,7 @@ p(y^{\textrm{rep}} \mid y)
        \cdot p(\theta \mid y) \, \textrm{d}\theta.
 $$
 
-给定模型参数$\theta$的原始数据集$y$的重复$y^{\textrm{rep}}$的后验预测分布定义为
+作为模型参数为$\theta$的原始数据集$y$的复制数据集，$y^{\textrm{rep}}$的后验预测分布定义为
 $$
 p(y^{\textrm{rep}} \mid y)
 = \int p(y^{\textrm{rep}} \mid \theta)
@@ -59,7 +59,7 @@ data set $y^{\textrm{rep}}$ from the posterior predictive distribution is
 straightforward using the generated quantities block.  Consider a simple regression
 model with parameters $\theta = (\alpha, \beta, \sigma).$
 
-与其他后验预测量一样，使用生成的数量块可以直接从后验预测分布生成一个复制的数据集$y^{\textrm{rep}}$。考虑一个带参数的简单回归模型$\theta = (\alpha, \beta, \sigma)$。
+与其他后验预测量一样，使用"generated quantities"代码块可以直接从后验预测分布生成一个复制数据集$y^{\textrm{rep}}$。考虑一个参数为$\theta = (\alpha, \beta, \sigma)$的简单回归模型。
 ```stan
 data {
   int<lower=0> N;
@@ -81,7 +81,7 @@ model {
 To generate a replicated data set `y_rep` for this simple model, the
 following generated quantities block suffices.
 
-要为这个简单模型生成一个复制的数据集`y_rep`，使用下面这个"generated quantities"代码块就足够了。
+要为这个简单模型生成一个复制数据集`y_rep`，使用下面这个"generated quantities"代码块就可以了。
 ```stan
 generated quantities {
   array[N] real y_rep = normal_rng(alpha + beta * x, sigma);
@@ -98,7 +98,7 @@ Because the vector and real array types have the same dimensions and layout,
 they can be plotted against one another and otherwise compared during
 downstream processing.
 
-正态随机数生成器的向量化形式与原始预测量`x`和模型参数`alpha, beta`和`sigma`一起使用。复制的数据变量`y_rep`与原始数据`y`维度相同，但它不是向量类型，而是一个实数矩阵，以匹配函数`normal_rng`的返回类型。由于向量和实数矩阵具有相同的维度和结果，因此它们可以相互绘制，或者在后续处理时进行比较。
+使用向量形式的正态随机数生成器产生原始预测变量`x`和模型参数`alpha, beta`和`sigma`。复制数据变量`y_rep`与原始数据`y`维度相同，但它不是向量类型，而是一个实数数组，以匹配函数`normal_rng`的返回类型。由于向量和实数数组具有相同的维度和布局，因此它们可以在后续处理时进行绘制和比较。
 
 The posterior predictive
 sampling for posterior predictive checks is different from usual
@@ -107,10 +107,10 @@ predictions](#posterior-prediction.chapter) in that the original
 predictors $x$ are used.  That is, the posterior predictions are for
 the original data.
 
-后验预测检查的后验预测抽样与[后验预测一章](#posterior-prediction.chapter)中讨论的通常后验预测抽样不同，因为那章使用的是原始预测因子 $x$。也就是说，后验预测是针对原始数据的。
+后验预测检查的后验预测抽样与[后验预测](#posterior-prediction.chapter)一章中讨论的通常后验预测抽样不同之处在于使用了原始预测 $x$。也就是说，后验预测是针对原始数据的。
 
 ## Plotting multiples
-绘制乘子
+多图绘制
 
 A standard posterior predictive check would plot a histogram of each
 replicated data set along with the original data set and compare them
@@ -118,13 +118,13 @@ by eye.  For this purpose, only a few replications are needed.  These
 should be taken by thinning a larger set of replications down to the
 size needed to ensure rough independence of the replications.
 
-标准的后验预测检查将绘制每个复制数据集与原始数据集的直方图并直观地进行比较。为此，只需要少量的复制集，这可以通过将一个较大的复制集精简到能确保基本独立性的规格大小。
+一个标准的后验预测检查会绘制每个复制数据集与原始数据集的直方图并直观地进行比较。为此，只需要少量的复制集，这可以通过精简一个较大的复制集集合做到，只要能确保复制集之间大致独立即可。
 
 Here's a complete example where the model is a simple Poisson with
 a weakly informative exponential prior with a mean of 10 and
 standard deviation of 10.
 
-下面是一个完整的示例，其中模型是具有弱信息指数先验的简单泊松，平均值为 10，标准差为 10。
+下面是一个完整的示例，其中模型是一个简单的泊松分布，具有均值为10和标准差为10的弱信息指数先验分布。
 
 ```stan
 data {
@@ -157,16 +157,16 @@ statistics of the replicated data, and indicator variables
 is greater than or equal to the statistic applied to the original
 data.
 
-“generated quantities”代码块为复制的数据创建了变量`y_rep`、为复制数据的统计量创建了变量`mean_y_rep`和`sd_y_rep`，还为复制的统计量是否大于或等于原始数据的统计量创建了示性变量`mean_gte`和`sd_gte`。
+“generated quantities”代码块创建了复制数据变量`y_rep`、复制数据的统计量变量`mean_y_rep`和`sd_y_rep`，还为复制数据的统计量是否大于或等于原始数据的统计量创建了示性变量`mean_gte`和`sd_gte`。
 
 Now consider generating data $y \sim \textrm{Poisson}(5)$.  The
 resulting small multiples plot shows the original data plotted in the
 upper left and eight different posterior replications plotted in the
 remaining boxes.
 
-现在考虑生成数据$y \sim \textrm{Poisson}(5)$。生成的小倍数图显示，原始数据绘制在左上角，其余框中绘制了八个不同的后验重复。
+现在考虑生成数据$y \sim \textrm{Poisson}(5)$。生成的少量多图如下，原始数据集绘制在左上角，其余框中绘制了八个不同的后验复制数据集。
 
-```{r include = TRUE, echo = FALSE, fig.align = "center", fig.cap = "Posterior predictive checks for Poisson data generating process and Poisson model.（对于泊松数据生成过程和泊松模型的后验分布检查）"}
+```{r include = TRUE, echo = FALSE, fig.align = "center", fig.cap = "Posterior predictive checks for Poisson data generating process and Poisson model.（对于泊松数据生成过程和泊松模型的后验预测检查）"}
 knitr::include_graphics("./img/ppc-pois-pois.jpg", auto_pdf = TRUE)
 ```
 
@@ -175,7 +175,7 @@ posterior replications look similar to the original data.  If it were
 easy to pick the original data out of the lineup, there would be a
 problem.
 
-使用泊松数据生成过程和泊松模型，后验复制看起来与原始数据相似。如果很容易从队列中挑选出原始数据，那么就会出现问题。
+对于泊松数据生成过程和泊松模型，后验复制集看起来与原始数据集很相似。如果能够轻松地从多个数据集中区分出原始数据，那就会存在问题。
 
 Now consider generating over-dispersed data $y \sim \textrm{negative-binomial2}(5, 1).$  This has the same mean as
 $\textrm{Poisson}(5)$, namely $5$, but a standard deviation of
@@ -186,9 +186,9 @@ $\sqrt{\lambda},$ which is $\sqrt{5}$ for $\textrm{Poisson}(5).$
 Here's the resulting small multiples plot, again with original data in
 the upper left.
 
-现在考虑生成过度分散化的数据$y \sim \textrm{negative-binomial2}(5, 1)$，与$\textrm{Poisson}(5)$有相同的均值$5$，但是标准差不同为$\sqrt{5 + 5^2 /1} \approx 5.5$。此时无法用泊松模型去拟合这个数据，因为服从$\textrm{Poisson}(\lambda)$的变量均值为$\lambda$，标准差为$\sqrt{\lambda}$。下图是小倍数结果图，同样原始数据在左上角。
+现在考虑生成过度离散的数据$y \sim \textrm{negative-binomial2}(5, 1)$，其与$\textrm{Poisson}(5)$有相同的均值$5$，但是标准差不同，为$\sqrt{5 + 5^2 /1} \approx 5.5$。此时无法用泊松模型去拟合这个数据，因为服从$\textrm{Poisson}(\lambda)$的变量均值为$\lambda$，标准差为$\sqrt{\lambda}$。下图是得到的少量多图，原始数据同样在左上角。
 
-```{r include = TRUE, echo = FALSE, fig.align = "center", fig.cap = "Posterior predictive checks for negative binomial data generating process and Poisson model.（对于负二项分布数据过程和泊松模型的后验预测分布）"}
+```{r include = TRUE, echo = FALSE, fig.align = "center", fig.cap = "Posterior predictive checks for negative binomial data generating process and Poisson model.（对于负二项分布数据生成过程和泊松模型的后验预测检查）"}
 knitr::include_graphics("./img/ppc-nb-pois.jpg", auto_pdf = TRUE)
 ```
 
@@ -197,7 +197,7 @@ replicated data sets, all of which are clearly more symmetric and
 lower variance than the original data.  That is, the model's not
 appropriately capturing the variance of the data.
 
-这一次，原始数据与复制数据集形成鲜明对比，所有复制数据集都明显比原始数据更对称，方差更低。也就是说，模型没有适当地捕获数据的方差。
+这次，原始数据与所有复制数据集形成鲜明对比，所有复制数据集都明显比原始数据更对称且方差更小。也就是说，该模型未能很好地捕获到数据的方差。
 
 ## Posterior ''p-values''
 后验“p值”
@@ -209,7 +209,7 @@ by means of a p-value-like statistic, which here is just the probability the
 test statistic $s(\cdot)$ in a replicated data set exceeds that in
 the original data,
 
-如果一个模型很好地捕获了数据，那么汇总统计量(如样本均值和标准差)在原始和复制数据集中应该具有相似的值。这可以通过类p值统计量来检验，这里是复制数据集的检验统计量$s(\cdot)$超过原始数据集的概率，
+如果一个模型很好地捕获了数据，那么原始数据和复制数据集中的一些汇总统计量(如样本均值和标准差)应该具有相似的值。这可以通过一个类似p值的统计量来检验，在这里它是复制数据集的检验统计量$s(\cdot)$超过原始数据集的概率，
 $$
 \textrm{Pr}\left[ s(y^{\textrm{rep}}) \geq s(y) \mid y \right]
 =
@@ -224,14 +224,14 @@ statistics are not classically calibrated, and thus will not in
 general have a uniform distribution even when the model is well
 specified [@BayarriBerger:2000].
 
-需要注意的是，“p值”是带引号的，因为这些统计量没有经过经典校准，因此即使模型很好地指定，通常也不会具有均匀分布[@BayarriBerger:2000]。
+需要注意的是，“p值”是带引号的，因为这些统计量没有经过经典校准，因此即使模型规范正确，通常也不会具有均匀分布[@BayarriBerger:2000]。
 
 Nevertheless, values of this statistic very close to zero or
 one are cause for concern that the model is not fitting the data well.
 Unlike a visual test, this p-value-like test is easily automated for
 bulk model fitting.
 
-然而，该统计量非常接近于0或1的值引起了人们的关注，即模型不能很好地拟合数据。与视觉检验不同，这种类p值的检验很容易自动用于批量模型拟合。
+然而，该统计量非常接近于0或1的值引起了人们的关注，即模型不能很好地拟合数据。与视觉性的检验不同，这种类似p值的检验可以轻松地用于批量模型拟合，并进行自动化处理。
 
 To calculate event probabilities in Stan, it suffices to define
 indicator variables that take on value 1 if the event occurs and
@@ -239,7 +239,7 @@ indicator variables that take on value 1 if the event occurs and
 For efficiency, indicator variables are defined in the
 generated quantities block.
 
-要在Stan中计算事件概率，定义示性变量就足够了，如果事件发生值为1，如果事件没有发生值为0。后验均值就是事件概率。为了提高效率，在“generated quantities”代码块中定义了示性变量。
+要在Stan中计算事件概率，定义示性变量就足够了，如果事件发生值为1，如果事件没有发生值为0。后验均值就是事件概率。为了提高效率，示性变量可以在“generated quantities”代码块中定义。
 ```stan
 generated quantities {
   int<lower=0, upper=1> mean_gt;
@@ -259,16 +259,16 @@ using a local variable for `y_rep`.  The statistics `mean(u)` and
 `sd(y)` could also be computed in the transformed data block and
 saved.
 
-示性变量`mean_gt`值为1如果模拟数据`y_rep`的均值大于或等于原始数据`y`的均值。因为对于后验预测检查不需要`y_rep`的值，因此该程序通过对于`y_rep`使用一个局部变量来节省输出空间。统计量`mean(u)`和`sd(y)` 在“transformed data”代码块中也可以被计算和保存。 
+如果模拟数据`y_rep`的均值大于或等于原始数据`y`的均值，示性变量`mean_gt`取值为1。由于后验预测检查不需要`y_rep`的值，因此该程序通过对`y_rep`使用局部变量来节省输出空间。统计量`mean(u)`和`sd(y)` 也可以在“transformed data”代码块中计算和保存。 
 
 For the example in the previous section, where over-dispersed
 data generated by a negative binomial distribution was fit with a
 simple Poisson model, the following plot illustrates the posterior
 p-value calculation for the mean statistic.
 
-对于上一节中的例子，负二项分布产生的过度分散的数据用一个简单的泊松模型拟合，下图说明了均值统计量的后验p值计算。
+对于上一节中的例子，用一个简单的泊松模型拟合负二项分布产生的过度离散的数据，下图说明了均值统计量的后验p值计算。
 
-```{r include = TRUE, echo = FALSE, fig.align = "center", out.width = "50%", fig.cap = "Histogram of means of replicated data sets; vertical red line at mean of original data.（复制数据集的均值直方图；垂直的红线为原始数据的均值）"}
+```{r include = TRUE, echo = FALSE, fig.align = "center", out.width = "50%", fig.cap = "Histogram of means of replicated data sets; vertical red line at mean of original data.（复制数据集的均值直方图；垂直的红线表示原始数据的均值）"}
 knitr::include_graphics("./img/ppc-pvalue-nb-pois-mean.jpg", auto_pdf = TRUE)
 ```
 
@@ -278,13 +278,13 @@ data.  Using a Poisson model for negative binomial data still fits the
 mean well, with a posterior $p$-value of 0.49.  In Stan terms, it is
 extracted as the posterior mean of the indicator variable `mean_gt`.
 
-均值的p-值就是复制数据集的统计量大于或等于原始数据集的百分比。对负二项数据使用泊松模型仍然可以很好地拟合均值，后验$p-$值为0.49。在Stan术语中，它被抽象为示性变量`mean_gt`的后验均值。
+均值的p值就是复制数据集的统计量大于或等于原始数据集的百分比。使用泊松模型仍然可以很好地拟合该负二项数据的均值，其后验p值为0.49。在Stan中，可以通过计算示性变量`mean_gt`的后验均值来得到该p值。
 
 The standard deviation statistic tells a different story.
 
-标准差统计量呈现了一个截然不同的结果。
+但标准差统计量呈现了一个截然不同的结果。
 
-```{r include = TRUE, echo = FALSE, fig.align = "center", out.width = "50%", fig.cap = "Scatterplot of standard deviations of replicated data sets; the vertical red line is at standard deviation of original data.（重复数据集标准差的散点图；垂直的红线表示原始数据的标准差）"}
+```{r include = TRUE, echo = FALSE, fig.align = "center", out.width = "50%", fig.cap = "Scatterplot of standard deviations of replicated data sets; the vertical red line is at standard deviation of original data.（复制数据集标准差的散点图；垂直的红线表示原始数据的标准差）"}
 knitr::include_graphics("./img/ppc-pvalue-nb-pois-sd.jpg", auto_pdf = TRUE)
 ```
 
@@ -303,7 +303,7 @@ would be reason to fit a more general model like the negative binomial
 or a latent varying effects (aka random effects) model that can
 account for the over-dispersion.
 
-这里，原始数据的标准差比任何复制数据集都要高得多。因此经过大量迭代后Stan估计产生的$p-$值恰好为零(绝对误差范围很好，但需要大量迭代才能通过采样得到小p值的良好相对误差范围)。换句话说，没有后验能导致复制数据集的标准差大于或等于原始数据集的标准差。显然，该模型没有捕捉到原始数据的离散性。这个练习的重点不仅仅是找出模型有问题，而是找出问题所在。看到数据与泊松模型相比过于分散，就有理由拟合一个更一般的模型，如负二项或可以解释过度分散的潜在变化效应(又名随机效应)模型。
+这里，原始数据的标准差比任何复制数据集都要高得多。经过大量迭代后，Stan估计产生的p值为零(绝对误差边界是可接受的，但需要大量迭代才能通过抽样得到小p值的相对误差边界)。换句话说，没有后验抽样能导致复制数据集的标准差大于或等于原始数据集的标准差。显然，该模型没有捕获到原始数据的离散性。这个练习的重点不仅仅是确定模型存在问题，而是还要找出问题所在。观察到数据与泊松模型相比过于离散，就有理由采用更一般的模型，如负二项分布或隐变化效应(又名随机效应)模型，这些模型能够解释过度离散的现象。
 
 ### Which statistics to test?
 检验哪个统计量？
@@ -314,7 +314,7 @@ addition to mean and standard deviation are quantiles, such as the
 median, 5% or 95% quantiles, or even the maximum or minimum value to
 test extremes.
 
-任何统计量都可以用于数据，但这些统计量可以由模型本身中感兴趣的量来确定。除了均值和标准差之外，热门的选择是分位数，例如中位数、5% 或 95% 分位数，还有检验极端值的最大值或最小值。
+任何统计量都可以使用，但也可以根据模型本身感兴趣的量来选择。除了均值和标准差之外，常见的选择是分位数，例如中位数、5% 或 95% 分位数，还有检验极端值的最大值或最小值。
 
 Despite the range of choices, test statistics should ideally be
 ancillary, in the sense that they should be testing something other
@@ -329,7 +329,7 @@ data mean, not the data variance.  Other distributions such as the
 lognormal and gamma distribution, have means and variances that are
 functions of two or more parameters.
 
-尽管有选择范围，但理想情况下，检验统计量应该是辅助的，它们应该检验参数拟合度以外的其他内容。例如，一个简单的正态模型通常可以很好地拟合数据的均值和方差，只要先验不主导后验。相反，如果数据集的均值方差不同，则一个泊松模型就无法同时捕获数据的均值和方差，因此它们需要在泊松情况下进行检查。正如我们在泊松情况下看到的那样，单个比例参数的后验均值位于数据均值附近，而不在数据方差附近。其他分布（如对数正态分布和伽马分布）的均值和方差是两个或多个参数的函数。
+尽管有各种选择，但理想情况下，检验统计量应该是辅助的，即它们应该测试除参数拟合之外的其他内容。例如，对于一个简单的正态模型，只要先验不主导后验，通常可以很好地拟合数据的均值和方差。相比之下，如果数据集的均值和方差不同，那么泊松模型就无法同时捕获到数据的均值和方差，因此在泊松模型中需要进行检验。正如我们在泊松模型中看到的那样，单个比例参数的后验均值位于数据均值附近，而不在数据方差附近。其他分布，如对数正态分布和伽马分布，均值和方差是两个或多个参数的函数。
 
 ## Prior predictive checks
 先验预测检查
@@ -340,7 +340,7 @@ posterior predictive check generates replicated data according to the
 posterior predictive distribution.  In contrast, the prior predictive
 check generates data according to the prior predictive distribution,
 
-先验预测检查根据先验生成数据，以评估先验是否合适[@GabryEtAl:2019]。一个后验预测检查根据后验预测分布生成重复数据。相比之下，先验预测检查根据先验预测分布生成数据，
+先验预测检查根据先验分布生成数据，以评估先验分布是否合适[@GabryEtAl:2019]。后验预测检查根据后验预测分布生成复制数据集。相比之下，先验预测检查根据先验预测分布生成数据，
 $$
 y^{\textrm{sim}} \sim p(y).
 $$
@@ -349,7 +349,7 @@ predictive distribution with no observed data, so that a prior
 predictive check is nothing more than the limiting case of a posterior
 predictive check with no data.
 
-先验预测分布就像没有观测数据的后验预测分布，因此，先验预测检查只不过是没有数据的后验预测检查的极限情况。
+先验预测分布就像是没有观测数据的后验预测分布，因此，先验预测检查只不过是没有数据的后验预测检查的极限情况。
 
 This is easy to carry out mechanically by simulating parameters
 
@@ -367,7 +367,7 @@ according to the sampling distribution given the simulated
 parameters.  The result is a simulation from the joint
 distribution,
 
-根据给出了模拟参数的抽样分布。结果是对联合分布的模拟，
+根据给定了模拟参数的抽样分布。结果是从联合分布进行模拟，
 $$
 (y^{\textrm{sim}}, \theta^{\textrm{sim}}) \sim p(y, \theta)
 $$
@@ -392,7 +392,7 @@ posterior predictive checks with no data is that Markov chain Monte
 Carlo will be used to sample the parameters, which is less efficient
 than taking independent draws using random number generation.
 
-先验预测检查就像后验预测检查一样编写代码。如果一个后验预测检查代码已经被编写，并且可以将数据设置为空，则不需要额外的编程。将先验预测检查编写为没有数据的后验预测检查的缺点是使用马尔可夫链蒙特卡罗对参数进行采样，这比使用随机数生成独立样本效率低。
+先验预测检查的代码与后验预测检查一样编写。如果一个后验预测检查代码已经被编写，并且可以将数据设置为空，则不需要额外的编程。将先验预测检查编写为没有数据的后验预测检查的缺点是会使用马尔可夫链蒙特卡罗对参数进行采样，这比使用随机数生成独立样本效率低。
 
 Prior predictive checks can be coded entirely within the generated
 quantities block using random number generation.  The resulting draws
@@ -401,7 +401,7 @@ set---they do not have a generative model from which to be simulated.
 For a Poisson regression, prior predictive sampling can be
 encoded as the following complete Stan program.
 
-先验预测检查可以完全在使用随机数生成器的“generated quantities”代块内编写，结果将是独立的。预测器必须从实际数据集中读取——它们没有一个生成模型来进行模拟。对于一个泊松回归，先验预测抽样可以编写为以下完整的Stan程序。
+先验预测检查可以完全在使用随机数生成器的“generated quantities”代块内编写，生成的抽样将是独立的。预测变量必须从实际数据集中读取——它们没有一个生成模型可以进行模拟。对于泊松回归，先验预测抽样可以编写为以下完整的Stan程序。
 ```stan
 data {
   int<lower=0> N;
@@ -417,10 +417,10 @@ Running this program using Stan's fixed-parameter sampler
 yields draws from the prior.  These may be plotted to
 consider their appropriateness.
 
-使用Stan的固定参数采样器运行这个程序会产生来自先验的结果。这些可能会考虑到它们的适当性。
+使用Stan的固定参数采样器运行这个程序会产生来自先验的抽样。可以将这些抽样绘制出来以考虑其适用性。
 
 ## Example of prior predictive checks
-一个关于先验预测检查的例子
+一个关于先验预测检查的示例
 
 Suppose we have a model for a football (aka soccer) league where there
 are $J$ teams.  Each team has a scoring rate $\lambda_j$ and in each
@@ -431,7 +431,7 @@ data speak for themselves" and so uses a prior with very wide tails,
 because it seems uninformative, such as the widely deployed
 
 假设我们有一个足球联赛的模型，其中有
-$J$个队伍。每个队都有一个得分率$λ_j$以及在每场比赛中的得分认为服从$\textrm{poisson}(\lambda_j)$。是的，该模型完全忽略防守。假设建模者不想“把他们的拇指放在刻度上”，而宁愿“让数据自己说话”，因此使用非常宽尾的先验，因为它看起来没有信息，比如说
+$J$个队伍。每个队都有一个得分率$λ_j$以及在每场比赛中的得分认为服从$\textrm{poisson}(\lambda_j)$。是的，该模型完全忽略防守。假设建模者不想在模型中给予防守方太大的权重，而宁愿“让数据自己说话”，因此使用了非常宽尾的先验，因为它看起来不具有信息量，比如说广泛使用的
 $$
 \lambda_j \sim \textrm{gamma}(\epsilon_1, \epsilon_2).
 $$
@@ -441,7 +441,7 @@ corresponds to a Jeffreys prior for a Poisson rate parameter prior
 [@LunnEtAl:2012, p. 85].
 
 这不仅仅是一个人为的例子；*The BUGS Book*建议设置$\epsilon = (0.5, 0.00001)$
-，这相当于一个泊松率参数先验的Jeffreys先验[@LunnEtAl:2012, p. 85]。
+，这相当于一个泊松速率参数的Jeffreys先验[@LunnEtAl:2012, p. 85]。
 
 Suppose the league plays a round-robin tournament wherein every team
 plays every other team.  The following Stan model generates random team
@@ -470,13 +470,13 @@ once.  This could be made more realistic by controlling the
 combinatorics to only generate a single result for each pair of teams,
 of which there are $\binom{J}{2} = \frac{J \cdot (J - 1)}{2}.$
 
-在这个模拟中，各支队伍对战对方两次，对战自己一次。这可以通过控制组合运算，使每对队伍只产生一个组合结果$\binom{J}{2} = \frac{J \cdot (J - 1)}{2}$来实现。
+在这个模拟中，各支队伍对战对方两次，对战自己一次。可以通过控制组合运算，使其更加逼真，只为$\binom{J}{2} = \frac{J \cdot (J - 1)}{2}$场中的每场比赛生成一个结果。
 
 Using the $\textrm{gamma}(0.5, 0.00001)$ reference prior on team
 abilities, the following are the first 20 simulated point differences
 for the match between the first two teams, $y^{(1:20)}_{1, 2}$.
 
-使用$\textrm{gamma}(0.5, 0.00001)$作为队伍能力的先验分布，下面是前两个队伍比赛的前20个模拟分差，$y^{(1:20)}_{1, 2}$。
+使用$\textrm{gamma}(0.5, 0.00001)$作为队伍能力的先验分布，下面是前两个队伍比赛的前20个模拟分数差异，$y^{(1:20)}_{1, 2}$。
 ```
 2597 -26000   5725  22496   1270   1072   4502  -2809   -302   4987
 7513   7527  -3268 -12374   3828   -158 -29889   2986  -1392     66
@@ -523,10 +523,10 @@ predictive checks.  That would require guessing the posterior and
 encoding it in the prior.  The goal is make sure the prior is not so
 wide that it will pull probability mass away from feasible values.
 
-先验预测检查也可以与数据进行比较，但不应期望它们和后验预测检查相同的方式进行校准。这需要猜测后验并将其编程到先验中。我们的目标是确保先验值不会太宽泛，从而使概率质量偏离可行值。
+先验预测检查也可以与数据进行比较，但不应期望它们以后验预测检查相同的方式进行校准。这需要猜测后验并将其编程到先验中。我们的目标是确保先验不会太宽泛，以至于使概率质量偏离可行值。
 
 ## Mixed predictive replication for hierarchical models {#mixed-replication}
-分层模型的混合预测重复
+分层模型的混合预测复制集
 
 @GelmanEtAl:1996 discuss the case of mixed replication for
 hierarchical models in which the hyperparameters remain fixed, but
@@ -534,7 +534,7 @@ varying effects are replicated.  This is neither a purely prior nor
 purely posterior predictive check, but falls somewhere in between.
 
 @GelmanEtAl:1996
-讨论了分层模型的混合复制情况，其中超参数保持固定，但复制了不同的效果。这既不是纯粹的先验也不是纯粹的后验预测检查，而是介于两者之间。
+讨论了分层模型的混合复制集的情况，其中超参数保持固定，可变效应进行复制。这既不是纯粹的先验预测检查也不是纯粹的后验预测检查，而是介于两者之间的一种情况。
 
 For example, consider a simple varying intercept logistic regression,
 with intercepts $\alpha_k$ for $k \in 1:K$.  Each data item
@@ -570,7 +570,7 @@ $$
 Like in a prior predictive check, replicated values of $\alpha$ are
 drawn from the hyperparameters,
 
-与先验预测检查一样，复制的值$\alpha$是从超参数中提取的，
+与先验预测检查一样，$\alpha$的复制值是从超参数中抽样的，
 $$
 \alpha^{\textrm{rep}(m)}_k \sim \textrm{normal}(\alpha_k \mid
 \mu^{(m)}, \sigma^{(m)}).
@@ -587,12 +587,12 @@ Thus the $y^{\textrm{rep}(m)}$ can be seen as a kind of posterior
 predictive replication of observations from new groups that were not
 among the original $K$ groups.
 
-因此$y^{\textrm{rep}(m)}$可以看作是来自新群体观测的一种后验预测复制，而不是在原来的$K$组。
+因此$y^{\textrm{rep}(m)}$可以看作是来自不属于原来的$K$个组的新组观测的一种后验预测复制。
 
 In Stan, mixed predictive replications $y^{\textrm{rep}(m)}$ can be
 programmed directly.
 
-在Stan中，混合预测复制量$y^{\textrm{rep}(m)}$可以被直接编程。
+在Stan中，混合预测复制$y^{\textrm{rep}(m)}$可以被直接编程。
 
 ```stan
 data {
@@ -632,7 +632,7 @@ observed and replicated data.
 根据
 @GelmanEtAl:1996
 ，
-先验重复、后验重复和混合重复都可以定义为联合模型在参数、观察和复制数据上的后验。
+先验复制集、后验复制集和混合复制集都可以定义为联合模型在参数集、观测集和复制数据集上的后验。
 
 ### Posterior predictive model
 后验预测模型
@@ -640,7 +640,7 @@ observed and replicated data.
 For example, posterior predictive replication may be formulated
 using sampling notation as follows.
 
-例如，后验预测复制可以用如下的抽样符号来表示。
+例如，后验预测复制集可以用如下的抽样符号来表示。
 \begin{eqnarray*}
 \theta & \sim & p(\theta)
 \\[2pt]
@@ -654,7 +654,7 @@ or more formally using capital letters to distinguish random
 variables, that the conditional densities $p_{Y^{\textrm{rep}} \mid
 \Theta}$ and $p_{Y \mid \Theta}$ are the same.
 
-过载的抽样符号意味着$y$和$y^{\textrm{rep}}$来自同样的分布，或者更正式地使用大写字母来区分随机变量，条件分布$p_{Y^{\textrm{rep}} \mid
+这种过载的抽样符号意味着$y$和$y^{\textrm{rep}}$来自同样的分布，或者更正式地使用大写字母来区分随机变量，条件分布$p_{Y^{\textrm{rep}} \mid
 \Theta}$和$p_{Y \mid \Theta}$是一样的。
 
 The joint density is
@@ -709,7 +709,7 @@ executed just as the posterior predictive model, only with no data.
 
 The mixed replication corresponds to the model
 
-混合复制和以下模型对应
+混合复制对应以下模型
 \begin{eqnarray*}
 \phi & \sim & p(\phi)
 \\[2pt]
