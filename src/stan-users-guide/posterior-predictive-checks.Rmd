@@ -41,11 +41,6 @@ observed data $y$.
 The posterior predictive distribution for replications
 $y^{\textrm{rep}}$ of the original data set $y$ given model parameters
 $\theta$ is defined by
-$$
-p(y^{\textrm{rep}} \mid y)
-= \int p(y^{\textrm{rep}} \mid \theta)
-       \cdot p(\theta \mid y) \, \textrm{d}\theta.
-$$
 
 作为模型参数为$\theta$的原始数据集$y$的复制数据集，$y^{\textrm{rep}}$的后验预测分布定义为
 $$
@@ -476,7 +471,7 @@ Using the $\textrm{gamma}(0.5, 0.00001)$ reference prior on team
 abilities, the following are the first 20 simulated point differences
 for the match between the first two teams, $y^{(1:20)}_{1, 2}$.
 
-使用$\textrm{gamma}(0.5, 0.00001)$作为队伍能力的先验分布，下面是前两个队伍比赛的前20个模拟分数差异，$y^{(1:20)}_{1, 2}$。
+使用$\textrm{gamma}(0.5, 0.00001)$作为队伍能力的先验分布，下面是前两个队伍比赛的前20个模拟分差，$y^{(1:20)}_{1, 2}$。
 ```
 2597 -26000   5725  22496   1270   1072   4502  -2809   -302   4987
 7513   7527  -3268 -12374   3828   -158 -29889   2986  -1392     66
@@ -563,14 +558,14 @@ The hyperparameters are themselves given weakly informative priors,
 Like in a posterior predictive check, the hyperparameters $\mu$ and
 $\sigma$ are drawn from the posterior,
 
-在一个后验预测检查中，超参数$\mu$和$\sigma$都来自后验分布，
+与后验预测检查一样，超参数$\mu$和$\sigma$从后验分布中抽样，
 $$
 \mu^{(m)}, \sigma^{(m)} \sim p(\mu, \sigma \mid y)
 $$
 Like in a prior predictive check, replicated values of $\alpha$ are
 drawn from the hyperparameters,
 
-与先验预测检查一样，$\alpha$的复制值是从超参数中抽样的，
+与先验预测检查一样，$\alpha$复制值的抽样也依赖于超参数，
 $$
 \alpha^{\textrm{rep}(m)}_k \sim \textrm{normal}(\alpha_k \mid
 \mu^{(m)}, \sigma^{(m)}).
@@ -744,7 +739,7 @@ lower-level parameters and $\phi$ the hyperparameters.  Note that
 $\phi$ is not replicated and instead appears in the distribution for
 both $\alpha$ and $\alpha^{\textrm{rep}}$.
 
-其中$y$是唯一可以被观测的变量，$\alpha$包含低水平参数，$\phi$是超参数。注意$\phi$没有被复制，而是出现在$\alpha$和$\alpha^{\textrm{rep}}$的分布中。
+其中$y$是唯一可以被观测的变量，$\alpha$包含低层参数（一般指的是模型中的具体参数或变量，这些参数通常是用来描述数据生成过程中的基本特征或假设，通过训练数据学习得到），$\phi$是超参数（是在模型训练之前设置的控制参数，用于定义模型的结构和复杂度）。注意$\phi$没有被复制，而是出现在$\alpha$和$\alpha^{\textrm{rep}}$的分布中。
 
 The posterior is $p(\phi, \alpha, \alpha^{\textrm{rep}},
 y^{\textrm{rep}} \mid y)$.  From posterior draws, the posterior
