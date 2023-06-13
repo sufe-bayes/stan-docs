@@ -1,4 +1,4 @@
-# Measurement Error and Meta-Analysis
+# Measurement Error and Meta-Analysis 测量误差和元分析
 
 Most quantities used in statistical models arise from measurements.
 Most of these measurements are taken with some error.  When the
@@ -9,26 +9,43 @@ relations can be estimated being measured quantities, it is useful to
 introduce an explicit model of measurement error.  One kind of
 measurement error is rounding.
 
+统计模型中使用的大多数的量都是由测量所得。而大多数的测量都有一定的
+误差。当相对于被测量的量，测量误差很小时，它对模型的影响通常很小。
+当测量误差相对于被测量的量来说很大时，或者当可以估计被测量量之间的
+精确关系时，引入一个显式的测量误差模型是有用的。一种测量误差就是
+舍入（rounding）。
+
 Meta-analysis plays out statistically much like measurement error
 models, where the inferences drawn from multiple data sets are
 combined to do inference over all of them.  Inferences for each data
 set are treated as providing a kind of measurement error with respect
 to true parameter values.
 
+从统计的角度来看元分析很像测量误差模型，其中从多个数据集中得出的
+推断被结合，来整体的对它们进行推断。对每个数据集的推断都被当作是
+提供了一种相对于真实参数值的测量误差。
 
-## Bayesian measurement error model
+## Bayesian measurement error model 贝叶斯测量误差模型
 
 A Bayesian approach to measurement error can be formulated directly by
 treating the true quantities being measured as missing data
 [@Clayton:1992; @RichardsonGilks:1993].  This requires a model of
 how the measurements are derived from the true values.
 
-### Regression with measurement error {-}
+测量误差的贝叶斯方法可以通过将被测量的真实量视为缺失数据来直接构建
+[@Clayton:1992; @RichardsonGilks:1993]。这需要一个关于如何从真实值
+中获取测量值的模型。
+
+### Regression with measurement error  含测量误差的回归模型 {-} 
 
 Before considering regression with measurement error, first consider a
 linear regression model where the observed data for $N$ cases includes
 a predictor $x_n$ and outcome $y_n$.  In Stan, a linear regression for
 $y$ based on $x$ with a slope and intercept is modeled as follows.
+
+在考虑含测量误差的回归之前，首先考虑一个具有预测变量$x_n$和结果$y_n$
+的线性回归模型，其中观测到的案例数量为$N$。在Stan中，一个基于$x$
+对$y$进行带有斜率和截距项的线性回归建模如下。
 
 ```stan
 data {
@@ -60,6 +77,13 @@ the model.  A simple approach is to assume the measurement error is
 normal with known deviation $\tau$.  This leads to the following
 regression model with constant measurement error.
 
+现在假设预测变量$x_n$的真实值是未知的，但是对于每个$n$，有一个$x_n$
+的测量值$x^{\textrm{meas}}_n$是可用的。如果测量的误差可以被建模，
+那么测量值$x^{\textrm{meas}}_n$可以用真实值$x_n$加上测量噪声（noise）
+来建模。真实值$x_n$被视为缺失数据，与模型中的其他量一起被估计。
+一个简单的方法是假设测量误差是正态的，标准差$\tau$已知。由此得到
+下面含常测量误差的回归模型。
+
 ```stan
 data {
   // ...
@@ -89,6 +113,12 @@ measurement error for `x_meas[n]` given true value `x[n]`
 is normal with deviation `tau`.  Furthermore, the true values
 `x` are given a hierarchical prior here.
 
+回归系数`alpha` 和`beta`以及回归噪声尺度`sigma`和之前一样，
+但现在`x`被当作参数而不是数据。现在的数据是`x_meas`，它是对
+真实`x`值的测量，噪声尺度为`tau`。然后模型规定，给定真值`x[n]`
+的`x_meas[n]`的测量误差是正态的，标准差为`tau`。此外，真实值
+`x`在这里具有分层先验。
+
 In cases where the measurement errors are not normal, richer
 measurement error models may be specified.  The prior on the true
 values may also be enriched.  For instance, @Clayton:1992
@@ -102,15 +132,31 @@ $$
 This can be coded in Stan just like any other regression.  And, of
 course, other exposure models can be provided.
 
+当测量误差不服从正态分布时，有更丰富的测量误差模型可以使用。
+对真实值的先验信息也可以得到丰富。例如， @Clayton:1992 引入了
+一个曝露(exposure)模型，用已知（没有测量误差）的风险因素$c$
+来表示未知（但受噪声干扰的）风险因素$x$。一个简单的模型是利用
+协变量$c_n$回归$x_n$，并加上噪声项$\upsilon$，
+$$
+x_n \sim \textsf{normal}(\gamma^{\top}c, \upsilon).
+$$
+这可以像任何其他回归一样在Stan中编码。当然，Stan也可以提供其他
+曝露模型。
 
-### Rounding {-}
+### Rounding 舍入 {-}
 
 A common form of measurement error arises from rounding measurements.
 Rounding may be done in many ways, such as rounding weights to the
 nearest milligram, or to the nearest pound; rounding may even be done
 by rounding down to the nearest integer.
 
+一种常见的测量误差形式来自于对测量结果进行舍入。舍入可以用许多
+方式进行，例如将重量舍入到最接近的毫克或最接近的磅，甚至可以
+通过向下舍入到最接近的整数来进行。
+
 Exercise 3.5(b) by @GelmanEtAl:2013 provides an example.
+
+@GelmanEtAl:2013 的练习3.5（b）提供了一个例子。
 
 >  3.5. Suppose we weigh an object five times and measure
 >  weights, rounded to the nearest pound, of 10, 10, 12, 11, 9.
@@ -120,6 +166,11 @@ Exercise 3.5(b) by @GelmanEtAl:2013 provides an example.
 >  (b) Give the correct posterior distribution for $(\mu, \sigma^2)$,
 >  treating the measurements as rounded.
 
+> 3.5. 假设我们对一个物体进行了五次称重，并测得如下舍入到最近整数磅的
+> 质量：10、10、12、11、9。假设未舍入的测量值服从正态分布，并对$\mu$
+> 和$\sigma^2$采用无信息先验分布。
+>
+> (b) 把测量值视为取整后，给出$(\mu, \sigma^2)$正确的后验分布。
 
 Letting $z_n$ be the unrounded measurement for $y_n$, the problem
 as stated assumes the likelihood
@@ -153,9 +204,39 @@ p(\mu, \sigma^2 \mid y)
   \right).
 \end{align*}
 
+令$z_n$是$y_n$未取整的测量值，按照题目陈述，假设似然函数为
+$$
+z_n \sim \textsf{normal}(\mu, \sigma).
+$$
+
+舍入过程意味着$z_n \in (y_n - 0.5, y_n + 0.5)$。离散观测值$y$的
+概率质量函数可以通过边缘化消去未舍入的测量值得到，从而得到似然
+\begin{align*}
+p(y_n \mid \mu, \sigma)
+ &= \int_{y_n - 0.5}^{y_n + 0.5} \textsf{normal}(z_n \mid \mu, \sigma) \,\textsf{d}z_n \\
+ &= \Phi\!\left(\frac{y_n + 0.5 - \mu}{\sigma}\right)
+   -\Phi\!\left(\frac{y_n - 0.5 - \mu}{\sigma}\right).
+\end{align*} 
+Gelman解决这个问题的方法是令无信息先验在对数尺度上关于方差
+$\sigma^2$是均匀的，由于Jacobian调整，这会产生先验密度函数： 
+$$
+p(\mu, \sigma^2) \propto \frac{1}{\sigma^2}.
+$$ 
+观测到 $y = (10, 10, 12, 11, 9)$ 后的后验分布可以通过贝叶斯定理计算得出
+\begin{align*}
+p(\mu, \sigma^2 \mid y)
+ &\propto p(\mu, \sigma^2) \ p(y \mid \mu, \sigma^2) \\
+ &\propto \frac{1}{\sigma^2} \ \prod_{n=1}^5
+  \left( \Phi\!\left(\frac{y_n + 0.5 - \mu}{\sigma}\right)
+        -\Phi\!\left(\frac{y_n - 0.5 - \mu}{\sigma}\right)
+  \right).
+\end{align*}
+
 The Stan code simply follows the mathematical definition, providing an
 example of the direct definition of a probability function up to a
 proportion.
+
+Stan代码简单地遵循数学定义，再次提供了一个直接定义正比概率函数的例子。
 
 ```stan
 data {
@@ -187,6 +268,12 @@ and lower-bound constraints on the elements of a vector (or array),
 the parameters are declared to be the rounding error $y - z$, and
 then $z$ is defined as a transformed parameter.
 
+或者，模型也可以使用潜参数（latent parameters）来定义未经舍入的
+测量值$z_n$。在这种情况下，Stan代码直接使用$z_n$的似然函数来保证
+$z_n \in (y_n - 0.5, y_n + 0.5)$这一约束条件。由于 Stan不允许对向量（或数组）
+的元素设置不同的上下界约束条件，因此将参数设定为舍入误差$y - z$,
+然后将z定义为转换后的参数。
+
 ```stan
 data {
   int<lower=0> N;
@@ -216,12 +303,18 @@ parameter version is about twice as efficient in terms of effective
 samples per iteration, as well as providing a posterior for the
 unrounded parameters.
 
+这个针对未舍入测量值z的显式模型会产生与之前将$z$边缘化掉的模型相同
+的$\mu$和$\sigma$后验分布。两种方法十分相似，但就每次迭代的有效样本
+而言，潜参数版本的效率约为前者的两倍，并且为未舍入参数提供了后验分布。
 
-## Meta-analysis
+## Meta-analysis 元分析
 
 Meta-analysis aims to pool the data from several studies, such as the
 application of a tutoring program in several schools or treatment
 using a drug in several clinical trials.
+
+元分析旨在汇总来自多个研究的数据，例如在多所学校中应用辅导计划或
+在多项临床试验中使用药物进行治疗。
 
 The Bayesian framework is particularly convenient for meta-analysis,
 because each previous study can be treated as providing a noisy
@@ -230,7 +323,11 @@ follows directly from two components, a prior on the underlying
 quantities of interest and a measurement-error style model for each of
 the studies being analyzed.
 
-### Treatment effects in controlled studies {-}
+贝叶斯框架特别适用于元分析，因为每个先前的研究都可以被看作是对某些
+感兴趣的潜在量的有误差的测量。然后，模型直接来源于两个组成部分，
+即对感兴趣的潜在量的先验和对每个被分析的研究的测量误差式模型。
+
+### Treatment effects in controlled studies 对照研究中的治疗效果 {-}
 
 Suppose the data in question arise from a total of $M$ studies
 providing paired binomial data for a treatment and control group.  For
@@ -239,9 +336,18 @@ of ibuprofen [@WarnThompsonSpiegelhalter:2002] or mortality after
 myocardial infarction under a treatment of beta blockers
 [@GelmanEtAl:2013, Section 5.6].
 
-#### Data {-}
+假设所涉及的数据来自总共$M$项研究，这些研究提供了治疗组和对照组的
+配对二项数据 。例如，这些数据可能是在应用布洛芬进行手术后疼痛减轻方面
+的数据[@WarnThompsonSpiegelhalter:2002]或在应用beta受体阻滞剂治疗
+心肌梗死后的死亡率数据[@GelmanEtAl:2013, Section 5.6]。
+
+#### Data 数据 {-}
 
 The clinical data consists of $J$ trials, each with $n^t$ treatment cases, $n^c$ control cases, $r^t$ successful outcomes among those treated and $r^c$ successful outcomes among those in the control group.  This data can be declared in Stan as follows.^[Stan's integer constraints are not powerful enough to express the constraint that $\texttt{r}\mathtt{\_}\texttt{t[j]} \leq \texttt{n}\mathtt{\_}\texttt{t[j]}$, but this constraint could be checked in the transformed data block.]
+
+临床数据由$J$个试验组成，每个试验包含$n^t$个治疗组病例，$n^c$
+个对照组病例，治疗组中有$r^t$个成功结果，对照组中有$r^c$个成功结果。
+可以在Stan中如下声明这些数据。^[Stan的整数约束不足以表达约束条件 $\texttt{r}\mathtt{\_}\texttt{t[j]} \leq \texttt{n}\mathtt{\_}\texttt{t[j]}$，但这个约束条件可以在transformed data模块中被写入。]
 
 ```stan
 data {
@@ -254,10 +360,13 @@ data {
 ```
 
 
-#### Converting to log odds and standard error {-}
+#### Converting to log odds and standard error 转换为对数几率和标准差 {-}
 
 Although the clinical trial data are binomial in its raw format, it may
 be transformed to an unbounded scale by considering the log odds ratio
+
+虽然临床试验数据在其原始格式下是二项的，但可以将其转换到无穷尺度上，
+通过考虑对数几率（log odds ratio）
 \begin{align*}
 y_j &= \log \left( \frac{r^t_j / (n^t_j - r^t_j)}
                         {r^c_j / (n^c_j - r^c_j)}
@@ -279,6 +388,9 @@ The log odds and standard errors can be defined in a transformed
 parameter block, though care must be taken not to use integer
 division.^[When dividing two integers, the result type is an integer and rounding will ensue if the result is not exact.  See the discussion of primitive arithmetic types in the reference manual for more information.]
 
+对数几率和标准误可以在transformed data 模块中定义，但需要注意
+不要使用整数除法 （integer division）。^[当对两个整数进行除法运算时，结果类型为整数，并且如果结果不精确，则会进行舍入。更多相关信息，请参阅参考手册中原始算术类型的讨论。]
+
 ```stan
 transformed data {
   array[J] real y;
@@ -299,12 +411,20 @@ zero or equal to the number of trials.
 If that arises, a direct binomial model will be required or other
 transforms must be used than the unregularized sample log odds.
 
-#### Non-hierarchical model {-}
+如果任何一次试验的成功次数为零或等于试验次数，那么这个定义
+就会有问题。如果出现这种情况，就需要使用直接的二项模型或
+应该使用其他变换来代替未经正则化的样本对数几率。
+
+#### Non-hierarchical model 非分层模型 {-}
 
 With the transformed data in hand, two standard forms of meta-analysis
 can be applied.  The first is a so-called "fixed effects" model,
 which assumes a single parameter for the global odds ratio.  This
 model is coded in Stan as follows.
+
+有转换后的数据之后，有两种标准的元分析形式可以用。第一种是所谓的
+“固定效应”模型，它假设全局几率(global odds ratio)只有一个参数。
+该模型在Stan中的代码如下。
 
 ```stan
 parameters {
@@ -317,6 +437,8 @@ model {
 
 The sampling statement for `y` is vectorized; it has the same
 effect as the following.
+
+`y`的抽样语句是矢量化的；它的效果与下面代码相同。
 ```stan
   for (j in 1:J) {
     y[j] ~ normal(theta, sigma[j]);
@@ -328,13 +450,21 @@ is not strictly necessary for the model to be proper because `y`
 is fixed and $\textsf{normal}(y \mid \mu,\sigma) =
 \textsf{normal}(\mu \mid y,\sigma)$.
 
-#### Hierarchical model {-}
+在这个模型中通常会对`theta`设定一个先验分布，但是这并不是必需的，
+因为`y`是固定的，因此 $\textsf{normal}(y \mid \mu,\sigma) = 
+\textsf{normal}(\mu \mid y,\sigma)$。
+
+#### Hierarchical model 分层模型 {-}
 
 To model so-called "random effects," where the treatment effect may
 vary by clinical trial, a hierarchical model can be used.  The
 parameters include per-trial treatment effects and the hierarchical
 prior parameters, which will be estimated along with other unknown
 quantities.
+
+为了模拟所谓的“随机效应”，即治疗效果可能因临床试验而异，
+可以使用分层模型。参数包括每个试验的治疗效果和分层先验参数，
+这些参数将与其他未知量一起被估计。
 
 ```stan
 parameters {
@@ -356,12 +486,20 @@ statement for `theta` is also vectorized, with the
 hyperparameters `mu` and `tau` themselves being given wide
 priors compared to the scale of the data.
 
+虽然`y`的向量化抽样语句似乎没有变化，但是参数`theta`现在是一个向量。
+`theta` 的抽样语句也是向量化的，其中超参数`mu`和`tau`相对于
+数据的尺度给出了“宽”的先验分布。
+
 @Rubin:1981 provided a hierarchical Bayesian meta-analysis of
 the treatment effect of Scholastic Aptitude Test (SAT) coaching in
 eight schools based on the sample treatment effect and standard error
 in each school.
 
-#### Extensions and alternatives {-}
+@Rubin:1981 提供了一种基于每所学校样本处理效果和标准差的
+层次贝叶斯元分析，用于研究八所学校中 Scholastic Aptitude Test (SAT) 
+辅导的处理效果。
+
+#### Extensions and alternatives 扩展和替代方案 {-}
 
 @SmithSpiegelhalterThomas:1995 and @GelmanEtAl:2013[, Section 19.4]
 provide meta-analyses based directly on binomial data.
@@ -369,7 +507,13 @@ provide meta-analyses based directly on binomial data.
 implications of using alternatives to the log-odds ratio in
 transforming the binomial data.
 
+@SmithSpiegelhalterThomas:1995 和 @GelmanEtAl:2013[, Section 19.4]
+直接基于二项数据进行元分析。@WarnThompsonSpiegelhalter:2002 考虑了
+在转换二项数据时使用对数几率（log-odds ratio）之外的替代方法所产生的建模影响。
+
 If trial-specific predictors are available, these can be included
 directly in a regression model for the per-trial treatment effects
 $\theta_j$.
 
+如果可以使用特定于试验的预测变量，可以将其直接包含在用于每个试验治疗效果
+$\theta_j$的回归模型中。
