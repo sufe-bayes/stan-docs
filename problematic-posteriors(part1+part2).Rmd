@@ -1,3 +1,4 @@
+# 上一位的同学把 Latent Discrete Parameters 都翻译完了，所以我把这一章都翻译完。
 # Problematic Posteriors  {#problematic-posteriors.chapter}
 
 # 有问题的后验分布 {#problematic-posteriors.chapter}
