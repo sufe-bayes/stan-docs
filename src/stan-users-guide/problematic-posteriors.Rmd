@@ -12,8 +12,11 @@ ill-behaved in practice.  This chapter discusses issues in models that
 create problematic posterior inferences, either in general for
 Bayesian inference or in practice for Stan.
 
+从数学角度来说，只要有一个适当的后验分布，人们便可以进行贝叶斯推断。这甚至不需要要求方差或均值有限，只需要有一个有限的积分。然而，建模是一个棘手的事情，即使经验丰富的建模者有时也会编写导致不正确的先验分布的模型。此外，有些后验分布在数学上是合理的，但在实践中表现不良。本章讨论了在模型中引发问题的后验推断，无论是对于贝叶斯推断的一般情况还是对于Stan的实践情况。
 
 ## Collinearity of predictors in regressions {#collinearity.section}
+
+自变量在回归分析中的共线性
 
 This section discusses problems related to the classical notion of
 identifiability, which lead to ridges in the posterior density and
