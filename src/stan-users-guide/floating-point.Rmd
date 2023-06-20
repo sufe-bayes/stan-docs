@@ -1,3 +1,5 @@
+
+
 # Floating Point Arithmetic
 
 # 浮点数算术
@@ -524,6 +526,8 @@ where $\log u = (\log u_1, \ldots, \log u_N)$ is understood elementwise.
 
 
 ## Comparing floating-point numbers
+
+## 浮点数的比较
 
 Because floating-point representations are inexact, it is rarely a
 good idea to test exact inequality.  The general recommendation is
