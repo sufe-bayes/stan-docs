@@ -1,5 +1,7 @@
 # Problematic Posteriors  {#problematic-posteriors.chapter}
 
+问题的后验分布
+
 Mathematically speaking, with a proper posterior, one can do Bayesian
 inference and that's that. There is not even a need to require a
 finite variance or even a finite mean---all that's needed is a finite
