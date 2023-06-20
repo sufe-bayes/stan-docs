@@ -1,4 +1,12 @@
-# Missing Data and Partially Known Parameters
+---
+title: "missing data"
+author: "Jiao Yu 2021213147"
+date: "2023-05-07"
+output:
+  html_document: default
+  pdf_document: default
+---
+# Missing Data and Partially Known Parameters 缺失数据和部分参数已知 
 
 
 Bayesian inference supports a  general approach to missing data in
@@ -8,6 +16,8 @@ data are not explicitly modeled, as in the predictors for most
 regression models, then the result is an improper prior on the
 parameter representing the missing predictor.
 
+贝叶斯推断支持一种通用的缺失数据处理方法，其中任何缺失的数据项都被表示为一个参数，在后验中进行估计[@GelmanEtAl:2013]。如果缺失的数据没有明确地建模，例如大多数回归模型中的预测变量，则代表缺失预测变量的参数将具有不确定的先验分布。
+
 Mixing arrays of observed and missing data can be difficult to
 include in Stan, partly because it can be tricky to model discrete
 unknowns in Stan and partly because unlike some other statistical
@@ -16,14 +26,19 @@ unknown quantities to be defined in separate places in the model. Thus
 it can be necessary to include code in a Stan program to splice
 together observed and missing parts of a data structure.  Examples are
 provided later in the chapter.
+混合观察和缺失数据的数组可能很难包含在Stan中，这在一定程度上是因为在Stan中建模离散未知数可能很棘手，而且与某些其他统计语言（例如R和Bugs）不同，在Stan中要求观测量和未知量在模型中分别定义。因此，可能需要在Stan程序中添加代码来拼接数据结构的观测部分和缺失部分。本章后面提供了示例。
 
-## Missing data
+## Missing data 缺失数据
 
 Stan treats variables declared in the `data` and
 `transformed data` blocks as known and the variables in the
 `parameters` block as unknown.
 
+Stan将在`data`和`transformed data`块中声明的变量视为已知，将`parameters`块中声明的变量视为未知量。
+
 An example involving missing normal observations could be coded as follows.^[A more meaningful estimation example would involve a regression of the observed and missing observations using predictors that were known for each and specified in the `data` block.]
+
+涉及缺失正态观测值的示例可以编写如下。^[一个更有意义的估计示例涉及使用对于每个观察和缺失值已知且在`data`块中指定的预测变量对观测和缺失值进行回归。]
 
 ```stan
 data {
@@ -52,8 +67,9 @@ on the observed and missing data; combining them in this case would be
 less efficient because the data observations would be promoted and
 have needless derivatives calculated.
 
+观测到的和缺失的数据点的数量被编码为具有非负整数变量`N_obs`和`N_mis`的数据。观测数据被提供为数组数据变量`y_obs`。缺失数据编码为一个数组参数`y_mis`。被估计的普通参数包括位置`mu`和尺度`sigma`，它们也被编码为参数。该模型在观测和缺失数据上进行向量化；在这种情况下将它们组合起来效率会更低，因为数据观察值会被提升并且需要计算不必要的导数。
 
-## Partially known parameters {#partially-known-parameters.section}
+## Partially known parameters {#partially-known-parameters.section} 部分参数已知
 
 In some situations, such as when a multivariate probability function
 has partially observed outcomes or parameters, it will be necessary to
@@ -61,8 +77,12 @@ create a vector mixing known (data) and unknown (parameter) values.
 This can be done in Stan by creating a vector or array in the
 `transformed parameters` block and assigning to it.
 
+在某些情况下，例如当多变量概率函数具有部分观察到的结果或参数时，将有必要创建混合已知（数据）和未知（参数）值的向量。这可以在Stan中通过在`transformed parameters`块中创建向量或数组并分配给它来完成。
+
 The following example involves a bivariate covariance matrix in which the
 variances are known, but the covariance is not.
+
+下面的例子涉及一个双变量协方差矩阵，其中方差是已知的，但协方差不是。
 
 ```stan
 data {
@@ -98,22 +118,30 @@ is defined as a transformed parameter, with the variances assigned to
 the two diagonal elements and the covariance to the two off-diagonal
 elements.
 
+方差定义为变量`var1`和`var2`中的数据，而协方差定义为变量`cov`中的参数。$2 \times 2$协方差矩阵`Sigma`被定义为一个变换参数，其中方差被分配给两个对角元素，协方差被分配给这两个非对角元素。
+
 The constraint on the covariance declaration ensures that the
 resulting covariance matrix `sigma` is positive definite.  The
 bound, plus or minus the square root of the product of the variances,
 is defined as transformed data so that it is only calculated once.
+
+协方差声明上的限制确保生成的协方差矩阵`sigma`是正定的。上下限被定义为转换后的数据，其值为方差乘积的平方根再加上或减去一个常数，这样可以只计算一次。
 
 The vectorization of the multivariate normal is critical for
 efficiency here.  The transformed parameter `Sigma` could be
 defined as a local variable within the model block if
 it does not need to be included in the sampler's output.
 
-## Sliced missing data
+这里，多元正态的矢量化对效率至关重要。如果不需要将转换后的参数`Sigma`包含在采样器的输出中，则可以在模型块中将其定义为局部变量。
+
+## Sliced missing data 切片缺失数据
 
 If the missing data are part of some larger data structure, then it can
 often be effectively reassembled using index arrays and slicing.
 Here's an example for time-series data, where only some entries in the
 series are observed.
+
+如果缺失数据是某个较大数据结构的一部分，那么通常可以使用索引数组和切片来有效地重新组装。这里是一个关于时间序列数据的例子，其中只观察到序列中的一些条目。 
 
 ```stan
 data {
@@ -146,37 +174,33 @@ The index arrays `ii_obs` and `ii_mis` contain the indexes into the
 final array `y` of the observed data (coded as a data vector `y_obs`)
 and the missing data (coded as a parameter vector `y_mis`).  See the
 [time series chapter](#time-series) for further discussion of
-time-series model and specifically the [autoregression
-section](#autoregressive) for an explanation of the
-vectorization for `y` as well as an explanation of how to convert this
-example to a full AR(1) model.  To ensure `y[1]` has a proper
-posterior in case it is missing, we have given it an explicit, albeit
-broad, prior.
-
-Another potential application would be filling the
-columns of a data matrix of predictors for which some predictors are
-missing; matrix columns can be accessed as vectors and assigned the
-same way, as in
-
+  time-series model and specifically the [autoregression section](#autoregressive) for an explanation of the vectorization for `y` as well as an explanation of how to convert this example to a full AR(1) model.  To ensure `y[1]` has a proper posterior in case it is missing, we have given it an explicit, albeit broad, prior.
+                                          索引数组`ii_obs`和`ii_mis`包含观测数据（编码为数据向量`y_obs`）和缺失数据（编码为由参数向量`y_mis`）的最终数组`y`中的索引。有关时间序列模型的进一步讨论，请参见[time series chapter](#time-series)，特别是 [autoregressio section](#autoregressive)，以解释`y`的矢量化，以及如何将此示例转换为完整的AR(1)模型。为了确保 `y[1]`在缺失的情况下有一个合适的后验，我们给了它一个明确的，尽管范围很广的先验。
+                                            
+Another potential application would be filling the columns of a data matrix of predictors for which some predictors are missing; matrix columns can be accessed as vectors and assigned the same way, as in
+                                            
+另一个潜在的应用是填充数据矩阵的列，其中一些预测变量缺失; 矩阵列可以作为向量进行访问并以相同的方式分配，例如
 ```stan
 x[N_obs_2, 2] = x_obs_2;
 x[N_mis_2, 2] = x_mis_2;
 ```
-
-where the relevant variables are all hard coded with index `2` because
-Stan doesn't support ragged arrays.  These could all be packed into a
-single array with more fiddly indexing that slices out vectors from
+where the relevant variables are all hard coded with index `2` because Stan doesn't support ragged arrays.  These could all be packed into a single array with more fiddly indexing that slices out vectors from
 longer vectors (see the [ragged data structures
 section](#ragged-data-structs.section) for a general discussion of
 coding ragged data structures in Stan).
 
-## Loading matrix for factor analysis
+其中相关变量都是硬编码为索引`2`，因为Stan不支持不规则数组。这些变量可以通过更精细的索引打包到一个数组中，从更长的向量中分割出向量（请参阅[ragged data structures
+section](#ragged-data-structs.section)，了解Stan中对不规则数据结构化编码的一般讨论）。 
+
+## Loading matrix for factor analysis 用于因子分析的加载矩阵 
 
 Rick Farouni, on the Stan users group, inquired as to how to build
 a Cholesky factor for a covariance matrix with a unit diagonal, as
 used in Bayesian factor analysis [@aguilar-west:2000].  This
 can be accomplished by declaring the below-diagonal elements as
 parameters, then filling the full matrix as a transformed parameter.
+
+Stan用户小组的Rick Farouni询问了如何为贝叶斯因子分析中使用的具有单位对角线的协方差矩阵建立Cholesky因子 [@aguilar-west:2000]。这可以通过将以下对角线元素声明为参数，然后将整个矩阵填充为转换参数来实现。
 
 ```stan
 data {
@@ -217,17 +241,23 @@ all convenient to place a prior on the full covariance matrix `L
   * L'`, because that would require a Jacobian adjustment; the exact
 adjustment is detailed in the reference manual.
 
+最方便的是直接在`L_lower`上放置先验。另一种选择是对完整的Cholesky因子`L`进行先验分布，因为从`L_lower`到 `L`的变换仅仅是一个恒等变换，因此不需要雅可比调整（尽管解析器发出了警告，它无法聪明到通过代码分析推断出变换是线性的）。在完整的协方差矩阵`L
+  * L'`上放置先验分布不是很方便，因为这需要雅可比调整；精确的调整在参考手册中有详细说明。
 
-## Missing multivariate data
+## Missing multivariate data 缺失的多变量数据
 
 It's often the case that one or more components of a multivariate
 outcome are missing.^[This is not the same as missing components of a multivariate predictor in a regression problem; in that case, you will need to represent the missing data as a parameter and impute missing values in order to feed them into the regression.]
+
+通常情况下，多元结果中的一个或多个组成部分可能会缺失。^[这与回归问题中多变量预测变量的缺失分量不同；在这种情况下，您需要将缺失的数据表示为一个参数，并估算缺失的值，以便将它们输入到回归中。 ]
 
 As an example, we'll consider the bivariate distribution, which is
 easily marginalized.  The coding here is brute force, representing
 both an array of vector observations `y` and a boolean array
 `y_observed` to indicate which values were observed (others can
-have dummy values in the input).
+                                                     have dummy values in the input).
+
+例如，我们将考虑双变量分布，它很容易被边缘化。这里的编码是强制的，代表着向量观察值`y`和布尔数组`y_observed`，用于指示哪些值已被观察到（其他值可以在输入中有虚拟值）。
 
 ```stan
 array[N] vector[2] y;
@@ -237,6 +267,8 @@ array[N, 2] int<lower=0, upper=1> y_observed;
 If both components are observed, we model them using the full
 multi-normal, otherwise we model the marginal distribution of the
 component that is observed.
+
+如果观察到两个分量，我们使用完全多正态对它们进行建模，否则我们对观察到的分量的边际分布进行建模。 
 
 ```stan
 for (n in 1:N) {
@@ -254,6 +286,8 @@ It's a bit more work, but much more efficient to vectorize these
 sampling statements.  In transformed data, build up three vectors of
 indices, for the three cases above:
 
+将这些采样语句向量化需要做更多的工作，但效率要高得多。在转换后的数据中，针对上述三种情况，建立三个索引向量：
+
 ```stan
 transformed data {
   array[observed_12(y_observed)] int ns12;
@@ -267,6 +301,8 @@ observations in each of the three sampling situations.  This must be
 done with functions because the result needs to go in top-level block
 variable size declaration.  Then the rest of transformed data just
 fills in the values using three counters.
+
+您需要编写函数来提取三种采样情况中每种情况的观测计数。这必须使用函数完成，因为结果需要放入顶级块变量大小声明中。然后，变换数据的其余部分只需使用三个计数器填充值即可。
 
 ```stan
 int n12 = 1;
@@ -289,6 +325,8 @@ for (n in 1:N) {
 Then, in the model block, everything is vectorizable
 using those indexes constructed once in transformed data:
 
+然后，在模型块中，使用在转换后的数据中一次性构建的索引，所有内容都可以向量化：
+
 ```stan
 y[ns12] ~ multi_normal(mu, Sigma);
 y[ns1] ~ normal(mu[1], sqrt(Sigma[1, 1]));
@@ -302,10 +340,14 @@ the three arrays in the transformed data block, though the efficiency
 improvement will be relatively minor compared to vectorizing the
 probability functions.
 
+该结果将比使用潜在变量来处理缺失的数据要有效得多，但它需要对多变量分布进行边缘化分析。在转换后的数据块中预计算三个数组会更有效，尽管与对概率函数进行矢量化相比，效率的提高相对较小。
+
 This approach can easily be generalized with some index fiddling to
 the general multivariate case.  The trick is to pull out entries in
 the covariance matrix for the missing components.  It can also be used
 in situations such as multivariate differential equation solutions
 where only one component is observed, as in a phase-space experiment
-recording only time and position of a pendulum (and not recording
-momentum).
+recording only time and position of a pendulum (and not recording momentum).
+                                      
+通过一些指标操作，这种方法可以轻松地推广到一般的多元情况。诀窍是在协方差矩阵中提取缺失分量的条目。它也可以用于只有一个分量被观测到的多元微分方程解的情况，例如在相空间实验中仅记录摆锤的时间和位置（而不记录动量）。
+
