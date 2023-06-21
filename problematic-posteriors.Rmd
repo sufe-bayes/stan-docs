@@ -7,6 +7,7 @@ editor_options:
 # Problematic Posteriors {#problematic-posteriors.chapter}
 
 引发问题的后验分布
+本章译者：谈英文
 
 Mathematically speaking, with a proper posterior, one can do Bayesian
 inference and that's that. There is not even a need to require a finite
