@@ -53,10 +53,6 @@ Suppose there are observations $y_n$ for $n \in \{1,\dotsc,N\}$, two
 intercept parameters $\lambda_1$ and $\lambda_2$, a scale parameter
 $\sigma > 0$, and the sampling distribution
 
-$$
-y_n \sim \textsf{normal}(\lambda_1 + \lambda_2, \sigma).
-$$
-
 假设有对于$n\in {1,\cdots,N}$的观测值$y_n$，两个截距参数$\lambda_1$
 和$\lambda_2$，一个尺度参数$\sigma > 0$\$，以及采样分布
 
