@@ -16,92 +16,88 @@ subparagraph: yes
 always_allow_html: yes
 ---
 
-# <i style="font-size: 110%; padding:1.5em 0 0 0; color:#990017;">Overview</i> {-}
+# <i style="font-size: 110%; padding:1.5em 0 0 0; color:#990017;">Overview</i> {.unnumbered}
 
-<img style="float:right; margin: -2em 0em 4em 4em" src="img/logo-tm.png" width="225" alt="Stan logo" />
+<img src="img/logo-tm.png" alt="Stan logo" style="float:right; margin: -2em 0em 4em 4em" width="225"/>
 
-#### About this user's guide {-}
+#### About this user's guide {.unnumbered}
 
-This is the official user's guide for Stan.  It provides example
-models and programming techniques for coding statistical models in Stan.
+#### 关于本用户指南 {未编号}
 
-- Part 1 gives Stan code and discussions for several important classes
-of models.
+This is the official user's guide for Stan. It provides example models and programming techniques for coding statistical models in Stan.
 
-- Part 2 discusses various general Stan programming techniques that are
-not tied to any particular model.
+这是 Stan 的官方用户指南。 它提供了示例模型以及在 Stan 中编码统计模型的编程技术。
 
-- Part 3 introduces algorithms for calibration and model checking that
-require multiple runs of Stan.
+-   Part 1 gives Stan code and discussions for several important classes of models.
 
-- The appendices provide an introduction to the stanc3 compiler used in the
-  various interfaces to Stan, a style guide, and advice for users of BUGS and
-  JAGS.
+-   第 1 部分给出了几个重要类的 Stan 代码和讨论模型。
 
-In addition to this user's guide, there are two reference manuals for
-the Stan language and algorithms.  The [*Stan Reference Manual*](https://mc-stan.org/docs/reference-manual/index.html)
-specifies the Stan programming language and inference algorithms. The
-[*Stan Functions Reference*](https://mc-stan.org/docs/functions-reference/index.html)
-specifies the functions built into the Stan programming language.
+-   Part 2 discusses various general Stan programming techniques that are not tied to any particular model.
 
-There is also a separate installation and getting started guide for
-each of the Stan [interfaces](https://mc-stan.org/users/interfaces/) (R, Python,
-Julia, Stata, MATLAB, Mathematica, and command line).
+-   第 2 部分讨论了各种通用的 Stan 编程技术不依赖于任何特定模型。
 
-We recommend working through this guide using the textbooks _Bayesian
-Data Analysis_ and _Statistical Rethinking: A Bayesian Course with
-Examples in R and Stan_ as references on the concepts, and using the
-[*Stan Reference Manual*](https://mc-stan.org/docs/reference-manual/index.html)
-when necessary to clarify programming issues.
+-   Part 3 introduces algorithms for calibration and model checking that require multiple runs of Stan.
 
-#### Web resources {-}
+-   第 3 部分介绍了校准和模型检查的算法需要多次运行 Stan。
 
-Stan is an open-source software project, resources for which are
-hosted on various web sites:
+-   The appendices provide an introduction to the stanc3 compiler used in the various interfaces to Stan, a style guide, and advice for users of BUGS and JAGS.
 
-* The [Stan Web Site](https://mc-stan.org/) organizes all of the resources
-for the Stan project for users and developers.  It contains links to
-the official Stan releases, source code, installation instructions,
-and full documentation, including the latest version of this manual,
-the user's guide and the getting started guide for each interface,
-tutorials, case studies, and reference materials for developers.
+-   附录提供了所使用的在stan的各种界面中stanc3编译器的介绍，风格指南和对BUGS 和 JAGS 的用户的建议。
 
-* The [Stan Forums](https://discourse.mc-stan.org) provide structured
-message boards for questions, discussion, and announcements related to
-Stan for both users and developers.
+In addition to this user's guide, there are two reference manuals for the Stan language and algorithms. The [*Stan Reference Manual*](https://mc-stan.org/docs/reference-manual/index.html) specifies the Stan programming language and inference algorithms. The [*Stan Functions Reference*](https://mc-stan.org/docs/functions-reference/index.html) specifies the functions built into the Stan programming language.
 
-* The [Stan GitHub Organization](https://github.com/stan-dev) hosts all
-of Stan's code, documentation, wikis, and web site, as well as the
-issue trackers for bug reports and feature requests and interactive
-code review for pull requests.
+除了本用户指南之外，还有两本参考手册Stan 语言和算法。 [*斯坦参考 手册*](https://mc-stan.org/docs/reference-manual/index.html) 指定 Stan 编程语言和推理算法。 [*Stan Functions Reference*](https://mc-stan.org/docs/functions-reference/index.html) 指定 Stan 编程语言中内置的函数。
 
-#### Acknowledgements {-}
+There is also a separate installation and getting started guide for each of the Stan [interfaces](https://mc-stan.org/users/interfaces/) (R, Python, Julia, Stata, MATLAB, Mathematica, and command line).
 
-The Stan project could not exist without developers, users, and
-funding.  Stan is a highly collaborative project.  The individual
-contributions of the Stan developers to code is tracked through GitHub
-and to the design conversation in the Wikis and forums.
+We recommend working through this guide using the textbooks *Bayesian Data Analysis* and *Statistical Rethinking: A Bayesian Course with Examples in R and Stan* as references on the concepts, and using the [*Stan Reference Manual*](https://mc-stan.org/docs/reference-manual/index.html) when necessary to clarify programming issues.
 
-Users have made extensive contributions to documentation in the way
-of case studies, tutorials and even books.  They have also reported
-numerous bugs in both the code and documentation.
+每个还有一个单独的安装和入门指南 Stan [interfaces](https://mc-stan.org/users/interfaces/) (R, Python、Julia、Stata、MATLAB、Mathematica 和命令行）。 我们建议使用教科书*Bayesian Data Analysis* and *Statistical Rethinking: A Bayesian Course with Examples in R and Stan*作为概念的参考，并使用 [*Stan Reference Manual*](https://mc-stan.org/docs/reference-manual/index.html)来澄清编程问题。
 
-Stan has been funded through grants for Stan and its developers,
-through in-kind donations in the form of companies contributing
-developer time to Stan and individuals contributing their own time to
-Stan, and through donations to the open-source scientific software
-non-profit NumFOCUS.  For details of direct funding for the project,
-see the web site and project pages of the Stan developers.
+#### Web resources {.unnumbered}
 
+#### 网页资源{未编号}
 
-#### Copyright, trademark, and licensing {-}
+Stan is an open-source software project, resources for which are hosted on various web sites:
 
-This book is copyright 2011--2022, Stan Development Team and their
-assignees.  The text content is distributed under the [CC BY-ND 4.0
-license](https://creativecommons.org/licenses/by-nd/4.0/legalcode).
-The user's guide R and Stan programs are distributed under the [BSD
-3-clause license](https://opensource.org/licenses/BSD-3-Clause).
+Stan 是一个开源软件项目，其资源托管在各种网站上：
 
-The Stan name and logo are registered trademarks of NumFOCUS.  Use of
-the Stan name and logo are governed by the [Stan logo usage
-guidelines](https://mc-stan.org/about/logo/).
+-   The [Stan Web Site](https://mc-stan.org/) organizes all of the resources for the Stan project for users and developers. It contains links to the official Stan releases, source code, installation instructions, and full documentation, including the latest version of this manual, the user's guide and the getting started guide for each interface, tutorials, case studies, and reference materials for developers.
+
+-   [Stan Web Site](https://mc-stan.org/) 组织了所有为用户和开发人员提供的 Stan 项目资源。它包含链接到 Stan 官方版本、源代码、安装说明和完整文档，包括最新版本本手册、用户指南和入门指南每个界面、教程、案例研究和参考资料开发商。
+
+-   The [Stan Forums](https://discourse.mc-stan.org) provide structured message boards for questions, discussion, and announcements related to Stan for both users and developers.
+
+-   [Stan Forums](https://discourse.mc-stan.org) 提供了对于stan用户和开发者来说的结构化的用于问题、讨论和相关公告的留言板。
+
+-   The [Stan GitHub Organization](https://github.com/stan-dev) hosts all of Stan's code, documentation, wikis, and web site, as well as the issue trackers for bug reports and feature requests and interactive code review for pull requests.
+
+-   [Stan GitHub Organization](https://github.com/stan-dev) 主办Stan 的所有代码、文档、wiki 和网站，以及错误报告和功能请求的问题跟踪器以及 拉取请求的交互式代码审查。
+
+#### Acknowledgements {.unnumbered}
+
+#### 致谢{未编号}
+
+The Stan project could not exist without developers, users, and funding. Stan is a highly collaborative project. The individual contributions of the Stan developers to code is tracked through GitHub and to the design conversation in the Wikis and forums.
+
+没有开发者、用户和资金，Stan 项目就不可能存在。Stan 是一个高度协作的项目。 个人贡献通过 GitHub 跟踪 Stan 开发人员的代码和设计维基百科和论坛中的对话。
+
+Users have made extensive contributions to documentation in the way of case studies, tutorials and even books. They have also reported numerous bugs in both the code and documentation.
+
+用户通过以下方式对文档做出了广泛的贡献：案例研究、教程甚至书籍。 他们还报道了许多代码和文档中的错误。
+
+Stan has been funded through grants for Stan and its developers, through in-kind donations in the form of companies contributing developer time to Stan and individuals contributing their own time to Stan, and through donations to the open-source scientific software non-profit NumFOCUS. For details of direct funding for the project, see the web site and project pages of the Stan developers.
+
+Stan 的资金来源是为 Stan 及其开发商提供的赠款以贡献开发人员时间的公司形式进行的实物捐赠致stan以及为stan贡献自己时间的个人，并通过向开源科学软件非营利组织 NumFOCUS 捐款。有关该项目直接资助的详细信息，请参阅网站和Stan 开发者的项目页面。
+
+#### Copyright, trademark, and licensing {.unnumbered}
+
+#### 版权、商标和许可{未编号}
+
+This book is copyright 2011--2022, Stan Development Team and their assignees. The text content is distributed under the [CC BY-ND 4.0 license](https://creativecommons.org/licenses/by-nd/4.0/legalcode). The user's guide R and Stan programs are distributed under the [BSD 3-clause license](https://opensource.org/licenses/BSD-3-Clause).
+
+本书版权所有 2011--2022，Stan 开发团队及其受让人。 文本内容根据 [CC BY-ND 4.0 license](https://creativecommons.org/licenses/by-nd/4.0/legalcode)。 这用户指南 R 和 Stan 程序根据 [BSD 3-clause license](https://opensource.org/licenses/BSD-3-Clause)。
+
+The Stan name and logo are registered trademarks of NumFOCUS. Use of the Stan name and logo are governed by the [Stan logo usage guidelines](https://mc-stan.org/about/logo/).
+
+Stan 名称和徽标是 NumFOCUS 的注册商标。 使用Stan 名称和徽标受 [Stan logo usage guidelines](https://mc-stan.org/about/logo/)。

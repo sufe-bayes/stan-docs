@@ -1,21 +1,31 @@
 # Computing One Dimensional Integrals {#integrate-1d}
 
+# 计算一维积分 {#一维积分}
 
-Definite and indefinite one dimensional integrals can be performed in Stan
-using the [`integrate_1d` function](https://mc-stan.org/docs/functions-reference/functions-1d-integrator.html).
+Definite and indefinite one dimensional integrals can be performed in
+Stan using the [`integrate_1d`
+function](https://mc-stan.org/docs/functions-reference/functions-1d-integrator.html).
 
-As an example, the normalizing constant of a left-truncated normal distribution is
+stan可以执行一维定积分和不定积分，使用 [`integrate_1d`
+function](https://mc-stan.org/docs/functions-reference/functions-1d-integrator.html)。
+
+As an example, the normalizing constant of a left-truncated normal
+distribution is
+
+例如，左截断正态分布的归一化常数
 
 $$
   \int_a^\infty \frac{1}{\sqrt{2 \pi \sigma^2}} e^{-\frac{1}{2}\frac{(x - \mu)^2}{\sigma^2}}
 $$
 
+To compute this integral in Stan, the integrand must first be defined as
+a Stan function (see the Stan Reference Manual chapter on User-Defined
+Functions for more information on coding user-defined functions).
 
-To compute this integral in Stan, the integrand must first be defined as a Stan function
-(see the Stan Reference Manual chapter on User-Defined Functions
-for more information on coding user-defined functions).
+要计算 Stan 中的积分，必须首先将被积函数定义为 Stan 函数（请参阅 Stan
+参考手册中有关用户定义的章节） 有关编码用户定义函数的更多信息）。
 
-```stan
+``` stan
 real normal_density(real x,             // Function argument
                     real xc,            // Complement of function argument
                                         //  on the domain (defined later)
@@ -29,38 +39,50 @@ real normal_density(real x,             // Function argument
 }
 ```
 
+This function is expected to return the value of the integrand evaluated
+at point `x`. The argument `xc` is used in definite integrals to avoid
+loss of precision near the limits of integration and is set to NaN when
+either limit is infinite (see the section on precision/loss in the
+chapter on Higher-Order Functions of the Stan Functions Reference for
+details on how to use this). The argument `theta` is used to pass in
+arguments of the integral that are a function of the parameters in our
+model. The arguments `x_r` and `x_i` are used to pass in real and
+integer arguments of the integral that are not a function of our
+parameters.
 
-This function is expected to return the value of the integrand evaluated at point `x`. The
-argument `xc` is used in definite integrals to avoid loss of precision near
-the limits of integration and is set to NaN when either limit is infinite
-(see the  section on precision/loss in the chapter on
-Higher-Order Functions
-of the Stan Functions Reference for details on how to use this).
-The argument `theta` is used to pass in arguments of the integral
-that are a function of the parameters in our model. The arguments `x_r`
-and `x_i` are used to pass in real and integer arguments of the integral that are
-not a function of our parameters.
+该函数预计返回被评估的被积函数的值在点"x"。定积分中使用参数"xc"以避免精度损失接近积分极限，并且在以下情况下设置为NaN：任一限制都是无限的（请参阅中关于精度/损失的部分）Stan函数参考的高阶函数一章有关如何使用它的详细信息）。参数`theta`用于传入积分的参数是我们的参数的函数模型。参数"x_r"和"x_i"用于传递实数和积分的整数参数不是我们的函数参数。
 
-The function defining the integrand must have exactly the argument types and
-return type of `normal_density` above, though argument naming is not important.
-Even if `x_r` and `x_i` are unused in the integrand, they must be
-included in the function signature. This may require passing in zero-length arrays
-for data or a zero-length vector for parameters if the integral does not involve
-data or parameters.
+The function defining the integrand must have exactly the argument types
+and return type of `normal_density` above, though argument naming is not
+important. Even if `x_r` and `x_i` are unused in the integrand, they
+must be included in the function signature. This may require passing in
+zero-length arrays for data or a zero-length vector for parameters if
+the integral does not involve data or parameters.
+
+定义被积数的函数必须具有完全相同的参数类型并返回上面的"正态密度"类型，尽管参数命名不是重要的。即使被积函数中未使用"x_r"和"x_i"，它们必须包含在函数特征中。如果积分不涉及数据或参数可能需要传入数据的零长度数组或参数的零长度向量。
 
 ## Calling the integrator
 
-Suppose that our model requires evaluating the lpdf of a left-truncated normal, but
-the truncation limit is to be estimated as a parameter. Because the truncation
-point is a parameter, we must include the normalization term of the truncated pdf when
-computing our model's log density. Note this is just an example of how to use the
-1D integrator. The more efficient way to perform the correct normalization in Stan
-is described in the chapter on Truncated or Censored Data of this guide.
+## 声明积分器
 
-Such a model might look like (include the function defined at the beginning of this
-chapter to make this code compile):
+Suppose that our model requires evaluating the lpdf of a left-truncated
+normal, but the truncation limit is to be estimated as a parameter.
+Because the truncation point is a parameter, we must include the
+normalization term of the truncated pdf when computing our model's log
+density. Note this is just an example of how to use the 1D integrator.
+The more efficient way to perform the correct normalization in Stan is
+described in the chapter on Truncated or Censored Data of this guide.
 
-```stan
+假设我们的模型需要评估左截断的正态，但截断极限要作为参数进行估计。因为截断点是一个参数，所以我们必须包含计算模型对数密度时截断
+pdf的归一化项。 请注意，这只是如何使用一维积分器的示例。在 Stan
+中执行正确标准化的更有效方法在本指南的截断或审查数据一章中进行了描述。
+
+Such a model might look like (include the function defined at the
+beginning of this chapter to make this code compile):
+
+这样的模型可能看起来像（包括在本章开头以使此代码编译）：
+
+``` stan
 data {
   int N;
   array[N] real y;
@@ -91,30 +113,50 @@ model {
 
 ### Limits of integration
 
-The limits of integration can be finite or infinite. The infinite limits are
-made available via the Stan calls `negative_infinity()` and
+### 积分的限制
+
+The limits of integration can be finite or infinite. The infinite limits
+are made available via the Stan calls `negative_infinity()` and
 `positive_infinity()`.
+
+积分的极限可以是有限的，也可以是无限的。 通过 Stan 调用
+negative_infinity() 和 Positive_infinity() 可以获得无限限制。
 
 If both limits are either `negative_infinity()` or
 `positive_infinity()`, the integral and its gradients are set to zero.
 
+如果两个极限均为 negative_infinity() 或
+Positive_infinity()，则积分及其梯度将设置为零。
+
 ### Data vs. parameters
 
-The arguments for the real data `x_r` and the integer data `x_i`
-must be expressions that only involve data or transformed data variables.
+### 数据与参数
+
+The arguments for the real data `x_r` and the integer data `x_i` must be
+expressions that only involve data or transformed data variables.
 `theta`, on the other hand, can be a function of data, transformed data,
 parameters, or transformed parameters.
 
-The endpoints of integration can be data or parameters (and internally the
-derivatives of the integral with respect to the endpoints are handled
-with the Leibniz integral rule).
+实际数据 x_r 和整数数据 x_i
+的参数必须是仅涉及数据或转换数据变量的表达式。 另一方面，theta
+可以是数据、变换后的数据、参数或变换后的参数的函数。
+
+The endpoints of integration can be data or parameters (and internally
+the derivatives of the integral with respect to the endpoints are
+handled with the Leibniz integral rule).
+
+积分的端点可以是数据或参数（内部积分相对于端点的导数是用莱布尼兹积分规则处理的）。
 
 ## Integrator convergence
+## 积分器收敛
 
-The integral is performed with the iterative 1D quadrature methods implemented
-in the Boost library [@BoostQuadrature:2017]. If the $n$th estimate of the
-integral is denoted $I_n$ and the $n$th estimate of the norm of the integral is
-denoted $|I|_n$, the iteration is terminated when
+The integral is performed with the iterative 1D quadrature methods
+implemented in the Boost library [@BoostQuadrature:2017]. If the $n$th
+estimate of the integral is denoted $I_n$ and the $n$th estimate of the
+norm of the integral is denoted $|I|_n$, the iteration is terminated
+when
+
+使用迭代一维求积方法执行积分在 Boost库[@BoostQuadrature:2017]中实现 。 如果第 $n$积分的估计值表示为 $I_n$ 并且第 $n$ 个估计值积分的范数表示为$|I|_n$，迭代终止当
 
 $$
   \frac{{|I_{n + 1} - I_n|}}{{|I|_{n + 1}}} < \text{relative tolerance}.
@@ -122,40 +164,51 @@ $$
 
 The `relative_tolerance` parameter can be optionally specified as the
 last argument to `integrate_1d`. By default, `integrate_1d` follows the
-Boost library recommendation of setting `relative_tolerance` to the square
-root of the machine epsilon of double precision floating point numbers
-(about `1e-8`).
+Boost library recommendation of setting `relative_tolerance` to the
+square root of the machine epsilon of double precision floating point
+numbers (about `1e-8`).
+
+可以选择将“relative_tolerance”参数指定为`integrate_1d` 的最后一个参数。 默认情况下，“integrate_1d”遵循Boost 库建议将“relative_tolerance”设置为
+机器 epsilon 的平方根的双精度浮点数（大约“1e-8”）。
 
 ### Zero-crossing integrals {#zero-crossing}
-
-Integrals on the (possibly infinite) interval $(a, b)$ that cross zero are
-split into two integrals, one from $(a, 0)$ and one from $(0, b)$. This is
-because the quadrature methods employed internally can have difficulty near
-zero.
+### 零交叉积分{零交叉}
+Integrals on the (possibly infinite) interval $(a, b)$ that cross zero
+are split into two integrals, one from $(a, 0)$ and one from $(0, b)$.
+This is because the quadrature methods employed internally can have
+difficulty near zero.
+区间 $(a, b)$ 上过零的积分（可能是无限的）分为两个积分，一个来自 $(a, 0)$，另一个来自 $(0,b)$。这是因为内部采用的正交方法复杂度接近于0。
 
 In this case, each integral is separately integrated to the given
 `relative_tolerance`.
+在这种情况下，每个积分分别积分到给定的`相对容差`。
 
 ### Avoiding precision loss near limits of integration in definite integrals {#integral-precision}
+### 避免定积分积分极限附近的精度损失{积分精度}
 
 If care is not taken, the quadrature can suffer from numerical loss of
 precision near the endpoints of definite integrals.
 
-For instance, in integrating the pdf of a beta distribution when the values of
-$\alpha$ and $\beta$ are small, most of the probability mass is lumped near zero
-and one.
+如果不注意，正交可能会遭受数值损失定积分端点附近的精度。
+
+For instance, in integrating the pdf of a beta distribution when the
+values of $\alpha$ and $\beta$ are small, most of the probability mass
+is lumped near zero and one.
+例如，在积分 beta 分布的 pdf 时，$\alpha$ 和$\beta$的值很小，大部分概率质量集中在零和一附近。
 
 The pdf of a beta distribution is proportional to
+beta 分布的 pdf成比例
 
 $$
 p(x) \propto x^{\alpha - 1}(1 - x)^{\beta - 1}
 $$
 
+Normalizing this distribution requires computing the integral of $p(x)$
+from zero to one. In Stan code, the integrand might look like:
 
-Normalizing this distribution requires computing the integral of $p(x)$ from
-zero to one. In Stan code, the integrand might look like:
+标准化此分布需要计算 $p(x)$ 的积分从零到一。 在 Stan 代码中，被积函数可能如下所示：
 
-```stan
+``` stan
 real beta(real x, real xc, array[] real theta, array[] real x_r, array[] int x_i) {
   real alpha = theta[1];
   real beta = theta[2];
@@ -166,15 +219,20 @@ real beta(real x, real xc, array[] real theta, array[] real x_r, array[] int x_i
 
 The issue is that there will be numerical breakdown in the precision of
 `1.0 - x` as `x` gets close to one. This is because of the limited
-precision of double precision floating numbers. This integral will fail to
-converge for values of `alpha` and `beta` much less than one.
+precision of double precision floating numbers. This integral will fail
+to converge for values of `alpha` and `beta` much less than one.
+问题是精度会出现数值崩溃当“x”接近 1 时，“1.0 - x”。 这是因为有限
+双精度浮点数的精度。 此积分将不收敛当“alpha”和“beta”的值远小于 1 时。
 
-This is where `xc` is useful. It is defined, for definite integrals, as a high
-precision version of the distance from `x` to the nearest endpoint --- `a - x`
-or `b - x` for a lower endpoint `a` and an upper endpoint `b`. To make use of
-this for the beta integral, the integrand can be re-coded:
+This is where `xc` is useful. It is defined, for definite integrals, as
+a high precision version of the distance from `x` to the nearest
+endpoint --- `a - x` or `b - x` for a lower endpoint `a` and an upper
+endpoint `b`. To make use of this for the beta integral, the integrand
+can be re-coded:
+这就是 `xc` 有用的地方。 对于定积分，它被定义为从“x”到最近的距离的高精度版本端点 --- “a - x”或“b - x”表示下端点“a”和上端点端点“b”。 为了将其用于 beta 积分，被积函数
+可以重新编码：
 
-```stan
+``` stan
 real beta(real x, real xc, array[] real theta, array[] real x_r, array[] int x_i) {
   real alpha = theta[1];
   real beta = theta[2];
@@ -190,22 +248,31 @@ real beta(real x, real xc, array[] real theta, array[] real x_r, array[] int x_i
 }
 ```
 
-In this case, as we approach the upper limit of integration $a = 1$, `xc` will
-take on the value of $a - x = 1 - x$. This version of the integrand will
-converge for much smaller values of `alpha` and `beta` than otherwise possible.
+In this case, as we approach the upper limit of integration $a = 1$,
+`xc` will take on the value of $a - x = 1 - x$. This version of the
+integrand will converge for much smaller values of `alpha` and `beta`
+than otherwise possible.
+在这种情况下，当我们接近积分上限$a = 1$时，`xc` 将采用 $a - x = 1 - x$ 的值。相比其他可能的情况，对于更小的“alpha”和“beta”值，被积函数将收敛
+。
 
-Consider another example: let's say we have a log-normal distribution that is
-both shifted away from zero by some amount $\delta$, and truncated at some
-value $b$. If we were interested in calculating the expectation of a variable
-$X$ distributed in this way, we would need to calculate
+Consider another example: let's say we have a log-normal distribution
+that is both shifted away from zero by some amount $\delta$, and
+truncated at some value $b$. If we were interested in calculating the
+expectation of a variable $X$ distributed in this way, we would need to
+calculate
+
+考虑另一个例子：假设我们有一个对数正态分布都从零偏移了一定量 $\delta$，并且被截断为某个值$b$。 如果我们有兴趣计算期望变量 $X$ 以这种方式分布，我们需要计算分子中的
+
 $$
 \int_a^b xf(x)\,dx = \int_{\delta}^b xf(x)\,dx
-$$
-in the numerator, where $f(x)$ is the probability density function for the
-shifted log-normal distribution. This probability density function can be
-coded in Stan as:
+$$ 
 
-```stan
+in the numerator, where $f(x)$ is the probability density function
+for the shifted log-normal distribution. This probability density
+function can be coded in Stan as:
+
+其中 $f(x)$ 是平移对数正态分布的概率密度函数。这个概率密度函数可以在 Stan 中编码为：
+``` stan
 real shift_lognormal_pdf(real x,
                          real mu,
                          real sigma,
@@ -220,8 +287,10 @@ real shift_lognormal_pdf(real x,
 ```
 
 Therefore, the function that we want to integrate is:
+因此，我们要集成的函数是：
 
-```stan
+
+``` stan
 real integrand(real x,
                real xc,
                array[] real theta,
@@ -243,14 +312,17 @@ real integrand(real x,
 }
 ```
 
-What happens here is that, given that the log-normal distribution is shifted by
-$\delta$, when we then try to integrate the numerator, our `x` starts at
-values just above `delta`. This, in turn, causes the `x - delta` term to be
-near zero, leading to a breakdown.
+What happens here is that, given that the log-normal distribution is
+shifted by $\delta$, when we then try to integrate the numerator, our
+`x` starts at values just above `delta`. This, in turn, causes the
+`x - delta` term to be near zero, leading to a breakdown.
+这里发生的情况是，考虑到对数正态分布是移动了$\delta$，当我们尝试对分子求积分时，我们的`x` 的起始值略高于 `delta`。 这反过来又导致“x - delta”项接近于零，导致崩溃。
 
 We can use `xc`, and define the `integrand` as:
 
-```stan
+我们可以使用“xc”，并将“被积函数”定义为：
+
+``` stan
 real integrand(real x,
                real xc,
                array[] real theta,
@@ -276,22 +348,35 @@ real integrand(real x,
 }
 ```
 
-Why does this work? When our values of `x` are less than `delta + 1` (so, when
-they're near `delta`, given that our lower bound of integration is equal to
-$\delta$), we pass `xc` as an argument to our `shift_lognormal_pdf` function.
-This way, instead of dealing with `x - delta` in `shift_lognormal_pdf`, we are
-working with `xc - delta` which is equal to `delta - x - delta`, as `delta` is
-the lower endpoint in that case. The `delta` terms cancel out, and we are left
-with a high-precision version of `x`. We don't encounter the same problem at
+Why does this work? When our values of `x` are less than `delta + 1`
+(so, when they're near `delta`, given that our lower bound of
+integration is equal to $\delta$), we pass `xc` as an argument to our
+`shift_lognormal_pdf` function. This way, instead of dealing with
+`x - delta` in `shift_lognormal_pdf`, we are working with `xc - delta`
+which is equal to `delta - x - delta`, as `delta` is the lower endpoint
+in that case. The `delta` terms cancel out, and we are left with a
+high-precision version of `x`. We don't encounter the same problem at
 the upper limit $b$ so we don't adjust the code for that case.
 
-Note, `xc` is only used for definite integrals. If either the left endpoint
-is at negative infinity or the right endpoint is at positive infinity, `xc`
-will be NaN.
+为什么这有效？ 当我们的“x”值小于“delta + 1”时（因此，当它们接近“delta”时，考虑到我们的下限积分等于 $\delta$)，我们将 `xc` 作为参数传递给我们的`shift_lognormal_pdf` 函数。 这样，而不是处理`shift_lognormal_pdf` 中的 `x - delta`，我们正在使用 `xc - delta`等于“delta - x - delta”，因为“delta”是下端点，在这种情况下。 “delta”项被抵消，我们剩下一个`x` 的高精度版本。 我们没有遇到同样的问题
+上限 $b$ 因此我们不会针对这种情况调整代码。
 
-For zero-crossing definite integrals (see section [Zero Crossing](#zero-crossing)) the
-integrals are broken into two pieces ($(a, 0)$ and $(0, b)$ for endpoints
-$a < 0$ and $b > 0$) and `xc` is a high precision version of the distance
-to the limits of each of the two integrals separately. This means `xc` will
-be a high precision version of `a - x`, `x`, or `b - x`,
-depending on the value of x and the endpoints.
+Note, `xc` is only used for definite integrals. If either the left
+endpoint is at negative infinity or the right endpoint is at positive
+infinity, `xc` will be NaN.
+
+请注意，“xc”仅用于定积分。 如果左边端点为负无穷或右端点为正
+无穷大，“xc”将为 NaN。
+
+For zero-crossing definite integrals (see section [Zero
+Crossing](#zero-crossing)) the integrals are broken into two pieces
+($(a, 0)$ and $(0, b)$ for endpoints $a < 0$ and $b > 0$) and `xc` is a
+high precision version of the distance to the limits of each of the two
+integrals separately. This means `xc` will be a high precision version
+of `a - x`, `x`, or `b - x`, depending on the value of x and the
+endpoints.
+
+对于过零定积分（参见[ZeroCrossing](#zero-crossing)) 积分被分成两部分
+（$(a, 0)$ 和 $(0, b)$ 对于端点 $a < 0$ 和 $b > 0$）和 `xc` 是
+到两者极限的距离的高精度版本分别积分。 这意味着“xc”将是高精度版本
+`a - x`、`x` 或 `b - x`，具体取决于 x 的值和端点。
