@@ -1,5 +1,8 @@
 # Posterior and Prior Predictive Checks {#ppcs.chapter}
-{本节译者：陈苑莹}后验和先验预测检查
+
+# 后验和先验预测检查 {#ppcs.chapter}
+
+翻译贡献者：陈苑莹
 
 Posterior predictive checks are a way of measuring whether a model
 does a good job of capturing relevant aspects of the data, such as
@@ -28,7 +31,8 @@ on [hierarchical models and mixed replication](#mixed-replication).
 先验和后验预测检查是广义预测检查的两种情况，它们只是基于不同的条件（分别是无数据和观测数据）。对于分层模型，存在一些过渡形式的预测检查，具体讨论见[分层模型和混合复制](#mixed-replication)一节。
 
 ## Simulating from the posterior predictive distribution
-模拟后验预测分布
+
+## 模拟后验预测分布
 
 The posterior predictive distribution is the distribution over new
 observations given previous observations.  It's predictive in the
@@ -105,7 +109,8 @@ the original data.
 后验预测检查的后验预测抽样与[后验预测](#posterior-prediction.chapter)一章中讨论的通常后验预测抽样不同之处在于使用了原始预测 $x$。也就是说，后验预测是针对原始数据的。
 
 ## Plotting multiples
-多图绘制
+
+## 多图绘制
 
 A standard posterior predictive check would plot a histogram of each
 replicated data set along with the original data set and compare them
@@ -195,7 +200,8 @@ appropriately capturing the variance of the data.
 这次，原始数据与所有复制数据集形成鲜明对比，所有复制数据集都明显比原始数据更对称且方差更小。也就是说，该模型未能很好地捕获到数据的方差。
 
 ## Posterior ''p-values''
-后验“p值”
+
+## 后验“p值”
 
 If a model captures the data well, summary statistics such as
 sample mean and standard deviation, should have similar values in
@@ -301,7 +307,8 @@ account for the over-dispersion.
 这里，原始数据的标准差比任何复制数据集都要高得多。经过大量迭代后，Stan估计产生的p值为零(绝对误差边界是可接受的，但需要大量迭代才能通过抽样得到小p值的相对误差边界)。换句话说，没有后验抽样能导致复制数据集的标准差大于或等于原始数据集的标准差。显然，该模型没有捕获到原始数据的离散性。这个练习的重点不仅仅是确定模型存在问题，而是还要找出问题所在。观察到数据与泊松模型相比过于离散，就有理由采用更一般的模型，如负二项分布或隐变化效应(又名随机效应)模型，这些模型能够解释过度离散的现象。
 
 ### Which statistics to test?
-检验哪个统计量？
+
+### 检验哪个统计量？
 
 Any statistic may be used for the data, but these can be guided by the
 quantities of interest in the model itself.  Popular choices in
@@ -327,7 +334,8 @@ functions of two or more parameters.
 尽管有各种选择，但理想情况下，检验统计量应该是辅助的，即它们应该测试除参数拟合之外的其他内容。例如，对于一个简单的正态模型，只要先验不主导后验，通常可以很好地拟合数据的均值和方差。相比之下，如果数据集的均值和方差不同，那么泊松模型就无法同时捕获到数据的均值和方差，因此在泊松模型中需要进行检验。正如我们在泊松模型中看到的那样，单个比例参数的后验均值位于数据均值附近，而不在数据方差附近。其他分布，如对数正态分布和伽马分布，均值和方差是两个或多个参数的函数。
 
 ## Prior predictive checks
-先验预测检查
+
+## 先验预测检查
 
 Prior predictive checks generate data according to the prior in order
 to asses whether a prior is appropriate [@GabryEtAl:2019].  A
@@ -377,7 +385,8 @@ is a simulation from the prior predictive distribution.
 是一个来自先验预测分布的模拟。
 
 ### Coding prior predictive checks in Stan
-在Stan中进行先验预测检查的编程
+
+### 在 Stan 中进行先验预测检查的编程
 
 A prior predictive check is coded just like a posterior predictive
 check.  If a posterior predictive check has already been coded and
@@ -415,7 +424,8 @@ consider their appropriateness.
 使用Stan的固定参数采样器运行这个程序会产生来自先验的抽样。可以将这些抽样绘制出来以考虑其适用性。
 
 ## Example of prior predictive checks
-一个关于先验预测检查的示例
+
+## 一个关于先验预测检查的示例
 
 Suppose we have a model for a football (aka soccer) league where there
 are $J$ teams.  Each team has a scoring rate $\lambda_j$ and in each
@@ -521,7 +531,8 @@ wide that it will pull probability mass away from feasible values.
 先验预测检查也可以与数据进行比较，但不应期望它们以后验预测检查相同的方式进行校准。这需要猜测后验并将其编程到先验中。我们的目标是确保先验不会太宽泛，以至于使概率质量偏离可行值。
 
 ## Mixed predictive replication for hierarchical models {#mixed-replication}
-分层模型的混合预测复制集
+
+## 分层模型的混合预测复制集 {#mixed-replication}
 
 @GelmanEtAl:1996 discuss the case of mixed replication for
 hierarchical models in which the hyperparameters remain fixed, but
@@ -618,7 +629,8 @@ generated quantities {
 
 
 ## Joint model representation
-联合模型表示
+
+## 联合模型表示
 
 Following @GelmanEtAl:1996, prior, posterior, and mixed replications
 may all be defined as posteriors from joint models over parameters and
@@ -630,7 +642,8 @@ observed and replicated data.
 先验复制集、后验复制集和混合复制集都可以定义为联合模型在参数集、观测集和复制数据集上的后验。
 
 ### Posterior predictive model
-后验预测模型
+
+### 后验预测模型
 
 For example, posterior predictive replication may be formulated
 using sampling notation as follows.
@@ -673,7 +686,8 @@ are retained.
 变量$y$是被观测到的，而预测模拟$y^{\textrm{rep}}$和参数向量$\theta$是不被观测到的。后验是$p(y^{\textrm{rep}}, \theta \mid y)$。给定来自后验的样本，后验预测模拟$y^{\textrm{rep}}$就得到了。
 
 ### Prior predictive model
-先验预测模型
+
+### 先验预测模型
 
 The prior predictive model simply drops the data component of the
 posterior predictive model. 
@@ -700,7 +714,8 @@ executed just as the posterior predictive model, only with no data.
 从先验中得到$\theta$和从给定$\theta$的抽样分布中得到$y^{\textrm{rep}}$都是很直观高效的。如果不是，则可以像后验预测模型一样对模型进行编码和执行，只是没有数据部分。
 
 ### Mixed replication for hierarchical models
-分层模型的混合复制
+
+### 分层模型的混合复制
 
 The mixed replication corresponds to the model
 
