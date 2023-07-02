@@ -3,7 +3,8 @@
 # Floating Point Arithmetic
 
 # 浮点数算术
-本章译者：洪世哲
+
+翻译贡献者：洪世哲
 
 Computers approximate real values in $\mathbb{R}$ using a fixed number
 of bits. This chapter explains how this is done and why it is
