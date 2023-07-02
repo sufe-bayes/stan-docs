@@ -1,5 +1,12 @@
-# Held-Out Evaluation and Cross-Validation  自动评估与交叉验证 
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+# Held-Out Evaluation and Cross-Validation 
+# 自动评估与交叉验证  
 翻译者：沈梓梁
+
 
 Held-out evaluation involves splitting a data set into two parts, a
 training data set and a test data set.  The training data is used to
@@ -9,7 +16,7 @@ competitions such as those run by [Kaggle](https://kaggle.com).
 
 Held-out评估包括将数据集分成两部分，
 其中一个训练数据集和另一个测试数据集.
-训练数据集用于估计模型，而测试数据集用于评估.
+训练数据集用于估计模型，而测试数据集用于对模型进行评价.
 在[Kaggle](https://kaggle.com)举办的预测建模竞赛中，
 Held-out评估常常用于宣布获胜者.
 
@@ -33,8 +40,9 @@ in a classification task.
 Held -out评估和交叉验证可能涉及任何类型的预测统计量，
 常见的选择是测试数据的预测对数密度、参数估计的均方误差或分类任务的准确性.
 
-## Evaluating posterior predictive densities 评估后验预测密度 {#evaluating-posterior-predictive.section}
- 
+## Evaluating posterior predictive densities  {#evaluating-posterior-predictive.section}
+## 评估后验预测密度  {#evaluating-posterior-predictive.section}
+
 Given training data $(x, y)$ consisting of parallel sequences of
 predictors and observations and test data $(\tilde{x}, \tilde{y})$ of
 the same structure, the posterior predictive density is
@@ -116,7 +124,8 @@ and thus will not overflow.
 将最大值取出保留了所有的精度.
 通过减去最大值，项$\mu_m - \textrm{max}(\mu) \leq 0$，因此不会溢出.
 
-### Stan program Stan程序 
+### Stan program {-}
+### Stan程序 {-}
 
 To evaluate the log predictive density of a model, it suffices to
 implement the log predictive density of the test data in the generated quantities
@@ -180,9 +189,11 @@ log(M)`.
 因此给定训练数据和预测器的测试数据的对数后验预测密度只是
 `log_sum_exp(log_p) - log(M)`.
 
-## Estimation error 估计误差
+## Estimation error {-}
+## 估计误差 {-}
 
-### Parameter estimates 参数估计
+### Parameter estimates {-}
+### 参数估计 {-}
 
 Estimation is usually considered for unknown parameters.  If the data
 from which the parameters were estimated came from simulated data, the
@@ -235,7 +246,8 @@ these properties.
 而后验中位数最小化期望绝对误差.
 基于众数而不是概率的估计，例如(惩罚的)最大似然估计或最大后验估计，则不具有这些属性.
 
-### Predictive estimates 预测估计
+### Predictive estimates {-}
+### 预测估计 {-}
 
 In addition to parameters, other unknown quantities may be estimated,
 such as the score of a football match or the effect of a medical
@@ -261,7 +273,8 @@ $$
 \textrm{rmse} = \sqrt{\textrm{mean-sq-err}}.
 $$
 
-### Predictive estimates in Stan Stan中的预测估计
+### Predictive estimates in Stan {-}
+### Stan中的预测估计 {-}
 
 Consider a simple linear regression model, parameters for the
 intercept $\alpha$ and slope $\beta$, along with predictors
@@ -373,7 +386,8 @@ Stan计算的`tilde_y`的后验均值是贝叶斯估计$\hat{\tilde{y}}.$
 后验中位数也可以被计算并用作估计，尽管平方误差和后验均值更常被报告.
 
 
-## Cross-validation 交叉检验
+## Cross-validation {-}
+## 交叉验证 {-}
 
 Cross-validation involves choosing multiple subsets of a data set as
 the test set and using the other data as training.  This can be done
@@ -402,7 +416,8 @@ with a balanced block partition.
 使用随机分区要容易得多，它支持任意大小的测试/训练分割，
 并且可以很容易地在Stan中实现.缺点是结果估计的方差比使用平衡块分区的方差要大.
 
-### Stan implementation with random folds Stan用随机折叠的实现
+### Stan implementation with random folds {-}
+### 用随机折叠的Stan实现 {-}
 
 For the simple linear regression model, randomized cross-validation
 can be implemented in a single model.  To randomly permute a vector in
@@ -556,7 +571,8 @@ scale of error in the fold being evaluated.
 所以结果应该以每个项目的尺度呈现，
 例如平均绝对误差或均方根误差，而不是以被评估折叠的误差尺度呈现.
 
-### User-defined permutations 用户定义的排列
+### User-defined permutations {-} 
+### 用户定义的排列 {-}
 
 It is straightforward to declare the variable `permutation` in the
 data block instead of the transformed data block and read it in as
@@ -567,7 +583,8 @@ allowing non-random partitions to be evaluated.
 并将其作为数据读入是很简单的.
 这允许外部程序控制分组，允许评估非随机划分.
 
-### Cross-validation with structured data 使用结构化数据进行交叉验证
+### Cross-validation with structured data {-}
+### 使用结构化数据进行交叉验证 {-}
 
 Cross-validation must be done with care if the data is inherently
 structured.  For example, in a simple natural language application,
@@ -595,7 +612,8 @@ cross-validate at the class or school level on classroom performance.
 根据感兴趣的变量，应该评估不同的结构化子集.
 例如，关注的焦点可能是整个教室的表现，因此在班级或学校层面上交叉验证课堂表现是有意义的.
 
-### Cross-validation with spatio-temporal data 使用时空数据交叉验证
+### Cross-validation with spatio-temporal data {-}
+### 使用时空数据交叉验证 {-}
 
 Often data measurements have spatial or temporal properties.  For
 example, home energy consumption varies by time of day, day of week,
@@ -615,7 +633,8 @@ prediction performs with more or less historical data.
 这提出了一种替代交叉验证的方法，其中每个星期都根据先前的数据进行测试.
 这通常允许将预测与或多或少的历史数据进行比较.
 
-### Approximate cross-validation 近似交叉检验
+### Approximate cross-validation {-}
+### 近似交叉检验 {-}
 
 @VehtariEtAl:2017 introduce a method that approximates the evaluation
 of leave-one-out cross validation inexpensively using only the data
