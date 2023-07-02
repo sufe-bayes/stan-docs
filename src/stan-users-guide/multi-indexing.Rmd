@@ -1,4 +1,7 @@
 # Multiple Indexing and Range Indexing  {#multi-indexing.chapter}
+
+# 多索引和范围索引 {#multi-indexing.chapter}
+
 翻译贡献者：王嘉宁
 
 Stan allows multiple indexes to be provided for containers (i.e.,
@@ -10,8 +13,6 @@ Allowing multiple indexes supports inline vectorization of models.
 For instance, consider the likelihood for a varying-slope,
 varying-intercept hierarchical linear regression, which could be coded
 as
-
-# 多索引和范围索引
 
 Stan允许在单个位置使用整数索引数组或范围边界来提供容器（即数组、向量和矩阵）的多个索引。在许多情况下，有一些函数可以提供类似的行为。
 
@@ -463,6 +464,7 @@ That is, `m[3]` produces the same result as `m[3, ]`
 or `m[3, 1:cols(m)]`.
 
 ### 具有单个的多维索引矩阵 {-}
+
 如果矩阵接收单个的多维索引，结果是一个矩阵。所以如果 `m` 是一个矩阵，那么 `m[2:4]` 也是一个矩阵。相反，提供单个索引 `m[3]` 会产生一个行向量结果。也就是说，`m[3]` 的结果与 `m[3, ]` 或 `m[3, 1:cols(m)]` 相同。
 
 
