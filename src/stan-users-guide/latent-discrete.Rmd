@@ -10,7 +10,7 @@ parameters (i.e., discrete stochastic nodes).  Nevertheless, it is
 possible to code many models that involve bounded discrete
 parameters by marginalizing out the discrete parameters.^[The computations are similar to those involved in expectation maximization (EM) algorithms [@dempster-et-al:1977].]
 
-Stan不支持对离散参数进行采样。因此，无法直接将具有离散参数（即离散随机节点）的BUGS或JAGS模型转换为Stan。尽管如此，通过边际化离散参数，可以对涉及有界离散参数的许多模型进行编码。[这些计算与期望最大化（EM）算法[@dempster-et-al:1977]中涉及的计算类似]。
+Stan不支持对离散参数进行采样。因此，无法直接将具有离散参数（即离散随机节点）的BUGS或JAGS模型转换为Stan。尽管如此，通过边际化离散参数，可以对涉及有界离散参数的许多模型进行编码。^[这些计算与期望最大化（EM）算法[@dempster-et-al:1977]中涉及的计算类似]。
 
 This chapter shows how to code several widely-used models involving
 latent discrete parameters.  The next chapter, the [clustering
@@ -47,7 +47,7 @@ exactly the marginalization needed for coding the model in Stan.
 
 The first example is a model of coal mining disasters in the U.K. for the years 1851--1962.^[The source of the data is [@Jarret:1979], which itself is a note correcting an earlier data collection.]
 
-第一个例子是对英国1851年至1962年间的煤矿灾害进行建模。[数据的来源是[@Jarret:1979]，它本身是对早期数据收集的修正。]
+第一个例子是对英国1851年至1962年间的煤矿灾害进行建模。^[数据的来源是[@Jarret:1979]，它本身是对早期数据收集的修正。]
 
 ### Model with latent discrete parameter {-}
 
@@ -71,7 +71,7 @@ The last line uses the conditional operator (also known as the ternary
 operator), which is borrowed from C and related languages.  The
 conditional operator has the same behavior as its counterpart in C++.^[The R counterpart, `ifelse`, is slightly different in that it is typically used in a vectorized situation.  The conditional operator is not (yet) vectorized in Stan.]
 
-最后一行使用条件运算符（也称为三元运算符），它借鉴自C语言和相关语言。条件运算符具有与C++中的对应运算符相同的行为。[R语言中的对应运算符`ifelse`稍有不同，它通常在矢量化的情况下使用。Stan中的条件运算符目前尚未矢量化。]
+最后一行使用条件运算符（也称为三元运算符），它借鉴自C语言和相关语言。条件运算符具有与C++中的对应运算符相同的行为。^[R语言中的对应运算符`ifelse`稍有不同，它通常在矢量化的情况下使用。Stan中的条件运算符目前尚未矢量化。]
 
 It uses a compact notation involving separating its three arguments by
 a question mark (`?`) and a colon (`:`).  The conditional
@@ -793,7 +793,7 @@ definitions.  The first two are used in the transformed data block to
 compute the first and last time period in which an animal was
 captured.^[An alternative would be to compute this on the outside and feed it into the Stan model as preprocessed data.  Yet another alternative encoding would be a sparse one recording only the capture events along with their time and identifying the individual captured.]
 
-个体级CJS模型包含几个函数定义。前两个函数用于在转换的数据块中计算动物被捕获的第一个和最后一个时间段。[另一种方法是在外部计算并将其作为预处理数据输入到Stan模型中。另一种可选的编码方式是使用稀疏表示，仅记录捕获事件以及它们的时间和被捕获的个体的标识。]
+个体级CJS模型包含几个函数定义。前两个函数用于在转换的数据块中计算动物被捕获的第一个和最后一个时间段。^[另一种方法是在外部计算并将其作为预处理数据输入到Stan模型中。另一种可选的编码方式是使用稀疏表示，仅记录捕获事件以及它们的时间和被捕获的个体的标识。]
 
 ```stan
 functions {
@@ -822,7 +822,7 @@ functions {
 These two functions are used to define the first and last capture time
 for each individual in the transformed data block.^[Both functions return 0 if the individual represented by the input array was never captured.  Individuals with no captures are not relevant for estimating the model because all probability statements are conditional on earlier captures.  Typically they would be removed from the data, but the program allows them to be included even though they make not contribution to the log probability function.]
 
-这两个函数用于在转换的数据块中定义每个个体的第一个和最后一个捕获时间。[如果输入数组表示的个体从未被捕获，这两个函数都返回0。没有捕获记录的个体对于模型的估计是无关的，因为所有的概率陈述都是基于先前的捕获条件的。通常情况下，它们会被从数据中删除，但是程序允许它们被包含在内，即使它们对对数概率函数没有贡献。]
+这两个函数用于在转换的数据块中定义每个个体的第一个和最后一个捕获时间。^[如果输入数组表示的个体从未被捕获，这两个函数都返回0。没有捕获记录的个体对于模型的估计是无关的，因为所有的概率陈述都是基于先前的捕获条件的。通常情况下，它们会被从数据中删除，但是程序允许它们被包含在内，即使它们对对数概率函数没有贡献。]
 
 ```stan
 transformed data {
@@ -1146,7 +1146,7 @@ $$
 The rating $y_{i, j}$ provided for item $i$ by rater $j$ is modeled as
 a categorical response of rater $i$ to an item of category $z_i$,^[In the subscript, $z_i$ is written as $z[i]$ to improve legibility.]
 
-评级者 $j$ 对项目 $i$ 提供的评级 $y_{i, j}$ 被建模为评级者 $j$ 对类别为 $z_i$ 的项目的分类响应。[在下标中，$z_i$ 写为 $z[i]$ 以提高易读性。]
+评级者 $j$ 对项目 $i$ 提供的评级 $y_{i, j}$ 被建模为评级者 $j$ 对类别为 $z_i$ 的项目的分类响应。^[在下标中，$z_i$ 写为 $z[i]$ 以提高易读性。]
 $$
 y_{i, j} \sim \textsf{categorical}(\theta_{j,\pi_{z[i]}}).
 $$
