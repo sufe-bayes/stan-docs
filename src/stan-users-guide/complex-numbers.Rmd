@@ -1,4 +1,5 @@
-# Complex Numbers复数
+# Complex Numbers
+复数
 
 Stan supports complex scalars, matrices, and vectors as well as
 real-based ones.
@@ -6,14 +7,16 @@ real-based ones.
 Stan在支持实数的标量、矩阵和向量的同时也支持复数的标量、矩阵和向量。
 
 
-## Working with complex numbers使用复数
+## Working with complex numbers
+使用复数
 
 This section describes the complex scalar type, including how to build
 complex numbers, assign them, and use them in arrays and functions.
 
 本节介绍复数标量的类型，包括如何构建复数、分配复数以及在数组和函数中使用复数。
 
-### Constructing and accessing complex numbers构造和访问复数
+### Constructing and accessing complex numbers
+构造和访问复数
 
 Complex numbers can be constructed using imaginary literals.  For example,
 
@@ -62,7 +65,8 @@ if (a == b) print("hello");
 ```
 
 
-### Complex assignment and promotion复数的分配和晋升
+### Complex assignment and promotion
+复数的分配和晋升
 
 Integer- or real-valued expressions may be assigned to complex
 numbers, with the corresponding imaginary component set to zero.
@@ -75,7 +79,8 @@ complex z2 = 3.2;  // real promoted to 3.2 + 0.i
 ```
 
 
-### Complex arrays复数数组
+### Complex arrays
+复数数组
 
 Arrays of complex numbers work as usual and allow the usual
 curly bracket constructors.
@@ -97,7 +102,8 @@ real assigned values being promoted to complex.
 复数数组允许对其元素进行赋值，整数或实数的赋值可以被提升为复数。
 
 
-### Complex functions复数函数
+### Complex functions
+复数函数
 
 All of the standard complex functions are available, including
 natural logarithm `log(z)`, natural exponentiation `exp(z)`, and
@@ -126,7 +132,8 @@ does `times_i(1.0)`.
 例如，`times_i（1）` 的计算结果为虚数$i$，`times_i（1.0）`也是如此。
 
 
-## Complex random variables复随机变量
+## Complex random variables
+复随机变量
 
 The simplest way to model a distribution over a complex random number
 $z = x = yi$ is to consider its real part $x$ and imaginary part $y$
@@ -151,7 +158,8 @@ further parameters defining a hierarchical model.
 例如，如果 `z` 是数据，则可用于估计 `mu` 和协方差 Cholesky 因子`L_Sigma`。或者，如果 `z` 是一个参数，则 `mu` 和 `L_Sigma` 可以是定义了一个先验的常数或者定义一个分层模型的参数。
 
 
-## Complex matrices and vectors复数矩阵和向量
+## Complex matrices and vectors
+复数矩阵和向量
 
 Stan supports complex matrices, vectors, and row vectors.  Variables
 of these types are declared with sizes in the same way as their
@@ -190,7 +198,8 @@ and matrices using the `to_array` functions.
 此外，可以使用`to_array`函数在数组和矩阵之间来回转换。
 
 
-## Complex linear regression复线性回归
+## Complex linear regression
+复线性回归
 
 Complex valued linear regression with complex predictors and
 regression coefficients looks just like standard regression.  For
@@ -225,7 +234,8 @@ error.
 
 
 
-### Independent real and imaginary error独立的实部误差和虚部误差
+### Independent real and imaginary error
+独立的实部误差和虚部误差
 
 The simplest approach to error in complex regression is to give the
 real and imaginary parts of `eps_n` independent
