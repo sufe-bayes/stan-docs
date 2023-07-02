@@ -1,93 +1,89 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
+# The Bootstrap and Bagging
 
-# The Bootstrap and Bagging 自助法和袋装法
+# 自助法和袋装法
 
 The bootstrap is a technique for approximately sampling from the error
-distribution for an estimator. Thus it can be used as a Monte Carlo
+distribution for an estimator.  Thus it can be used as a Monte Carlo
 method to estimate standard errors and confidence intervals for point
-estimates [@EfronTibshirani1986; -@EfronTibshirani1994]. It works by
+estimates [@EfronTibshirani1986; -@EfronTibshirani1994].  It works by
 subsampling the original data and computing sample estimates from the
-subsample. Like other Monte Carlo methods, the bootstrap is
+subsample.  Like other Monte Carlo methods, the bootstrap is
 plug-and-play, allowing great flexibility in both model choice and
 estimator.
 
-自助法(bootstrap)是一种对估计量的误差分布进行近似抽样的方法，可以作为一种蒙特卡罗方法来估计点估计的标准差和置信区间[@EfronTibshirani1986;
--@EfronTibshirani1994]。为了得到估计的标准差，它对原始数据多次进行子采样，并对每个子样本计算样本估计值。像其他蒙特卡罗方法一样，自助法是即插即用的，对于模型选择和参数估计具有很大的灵活性。
+自助法（bootstrap）是一种对估计量的误差分布进行近似抽样的方法，可以作为一种蒙特卡罗方法来估计点估计的标准差和置信区间[@EfronTibshirani1986;-@EfronTibshirani1994]。为了得到估计的标准差，它对原始数据多次进行子采样，并对每个子样本计算样本估计值。像其他蒙特卡罗方法一样，自助法是即插即用的，对于模型选择和参数估计具有很大的灵活性。
 
 Bagging is a technique for combining bootstrapped estimators for model
-criticism and more robust inference [@Breiman:1996;
-@HugginsMiller:2019].
+criticism and more robust inference [@Breiman:1996; @HugginsMiller:2019].
 
-袋装算法(bagging)综合考虑自助法得到的多个估计量，建立更准确、更稳定的模型[@Breiman:1996;
-@HugginsMiller:2019]。
+袋装算法（bagging）综合考虑自助法得到的多个估计量，建立更准确、更稳定的模型[@Breiman:1996;@HugginsMiller:2019]。
 
-## The bootstrap 自助法
+## The bootstrap
 
-### Estimators 估计量
+## 自助法
+
+### Estimators
+
+### 估计量
 
 An estimator is nothing more than a function mapping a data set to one
-or more numbers, which are called "estimates". For example, the mean
+or more numbers, which are called "estimates".  For example, the mean
 function maps a data set $y_{1,\ldots, N}$ to a number by
 
-估计量是将一个数据集映射到一个或多个数字的函数，这些数字被称为"估计值"。例如，均值函数将数据集$y_{1，\ldots, N}$通过函数
-
+估计量是将一个数据集映射到一个或多个数字的函数，这些数字被称为“估计值”。例如，均值函数将数据集$y_{1,\ldots, N}$通过函数
 $$
 \textrm{mean}(y) = \frac{1}{N} \sum_{n=1}^N y_n,
-$$ 
-and hence meets the definition of an estimator. Given the likelihood
+$$
+and hence meets the definition of an estimator.  Given the likelihood
 function
-
-映射到一个数，它满足估计量的定义。给定似然函数：
-
 $$
 p(y \mid \mu) = \prod_{n=1}^N \textrm{normal}(y_n \mid \mu, 1),
-$$ the mean is the maximum likelihood estimator,
+$$
+映射到一个数，它满足估计量的定义。给定似然函数：
+
+the mean is the maximum likelihood estimator,
 
 均值使得似然函数取到最大值。
-
 $$
 \textrm{mean}(y) = \textrm{arg max}_{\mu} \ p(y \mid \mu, 1)
-$$ 
-
+$$
 A Bayesian approach to point estimation would be to add a prior and
-use the posterior mean or median as an estimator. Alternatively, a
+use the posterior mean or median as an estimator.  Alternatively, a
 penalty function could be added to the likelihood so that optimization
-produces a penalized maximum likelihood estimate. With any of these
+produces a penalized maximum likelihood estimate.  With any of these
 approaches, the estimator is just a function from data to a number.
 
 贝叶斯的点估计方法是选择一个先验分布，使用后验分布的均值或中位数作为估计量。另外，可在似然函数中添加惩罚项，得到一个带惩罚的极大似然估计。无论使用上述何种方法，估计量都是由数据到单个数字的函数。
 
 In analyzing estimators, the data set is being modeled as a random
-variable. It is assumed that the observed data is just one of many
-possible random samples of data that may have been produced. If the data
-is modeled a random variable, then the estimator applied to the data is
-also a random variable. The simulations being done for the bootstrap are
-attempts to randomly sample replicated data sets and compute the random
-properties of the estimators using standard Monte Carlo methods.
+variable.  It is assumed that the observed data is just one of many
+possible random samples of data that may have been produced.  If the
+data is modeled a random variable, then the estimator applied to the
+data is also a random variable.  The simulations being done for the
+bootstrap are attempts to randomly sample replicated data sets and
+compute the random properties of the estimators using standard Monte
+Carlo methods.
 
 分析估计量时，将整个数据集视为一个随机变量，这是由于观测数据只是众多可能产生的随机数据样本中的一个。如果数据集是一个随机变量，那么由数据集得到的估计量也是一个随机变量。自助法进行的模拟首先对数据集随机重抽样，然后使用标准蒙特卡罗方法计算估计量的随机性质。
 
-### The bootstrap in pseudocode 自助法的伪代码
+### The bootstrap in pseudocode
+
+### 自助法的伪代码
 
 The bootstrap works by applying an estimator to replicated data sets.
 These replicates are created by subsampling the original data with
-replacement. The sample quantiles may then be used to estimate standard
-errors and confidence intervals.
+replacement.  The sample quantiles may then be used to estimate
+standard errors and confidence intervals.
 
 对于每一个对原始数据进行有放回抽样得到的重抽样数据集，自助法将估计量应用于其上得到一个估计值。由样本数据集得到估计值分位数，可近似出其标准误和置信区间。
 
-The following pseudocode estimates 95% confidence intervals and standard
-errors for a generic estimate $\hat{\theta}$ that is a function of data
-$y$.
+The following pseudocode estimates 95% confidence intervals and
+standard errors for a generic estimate $\hat{\theta}$ that is a
+function of data $y$.
 
 下面的伪代码估计了一个一般估计$\hat{\theta}$的95%置信区间和标准误，其中
 $\hat{\theta}$ 是数据$y$的一个函数。
-
-``` stan
+```stan
 for (m in 1:M) {
   y_rep[m] <- sample_uniform(y)
   theta_hat[m] <- estimate_theta(y_rep[m])
@@ -96,26 +92,26 @@ std_error = sd(theta_hat)
 conf_95pct = [ quantile(theta_hat, 0.025),
                quantile(theta_hat, 0.975) ]
 ```
-
 The `sample_uniform` function works by independently assigning each
-element of `y_rep` an element of `y` drawn uniformly at random. This
-produces a sample *with replacement.* That is, some elements of `y` may
-show up more than once in `y_rep` and some may not appear at all.
+element of `y_rep` an element of `y` drawn uniformly at random.  This
+produces a sample *with replacement.* That is, some elements of `y`
+may show up more than once in `y_rep` and some may not appear at all.
 
 `sample_uniform`函数给`y_rep`的每一维独立等可能地随机分配`y`当中的元素。这将产生一个*有放回抽样*样本，也就是说，`y`的一些元素可能在`y_rep`中出现多次，而一些元素可能不会出现。
 
-## Coding the bootstrap in Stan Stan中自助法的代码实现
+## Coding the bootstrap in Stan
 
-The bootstrap procedure can be coded quite generally in Stan models. The
+## Stan中自助法的代码实现
+
+The bootstrap procedure can be coded quite generally in Stan models.  The
 following code illustrates a Stan model coding the likelihood for a
-simple linear regression. There is a parallel vector `x` of predictors
-in addition to outcomes `y`. To allow a single program to fit both the
-original data and random subsamples, the variable `resample` is set to 1
-to resample and 0 to use the original data.
+simple linear regression.  There is a parallel vector
+`x` of predictors in addition to outcomes `y`.  To allow a single
+program to fit both the original data and random subsamples, the
+variable `resample` is set to 1 to resample and 0 to use the original data.
 
 Stan可以实现绝大多数自助法操作。以下代码实现的Stan模型能计算简单线性回归的似然函数。除了因变量`y`，还有一个自变量向量`x`。为了让单个程序能够同时拟合原始数据和重抽样样本，引入变量`resample`，等于1时进行重采样，等于0时直接使用原始数据。
-
-``` stan
+```stan
 data {
   int<lower=0> N;
   vector[N] x;
@@ -138,53 +134,54 @@ model {
   y[boot_idxs] ~ normal(alpha + beta * x[boot_idxs], sigma);
 }
 ```
-
 The model accepts data in the usual form for a linear regression as a
-number of observations $N$ with a size $N$ vector $x$ of predictors and
-a size $N$ vector of outcomes. The transformed data block generates a
-set of indexes into the data that is the same size as the data. This is
-done by independently sampling each entry of `boot_idxs` from `1:N`,
-using a discrete uniform distribution coded as a categorical random
-number generator with an equal chance for each outcome. If resampling is
-not done, the array `boot_idxs` is defined to be the sequence `1:N`,
-because `x == x[1:N]` and `y = y[1:N]`.
+number of observations $N$ with a size $N$ vector $x$ of predictors
+and a size $N$ vector of outcomes.  The transformed data block
+generates a set of indexes into the data that is the same size as the
+data.  This is done by independently sampling each entry of `boot_idxs`
+from `1:N`, using a discrete uniform distribution coded as a
+categorical random number generator with an equal chance for each
+outcome.  If resampling is not done, the array `boot_idxs` is defined
+to be the sequence `1:N`, because `x == x[1:N]` and `y = y[1:N]`.
 
 该模型支持线性回归的一般形式数据，有$N$条观测时，数据包括$N$维的自变量向量$x$和$N$维的因变量向量。数据块转换通过生成原数据的一组$N$维索引实现，索引由离散均匀随机数生成器为`1:N`每个结果分配相同概率，从中独立采样得到`boot_idxs`的每个元素。如果没有重新采样，数组`boot_idxs`被定义为序列`1:N`，因为`x == x[1:N]`且`y = y[1:N]`。
 
-For example, when `resample == 1`, if $N = 4,$ the value of `boot_idxs`
-might be `{2, 1, 1, 3}`, resulting in a bootstrap sample
-`{y[2], y[1], y[1], y[3]}` with the first element repeated twice and the
-fourth element not sampled at all.
+For example, when `resample == 1`, if $N = 4,$ the value of
+`boot_idxs` might be `{2, 1, 1, 3}`, resulting in a bootstrap sample
+`{y[2], y[1], y[1], y[3]}` with the first element repeated twice and
+the fourth element not sampled at all.
 
-例如，当`resample == 1`时，若$N =4$，`boot_idxs`的值可能为`{2,1,1,3}`，因此自助法得到的重采样样本为`{y[2]， y[1]， y[1]， y[3]}`，此时第一个元素出现两次，第四个元素没有被采样。
+例如，当`resample == 1`时，若$N =4$，`boot_idxs`的值可能为`{2,1,1,3}`，因此自助法得到的重采样样本为`{y[2], y[1], y[1], y[3]}`，此时第一个元素出现两次，第四个元素没有被采样。
 
 The parameters are the usual regression coefficients for the intercept
-`alpha`, slope `beta`, and error scale `sigma`. The model uses the
+`alpha`, slope `beta`, and error scale `sigma`.  The model uses the
 bootstrap index variable `boot_idx` to index the predictors as
-`x[boot_idx]` and outcomes as `y[boot_idx]`. This generates a new
-size-$N$ vector whose entries are defined by
-`x[boot_idx][n] = x[boot_idx[n]]` and similarly for `y`. For example, if
-$N = 4$ and `boot_idxs = {2, 1, 1, 3}`, then
-`x[boot_idxs] = [x[2], x[1], x[1], x[3]]'` and
-`y[boot_idxs] = [y[2], y[1], y[1], y[3]]'`. The predictor and outcome
-vectors remain aligned, with both elements of the pair `x[1]` and `y[1]`
-repeated twice.
+`x[boot_idx]` and outcomes as `y[boot_idx]`.  This generates a new
+size-$N$ vector whose entries are defined by `x[boot_idx][n] =
+x[boot_idx[n]]` and similarly for `y`.  For example, if $N = 4$ and
+`boot_idxs = {2, 1, 1, 3}`, then `x[boot_idxs] = [x[2], x[1], x[1],
+x[3]]'` and `y[boot_idxs] = [y[2], y[1], y[1], y[3]]'`.  The predictor
+and outcome vectors remain aligned, with both elements of the pair
+`x[1]` and `y[1]` repeated twice.
 
 该模型参数是常用的回归参数：截距`alpha`、斜率`beta`和误差尺度`sigma`。该模型使用自助法索引变量`boot_idx`将自变量索引为` x[boot_idx]`，因变量索引为`y[boot_idx]`，这会生成一个新的$N$维向量，其条目为`x[boot_idx][N] =x[boot_idx[N]]'`，`y`也类似。例如，如果$N = 4$，`boot_idxs ={2 1 1 3}`，那么有`x[boot_idxs] = [x [2], x[1], x[1], x[3]]'`和`y[boot_idxs]= [y[2], y[1], y[1], y[3]]'`，自变量和因变量向量索引始终保持一致，`x[1]`和`y[1]`这对元素重复出现两次。
 
-With the model defined this way, if `resample` is 1, the model is fit to
-a bootstrap subsample of the data. If `resample` is 0, the model is fit
-to the original data as given. By running the bootstrap fit multiple
-times, confidence intervals can be generated from quantiles of the
-results.
+With the model defined this way, if `resample` is 1, the model is fit
+to a bootstrap subsample of the data.  If `resample` is 0, the model
+is fit to the original data as given.  By running the bootstrap fit
+multiple times, confidence intervals can be generated from quantiles
+of the results. 
 
 以这种方式定义模型，若`resample`取1，模型应用于数据的自助重抽样子样本；若`resample`取0，则模型用于拟合原始数据。通过多次使用自助法拟合，可以由结果的分位数得到置信区间。
 
-## Error statistics from the bootstrap 自助法的误差统计量
+
+## Error statistics from the bootstrap
+
+## 自助法的误差统计量
 
 Running the model multiple times produces a Monte Carlo sample of
 estimates from multiple alternative data sets subsampled from the
-original data set. The error distribution is just the distribution of
+original data set.  The error distribution is just the distribution of
 the bootstrap estimates minus the estimate for the original data set.
 
 多次运行自助法程序会产生一个蒙特卡罗样本，该样本是从原始数据采样得到的一种可能数据集。误差分布是自助法得到的估计值减去原始数据集估计值的分布。
@@ -192,45 +189,44 @@ the bootstrap estimates minus the estimate for the original data set.
 To estimate standard errors and confidence intervals for maximum
 likelihood estimates the Stan program is executed multiple times using
 optimization (which turns off Jacobian adjustments for constraints and
-finds maximum likelihood estimates). On the order of one hundred
+finds maximum likelihood estimates).  On the order of one hundred
 replicates is typically enough to get a good sense of standard error;
 more will be needed to accurate estimate the boundaries of a 95%
-confidence interval. On the other hand, given that there is inherent
-variance due to sampling the original data $y$, it is usually not worth
-calculating bootstrap estimates to high precision.
+confidence interval.  On the other hand, given that there is inherent
+variance due to sampling the original data $y$, it is usually not
+worth calculating bootstrap estimates to high precision.
 
-为了得到极大似然估计的标准误和置信区间，Stan程序使用最优化执行多次(它关闭用于约束的雅可比调整并找到最大似然估计值)。一般来说，重复100次足以得到很好的标准误估计；要更精确地估计95%置信区间的边界，则需要重复更多次。但考虑到对原始数据$y$进行采样存在固有偏差，不建议使用自助法计算高精度的估计。
+为了得到极大似然估计的标准误和置信区间，Stan程序使用最优化执行多次（它关闭用于约束的雅可比调整并找到最大似然估计值）。一般来说，重复100次足以得到很好的标准误估计；要更精确地估计95%置信区间的边界，则需要重复更多次。但考虑到对原始数据$y$进行采样存在固有偏差，不建议使用自助法计算高精度的估计。
 
-### Standard errors 标准误
+### Standard errors
+
+### 标准误
 
 Here's the result of calculating standard errors for the linear
-regression model above with $N = 50$ data points,
-$\alpha = 1.2, \beta = -0.5,$ and $\sigma = 1.5.$ With a total of
-$M = 100$ bootstrap samples, there are 100 estimates of $\alpha$, 100 of
-$\beta$, and 100 of $\sigma$. These are then treated like Monte Carlo
-draws. For example, the sample standard deviation of the draws for
-$\alpha$ provide the bootstrap estimate of the standard error in the
-estimate for $\alpha$. Here's what it looks like for the above model
-with $M = 100$
+regression model above with $N = 50$ data points, $\alpha = 1.2, \beta
+= -0.5,$ and $\sigma = 1.5.$ With a total of $M = 100$ bootstrap
+samples, there are 100 estimates of $\alpha$, 100 of $\beta$, and 100
+of $\sigma$.  These are then treated like Monte Carlo draws.
+For example, the sample standard deviation of the draws for $\alpha$
+provide the bootstrap estimate of the standard error in the estimate
+for $\alpha$.  Here's what it looks like for the above model with $M =
+100$
 
-下面是用$N = 50$个数据点，在$\alpha = 1.2, \beta = -0.5$和$\sigma = 1.5$的设置下计算上述线性回归模型的标准差。总共有$M = 100$个重抽样样本，分别得到100个$\alpha$、$\beta$和$\sigma$的估计值，将他们看作蒙特卡洛样本。如$\alpha$的抽样标准差提供了$\alpha$标准误的自助法估计。下面是上述模型得到的结果
-
-```         
+下面是用$N = 50$个数据点，在$\alpha = 1.2, \beta = -0.5$和$\sigma = 1.5$的设置下计算上述线性回归模型的标准差。总共有$M = 100$个重抽样样本，分别得到100个$\alpha$、$\beta$和$\sigma$的估计值，将他们看作蒙特卡洛样本。如$\alpha$的抽样标准差提供了$\alpha$标准误的自助法估计。以下是上述模型得到的结果
+```
  parameter   estimate    std err
  ---------   --------    -------
      alpha      1.359      0.218
       beta     -0.610      0.204
      sigma      1.537      0.142
 ```
-
 With the data set fixed, these estimates of standard error will display
-some Monte Carlo error. For example, here are the standard error
+some Monte Carlo error.  For example, here are the standard error
 estimates from five more runs holding the data the same, but allowing
 the subsampling to vary within Stan:
 
-固定数据集，这些标准误的估计会包含一些蒙特卡罗误差。如下是运行5次以上所得标准误估计，运行时保持数据相同，但允许子抽样在Stan内变化:
-
-```         
+固定数据集，这些标准误的估计会包含一些蒙特卡罗误差。如下是运行5次以上所得标准误估计，运行时保持数据相同，但允许子抽样在Stan内变化：
+```
  parameter   estimate    std err
  ---------   --------    -------
      alpha      1.359      0.206
@@ -239,54 +235,52 @@ the subsampling to vary within Stan:
      alpha      1.359      0.249
      alpha      1.359      0.227
 ```
-
 Increasing $M$ will reduce Monte Carlo error, but this is not usually
 worth the extra computation time as there is so much other uncertainty
 due to the original data sample $y$.
 
 增加$M$能够减少蒙特卡罗误差，但会使得计算时间开销过大，另外原始数据样本$y$会带来很多其他随机性。
 
-### Confidence intervals 置信区间
+### Confidence intervals
+
+### 置信区间
 
 As usual with Monte Carlo methods, confidence intervals are estimated
-using quantiles of the draws. That is, if there are $M = 1000$ estimates
-of $\hat{\alpha}$ in different subsamples, the 2.5% quantile and 97.5%
-quantile pick out the boundaries of the 95% confidence interval around
-the estimate for the actual data set $y$. To get accurate 97.5% quantile
-estimates requires a much larger number of Monte Carlo simulations
-(roughly twenty times as large as needed for the median).
+using quantiles of the draws.  That is, if there are $M = 1000$
+estimates of $\hat{\alpha}$ in different subsamples, the 2.5% quantile
+and 97.5% quantile pick out the boundaries of the 95% confidence
+interval around the estimate for the actual data set $y$.  To get
+accurate 97.5% quantile estimates requires a much larger number of
+Monte Carlo simulations (roughly twenty times as large as needed for
+the median).
 
-与一般蒙特卡罗方法一样，置信区间是由样本分位数来估计的，也就是说如果子样本有$M = 1000$个$\hat{\alpha}$的估计，那么由实际数据集$y$得到的$\alpha$的95%置信区间边界为2.5%和97.5%分位数。获得准确的97.5%分位数估计需要大量的蒙特卡罗模拟(大约是估计中位数所需模拟的20倍)。
+与一般蒙特卡罗方法一样，置信区间是由样本分位数来估计的，也就是说如果子样本有$M = 1000$个$\hat{\alpha}$的估计，那么由实际数据集$y$得到的$\alpha$的95%置信区间边界为2.5%和97.5%分位数。获得准确的97.5%分位数估计需要大量的蒙特卡罗模拟（大约是估计中位数所需模拟的20倍）。
 
-## Bagging 袋装法
+## Bagging
 
-When bootstrapping is carried through inference it is known as bootstrap
-aggregation, or *bagging*, in the machine-learning literature
-[@Breiman:1996]. In the simplest case, this involves bootstrapping the
-original data, fitting a model to each bootstrapped data set, then
-averaging the predictions. For instance, rather than using an estimate
-$\hat{\sigma}$ from the original data set, bootstrapped data sets
-$y^{\textrm{boot}(1)}, \ldots, y^{\textrm{boot}(N)}$ are generated. Each
-is used to generate an estimate $\hat{\sigma}^{\textrm{boot}(n)}.$ The
-final estimate is
+## 袋装法
 
-当自助法通过推断进行时，在机器学习文献中被称为自助整合（bootstrap
-aggregating），或*袋装法bagging*
-[@Breiman:1996]。在最简单的情况下，首先对原始数据进行自助抽样，对得到的每个数据集拟合模型，然后对全部预测结果求平均。例如，不是使用原始数据集的估计$\hat{\sigma}$，而是使用自助法生成数据集$y^{\textrm{boot}(1)}, \ldots, y^{\textrm{boot}(N)}$，每个样本都得到一个估计$\hat{\sigma}^{\textrm{boot}(n)}$。最后估计值是
+When bootstrapping is carried through inference it is known as
+bootstrap aggregation, or *bagging*, in the machine-learning
+literature [@Breiman:1996].  In the simplest case, this involves
+bootstrapping the original data, fitting a model to each bootstrapped
+data set, then averaging the predictions.  For instance, rather than
+using an estimate $\hat{\sigma}$ from the original data set,
+bootstrapped data sets $y^{\textrm{boot}(1)}, \ldots,
+y^{\textrm{boot}(N)}$ are generated.  Each is used to generate an
+estimate $\hat{\sigma}^{\textrm{boot}(n)}.$ The final estimate is
 
+当自助法通过推断进行时，在机器学习文献中被称为自助整合（bootstrap aggregating），或*袋装法bagging*[@Breiman:1996]。在最简单的情况下，首先对原始数据进行自助抽样，对得到的每个数据集拟合模型，然后对全部预测结果求平均。例如，不是使用原始数据集的估计$\hat{\sigma}$，而是使用自助法生成数据集$y^{\textrm{boot}(1)}, \ldots, y^{\textrm{boot}(N)}$，每个样本都得到一个估计$\hat{\sigma}^{\textrm{boot}(n)}$。最后估计值是
 $$
 \hat{\sigma} = \frac{1}{N} \sum_{n = 1}^N \hat{\sigma}^{\textrm{boot}(n)}.
-$$ 
-
+$$
 The same would be done to estimate a predictive quantity $\tilde{y}$
-for as yet unseen data. 
-
+for as yet unseen data.
 类似地，可以得到未观测数据$\tilde{y}$的估计量。
-
 $$
 \hat{\tilde{y}} = \frac{1}{N} \sum_{n = 1}^N
 \hat{\tilde{y}}^{\textrm{boot}(n)}.
-$$ 
+$$
 For discrete parameters, voting is used to select the outcome.
 
 连续变量可以通过求平均得到最终结果，离散变量则可以使用投票的方法。
@@ -296,23 +290,25 @@ like averaging over parameter estimation uncertainty.
 
 可以将袋装法视作对参数估计不确定性进行平均的一种经典尝试。
 
-## Bayesian bootstrap and bagging 贝叶斯自助和袋装
+## Bayesian bootstrap and bagging
+
+## 贝叶斯自助和袋装
 
 A Bayesian estimator may be analyzed with the bootstrap in exactly the
-same way as a (penalized) maximum likelihood estimate. For example, the
-posterior mean and posterior median are two different Bayesian
-estimators. The bootstrap may be used estimate standard errors and
+same way as a (penalized) maximum likelihood estimate.  For example,
+the posterior mean and posterior median are two different Bayesian
+estimators.  The bootstrap may be used  estimate standard errors and
 confidence intervals, just as for any other estimator.
 
-一个贝叶斯估计量可以用自助法进行分析，方法与(带惩罚的)极大似然估计相同。如后验均值和后验中位数是两个不同的贝叶斯估计量。像其他估计量一样，自助法估计量可以用来估计标准误和置信区间。
+一个贝叶斯估计量可以用自助法进行分析，方法与（带惩罚的）极大似然估计相同。如后验均值和后验中位数是两个不同的贝叶斯估计量。像其他估计量一样，自助法估计量可以用来估计标准误和置信区间。
 
-[@HugginsMiller:2019] use the bootstrap to assess model calibration and
-fitting in a Bayesian framework and further suggest using bagged
-estimators as a guard against model misspecification. Bagged posteriors
-will typically have wider posterior intervals than those fit with just
-the original data, showing that the method is not a pure Bayesian
-approach to updating, and indicating it would not be calibrated if the
-model were well specified. The hope is that it can guard against
-over-certainty in a poorly specified model.
+[@HugginsMiller:2019] use the bootstrap to assess model calibration
+and fitting in a Bayesian framework and further suggest using bagged
+estimators as a guard against model misspecification.  Bagged
+posteriors will typically have wider posterior intervals than those
+fit with just the original data, showing that the method is not a pure
+Bayesian approach to updating, and indicating it would not be
+calibrated if the model were well specified.  The hope is that it
+can guard against over-certainty in a poorly specified model.
 
 [@HugginsMiller:2019]使用自助法来评估贝叶斯框架的模型校准和拟合，并进一步建议使用袋装估计量来防止模型误设。袋装后验的后验间隔通常比只使用原始数据拟合的后验间隔更宽，这表明该贝叶斯方法不是纯用于更新，并且如果模型正确预设它将不会被校准。因此它可以防止对一个不正确的模型过度自信。
