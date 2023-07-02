@@ -1,9 +1,6 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # Finite Mixtures  {#mixture-modeling.chapter}
+
+翻译贡献者：胡向宇
 
 Finite mixture models of an outcome assume that the outcome is drawn
 from one of several distributions, the identity of which is controlled
@@ -15,6 +12,7 @@ directly for modeling data with multimodal distributions, or they may
 be used as priors for other parameters.
 
 有限混合模型假设结果是从多个分布中的一个中抽取的，并由分类混合分布控制。混合模型通常具有多峰密度，其峰值接近混合成分的峰值。混合模型可以通过多种方式进行参数化，如以下各节所述。混合模型可以用于直接建模具有多峰分布的数据，也可以用作其他参数的先验。
+
 ## Relation to clustering {#clustering-mixture.section}
 
 Clustering models, as discussed in the [clustering
