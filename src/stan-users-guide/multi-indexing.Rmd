@@ -1,5 +1,5 @@
 # Multiple Indexing and Range Indexing  {#multi-indexing.chapter}
-
+翻译贡献者：王嘉宁
 
 Stan allows multiple indexes to be provided for containers (i.e.,
 arrays, vectors, and matrices) in a single position, using either an
@@ -11,6 +11,12 @@ For instance, consider the likelihood for a varying-slope,
 varying-intercept hierarchical linear regression, which could be coded
 as
 
+# 多索引和范围索引
+
+Stan允许在单个位置使用整数索引数组或范围边界来提供容器（即数组、向量和矩阵）的多个索引。在许多情况下，有一些函数可以提供类似的行为。
+
+允许多个索引支持模型的内联矢量化。例如，考虑变斜率、变截距层次线性回归的似然函数，代码为：
+
 ```stan
 for (n in 1:N) {
   y[n] ~ normal(alpha[ii[n]] + beta[ii[n]] * x[n], sigma);
@@ -20,12 +26,17 @@ for (n in 1:N) {
 With multiple indexing, this can be coded in one line, leading to more
 efficient vectorized code.
 
+
+使用多索引，可以在一行代码中编写此模型，从而实现更高效的向量化代码。
+
 ```stan
 y ~ normal(alpha[ii] + rows_dot_product(beta[ii], x), sigma);
 ```
 
 This latter version is faster than the loop version;  it is equivalent
 in speed to the clunky assignment to a local variable.
+
+后一版本比循环版本更快，速度与分配到本地变量相当。
 
 ```stan
 {
@@ -41,12 +52,18 @@ The boost in speed compared to the original version is because the
 single call to the normal log density in the sampling statement will
 be much more memory efficient than the original version.
 
+与原始版本相比速度提升的原因是采样语句中单个正常对数密度的调用将比原始版本更节省内存。
 
 ## Multiple indexing
 
 The following is the simplest concrete example of multiple indexing
 with an array of integers;  the ellipses stand for code defining the
 variables as indicated in the comments.
+
+## 多索引
+
+下面是使用整数数组进行多重索引的最简单的具体示例；省略号表示根据注释中所示定义变量的代码。
+
 
 ```stan
 array[3] int c;
@@ -61,6 +78,8 @@ d = c[idxs];    // result: d == (7, 7, 5, 9)
 In general, the multiple indexed expression `c[idxs]` is defined
 as follows, assuming `idxs` is of size `K`.
 
+一般而言，假设 `idxs` 的大小为 `K`，则多重索引表达式 `c[idxs]` 定义如下。
+
 ```
 c[idxs] = ( c[idxs[1]], c[idxs[2]], ..., c[idxs[K]] )
 ```
@@ -70,6 +89,10 @@ Thus `c[idxs]` is of the same size as `idxs`, which is
 
 Multiple indexing can also be used with multi-dimensional arrays.  For
 example, consider the following.
+
+因此，在此示例中，`c[idxs]` 的大小与 `idxs` 相同，即为 `K`。
+
+多重索引也可用于多维数组。例如，请考虑以下情况。
 
 ```stan
 array[2, 3] int c;
@@ -90,6 +113,10 @@ Multiple indexing may also be used in the second position of a
 multi-dimensional array.  Continuing the above example, consider a
 single index in the first position and a multiple index in the second.
 
+在第一个位置放置一个索引的作用与上述定义完全相同。事实上，这些值本身是数组并没有任何影响——结果仍由 `c[idxs][j] == c[idxs[j]]` 定义。
+
+多重索引也可用于多维数组的第二个位置。继续上面的例子，考虑在第一个位置使用单个索引，在第二个位置使用多重索引。
+
 ```stan
 array[4] int e;
 e = c[2, idxs]; // result:  c[2] = (7, 11, 13)
@@ -102,6 +129,10 @@ then the multiple index is applied to the result.  That is,
 
 Multiple indexing can apply to more than one position of a
 multi-dimensional array.  For instance, consider the following
+
+先应用单个索引，确定一维结果，然后将多重索引应用于结果。也就是说，`c[2，idxs]` 的计算结果与 `c[2][idxs]` 相同。
+
+多重索引可以应用于多维数组的多个位置。例如，考虑以下情况。
 
 ```stan
 array[2, 3] int c;
@@ -118,6 +149,8 @@ With multiple indexes, we no longer have `c[idxs1, idxs2]` being
 the same as `c[idxs1][idxs2]`.  Rather, the entry `d[i, j]`
 after executing the above is given by
 
+使用多个索引后，`c[idxs1, idxs2]` 不再与 `c[idxs1][idxs2]` 相同。相反，在执行上述操作后，条目 `d[i, j]` 的值为：
+
 ```
 d[i, j] == c[idxs1, idxs2][i, j] = c[idxs1[i], idxs2[j]]
 ```
@@ -128,6 +161,8 @@ general case: a multiple index like `idxs1` converts an index
 `idxs1[i]` in the variable being indexed (here, `c`).  In
 contrast, a single index just returns the value at that index, thus
 reducing dimensionality by one in the result.
+
+此示例说明了多重索引在一般情况下的操作方式：像 `idxs1` 这样的多重索引将用于结果（此处为 `c[idxs1, idxs2]`）的索引 `i` 转换为用于被索引变量（此处为 `c`）的索引 `idxs1[i]`。相反，单个索引仅返回该索引处的值，从而在结果中将维数减少一个。
 
 
 ## Slicing with range indexes
@@ -140,6 +175,12 @@ Semantically, it is just a special form of multiple indexing.
 
 For instance, consider supplying an upper and lower bound for an
 index.
+
+## 范围索引
+切片返回一维数组的连续切片，二维数组的连续子块，以此类推。从语义上讲，它只是多重索引的一种特殊形式。
+
+### 上限和下限的索引
+例如，考虑为索引提供上限和下限。
 
 ```stan
 array[7] int c;
@@ -155,12 +196,18 @@ because they do not explicitly create a multiple index, but rather use
 a direct loop.  They are also easier to read, so should be preferred
 over multiple indexes where applicable.
 
+范围索引 `3:6` 从语义上与多个索引 `(3, 4, 5, 6)` 的行为方式相同。在实现方面，被切片的上限和/或下限的索引速度更快，使用的内存更少，因为它们不会显式地创建多个索引，而是使用直接循环。它们也更容易阅读，因此应在适用的情况下优先考虑它们而不是多重索引。
+
 ### Lower or upper bound indexes {-}
 
 It is also possible to supply just a lower bound, or just an upper
 bound.  Writing `c[3:]` is just shorthand for
 `c[3:size(c)]`.  Writing `c[:5]` is just shorthand for
 `c[1:5]`.
+
+### 上限或下限的索引
+
+Stan可以只提供下限或上限。写成 `c[3：]` 就是 `c[3：size(c)]` 的简写形式。写成 `c[:5]` 就是 `c[1:5]` 的简写形式。
 
 ### Full range indexes {-}
 
@@ -170,12 +217,20 @@ range of an array, either by including just the range symbol
 cases, `c[]` and `c[:]` are equal to `c[1:size(c)]`,
 which in turn is just equal to `c`.
 
+### 全范围索引
+
+最后，可以通过包含仅有的范围符号（`:`）作为索引或留空索引位置来编写覆盖整个数组范围的范围索引。在这两种情况下，`c[]` 和 `c[:]` 等同于 `c[1:size(c)]`，而 `c[1:size(c)]` 则等同于 `c`。
+
+
 ### Slicing functions {-}
 
 Stan provides `head` and `tail` functions that pull out prefixes or
 suffixes of vectors, row vectors, and one-dimensional arrays.  In each
 case, the return type is the same as the argument type.  For
 example,
+
+### 索引函数
+Stan提供了`head`和`tail`函数，用于提取向量、行向量和一维数组的前缀或后缀。在每种情况下，返回类型与参数类型相同。例如，
 
 ```
 vector[M] a = ...;
@@ -185,6 +240,9 @@ vector[N] b = head(a, N);
 assigns `b` to be a vector equivalent to the first `N` elements of the
 vector `a`.  The function `tail` works the same way for suffixes, with
 
+
+将向量 `a` 的前 `N` 个元素赋值给向量 `b`。函数 `tail` 以相同的方式适用于后缀，可以提取向量、行向量和一维数组的后缀。在每种情况下，返回类型与参数类型相同。
+
 ```
 array[M] a = ...;
 array[N] b = tail(a, N);
@@ -192,6 +250,9 @@ array[N] b = tail(a, N);
 
 Finally, there is a segment function, which specifies a first element
 and number of elements.  For example,
+
+
+最后，还有一个`segment`函数，它可以指定第一个元素和元素数量。例如，
 
 ```
 array[15] a = ...;
@@ -201,7 +262,7 @@ array[3] b = segment(a, 5, 3);
 will set `b` to be equal to `{ a[5], a[6], a[7] }`, so that it starts
 at element 5 of `a` and includes a total of 3 elements.
 
-
+将设置 b 等于 { a[5], a[6], a[7] }，因此它从a的第5个元素开始，包括了总共3个元素。
 
 
 ## Multiple indexing on the left of assignments
@@ -210,6 +271,9 @@ Multiple expressions may be used on the left-hand side of an
 assignment statement, where they work exactly the same way as on the
 right-hand side in terms of picking out entries of a container.
 For example, consider the following.
+
+## 赋值语句左侧的多索引
+多索引表达可以在赋值语句的左侧使用多个表达式，它们的工作方式与右侧完全相同，用于挑选容器中的条目。例如，考虑以下示例。
 
 ```stan
 array[3] int a;
@@ -226,6 +290,10 @@ The result above can be worked out by noting that the assignment sets
 
 The same principle applies when there are many multiple indexes, as
 in the following example.
+
+上面的结果可以通过注意到赋值将 `a[idxs[1]]`（`a[3]`）设置为 `c[1]`（`5`）和 `a[idxs[2]]`（`a[2]`）设置为 `c[2]`（`9`）来计算得出。
+
+当有多个多重索引时，同样的原则适用，就像以下示例一样。
 
 ```stan
 array[5, 7] int a;
@@ -244,6 +312,10 @@ indexes maintaining dimensionality while rearranging, slicing, or
 blocking.  For example, it is valid to assign to a segment of a row of
 an array as follows.
 
+左侧的表达式也可以用在赋值语句中，其在选择容器条目方面与右侧的表达式完全相同。例如，考虑以下情况。
+
+和一维情况一样，在左侧使用多个索引可以实现全面的多个索引，单个索引可以减少维数，多个索引可以保持维数并在重排、切片或块中进行操作。例如，可以按如下方式分配到数组行的片段：
+
 ```stan
 array[10, 13] int a;
 array[2] int c;
@@ -257,6 +329,9 @@ Aliasing issues arise when there are references to the same data
 structure on the right-hand and left-hand side of an assignment.  For
 example, consider the array `a` in the following code fragment.
 
+### 赋值和别名
+当赋值语句的左侧和右侧引用相同的数据结构时，会出现别名问题。例如，请考虑以下代码片段中的数组`a`。
+
 ```stan
 array[3] int a;
 // ... define: a == (5, 6, 7)
@@ -268,6 +343,9 @@ The reason the value of `a` after the assignment is $(5,5,6)$
 rather than $(5,5,5)$ is that Stan behaves as if the right-hand side
 expression is evaluated to a fresh copy.   As another example,
 consider the following.
+
+
+将左右两边的赋值表达式引用相同的数据结构会导致别名问题。在Stan中，赋值语句右边的表达式会被当作是一个全新的副本进行计算，因此在对同一数据结构进行赋值操作时，可能会产生预期之外的结果。例如，在上述例子中，由于右边的表达式被计算成一个全新的副本，所以最终`a`的值为$(5,5,6)$而不是$(5,5,5)$。
 
 ```stan
 array[3] int a;
@@ -281,6 +359,10 @@ before the assignment.
 
 It is tempting (but wrong) to think of the assignment `a[2:3] =
   a[1:2]` as executing the following assignments.
+  
+  这种情况下，为什么在赋值之前需要复制右侧表达式是显而易见的。
+
+人们很容易（但是是错误的）认为赋值`a [2:3] = a [1:2]` 执行以下赋值。
 
 ```stan
 // ... define: a = (5, 6, 7)
@@ -291,6 +373,8 @@ a[3] = a[2];      // result: a = (5, 5, 5)!
 This produces a different result than executing the assignment because
 `a[2]`'s value changes before it is used.
 
+
+这将产生与执行赋值不同的结果，因为在使用`a[2]`的值之前，它的值已经发生了变化。
 
 ## Multiple indexes with vectors and matrices
 
@@ -307,6 +391,12 @@ containing the elements `v[2]`, `v[3]`, and `v[4]`.
 The only subtlety with vectors is in inferring the return type when
 there are multiple indexes. For example, consider the following
 minimal example.
+
+## 向量和矩阵的多索引
+
+多维索引可以应用于向量和矩阵，以及向量和矩阵的数组。
+
+### 向量{-}
 
 ```stan
 array[3] vector[5] v;
@@ -330,12 +420,18 @@ the vector dimension (to a scalar), so the result type for `w` is
 an array of reals.  In both cases, the size of the multiple index
 (here, 7) determines the size of the result.
 
+关键是要理解，单个索引始终会降低维数，而多个索引则不会。具有多个索引（和未索引的维度）的维度决定了索引表达式的类型。在上面的示例中，因为 `v` 是向量数组，`v[2, idxs]` 减少了数组的维数，但并没有减少向量的维数，因此结果是一个向量。相比之下，`v[idxs, 2]` 不会减少数组的维数，但会将向量的维数减少（到一个标量），因此 `w` 的结果类型是实数数组。在两种情况下，多个索引的大小（在这里是7）决定了结果的大小。
+
 ### Matrices {-}
 
 Matrices are a bit trickier because they have two dimensions, but the
 underlying principle of type inference is the same---multiple indexes
 leave dimensions in place, whereas single indexes reduce them.  The
 following code shows how this works for multiple indexing of matrices.
+
+### 矩阵 {-}
+
+矩阵稍微有些棘手，因为它们有两个维度，但类型推断的基本原理相同——多个索引保留维度，而单个索引减少维度。下面的代码展示了如何在矩阵中进行多个索引操作。
 
 ```stan
 matrix[5, 7] m;
@@ -356,6 +452,8 @@ with a single index is replaced with 1 in the resulting dimensions.
 Then the type of the result can be read off of the resulting
 dimensionality as indicated in the comments above.
 
+关键在于意识到任何带有多个索引或边界索引的位置都会在结果中留下来，而任何带有单个索引的维度在结果中都会被1替换。然后，可以根据结果的维度读取结果类型，如上面的注释所示。
+
 ### Matrices with one multiple index {-}
 
 If matrices receive a single multiple index, the result is a matrix.
@@ -364,6 +462,9 @@ supplying a single index, `m[3]`, produces a row vector result.
 That is, `m[3]` produces the same result as `m[3, ]`
 or `m[3, 1:cols(m)]`.
 
+### 具有单个的多维索引矩阵 {-}
+如果矩阵接收单个的多维索引，结果是一个矩阵。所以如果 `m` 是一个矩阵，那么 `m[2:4]` 也是一个矩阵。相反，提供单个索引 `m[3]` 会产生一个行向量结果。也就是说，`m[3]` 的结果与 `m[3, ]` 或 `m[3, 1:cols(m)]` 相同。
+
 
 ### Arrays of vectors or matrices {-}
 
@@ -371,6 +472,11 @@ With arrays of matrices, vectors, and row vectors, the basic access
 rules remain exactly the same: single indexes reduce dimensionality
 and multiple indexes redirect indexes.  For example, consider the
 following example.
+
+### 向量或矩阵的数组 {-}
+
+对于数组中的矩阵、向量和行向量，基本访问规则保持完全相同：单索引会减少维度，而多个索引则重定向索引。例如，考虑以下示例。
+
 
 ```stan
 array[5, 7] matrix[3, 4] m;
@@ -386,6 +492,11 @@ but it's different in both cases.  In the first case, `a[i] ==
   5]`.
 
 Continuing the previous example, consider the following.
+
+
+在这两个赋值语句中，多个索引会减少数组的维度，但在两种情况下是不同的。在第一种情况下，`a[i] == m[1, i + 1]`，而在第二种情况下，`a[i] == m[i + 2, 5]`。
+
+继续上面的例子，考虑以下情况。
 
 ```stan
 // ...
@@ -403,6 +514,12 @@ lower bound minus one is added to the index, as seen in the `1 + j` expression a
 
 Continuing further, consider continuing with the following.
 
+这里，两个数组维度和矩阵的列维度都被减少了，只留下了行维度索引，因此结果是一个向量。在这种情况下，`b[j] == a[1, 3, 1 + j, 2]`。
+
+这个最后的例子阐明了一个重要的点：如果有一个下限索引，比如 `2:3`，其下限为 2，则在索引中加上下限减一，如上面的 `1 + j` 表达式所示。
+
+继续考虑以下内容。
+
 ```stan
 // ...
 array[2] row_vector[3] c;
@@ -415,10 +532,15 @@ vector.  For indexing, the values are given by
 `c[i, j] == a[i + 3, 3, 1, j + 1]`
 
 
+这里，第一个数组维度被缩减，留下一个单独的数组维度，矩阵的行索引被缩减，留下一行向量。在索引中，值由`c[i, j] == a[i + 3, 3, 1, j + 1]`给出。 
+
 ### Block, row, and column extraction for matrices {-}
 
 Matrix slicing can also be performed using the `block` function.  For
 example, 
+
+### 矩阵的块，行，列提取
+我们可以使用`block`函数来对矩阵进行切片，例如：
 
 ```
 matrix[20, 20] a = ...;
@@ -432,6 +554,11 @@ equivalent to `b[5:7, 9:10]`.
 The `sub_col` function extracts a slice of a column of a matrix as a
 vector.  For example,
 
+
+此处将设置 `b` 等于从索引 [5, 9] 开始并延伸 3 行 2 列的矩阵子矩阵。因此 `block(a, 5, 9, 3, 2)` 相当于 `a[5:7, 9:10]`。
+
+`sub_col` 函数将矩阵的某一列切片提取为向量。例如，
+
 ```
 matrix[10, 10] a = ...;
 vector b = sub_col(a, 2, 3, 5);
@@ -444,6 +571,8 @@ as a row vector.  For example, `sub_row(a, 2, 3, 5)` is equal to
 the row vector `a[2, 3:7]`, which also starts at position [2, 3] then
 extends for a total of 5 columns.
 
+将'b'设置为与向量`a[2:6, 3]`相等，取元素起始位置为[2,3]，然后扩展5行。 函数`sub_row`也可以用于提取行的子序列作为行向量。例如，`sub_row(a,2,3,5)`等于行向量`a[2,3:7]`，它也从位置[2,3]开始，然后扩展了5列。
+
 
 ## Matrices with parameters and constants
 
@@ -454,6 +583,12 @@ situations and in problems with fixed structural parameters.
 Suppose a $3 \times 3$ matrix is known to be zero at indexes $[1,2]$
 and $[1,3]$.  The indexes for parameters are included in a "melted"
 data-frame or database format.
+
+## 具有参数和常数的矩阵
+
+假设有一个 $3\times 3$ 的矩阵，其中有两个条目为零，但其余条目是参数。这种情况在缺失数据情况和具有固定结构参数的问题中会出现。
+
+假设一个 $3\times 3$ 的矩阵在索引 $[1,2]$ 和 $[1,3]$ 处都为零。在“融合”的数据帧或数据库格式中包含参数的索引。
 
 ```
 transformed data {
@@ -466,6 +601,8 @@ transformed data {
 
 The seven remaining parameters are declared as a vector.
 
+剩下的七个参数被声明为一个向量。
+
 ```stan
 parameters {
   vector[7] A_raw;
@@ -475,6 +612,8 @@ parameters {
 
 Then the full matrix `A` is constructed in the model block as a
 local variable.
+
+此时我们可以在`model`结构中将矩阵`A`构建为一个局部变量。
 
 ```stan
 model {
@@ -493,3 +632,5 @@ settings, the matrix size, vector size, and the `idxs` array will
 be too large to code directly.  Similar techniques can be used to
 build up matrices with ad-hoc constraints, such as a handful of
 entries known to be positive.
+
+这在这种情况下可能看起来有些过度，但在更一般的情况下，矩阵大小、向量大小和“idxs”数组将太大而无法直接编码。类似的技术可以用于构建具有特定约束条件的矩阵，例如一些已知为正数的条目。
