@@ -5,8 +5,8 @@ editor_options:
 ---
 
 # Truncated or Censored Data
-截断或者删失数据
-
+# 截断或者删失数据
+贡献者：段园家
 
 Data in which measurements have been truncated or censored can be coded
 in Stan following their respective probability models.
@@ -14,7 +14,7 @@ in Stan following their respective probability models.
 存在截断或删失的数据可以在 Stan 中按照各自的概率模型进行编程。
 
 ## Truncated distributions {#truncation.section} 
-截断分布
+## 截断分布 {#truncation.section} 
 
 Truncation in Stan is restricted to univariate distributions for which
 the corresponding log cumulative distribution function (CDF) and log
@@ -27,7 +27,7 @@ Stan 中的截断仅限于具有相应对数累积分布函数 （CDF） 和对�
 的更多信息，请查阅参考手册有关截断分布的部分。
 
 ## Truncated data {#truncated-data.section}
-截断数据
+## 截断数据 {#truncated-data.section}
 
 Truncated data are data for which measurements are only reported if they
 fall above a lower bound, below an upper bound, or between a lower and
@@ -73,7 +73,7 @@ sampling statements.
 
 
 ### Constraints and out-of-bounds returns {-}
-约束和越界返回值
+### 约束和越界返回值 {-}
 
 If the sampled variate in a truncated distribution lies outside of the
 truncation range, the probability is zero, so the log probability will
@@ -131,7 +131,7 @@ For pairs of real numbers, the function `fmax` is used rather than
 对于实数对来说，需要使用函数`fmax`而不是`max`。
 
 ### Unknown truncation points {.unnumbered}
-截断点未知
+### 截断点未知 {.unnumbered}
 
 If the truncation points are unknown, they may be estimated as
 parameters. This can be done with a slight rearrangement of the variable
@@ -177,7 +177,7 @@ to not concentrate `L` strongly around `min(y)` and `U` strongly around
 省略号的位置表示边界`L`和`U`的先验,这里需要给定一个富含信息的先验，以便此模型不会将`L`强烈地集中在`min(y)`周围以及`U`不会强烈集中在`max(y)`周围。
 
 ## Censored data
-删失数据
+## 删失数据
 
 Censoring hides values from points that are too large, too small, or
 both. Unlike with truncated data, the number of data points that were
@@ -187,8 +187,7 @@ does not report values above 300 pounds.
 删失会掩盖太大、太小或两者兼而有之的点的值。与截断数据不同，被删减的数据点数量是已知的。教科书的例子是家用秤，它不报告超过300磅的值。
 
 ### Estimating censored values {.unnumbered}
-估计删失值
-
+### 估计删失值 {.unnumbered}
 One way to model censored data is to treat the censored data as missing
 data that is constrained to fall in the censored range of values. Since
 Stan does not allow unknown values in its arrays or matrices, the
@@ -226,7 +225,7 @@ and scale parameters through the last sampling statement in the model.
 由于删失数据数组`y_cens`被声明为参数，因此它将与位置和尺度参数`mu`和`sigma`一起采样。由于删失数据数组`y_cens`被声明为具有类型为`real<lower=U>`的值，因此删失数据的所有插补值都将大于`U`。估计的删失数据通过模型中的最后一个采样语句来影响位置和尺度参数。
 
 ### Integrating out censored values {.unnumbered}
-积分去掉删失值
+### 积分去掉删失值 {.unnumbered}
 
 Although it is wrong to ignore the censored values in estimating
 location and scale, it is not necessary to impute values. Instead, the
