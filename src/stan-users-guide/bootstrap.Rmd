@@ -2,6 +2,8 @@
 
 # 自助法和袋装法
 
+翻译贡献者：程书宁
+
 The bootstrap is a technique for approximately sampling from the error
 distribution for an estimator.  Thus it can be used as a Monte Carlo
 method to estimate standard errors and confidence intervals for point
