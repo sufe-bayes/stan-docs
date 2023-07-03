@@ -2,11 +2,12 @@
 
 # 复数
 
+贡献者：段园家
+
 Stan supports complex scalars, matrices, and vectors as well as
 real-based ones.
 
 Stan在支持实数的标量、矩阵和向量的同时也支持复数的标量、矩阵和向量。
-
 
 ## Working with complex numbers
 
@@ -67,7 +68,6 @@ complex b = to_complex(3.2, 2);
 if (a == b) print("hello");
 ```
 
-
 ### Complex assignment and promotion
 
 ### 复数的分配和晋升
@@ -81,7 +81,6 @@ numbers, with the corresponding imaginary component set to zero.
 complex z1 = 3;  // int promoted to 3 + 0i
 complex z2 = 3.2;  // real promoted to 3.2 + 0.i
 ```
-
 
 ### Complex arrays
 
@@ -105,7 +104,6 @@ Complex arrays allow assignment into their elements, with integer or
 real assigned values being promoted to complex.
 
 复数数组允许对其元素进行赋值，整数或实数的赋值可以被提升为复数。
-
 
 ### Complex functions
 
@@ -137,7 +135,6 @@ does `times_i(1.0)`.
 
 例如，`times_i（1）` 的计算结果为虚数$i$，`times_i（1.0）`也是如此。
 
-
 ## Complex random variables
 
 ## 复随机变量
@@ -164,7 +161,6 @@ further parameters defining a hierarchical model.
 
 例如，如果 `z` 是数据，则可用于估计 `mu` 和协方差 Cholesky 因子`L_Sigma`。或者，如果 `z` 是一个参数，则 `mu` 和 `L_Sigma` 可以是定义了一个先验的常数或者定义一个分层模型的参数。
 
-
 ## Complex matrices and vectors
 
 ## 复数矩阵和向量
@@ -188,7 +184,6 @@ vector.
 
 我们可以使用括号构造向量和矩阵，其方式与实值向量和矩阵相同。 例如，给定上面 `rv` 的声明，我们可以将其分配给一个构造好的行向量。
 
-
 ```stan
 rv =  [2 + 3i, 1.9 - 2.3i];
 ```
@@ -204,7 +199,6 @@ Furthermore, it is possible to convert back and forth between arrays
 and matrices using the `to_array` functions.
 
 此外，可以使用`to_array`函数在数组和矩阵之间来回转换。
-
 
 ## Complex linear regression
 
@@ -241,8 +235,6 @@ error.
 
 问题仍然是如何给出误差分布。我们有几种选择方案，这里只考虑两种简单的方案，不考虑去惩罚误差的绝对值。
 
-
-
 ### Independent real and imaginary error
 
 ### 独立的实部误差和虚部误差
@@ -271,7 +263,6 @@ A new error scale vector `sigma` is introduced, and it should itself
 get a prior based on the expected scale of error for the problem.
 
 引入了一个新的误差尺度向量`sigma`，它本身应该根据问题的预期误差尺度给出一个先验。
-
 
 ### Dependent complex error
 
