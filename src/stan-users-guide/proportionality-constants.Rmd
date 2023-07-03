@@ -4,9 +4,10 @@ output:
   html_document: default
 ---
 # Proportionality Constants  {#proportionality-constants.chapter}
-# 比例常数 {#proportionality-constants.chapter}
-翻译者：沈梓梁
 
+# 比例常数 {#proportionality-constants.chapter}
+
+翻译者：沈梓梁
 
 When evaluating a likelihood or prior as part of the log density computation in
 MCMC, variational inference, or optimization, it is usually only necessary to
@@ -63,6 +64,7 @@ target += bernoulli_lpmf(y | 0.5);
 ```
 
 ## Dropping Proportionality Constants 
+
 ## 不考虑比例常数的情况
 
 If a density $p(\theta)$ can be factored into $K g(\theta)$ where $K$ are all
@@ -151,6 +153,7 @@ $$
 $$
 
 ## Keeping Proportionality Constants 
+
 ## 考虑比例常数的情况
 
 In the case that the proportionality constants were needed for a normal log
@@ -165,6 +168,7 @@ necessary.
 只有在绝对清楚不需要比例常数的情况下才使用`~`或`target += normal_lupdf`语法.
 
 ## User-defined Distributions 
+
 ## 用户定义的分布
 
 When a custom `_lpdf` or `_lpmf` function is defined, the compiler will
@@ -213,6 +217,7 @@ model {
 ```
 
 ## Limitations on Using `_lupdf` and `_lupmf` Functions 
+
 ## 使用`_lupdf`和`_lupmf`函数的限制
 
 To avoid ambiguities in how the normalization constants work, functions ending

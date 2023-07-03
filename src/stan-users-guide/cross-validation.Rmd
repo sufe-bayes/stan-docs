@@ -4,7 +4,9 @@ output:
   html_document: default
 ---
 # Held-Out Evaluation and Cross-Validation 
+
 # 自动评估与交叉验证  
+
 翻译者：沈梓梁
 
 
@@ -41,6 +43,7 @@ Held -out评估和交叉验证可能涉及任何类型的预测统计量，
 常见的选择是测试数据的预测对数密度、参数估计的均方误差或分类任务的准确性.
 
 ## Evaluating posterior predictive densities  {#evaluating-posterior-predictive.section}
+
 ## 评估后验预测密度  {#evaluating-posterior-predictive.section}
 
 Given training data $(x, y)$ consisting of parallel sequences of
@@ -125,6 +128,7 @@ and thus will not overflow.
 通过减去最大值，项$\mu_m - \textrm{max}(\mu) \leq 0$，因此不会溢出.
 
 ### Stan program  
+
 ### Stan程序  
 
 To evaluate the log predictive density of a model, it suffices to
@@ -190,9 +194,11 @@ log(M)`.
 `log_sum_exp(log_p) - log(M)`.
 
 ## Estimation error  
+
 ## 估计误差  
 
 ### Parameter estimates  
+
 ### 参数估计  
 
 Estimation is usually considered for unknown parameters.  If the data
@@ -247,6 +253,7 @@ these properties.
 基于众数而不是概率的估计，例如(惩罚的)最大似然估计或最大后验估计，则不具有这些属性.
 
 ### Predictive estimates 
+
 ### 预测估计 
 
 In addition to parameters, other unknown quantities may be estimated,
@@ -274,6 +281,7 @@ $$
 $$
 
 ### Predictive estimates in Stan 
+
 ### Stan中的预测估计 
 
 Consider a simple linear regression model, parameters for the
@@ -387,6 +395,7 @@ Stan计算的`tilde_y`的后验均值是贝叶斯估计$\hat{\tilde{y}}.$
 
 
 ## Cross-validation 
+
 ## 交叉验证 
 
 Cross-validation involves choosing multiple subsets of a data set as
@@ -417,6 +426,7 @@ with a balanced block partition.
 并且可以很容易地在Stan中实现.缺点是结果估计的方差比使用平衡块分区的方差要大.
 
 ### Stan implementation with random folds
+
 ### 用随机折叠的Stan实现
 
 For the simple linear regression model, randomized cross-validation
@@ -515,6 +525,7 @@ of this quantity corresponds to using a posterior mean estimator,
 
 预测`y_test_hat`在生成的数量块中使用涉及所有不确定性的一般形式定义.
 这个量的后验值对应于使用后验均值估计量，
+
 \begin{eqnarray*}
 \hat{y}^{\textrm{test}}
 & = & \mathbb{E}\left[ y^{\textrm{test}} \mid x^{\textrm{test}}, x^{\textrm{train}} y^{\textrm{train}} \right]
@@ -528,6 +539,7 @@ will be the error of the posterior mean estimate,
 
 因为测试集是常数，期望算子是线性的，
 所以Stan程序中定义的`err`的后验均值将是后验均值估计的误差，
+
 \begin{eqnarray*}
   \hat{y}^{\textrm{test}} - y^{\textrm{test}}
 & = &
@@ -572,6 +584,7 @@ scale of error in the fold being evaluated.
 例如平均绝对误差或均方根误差，而不是以被评估折叠的误差尺度呈现.
 
 ### User-defined permutations
+
 ### 用户定义的排列 
 
 It is straightforward to declare the variable `permutation` in the
@@ -584,6 +597,7 @@ allowing non-random partitions to be evaluated.
 这允许外部程序控制分组，允许评估非随机划分.
 
 ### Cross-validation with structured data
+
 ### 使用结构化数据进行交叉验证 
 
 Cross-validation must be done with care if the data is inherently
@@ -613,6 +627,7 @@ cross-validate at the class or school level on classroom performance.
 例如，关注的焦点可能是整个教室的表现，因此在班级或学校层面上交叉验证课堂表现是有意义的.
 
 ### Cross-validation with spatio-temporal data 
+
 ### 使用时空数据交叉验证 
 
 Often data measurements have spatial or temporal properties.  For
@@ -634,6 +649,7 @@ prediction performs with more or less historical data.
 这通常允许将预测与或多或少的历史数据进行比较.
 
 ### Approximate cross-validation 
+
 ### 近似交叉检验
 
 @VehtariEtAl:2017 introduce a method that approximates the evaluation
