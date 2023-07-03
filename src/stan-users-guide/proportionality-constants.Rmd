@@ -1,13 +1,8 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # Proportionality Constants  {#proportionality-constants.chapter}
 
 # 比例常数 {#proportionality-constants.chapter}
 
-翻译者：沈梓梁
+翻译贡献者：沈梓梁
 
 When evaluating a likelihood or prior as part of the log density computation in
 MCMC, variational inference, or optimization, it is usually only necessary to

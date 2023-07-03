@@ -1,13 +1,8 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # Held-Out Evaluation and Cross-Validation 
 
 # 自动评估与交叉验证  
 
-翻译者：沈梓梁
+翻译贡献者：沈梓梁
 
 
 Held-out evaluation involves splitting a data set into two parts, a
