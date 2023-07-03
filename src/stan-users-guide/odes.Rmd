@@ -1,16 +1,8 @@
----
-editor_options:
-  markdown:
-    wrap: 72
-output:
-  pdf_document: default
-  html_document:
-    df_print: paged
----
+# Ordinary Differential Equations {#ode-solver.chapter}
 
-# Ordinary Differential Equations 常微分方程 {#ode-solver.chapter}
+# 常微分方程 {#ode-solver.chapter}
 
- 
+翻译贡献者：杨静远
 
 Stan provides a number of different methods for solving systems of
 ordinary differential equations (ODEs). All of these methods adaptively
@@ -146,7 +138,9 @@ function reference manual section on ODE solvers.
 
 有关刚性ODE系统的讨论，请参见[刚性ODE部分](#stiff-ode.section)。有关伴随灵敏度接口的信息，请参见[伴随ODE求解器部分](#adjoint-ode.section)。Stan的ODE求解器的函数签名可以在函数参考手册中的ODE求解器部分找到。
 
-## Notation 符号
+## Notation
+
+## 符号
 
 An ODE is defined by a set of differential equations,
 $y(t, \theta)' = f(t, y, \theta)$, and initial conditions,
@@ -158,7 +152,9 @@ a function of any parameters used in the computation.
 一个ODE是由一组微分方程定义的，$y(t, \theta)' = f(t, y, \theta)$，以及初始条件$y(t_0, \theta) = y_0$。函数$f(t, y, \theta)$被称作系统函数。$\theta$的依赖关系被包含在$y(t, \theta)$
 和 $f(t, y, \theta)$中以表示解是计算中用到的任意参数的一个函数。
 
-## Example: simple harmonic oscillator  示例：简谐振子
+## Example: simple harmonic oscillator
+
+## 示例：简谐振子
 
 As an example of a system of ODEs, consider a harmonic oscillator. In a
 harmonic oscillator a particle disturbed from equilibrium is pulled back
@@ -168,34 +164,33 @@ friction force proportional to particle speed which points in the
 opposite direction of the particle velocity. The system state will be a
 pair $y = (y_1, y_2)$ representing position and speed. The change in the
 system with respect to time is given by the following differential
-equations.[^1]
-
-[^1]: This example is drawn from the documentation for the Boost Numeric
-    Odeint library [@AhnertMulansky:2011], which Stan uses to implement
-    the `rk45` and `ckrk` solver.
+equations.^[This example is drawn from the
+documentation for the Boost Numeric Odeint library
+[@AhnertMulansky:2011], which Stan uses to implement the `rk45` and
+`ckrk` solver.]
 
 作为一个ODE系统的示例，先考虑一个谐波振荡器。在谐波振荡器中，被扰乱平衡的粒子被一个与平衡位移成比例的力拉回其平衡位置。这里的系统还有一个与粒子速度成正比的摩擦力，它指向粒子速度的相反方向。系统的状态由表示位置和速度的
-$y = (y_1, y_2)$决定。统相对于时间的变化由以下微分方程给出。[^2]
-
-[^2]: This example is drawn from the documentation for the Boost Numeric
-    Odeint library [@AhnertMulansky:2011], which Stan uses to implement
-    the `rk45` and `ckrk` solver.
+$y = (y_1, y_2)$决定。系统相对于时间的变化由以下微分方程给出。
 
 $$
 \frac{d}{dt} y_1 = y_2 \\
 \frac{d}{dt} y_2 = -y_1 - \theta y_2
-$$ <a name="id:ode-sho.equation"></a>
+$$ 
+<a name="id:ode-sho.equation"></a>
 
 The state equations implicitly defines the state at future times as a
 function of an initial state and the system parameters.
 
 状态方程隐含地将未来时间的状态定义为一个初始状态和系统参数的函数。
 
-## Coding the ODE system function  ODE系统函数编程
+## Coding the ODE system function
+
+## ODE系统函数编程
 
 The first step in coding an ODE system in Stan is defining the ODE
 system function. The system functions require a specific signature so
 that the solvers know how to use them properly.
+
 在Stan中编写ODE系统的第一步是定义ODE系统函数。系统函数需要特定的签名，以便求解器知道如何正确使用它们。
 
 The first argument to the system function is time, passed as a `real`;
@@ -237,7 +232,9 @@ definition of `dydt`, however it is still required.
 
 该函数接收时间`t`（`real`）、系统状态`y`（`vector`）和参数`theta`（`real`）。该函数返回在时间`t`、状态`y`和参数`theta`下的系统状态的时间导数的向量。此处编码的简谐振子没有时间敏感的方程；也就是说，`t`没有出现在`dydt`的定义中，但它仍然是必需的。
 
-### Strict signature   严格签名 {.unnumbered}
+### Strict signature {-}
+
+### 严格签名 {-}
 
 The types in the ODE system function are strict. The first argument is
 the time passed as a `real`, the second argument is the state passed as
@@ -271,14 +268,18 @@ vector myode3(vector y, real a0);
 // First argument is not a real and second is not a vector
 ```
 
-## Measurement error models 误差测量模型
+## Measurement error models
+
+## 误差测量模型
 
 Noisy observations of the ODE state can be used to estimate the
 parameters and/or the initial state of the system.
 
 对ODE状态的噪声观测可以用来估计参数和/或系统的初始状态。
 
-### Simulating noisy measurements  测量模拟噪声 {.unnumbered}
+### Simulating noisy measurements {-}
+
+### 测量模拟噪声 {-}
 
 As an example, suppose the simple harmonic oscillator has a parameter
 value of $\theta = 0.15$ and an initial state
@@ -348,7 +349,7 @@ system function `sho`, initial state `y0`, initial time `t0`, and
 parameter `theta` at the times `ts`. The call explicitly specifies the
 non-stiff RK45 solver.
 
-此处的调用返回ODE初值问题的解，该问题由系统函数`sho`、初始状态`y0`、初始时间`t0`和参数`theta`在时间`ts`下定义。该调用明确指定使用非刚性RK45求解器
+此处的调用返回ODE初值问题的解，该问题由系统函数`sho`、初始状态`y0`、初始时间`t0`和参数`theta`在时间`ts`下定义。该调用明确指定使用非刚性RK45求解器。
 
 The parameter `theta` is passed unmodified to the ODE system function.
 If there were additional arguments that must be passed, they could be
@@ -388,7 +389,9 @@ knitr::include_graphics("./img/sho-ode-trajectory.png", auto_pdf = TRUE)
 
 <a name="id:sho-trajectory.figure"></a>
 
-### Estimating system parameters and initial state  估计系统参数和初始状态 {.unnumbered}
+### Estimating system parameters and initial state {-}
+
+### 估计系统参数和初始状态 {-}
 
 These ten noisy observations of the state can be used to estimate the
 friction parameter, $\theta$, the initial conditions, $y(t_0, \theta)$,
@@ -450,9 +453,9 @@ multivariate Student-t distribution).
 
 与其他回归模型类似，可以轻松将噪声模型更改为具有更重尾部的分布（例如，学生-t分布），状态变量具有相关性的分布（例如，使用多元正态分布），或者状态变量具有重尾部和相关性的分布（例如，使用多元学生-t分布）。
 
-## Stiff ODEs 刚性 ODEs{#stiff-ode.section}
+## Stiff ODEs {#stiff-ode.section}
 
- 
+## 刚性 ODEs {#stiff-ode.section}
 
 Stiffness is a numerical phenomena that causes some differential
 equation solvers difficulty, notably the Runge-Kutta RK45 solver used in
@@ -463,8 +466,7 @@ different parts of parameter space, and so a typically non-stiff system
 may exhibit stiffness occasionally. These sorts of difficulties can
 occur more frequently with loose priors or during warmup.
 
-刚性是一种数值现象，会导致某些微分方程求解器出现困难，尤其是先前示例中使用的Runge-Kutta
-RK45求解器。这种现象在化学反应系统中很常见，这些系统通常具有多个截然不同的时间尺度。系统的刚性也可能因参数空间的不同部分而有所不同，因此通常非刚性的系统可能偶尔会表现出刚性。这些问题在宽松的先验或预热期间可能更频繁地发生。
+刚性是一种数值现象，会导致某些微分方程求解器出现困难，尤其是先前示例中使用的Runge-Kutta RK45求解器。这种现象在化学反应系统中很常见，这些系统通常具有多个截然不同的时间尺度。系统的刚性也可能因参数空间的不同部分而有所不同，因此通常非刚性的系统可能偶尔会表现出刚性。这些问题在宽松的先验或预热期间可能更频繁地发生。
 
 Stan provides a specialized solver for stiff ODEs [@CohenHindmarsh:1996;
 @SerbanHindmarsh:2005]. An ODE system is specified exactly the same way
@@ -498,8 +500,9 @@ steps is more expensive to compute.
 
 如果不确定ODE系统是否具有刚性，请使用`rk45`和`bdf`求解器运行模型，并查看哪个更快。如果`rk45`求解器更快，那么这个问题可能是非刚性的，然后试试`adams`求解器也是有意义的。`adams`求解器使用更高阶方法，可以比`rk45`求解器采用更大的时间步长，尽管与`bdf`求解器类似，这些步骤的计算更耗费时间
 
-## Control parameters for ODE solving ODE求解中的控制参数{#control-ode.section}
+## Control parameters for ODE solving {#control-ode.section}
 
+## ODE求解中的控制参数 {#control-ode.section}
 
 For additional control of the solves, both the stiff and non-stiff
 forward ODE solvers have function signatures that makes it possible to
@@ -546,7 +549,9 @@ of steps between outputs is one hundred million.
 对于RK45和Cash-Karp求解器，默认的相对和绝对容差值都为10\^
 $10^{-6}$，在输出之间的最大迭代步数为一百万。对于BDF和Adams求解器，相对和绝对容差为$10^{-10}$，在输出之间的最大迭代步数为一亿。
 
-### Discontinuous ODE system function 非连续ODE系统函数 {.unnumbered}
+### Discontinuous ODE system function {-}
+
+### 非连续ODE系统函数 {-}
 
 If there are discontinuities in the ODE system function, it is best to
 integrate the ODE between the discontinuities, stopping the solver at
@@ -588,7 +593,9 @@ of the solution.
 
 如果无法精确控制间断点的位置，或者其他ODE行为会快速变化，可以告诉ODE求解器在附近产生输出以帮助其避免不加区分地跨越解的重要特征。
 
-### Tolerance 容差 {.unnumbered}
+### Tolerance {-}
+
+### 容差 {-}
 
 The relative tolerance RTOL and absolute tolerance ATOL control the
 accuracy of the numerical solution. Specifically, when solving an ODE
@@ -630,7 +637,9 @@ $\text{RTOL}=10^{-(m+1)}$，并将 ATOL
 求解器中非线性求解器的收敛性，并且使用相同的容差来控制前向灵敏度计算。有关详细信息，请参见
 @SerbanHindmarsh:2005 。
 
-### Maximum number of steps 最大迭代步数 {.unnumbered}
+### Maximum number of steps {-}
+
+### 最大迭代步数 {-}
 
 The maximum number of steps can be used to stop a runaway simulation.
 This can arise in when MCMC moves to a part of parameter space very far
@@ -641,8 +650,9 @@ space, which will requires small step sizes.
 
 最大迭代步数可用于停止失控的模拟。这可能发生在MCMC移动到参数空间中离通常求解微分方程的区域非常远的情况下。特别是在预热期间可能会发生这种情况。对于非刚性求解器，当采样器移动到参数空间的刚性区域时（需要较小的步长），这种情况可能会发生。
 
-## Adjoint ODE solver 伴随ODE求解器 {#adjoint-ode.section}
+## Adjoint ODE solver {#adjoint-ode.section}
 
+## 伴随ODE求解器 {#adjoint-ode.section}
 
 The adjoint ODE solver method differs mathematically from the forward
 ODE solvers in the way gradients of the ODE solution are obtained. The
@@ -716,7 +726,9 @@ reference manual.
 
 关于每个参数的详细信息，请参见Stan函数参考手册。
 
-## Solving a system of linear ODEs using a matrix exponential 用矩阵指数求解线性ODE系统
+## Solving a system of linear ODEs using a matrix exponential
+
+## 用矩阵指数求解线性ODE系统
 
 Linear systems of ODEs can be solved using a matrix exponential. This
 can be considerably faster than using one of the ODE solvers.
