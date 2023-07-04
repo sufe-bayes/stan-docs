@@ -1,9 +1,10 @@
 # Time-Series Models  {#time-series.chapter}
 
 # 时间序列模型
+
 本章译者：林余昌 洪世哲
 
-Times series data come arranged in temporal order. This chapter
+Times series data come arranged in temporal order.  This chapter
 presents two kinds of time series models, regression-like models such
 as autoregressive and moving average models, and hidden Markov models.
 
@@ -14,7 +15,6 @@ Gaussian processes, which may also be used for time-series (and
 spatial) data.
 
 [高斯过程章节](#gaussian-processes.chapter)介绍了高斯过程，它也可以用于时间序列（和空间）数据分析。
-
 
 ## Autoregressive models {#autoregressive.section}
 
@@ -34,6 +34,7 @@ noise scaled as $\sigma$.
 也就是说，$y_n$的期望值是$\alpha + \beta y_{n-1}$，噪声的尺度为$\sigma$。
 
 ### AR(1) models {-}
+
 ### AR(1) 模型
 
 With improper flat priors on the regression coefficients $\alpha$ and
@@ -70,6 +71,7 @@ rough knowledge of the scale of `y` is available.
 这里没有对第一个观察到的数据点`y[1]`进行建模，因为没有观测到`y[1]`之前的数据；相反，它作为条件作用于`y[2]`。这个模型还使用了一个对于`sigma`的非合理先验，但如果有关于`y`随时间变化的尺度的信息可用，那么添加一个含信息的先验是可行的，或者如果有关于`y`尺度的粗略知识可用，可以添加一个弱信息性的先验来帮助指导推断。
 
 #### Slicing for efficiency {-}
+
 #### 提高效率之切片处理
 
 Although perhaps a bit more difficult to read, a much more efficient
@@ -90,6 +92,7 @@ elements and the right-hand side version pulls out the first $N-1$.
 左侧的切片操作取出向量后$N-1$个元素，右侧的是取出向量前$N-1$个元素。
 
 ### Extensions to the AR(1) model {-}
+
 ### AR(1)模型拓展
 
 Proper priors of a range of different families may be added for the
@@ -109,13 +112,15 @@ coefficient `beta` may be constrained with bounds as follows.
 real<lower=-1, upper=1> beta;
 ```
 
-In practice, such a constraint is not recommended.  If the data are not well fit by a stationary model it is best to know this.
+In practice, such a constraint is not recommended.  If the data are not well fit by a 
+stationary model it is best to know this.
 Stationary parameter estimates can be encouraged with a prior favoring
 values of `beta` near zero.
 
 在实践中，这样的约束不建议使用。当不能通过一个平稳的AR模型来很好地拟合数据的时候，我们最好能知道这一点。不过在实践中可以通过设置`beta`先验质量集中在零的分布来鼓励稳定参数的估计。
 
 ### AR(2) models {-}
+
 ### AR(2)模型
 
 Extending the order of the model is also straightforward.  For
@@ -132,6 +137,7 @@ for (n in 3:N) {
 
 
 ### AR($K$) models {-}
+
 ### AR($K$)模型
 
 A general model where the order is itself given as data can be coded
@@ -163,6 +169,7 @@ model {
 ```
 
 ### ARCH(1) models {-}
+
 ### ARCH(1) 模型
 
 Econometric and financial time-series models usually assume
@@ -193,8 +200,9 @@ a_t        &=  \sigma_t \epsilon_t \\
 \end{align*}
 
 In order to ensure the noise terms $\sigma^2_t$ are positive, the
-scale coefficients are constrained to be positive, $\alpha_0, \alpha_1 > 0$.  
-To ensure stationarity of the time series, the slope is constrained to be less than one, i.e., $\alpha_1 < 1$.^[In practice, it can be useful to remove the constraint to test whether a non-stationary set of coefficients provides a better fit to the data.  It can also be useful to add a trend term to the model, because an unfitted trend will manifest as non-stationarity.]
+scale coefficients are constrained to be positive, $\alpha_0, \alpha_1
+> 0$.  To ensure stationarity of the time series, the slope is
+constrained to be less than one, i.e., $\alpha_1 < 1$.^[In practice, it can be useful to remove the constraint to test whether a non-stationary set of coefficients provides a better fit to the data.  It can also be useful to add a trend term to the model, because an unfitted trend will manifest as non-stationarity.]
 
 为了确保噪声项$\sigma^2_t$大于零，尺度系数被约束为正，即$\alpha_0, \alpha_1 > 0$。为了确保时间序列的平稳性，斜率被约束为小于1，即$\alpha_1 < 1$。^[在实践中，移除约束以测试非稳定系数是否能更好地拟合数据可能是有用的。添加趋势项到模型也可能是有用的，因为一个未拟合的趋势会表现为非稳定性。]
 
@@ -228,6 +236,7 @@ the model in the next section provides an example.
 模型中的循环定义为在时间$t=1$时的观测值不被建模；下一节的模型展示了如何建模在$t=1$时的回报。模型可以向量化表示以提高效率；下一节的模型提供了一个例子。
 
 ## Modeling temporal heteroscedasticity
+
 ## 对序列异方差性质建模
 
 A set of variables is homoscedastic if their variances are all the
@@ -238,6 +247,7 @@ term to vary over time.
 如果一组变量的方差都相同，则称这组变量为同方差；如果它们的方差不都相同，则称为异方差。异方差时间序列模型允许噪声项随时间变化。
 
 ### GARCH(1,1) models {-}
+
 ### GARCH(1,1)模型
 
 The basic generalized autoregressive conditional heteroscedasticity
@@ -246,7 +256,6 @@ squared previous difference in return from the mean at time $t-1$ as a
 predictor of volatility at time $t$, defining
 
 广义自回归条件异方差（GARCH）模型，GARCH(1,1)，通过包括在时间$t-1$的平均回报的平方前差作为时间$t$的波动性的预测因子，扩展了ARCH(1)模型，定义如下：
-
 $$
 \sigma^2_t = \alpha_0 + \alpha_1 a^2_{t-1} + \beta_1 \sigma^2_{t-1}.
 $$
@@ -315,6 +324,7 @@ directly.
 有了转换参数块中的回归，模型就简化为一个单一的向量化采样语句。因为`r`和`sigma`的长度是`T`，所有的数据都被直接建模。
 
 ## Moving average models
+
 ## 移动平均模型
 
 A moving average model uses previous errors as predictors for future
@@ -339,11 +349,15 @@ In a proper Bayesian model, the parameters $\mu$, $\theta$, and
 $\sigma$ must all be given priors.
 
 在一个合理的贝叶斯模型中，参数$\mu$、$\theta$和$\sigma$都必须给定先验分布。
+
 ### MA(2) example {-}
+
+### MA(2)示例
 
 An $\mbox{MA}(2)$ model can be coded in Stan as follows.
 
 在Stan中，$\mbox{MA}(2)$模型可以表示如下。
+
 ```stan
 data {
   int<lower=3> T;          // number of observations
@@ -394,6 +408,7 @@ of a loop.
 这个模型可以在运行速度上进行改进，通过向量化模型块中的采样语句。通过使用点积而不是循环，可以加速$\epsilon_t$的计算。
 
 ### Vectorized MA(Q) model {-}
+
 ### 向量MA(Q)模型
 
 A general $\mbox{MA}(Q)$ model with a vectorized sampling probability
@@ -445,6 +460,7 @@ converge---they compute the same model).
 在这里，所有的数据都被建模，缺失的项在计算误差项时就被从回归中删除了。两种模型都快速收敛并在收敛时混合得很好，其中向量化模型更快（每次迭代并不收敛——它们计算的是同一模型）。
 
 ## Autoregressive moving average models
+
 ## 自回归滑动平均模型
 
 Autoregressive moving-average models (ARMA), combine the predictors
@@ -511,6 +527,7 @@ Wayne Folta suggested encoding the model without local vector
 variables as follows.
 
 Wayne Folta建议将模型编码为没有局部向量变量，如下所示。
+
 ```stan
 model {
   real err;
@@ -542,6 +559,7 @@ A halfway point would be to vectorize just `err`.
 两种编码都很快。原始编码的优点是向量化了正态分布，但是它使用了更多的内存。一个折中的方法是仅对`err`进行向量化。
 
 ### Identifiability and stationarity {-}
+
 ### 可识别性和平稳性
 
 MA and ARMA models are not identifiable if the roots of the
@@ -549,6 +567,7 @@ characteristic polynomial for the MA part lie inside the unit circle,
 so it's necessary to add the following constraint^[This subsection is a lightly edited comment of Jonathan Gilligan's on GitHub; see \url{https://github.com/stan-dev/stan/issues/1617\#issuecomment-160249142}]
 
 如果MA部分的特征多项式的根位于单位圆内，则MA和ARMA模型是不可识别的，因此需要添加以下约束^[这一小节是Jonathan Gilligan在GitHub上的评论; 见 \url{https://github.com/stan-dev/stan/issues/1617#issuecomment-160249142}]
+
 ```stan
 real<lower=-1, upper=1> theta;
 ```
@@ -568,11 +587,15 @@ Further, unless one thinks that the process is really non-stationary,
 it's worth adding the following constraint to ensure stationarity.
 
 此外，除非你认为这个过程真的是非平稳的，否则值得添加以下约束来确保平稳性。
+
 ```stan
 real<lower=-1, upper=1> phi;
 ```
 
+
+
 ## Stochastic volatility models
+
 ## 随机波动率模型
 
 Stochastic volatility models treat the volatility (i.e., variance) of
@@ -590,7 +613,6 @@ time $t$, whereas $\delta_t$ represents the shock on volatility at
 time $t$.
 
 随机波动率模型将资产（如购买证券的期权）的回报的波动性（即方差）视为在离散时间下遵循潜在的随机过程[@KimShephardChib:1998]。数据由在$T$个等间隔时间点上的底层资产的均值校正（即，中心化）回报$y_t$组成。Kim等人用以下的类回归方程来构建典型的随机波动性模型，其中有一个潜在参数$h_t$用于表示对数波动性，以及参数$\mu$表示平均对数波动性，$\phi$表示波动性项的持续性。变量$\epsilon_t$表示在时间$t$处的资产回报的白噪声冲击（即乘法误差），而$\delta_t$表示在时间$t$的波动性冲击。
-
 \begin{align*}
 y_t        &=    \epsilon_t \exp(h_t / 2) \\
 h_{t+1}    &=    \mu + \phi (h_t - \mu) + \delta_t \sigma \\
@@ -617,6 +639,7 @@ This formulation can be directly encoded, as shown in the following
 Stan model.
 
 这种表述可以直接编码，如下面的Stan模型所示。
+
 ```stan
 data {
   int<lower=0> T;   // # time points (equally spaced)
@@ -1143,4 +1166,3 @@ parameters used to find the most likely state to have generated
 `u`.
 
 如果输出`u`不被用于半监督估计，而只是作为预测的基础，那么结果等同于通过cut操作在BUGS建模语言中表示的结果。也就是说，模型是独立于`u`进行拟合的，然后使用这些参数来找到最有可能生成`u`的状态。
-
