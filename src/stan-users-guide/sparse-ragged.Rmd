@@ -1,5 +1,7 @@
 # Sparse and Ragged Data Structures {#sparse-ragged.chapter}
+
 # 稀疏与不规则数据结构 {#sparse-ragged.chapter}
+
 翻译者：郭鑫
 
 Stan does not directly support either sparse or ragged data
@@ -12,6 +14,7 @@ covers more general data structures.
 Stan不直接支持稀疏或不规则数据结构，尽管两者都可以通过一些编程来调节。[稀疏矩阵](#sparse-matrices.chapter) 这一章节介绍了一种专用的稀疏矩阵乘稠密向量乘法，应酌情使用；本章涵盖了更通用的数据结构。
 
 ## Sparse data structures
+
 ## 稀疏数据结构
 
 Coding sparse data structures is as easy as moving from a matrix-like
@@ -139,6 +142,7 @@ formulations produce exactly the same log posterior density.
 在没有缺失值的情况下，两个模型公式产生完全相同的对数后验密度。
 
 ## Ragged data structures {#ragged-data-structs.section}
+
 ## 不规则数据结构 {#ragged-data-structs.section}
 
 Ragged arrays are arrays that are not rectangular, but have different
