@@ -1,5 +1,5 @@
 # Sparse and Ragged Data Structures {#sparse-ragged.chapter}
-# 稀疏与不规则数据结构  
+# 稀疏与不规则数据结构 {#sparse-ragged.chapter}
 翻译者：郭鑫
 
 Stan does not directly support either sparse or ragged data
@@ -139,7 +139,7 @@ formulations produce exactly the same log posterior density.
 在没有缺失值的情况下，两个模型公式产生完全相同的对数后验密度。
 
 ## Ragged data structures {#ragged-data-structs.section}
-## 不规则数据结构
+## 不规则数据结构 {#ragged-data-structs.section}
 
 Ragged arrays are arrays that are not rectangular, but have different
 sized entries.  This kind of structure crops up when there are
