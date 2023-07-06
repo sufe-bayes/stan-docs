@@ -1,54 +1,53 @@
-# 并行计算(Parallelization)  {#parallelization.chapter}
+# Parallelization {#parallelization.chapter}
 
-Stan 支持几种不同类型的并行化：使用英特尔线程构建模块(TBB)进行多线程处理、使用消息传递接口(MPI)进行多进程处理、以及使用OpenCL进行众核处理。
+# 并行计算 {#parallelization.chapter}
+
+翻译贡献者：谭颂华
 
 Stan has support for different types of parallelization: 
 multi-threading with Intel Threading Building Blocks (TBB),
 multi-processing with Message Passing Interface (MPI) and 
 manycore processing with OpenCL.
 
-在Stan中，可以使用两种机制进行多线程处理：求和归约和矩形映射。后者也可以与多进程一起使用。
+Stan 支持几种不同类型的并行化：使用英特尔线程构建模块(TBB)进行多线程处理、使用消息传递接口(MPI)进行多进程处理、以及使用OpenCL进行众核处理。
 
 Multi-threading in Stan can be used with two mechanisms:
 reduce with summation and rectangular map. The latter can also 
 be used with multi-processing.
 
-求和归约的优点是：
+在Stan中，可以使用两种机制进行多线程处理：求和归约和矩形映射。后者也可以与多进程一起使用。
 
 The advantages of reduce with summation are:
 
-1. 更灵活的参数接口，避免了使用矩形映射时必须进行的打包和解包操作。
+求和归约的优点是：
 
 1. More flexible argument interface, avoiding the packing and
    unpacking that is necessary with rectanguar map.
-  
-2. 自动对数据进行分区以实现并行化（在矩形映射中需要手动完成）。
+
+1. 更灵活的参数接口，避免了使用矩形映射时必须进行的打包和解包操作。  
 
 2. Partitions data for parallelization automatically (this is done manually
    in rectanguar map).
-   
-3. 更易于使用。
 
-3. Is easier to use.
+2. 自动对数据进行分区以实现并行化（在矩形映射中需要手动完成）。
    
-矩形映射的优点是：
+3. Is easier to use.
+
+3. 更易于使用。
 
 The advantages of rectangular map are:
 
-
-1. 返回一个向量列表，而求和归约仅返回一个标量。
+矩形映射的优点是：
 
 1. Returns a list of vectors, while the reduce summation returns only a scalar.
    
-2. 可以跨多个内核和多台计算机进行并行化，而归约求和只能在一台计算机上的多个内核之间进行并行化。
+1. 返回一个向量列表，而求和归约仅返回一个标量。
 
 2. Can be parallelized across multiple cores and multiple
    computers, while reduce summation can only parallelized across multiple
    cores on a single machine.
 
-实际加速效果将取决于许多细节。强烈建议只并行化Stan程序中计算成本最高的操作。
-通常，计算观测数据的对数似然函数是计算成本最高的步骤。
-当不清楚模型的哪些部分的计算成本最高时，建议使用在Stan 2.26及更高版本中提供的性能分析工具。
+2. 可以跨多个内核和多台计算机进行并行化，而归约求和只能在一台计算机上的多个内核之间进行并行化。
 
 The actual speedup gained from using these functions will depend on
 many details. It is strongly recommended to only parallelize the
@@ -58,18 +57,18 @@ the observed data. When it is not clear which parts of the model is the most
 computationally expensive, we recommend using profiling, which is available
 in Stan 2.26 and newer.
 
-由于仅部分Stan程序采取并行计算，因此可以实现的最大加速是有上限的，这是[阿姆达尔定律](https://en.wikipedia.org/wiki/Amdahl's_law)描述的现象。
+实际加速效果将取决于许多细节。强烈建议只并行化Stan程序中计算成本最高的操作。通常，计算观测数据的对数似然函数是计算成本最高的步骤。当不清楚模型的哪些部分的计算成本最高时，建议使用在Stan 2.26及更高版本中提供的性能分析工具。
 
 Since only portions of a Stan program will run in
 parallel, the maximal speedup one can achieve is capped, a phenomen
 described by [Amdahl's
 law](https://en.wikipedia.org/wiki/Amdahl's_law).
 
+由于仅部分Stan程序采取并行计算，因此可以实现的最大加速是有上限的，这是[阿姆达尔定律](https://en.wikipedia.org/wiki/Amdahl's_law)描述的现象。
 
-## 求和归约Reduce-sum { #reduce-sum }
+## Reduce-sum { #reduce-sum }
 
-在概率建模中，经常需要计算一系列独立函数求和，如计算对数似然函数中一系列条件独立项求和。
-假设`g: U -> real`是一个函数并且`{ x1, x2, ... }`是输入数组，那么上述求和形式如下：
+## 求和归约 { #reduce-sum }
 
 It is often necessary in probabilistic modeling to compute the sum of
 a number of independent function evaluations. This occurs, for instance, when
@@ -77,15 +76,15 @@ evaluating a number of conditionally independent terms in a log-likelihood.
 If `g: U -> real` is the function and `{ x1, x2, ... }` is an array of
 inputs, then that sum looks like:
 
-`g(x1) + g(x2) + ...`
+在概率建模中，经常需要计算一系列独立函数求和，如计算对数似然函数中一系列条件独立项求和。
+假设`g: U -> real`是一个函数并且`{ x1, x2, ... }`是输入数组，那么上述求和形式如下：
 
-该求和项可通过`reduce_sum`和`reduce_sum_static`等工具实现并行计算。
+`g(x1) + g(x2) + ...`
 
 `reduce_sum` and `reduce_sum_static` are tools for parallelizing these
 calculations.
 
-考虑到计算效率，归约函数不再逐一计算函数`g`，而是计算部分和函数`f: U[] -> real`，其中，`f`输出与输入序列`x`对应的部分和。
-由于求和归约的可结合性，以下等式成立：
+该求和项可通过`reduce_sum`和`reduce_sum_static`等工具实现并行计算。
 
 For efficiency reasons the reduce function doesn’t work with the
 element-wise evaluated function `g`, but instead the partial
@@ -93,15 +92,14 @@ sum function `f: U[] -> real`, where `f` computes the partial
 sum corresponding to a slice of the sequence `x` passed in. Due to the
 associativity of the sum reduction it holds that:
 
+考虑到计算效率，归约函数不再逐一计算函数`g`，而是计算部分和函数`f: U[] -> real`，其中，`f`输出与输入序列`x`对应的部分和。由于求和归约的可结合性，以下等式成立：
+
 ```stan
 g(x1) + g(x2) + g(x3) = f({ x1, x2, x3 })
                       = f({ x1, x2 }) + f({ x3 })
                       = f({ x1 }) + f({ x2, x3 })
 					  = f({ x1 }) + f({ x2 }) + f({ x3 })
 ```
-
-通过部分和函数 ```f: U[] -> real``` 整体总和可以划分为任意较小的部分和，因此大量项的归约可以自动并行计算。
-用户无法控制确切的部分和划分方式。然而，由于数值结果的确切性取决于求和顺序，Stan提供了两个版本的求和归约功能：
 
 With the partial sum function ```f: U[] -> real``` reduction of a
 large number of terms can be evaluated in parallel automatically, since the
@@ -111,103 +109,110 @@ control of the user. However, since the exact numerical result will
 depend on the order of summation, Stan provides two versions of the
 reduce summation facility:
 
-* `reduce_sum`: 基于动态调度算法，自动选择部分和划分方式。
+通过部分和函数 ```f: U[] -> real``` 整体总和可以划分为任意较小的部分和，因此大量项的归约可以自动并行计算。用户无法控制确切的部分和划分方式。然而，由于数值结果的确切性取决于求和顺序，Stan提供了两个版本的求和归约功能：
 
 * `reduce_sum`: Automatically choose partial sums partitioning based on a dynamic
  scheduling algorithm.
  
-* `reduce_sum_static`: 计算与`reduce_sum`相同的总和，但对于给定数据集，对输入进行相同的划分(在`reduce_sum`中，这种划分可能会根据计算机负载的变化而改变)。
+* `reduce_sum`: 基于动态调度算法，自动选择部分和划分方式。
 
 * `reduce_sum_static`: Compute the same sum as `reduce_sum`, but partition
  the input in the same way for given data set (in `reduce_sum` this partitioning
  might change depending on computer load).
 
-`grainsize`是需要调优的参数。对于`reduce_sum`，`grainsize`是建议的部分和大小。选择`grainsize`为1，即将部分和的划分完全交给调度器。除非花时间仔细选择`grainsize`，选择`grainsize`为1将是使用`reduce_sum`的默认方式。有关选择`grainsize`的详细信息，详细说明请参见[下面](#reduce-sum-grainsize)。
+* `reduce_sum_static`: 计算与`reduce_sum`相同的总和，但对于给定数据集，对输入进行相同的划分(在`reduce_sum`中，这种划分可能会根据计算机负载的变化而改变)。
 
 `grainsize` is the one tuning parameter. For `reduce_sum`, `grainsize` is
 a suggested partial sum size. A `grainsize` of 1 leaves the partitioning
 entirely up to the scheduler. This should be the default way of using
 `reduce_sum` unless time is spent carefully picking `grainsize`. For picking a `grainsize`, see details [below](#reduce-sum-grainsize).
 
-对于`reduce_sum_static`，`grainsize`指定最大的部分和大小。对于`reduce_sum_static`，因为`grainsize`完全确定了工作的划分方式，仔细选择`grainsize`更为重要。更多详细说明请参见[下面](#reduce-sum-grainsize)。
+`grainsize`是需要调优的参数。对于`reduce_sum`，`grainsize`是建议的部分和大小。选择`grainsize`为1，即将部分和的划分完全交给调度器。除非花时间仔细选择`grainsize`，选择`grainsize`为1将是使用`reduce_sum`的默认方式。有关选择`grainsize`的详细信息，详细说明请参见[下面](#reduce-sum-grainsize)。
 
 For `reduce_sum_static`, `grainsize` specifies the maximal partial sum size.
 With `reduce_sum_static` it is more important to choose `grainsize`
 carefully since it entirely determines the partitioning of work.
 See details [below](#reduce-sum-grainsize).
 
-为了提高效率和方便性，额外的共享参数可传递给总和中的每一项。因此，对于数组```{ x1, x2, ... }```和共享参数```s1, s2, ...```，总和的形式(带有共享参数项)如下：
+对于`reduce_sum_static`，`grainsize`指定最大的部分和大小。对于`reduce_sum_static`，因为`grainsize`完全确定了工作的划分方式，仔细选择`grainsize`更为重要。更多详细说明请参见[下面](#reduce-sum-grainsize)。
 
 For efficiency and convenience additional
 shared arguments can be passed to every term in the sum. So for the
 array ```{ x1, x2, ... }``` and the shared arguments ```s1, s2, ...```stan
 the effective sum (with individual terms) looks like: 
 
+为了提高效率和方便性，额外的共享参数可传递给总和中的每一项。因此，对于数组```{ x1, x2, ... }```和共享参数```s1, s2, ...```，总和的形式(带有共享参数项)如下：
+
 ```stan
 g(x1, s1, s2, ...) + g(x2, s1, s2, ...) + g(x3, s1, s2, ...) + ...
 ```
 
-这可等价地使用部分和来表示：
-
 which can be written equivalently with partial sums to look like:
+
+这可等价地使用部分和来表示：
 
 ```stan
 f({ x1, x2 }, s1, s2, ...) + f({ x3 }, s1, s2, ...)
 ```
 
-其中`x`数组的具体切片可以不同。
-
 where the particular slicing of the ```x``` array can change.
 
-基于此，函数声明如下：
+其中`x`数组的具体切片可不同。
 
 Given this, the signatures are:
+
+基于此，函数声明如下：
 
 ```stan
 real reduce_sum(F f, array[] T x, int grainsize, T1 s1, T2 s2, ...)
 real reduce_sum_static(F f, array[] T x, int grainsize, T1 s1, T2 s2, ...)
 ```
 
-1. ```f``` - 用户定义的计算部分和的函数
-2. ```x``` - 要切片的数组，每个元素对应于总体中的一项
-3. ```grainsize``` - 切片大小的调优参数
-4. ```s1, s2, ...``` - 每项中共享的参数
-
-
 1. ```f``` - User defined function that computes partial sums
+
+1. ```f``` - 用户定义的计算部分和的函数
+
 2. ```x``` - Array to slice, each element corresponds to a term in the summation
+
+2. ```x``` - 要切片的数组，每个元素对应于总体中的一项
+
 3. ```grainsize``` - Target for size of slices
+
+3. ```grainsize``` - 切片大小的调优参数
+
 4. ```s1, s2, ...``` - Arguments shared in every term
 
-用户定义的部分和函数具有以下声明：
+4. ```s1, s2, ...``` - 每项中共享的参数
 
 The user-defined partial sum functions have the signature:
+
+用户定义的部分和函数具有以下声明：
 
 ```stan
 real f(array[] T x_slice, int start, int end, T1 s1, T2 s2, ...)
 ```
 
-其中，参数定义为：
-
 and take the arguments:
 
-1. ```x_slice``` - ```x```的子集(来自```reduce_sum```/`reduce_sum_static`)，其中部分和是输出(```x_slice = x[start:end]```)
-2. ```start``` - 指定部分和中第一项的整数
-3. ```end``` - 指定部分和中的最后一项的整数（包括在内）
-4. ```s1, s2, ...``` - 每项中共享的参数  (从```reduce_sum``` / `reduce_sum_static`中传递，无修改)
-
+其中，参数定义为：
 
 1. ```x_slice``` - The subset of ```x``` (from ```reduce_sum``` / `reduce_sum_static`) for
   which this partial sum is responsible (```x_slice = x[start:end]```)
+
+1. ```x_slice``` - ```x```的子集(来自```reduce_sum```/`reduce_sum_static`)，其中部分和是输出(```x_slice = x[start:end]```)
+
 2. ```start``` - An integer specifying the first term in the partial sum
+
+2. ```start``` - 指定部分和中第一项的整数
+
 3. ```end``` - An integer specifying the last term in the partial sum (inclusive)
+
+3. ```end``` - 指定部分和中的最后一项的整数（包括在内）
+
 4. ```s1, s2, ...``` - Arguments shared in every term  (passed on
 without modification from the ```reduce_sum``` / `reduce_sum_static` call)
 
-用户提供的函数```f```应计算总和中从第```start```到```end```项的部分和。
-用户函数输入子集```x[start:end]```作为```x_slice```。
-输入```start```和 ```end```用于使```f```能够根据需要索引任何尾部参数```sM```。
-尾部参数```sM```在每次调用```f```时均无修改地输入。
+4. ```s1, s2, ...``` - 每项中共享的参数  (从```reduce_sum``` / `reduce_sum_static`中传递，无修改)
 
 The user-provided function ```f``` is expected to compute the partial
 sum with the terms ```start``` through ```end``` of the overall
@@ -217,25 +222,31 @@ can index any of the tailing ```sM``` arguments as necessary. The
 trailing ```sM``` arguments are passed without modification to every
 call of ```f```.
 
-```reduce_sum``` (或 `reduce_sum_static`) 的函数调用:
+
+用户提供的函数```f```应计算总和中从第```start```到```end```项的部分和。
+用户函数输入子集```x[start:end]```作为```x_slice```。
+输入```start```和 ```end```用于使```f```能够根据需要索引任何尾部参数```sM```。
+尾部参数```sM```在每次调用```f```时均无修改地输入。
 
 A ```reduce_sum``` (or `reduce_sum_static`) call:
+
+```reduce_sum``` (或 `reduce_sum_static`) 的函数调用:
 
 ```stan
 real sum = reduce_sum(f, x, grainsize, s1, s2, ...);
 ```
 
-可替换为：
-
 can be replaced by either:
+
+可替换为：
 
 ```stan
 real sum = f(x, 1, size(x), s1, s2, ...);
 ```
 
-或者可使用如下代码：
-
 or the code:
+
+或者可使用如下代码：
 
 ```stan
 real sum = 0.0;
@@ -244,13 +255,15 @@ for(i in 1:size(x)) {
 }
 ```
 
-### 例子：逻辑回归Example: logistic regression
+### Example: logistic regression
 
-一个助于理解求和归约代码用法和代码加速的例子是逻辑回归。在Stan中，基础的逻辑回归可使用如下代码实现：
+### 例子：逻辑回归
 
 Logistic regression is a useful example to clarify both the syntax
 and semantics of reduce summation and how it can be used to speed up a typical
 model. A basic logistic regression can be coded in Stan as:
+
+一个助于理解求和归约代码用法和代码加速的例子是逻辑回归。在Stan中，基础的逻辑回归可使用如下代码实现：
 
 ```stan
 data {
@@ -267,20 +280,20 @@ model {
 }
 ```
 
-在这个模型中，使用协变量`x`对`N`个输出`y`进行预测。需要估计线性方程的截距和斜率。要使用求和归约进行计算，关键是明确如下的编程语句：
-
 In this model predictions are made about the `N` outputs `y` using the
 covariate `x`. The intercept and slope of the linear equation are to be estimated.
 The key point to getting this calculation to use reduce summation, is recognizing that
 the statement:
 
+在这个模型中，使用协变量`x`对`N`个输出`y`进行预测。需要估计线性方程的截距和斜率。要使用求和归约进行计算，关键是明确如下的编程语句：
+
 ```stan
 y ~ bernoulli_logit(beta[1] + beta[2] * x);
 ```
 
-可以重写（比例常数除外）为：
-
 can be rewritten (up to a proportionality constant) as:
+
+可以重写（忽略比例常数）为：
 
 ```stan
 for(n in 1:N) {
@@ -288,14 +301,14 @@ for(n in 1:N) {
 }
 ```
 
-现在清楚地看到，计算过程是一系列条件独立的伯努利对数概率语句的和，这就是求和归约有用的地方。为了使用求和归约，必须编写一个能够计算总和的任意部分和的函数。使用[Reduce-Sum](#reduce-sum)中定义的接口，可以编写如下的函数：
-
 Now it is clear that the calculation is the sum of a number of conditionally
 independent Bernoulli log probability statements, which is the condition where
 reduce summation is useful. To use the reduce summation, a function
 must be written that can be used to compute arbitrary partial sums of
 the total sum. Using the interface defined in
 [Reduce-Sum](#reduce-sum), such a function can be written like:
+
+现在清楚地看到，计算过程是一系列条件独立的伯努利对数概率语句的和，这就是求和归约有用的地方。为了使用求和归约，必须编写一个能够计算总和的任意部分和的函数。使用[求和归约](#reduce-sum)中定义的接口，可以编写如下的函数：
 
 ```stan
 functions {
@@ -308,15 +321,13 @@ functions {
 }
 ```
 
-模型中的似然函数语句可以如下编写：
-
 The likelihood statement in the model can now be written:
+
+模型中似然函数语句可如下编写：
 
 ```stan
 target += partial_sum(y, 1, N, x, beta); // Sum terms 1 to N of the likelihood
 ```
-
-在此示例中，因为每个`y`值在求和中有一项，所以选择将`y`进行切片。严格来说，`x`也可同样操作，但应根据给定模型在概念上最合理的方式选择切片，例如在条件独立的观测值或层次模型中，切片独立的项组。因为`x`是一个共享的参数，它会根据`start:end`进行子集操作。使用这个函数，可以使用求和归约自动并行化计算似然函数：
 
 In this example, `y` was chosen to be sliced over because there
 is one term in the summation per value of `y`. Technically `x` would  have
@@ -327,6 +338,8 @@ hierarchical models. Because `x` is a shared argument, it is subset
 accordingly with `start:end`. With this function, reduce summation can
 be used to automatically parallelize the likelihood:
 
+在此示例中，因为每个`y`值在求和中有一项，所以选择将`y`进行切片。严格来说，`x`也可同样操作，但应根据给定模型在概念上最合理的方式选择切片，例如在条件独立的观测值或层次模型中，切片独立的项组。因为`x`是一个共享的参数，它会根据`start:end`进行子集操作。使用这个函数，可以使用求和归约自动并行化计算似然函数：
+
 ```stan
 int grainsize = 1;
 target += reduce_sum(partial_sum, y,
@@ -334,11 +347,11 @@ target += reduce_sum(partial_sum, y,
                      x, beta);
 ```
 
-求和归约工具会自动将总和分解为多个部分，从而并行计算它们。`grainsize = 1`指定应自动估计`grainsize`。最终模型如下：
-
 The reduce summation facility automatically breaks the sum into pieces
 and computes them in parallel. `grainsize = 1` specifies that the
 `grainsize` should be estimated automatically. The final model is:
+
+求和归约工具会自动将总和分解为多个部分，从而并行计算它们。`grainsize = 1`指定应自动估计`grainsize`。最终模型如下：
 
 ```stan
 functions {
@@ -368,15 +381,13 @@ model {
 
 ### Picking the grainsize {#reduce-sum-grainsize}
 
-选择合适的`grainsize`的原理是在创建许多小任务和创建较少大任务之间寻找平衡。前者会导致计算开销过大，后者会限制潜在的并行性。
+### 选择调优参数 {#reduce-sum-grainsize}
 
 The rational for choosing a sensible `grainsize` is based on
 balancing the overhead implied by creating many small tasks versus
 creating fewer large tasks which limits the potential parallelism.
 
-在`reduce_sum`中，`grainsize`是对部分和大小参数。
-如果没有对其他`grainsize`选择进行基准测试，`grainsize`将选择为1，即完全由内部调度器决定。
-理想情况下，这可能是高效的，但尚未保证。
+选择合适的`grainsize`的原理是在创建许多小任务和创建较少大任务之间寻找平衡。前者会导致计算开销过大，后者会限制潜在的并行性。
 
 In `reduce_sum`, `grainsize` is a recommendation on how to partition
 the work in the partial sum into smaller pieces. A `grainsize` of 1
@@ -384,14 +395,16 @@ leaves this entirely up to the internal scheduler and should be chosen
 if no benchmarking of other grainsizes is done. Ideally this will be
 efficient, but there are no guarantees.
 
-在`reduce_sum_static`中，`grainsize`是部分和大小的上限。求和目标将被分割，直到所有部分和都略小于`grainsize`（对于相同的输入，划分方式将保持一致）。对于`reduce_sum_static`，选择合理的`grainsize`更为重要。
+在`reduce_sum`中，`grainsize`是对部分和大小参数。
+如果没有对其他`grainsize`选择进行基准测试，`grainsize`将选择为1，即完全由内部调度器决定。
+理想情况下，这可能是高效的，但尚未保证。
 
 In `reduce_sum_static`, `grainsize` is an upper limit on the worksize.
 Work will be split until all partial sums are just smaller than `grainsize`
 (and the split will happen the same way every time for the same inputs).
 For the static version it is more important to select a sensible `grainsize`.
 
-为了确定最佳的`grainsize`，假设有`N`个项和`M`个核心，可以使用大致等于`N / M`的`grainsize`运行一个快速测试模型。记录此次时间，将`grainsize`减半，再次运行测试。反复进行这个过程，直到模型运行时间开始增加。此时的`grainsize`适用于模型，因为它确保计算可以以最大的并行性进行，同时不会失去太多的效率。
+在`reduce_sum_static`中，`grainsize`是部分和大小的上限。求和目标将被分割，直到所有部分和都略小于`grainsize`（对于相同的输入，划分方式将保持一致）。对于`reduce_sum_static`，选择合理的`grainsize`更为重要。
 
 In order to figure out an optimal `grainsize`, if there are `N`
 terms and `M` cores, run a quick test model with `grainsize` set
@@ -401,12 +414,12 @@ begins to increase. This is a suitable `grainsize` for the model,
 because this ensures the caculations can be carried out with the most
 parallelism without losing too much efficiency.
 
-例如，在一个`N=10000`和`M=4`的模型中，可以从`grainsize=2500`开始，依次尝试`grainsize=1250`，`grainsize=625`等。
+为了确定最佳的`grainsize`，假设有`N`个项和`M`个核心，可以使用大致等于`N / M`的`grainsize`运行一个快速测试模型。记录此次时间，将`grainsize`减半，再次运行测试。反复进行这个过程，直到模型运行时间开始增加。此时的`grainsize`适用于模型，因为它确保计算可以以最大的并行性进行，同时不会失去太多的效率。
 
 For instance, in a model with `N=10000` and `M = 4`, start with `grainsize = 2500`, and
 sequentially try `grainsize = 1250`, `grainsize = 625`, etc.
 
-重要的是要重复这个过程，直到性能变差为止。可能经过多次减半后没有任何变化，但仍然可能存在一个更小的grainsize可以获得更好的性能。即使总和有成千上万个项，根据内部计算的情况，`grainsize`可能是30或40，甚至更小的值可能是最好的，这很难预测。如果没有进行上述减半测试直到性能实际变差，很容易忽视这一点。
+例如，在一个`N=10000`和`M=4`的模型中，可以从`grainsize=2500`开始，依次尝试`grainsize=1250`，`grainsize=625`等。
 
 It is important to repeat this process until performance gets worse.
 It is possible after many halvings nothing happens, but there might
@@ -417,16 +430,18 @@ best, and it is difficult to predict this behavior.  Without doing
 these halvings until performance actually gets worse, it is easy to
 miss this.
 
-## 矩形映射 Map-rect
+重要的是要重复这个过程，直到性能变差为止。可能经过多次减半后没有任何变化，但仍然可能存在一个更小的grainsize可以获得更好的性能。即使总和有成千上万个项，根据内部计算的情况，`grainsize`可能是30或40，甚至更小的值可能是最好的，这很难预测。如果没有进行上述减半测试直到性能实际变差，很容易忽视这一点。
 
-映射归约(Map-reduce)是一种将大型计算（例如对数似然）分解为模块化计算（例如数据块）并最终组合（例如通过求和以及增加目标对数密度）的方法。
+## Map-rect
+
+## 矩形映射
 
 Map-reduce allows large calculations (e.g., log likelihoods) to be
 broken into components which may be calculated modularly (e.g., data
 blocks) and combined (e.g., by summation and incrementing the target
 log density).
 
-一个映射函数是一个高阶函数，它将一个参数函数应用于某个集合的每个元素，并返回结果的集合。例如，对于向量$[3, 5, 10]$应用平方函数$f(x) = x^2$的映射，将产生向量$[9, 25, 100]$。换句话说，映射函数逐个元素地应用平方函数。
+映射归约(Map-reduce)是一种将大型计算（例如对数似然）分解为模块化计算（例如数据块）并最终组合（例如通过求和以及增加目标对数密度）的方法。
 
 A _map function_ is a higher-order function that applies an
 argument function to every member of some collection, returning a
@@ -435,7 +450,7 @@ $f(x) = x^2$, over the vector $[3, 5, 10]$ produces the vector
 $[9, 25, 100]$.  In other words, map applies the square function
 elementwise.
 
-映射序列的输出通常被输入到一个归约函数中。归约函数接受任意长度的输入序列，并返回单个输出。归约函数的示例包括求和（返回一个单个值）或排序（返回一个排序后的序列）。映射和归约的组合非常常见，因此它们有自己的名字——映射归约（map-reduce）。
+一个映射函数是一个高阶函数，它将一个参数函数应用于某个集合的每个元素，并返回结果的集合。例如，对于向量$[3, 5, 10]$应用平方函数$f(x) = x^2$的映射，将产生向量$[9, 25, 100]$。换句话说，映射函数逐个元素地应用平方函数。
 
 The output of mapping a sequence is often fed into a reduction.
 A _reduction function_ takes an arbitrarily long sequence of
@@ -444,20 +459,26 @@ are summation (with the return being a single value) or sorting (with
 the return being a sorted sequence).  The combination of mapping and
 reducing is so common it has its own name, _map-reduce_.
 
-### 映射函数 Map function
+映射序列的输出通常被输入到一个归约函数中。归约函数接受任意长度的输入序列，并返回单个输出。归约函数的示例包括求和（返回一个单个值）或排序（返回一个排序后的序列）。映射和归约的组合非常常见，因此它们有自己的名字——映射归约（map-reduce）。
 
-为了泛化可以实现的函数和结果的形式，并适应参数（需要求导）和数据值（不需要求导）的情况，Stan的映射函数不仅仅限制于序列的输入。
+### Map function
+
+### 映射函数
 
 In order to generalize the form of functions and results that are
 possible and accommodate both parameters (which need derivatives) and
 data values (which don't), Stan's map function operates on more than
 just a sequence of inputs.
 
-### 映射函数声明 Map function signature {-}
+为了泛化可以实现的函数和结果的形式，并适应参数（需要求导）和数据值（不需要求导）的情况，Stan的映射函数不仅仅限制于序列的输入。
 
-Stan的映射函数具有以下声明：
+### Map function signature {-}
+
+### 映射函数声明 {-}
 
 Stan's map function has the following signature
+
+Stan的映射函数具有以下声明：
 
 ```stan
 vector map_rect((vector, vector, array[] real, array[] int):vector f,
@@ -465,23 +486,20 @@ vector map_rect((vector, vector, array[] real, array[] int):vector f,
                 data array[,] real x_rs, data array[,] int x_is);
 ```
 
-参数数组`thetas`、实数值数组`x_rs`和整数值数组`x_is`的后缀"`s`"表示它们是数组。因为它们将由函数`f`并行地映射，所以这些数组必须有相同的大小。参数`phi`的值在每个映射操作中被重复使用。
-
 The arrays `thetas` of parameters, `x_rs` of real data, and
 `x_is` of integer data have the suffix "`s`" to indicate they
 are arrays.  These arrays must all be the same size, as they will be
 mapped in parallel by the function `f`.  The value of `phi`
 is reused in each mapped operation.
 
-函数名中的`_rect`后缀是因为它接受的数据结构是矩形的。为了处理不规则的输入，不规则的输入必须被填充为矩形形式。
+参数数组`thetas`、实数值数组`x_rs`和整数值数组`x_is`的后缀"`s`"表示它们是数组。因为它们将由函数`f`并行地映射，所以这些数组必须有相同的大小。参数`phi`的值在每个映射操作中被重复使用。
 
 The `_rect` suffix in the name arises because the data
 structures it takes as arguments are rectangular.  In order to deal
 with ragged inputs, ragged inputs must be padded out to rectangular
 form.
 
-最后两个参数是二维的实值和整值数组。这些参数类型被标记为`data`，表示它们只能包含来自数据或转换数据块的变量。
-该输入可以固定在正在处理它们的处理器上，以减少通信开销。
+函数名中的`_rect`后缀是因为它接受的数据结构是矩形的。为了处理不规则的输入，不规则的输入必须被填充为矩形形式。
 
 The last two arguments are two dimensional arrays of real and integer
 data values.  These argument types are marked with the `data`
@@ -490,25 +508,28 @@ originating in the data or transformed data blocks.  This will allow
 such data to be pinned to a processor on which it is being processed
 to reduce communication overhead.
 
-`(vector, vector, array[] real, array[] int):vector`表示函数参数`f`必须具有以下函数声明。
+最后两个参数是二维的实值和整值数组。这些参数类型被标记为`data`，表示它们只能包含来自数据或转换数据块的变量。
+该输入可以固定在正在处理它们的处理器上，以减少通信开销。
 
 The notation `(vector, vector, array[] real, array[] int):vector` indicates
 that the function argument `f` must have the following signature.
+
+`(vector, vector, array[] real, array[] int):vector`表示函数参数`f`必须具有以下函数声明。
 
 ```stan
 vector f(vector phi, vector theta,
          data array[] real x_r, data array[] int x_i);
 ```
 
-虽然函数`f`通常返回大小为1的向量，但内置的灵活性允许映射一般的多元函数，甚至可以是不规则的。
-
 Although `f` will often return a vector of size one, the built-in
 flexibility allows general multivariate functions to be mapped, even
 raggedly.
 
-#### 映射函数定义 Map function semantics {-}
+虽然函数`f`通常返回大小为1的向量，但内置的灵活性允许映射一般的多元函数，甚至可以是不规则的。
 
-Stan的映射函数将函数`f`作用于共享参数以及工作、实值和整值数组的每个元素。`theta`、`x_r`和`x_i`这些参数都是相同大小的数组。如果这些数组的大小都是`N`，那么映射结果的定义如下：
+### Map function semantics {-}
+
+#### 映射函数定义 {-}
 
 Stan's map function applies the function `f` to the shared
 parameters along with one element each of the job parameters, real
@@ -516,35 +537,40 @@ data, and integer data arrays.  Each of the arguments `theta`,
 `x_r`, and `x_i` must be arrays of the same size.  If the
 arrays are all size `N`, the result is defined as follows.
 
+Stan的映射函数将函数`f`作用于共享参数以及工作、实值和整值数组的每个元素。`theta`、`x_r`和`x_i`这些参数都是相同大小的数组。如果这些数组的大小都是`N`，那么映射结果的定义如下：
+
 ```stan
 map_rect(f, phi, thetas, xs, ns)
 = f(phi, thetas[1], xs[1], ns[1]) . f(phi, thetas[2], xs[2], ns[2])
   . ... . f(phi, thetas[N], xs[N], ns[N])
 ```
 
-上述符号中的点运算符表示连接操作（在Stan中实现为`append_row`）。每次`f`输出的结果是一个向量，将这`N`个向量串联在一起，形成一个向量。
-
 The dot operators in the notation above are meant to indicate
 concatenation (implemented as `append_row` in Stan).  The output
 of each application of `f` is a vector, and the sequence of
 `N` vectors is concatenated together to return a single vector.
 
+上述符号中的点运算符表示连接操作（在Stan中实现为`append_row`）。每次`f`输出的结果是一个向量，将这`N`个向量串联在一起，形成一个向量。
 
-### 例子：逻辑回归 Example: logistic regression
+### Example: logistic regression
 
-下面示例将有助于理解映射操作的用法，以及如何将其与Stan中内置的归约结合起来，提供一个映射-归约实现。
+### 例子：逻辑回归
 
 An example should help to clarify both the syntax and semantics of the
 mapping operation and how it may be combined with reductions built
 into Stan to provide a map-reduce implementation.
 
-#### 未映射的逻辑回归 Unmapped logistic regression {-}
+下面示例将有助于理解映射操作的用法，以及如何将其与Stan中内置的归约结合起来，提供一个映射-归约实现。
 
-考虑以下简单的逻辑回归模型，其被以非常规的方式编码，以便直接转换为映射实现。
+### Unmapped logistic regression 
+
+#### 未映射的逻辑回归 {-}
 
 Consider the following simple logistic regression model, which is
 coded unconventionally to accomodate direct translation to a mapped
 implementation.
+
+考虑以下简单的逻辑回归模型，其以非常规的方式编码，以便直接转换为映射。
 
 ```stan
 data {
@@ -560,11 +586,6 @@ model {
 }
 ```
 
-这个程序的特别之处在于：
-(a) 硬编码了数据的大小，这对于映射函数来说并不是必需的，只是为了简单起见；
-(b) 将预测变量表示为实值数组，即使它需要被用作向量；
-(c) 将回归系数（截距和斜率）表示为向量，尽管它们是分别使用的。使用bernoulli_logit分布是因为参数在logit尺度上，它隐式地应用了逆logit函数将参数映射为概率。
-
 The program is unusual in that it (a) hardcodes the data size, which
 is not required by the map function but is just used here for
 simplicity, (b) represents the predictors as a real array even though
@@ -574,14 +595,17 @@ used individually.  The `bernoulli_logit` distribution is used
 because the argument is on the logit scale---it implicitly applies the
 inverse logit function to map the argument to a probability.
 
+这个程序的特别之处在于：(a) 硬编码了数据的大小，这对于映射函数来说并不是必需的，只是为了简单起见；(b) 将预测变量表示为实值数组，即使它需要被用作向量；(c) 将回归系数（截距和斜率）表示为向量，尽管它们是分别使用的。使用bernoulli_logit分布是因为参数在logit尺度上，它隐式地应用了逆logit函数将参数映射为概率。
 
-#### 例子：映射的逻辑回归 Mapped logistic regression {-}
+### Mapped logistic regression {-}
 
-前面部分描述的未映射的逻辑回归模型可以使用Stan的矩形映射功能来实现，如下所示。
+#### 例子：映射的逻辑回归 {-}
 
 The unmapped logistic regression model described in the previous
 subsection may be implemented using Stan's rectangular mapping
 functionality as follows.
+
+前面部分描述的未映射的逻辑回归模型可以使用Stan的矩形映射功能来实现，如下所示。
 
 ```stan
 functions {
@@ -610,8 +634,6 @@ model {
 }
 ```
 
-代码的第一部分是用于计算逻辑回归的实际函数。参数`beta`仍然包含回归系数（截距和斜率）。第二个参数`theta`是特定作业参数，虽然没有使用，但必须存在。数据`y`作为整值数组传递，预测变量`x`作为实值数组传递。函数体计算`y`的对数概率密度，将其赋值给局部变量`lp`。然后使用`[lp]'`构建行向量，然后输出其转置向量。
-
 The first piece of the code is the actual function to compute the
 logistic regression.  The argument `beta` will contain the
 regression coefficients (intercept and slope), as before.  The second
@@ -623,7 +645,7 @@ assigns it to the local variable `lp`.  This variable is then
 used in `[lp]'` to construct a row vector and then transpose it
 to a vector to return.
 
-数据的处理方式与之前相同。还有一个将数据分成了三个分片的额外变换数据块。^[这里的术语“分片”是从数据库中借用的，用于指代数据库的行的切片。如果我们将行视为数据框的行，则这正是它的含义。Stan的分片更加通用，因为它们不一定对应数据框的行。]
+代码的第一部分是用于计算逻辑回归的实际函数。参数`beta`仍然包含回归系数（截距和斜率）。第二个参数`theta`是特定作业参数，虽然没有使用，但必须存在。数据`y`作为整值数组传递，预测变量`x`作为实值数组传递。函数体计算`y`的对数概率密度，将其赋值给局部变量`lp`。然后使用`[lp]'`构建行向量，然后输出其转置向量。
 
 The data are taken in as before.  There is an additional transformed
 data block that breaks the data up into three shards.^[The term
@@ -632,7 +654,7 @@ rows of a database.  That is exactly what it is here if we think of
 rows of a dataframe.  Stan's shards are more general in that they need
 not correspond to rows of a dataframe.]
 
-数值`3`是硬编码的；在实际程序中，更实用的做法是允许控制分片数。在此定义了三个并行数组，每个数组的大小为三，对应于分片数。数组`ys`包含了建模数据变量；数组`ys`的每个元素都是大小为4的数组。第二个数组`xs`用于存储预测变量，它的每个元素也是大小为4的数组。这些包含的数组大小相同，因为预测变量`x`与建模数据`y`之间存在一对一的关系。最后一个数组`theta`也是大小为三的数组；其元素是空向量，因为没有分片特定的参数。
+数据的处理方式与之前相同。还有一个将数据分成了三个分片的额外变换数据块。^[这里的术语“分片”是从数据库中借用的，用于指代数据库的行的切片。如果我们将行视为数据框的行，则这正是它的含义。Stan的分片更加通用，因为它们不一定对应数据框的行。]
 
 The value `3` is also hard coded; a more practical program would
 allow the number of shards to be controlled.  There are three parallel
@@ -646,7 +668,7 @@ with the modeled data `y`. The final array `theta` is also
 of size three;  its elements are empty vectors, because there are no
 shard-specific parameters.
 
-参数及其先验与之前相同。现在使用映射-归约来编码似然函数。函数`lr`用于计算对数密度函数，它在包含原始预测变量和结果的数据`xs`和`ys`上进行映射，将其分片处理。因为参数`beta`在分片之间是共享的，故其位于第一个参数中。没有分片特定的参数，因此作业特定参数的数组`theta`只包含空向量。
+数值`3`是硬编码的；在实际程序中，更实用的做法是允许控制分片数。在此定义了三个并行数组，每个数组的大小为三，对应于分片数。数组`ys`包含了建模数据变量；数组`ys`的每个元素都是大小为4的数组。第二个数组`xs`用于存储预测变量，它的每个元素也是大小为4的数组。这些包含的数组大小相同，因为预测变量`x`与建模数据`y`之间存在一对一的关系。最后一个数组`theta`也是大小为三的数组；其元素是空向量，因为没有分片特定的参数。
 
 The parameters and the prior are as before.  The likelihood is now
 coded using map-reduce.  The function `lr` to compute the log
@@ -657,21 +679,26 @@ shared across shards.  There are no shard-specific parameters, so
 the array of job-specific parameters `theta` contains only empty
 vectors.
 
-### 例子：分层逻辑回归 Example: hierarchical logistic regression
+参数及其先验与之前相同。现在使用映射-归约来编码似然函数。函数`lr`用于计算对数密度函数，它在包含原始预测变量和结果的数据`xs`和`ys`上进行映射，将其分片处理。因为参数`beta`在分片之间是共享的，故其位于第一个参数中。没有分片特定的参数，因此作业特定参数的数组`theta`只包含空向量。
 
-考虑一个基于居住州的美国总统选举行为的分层模型。^[该示例是基于[@GelmanHill:2007, 14.2节]中描述的模型的简化形式]
+### Example: hierarchical logistic regression
+
+### 例子：分层逻辑回归 
 
 Consider a hierarchical model of American presidential voting behavior
 based on state of residence.^[This example is a simplified form of the model
 described in [@GelmanHill:2007, Section 14.2]]
 
-每个州$k \in \{1,\dotsc,50\}$都有自己的斜率$\beta_k$和截距$\alpha_k$，用于根据收入模拟投票给共和党候选人的对数几率。假设有$N$名选民，选民$n \in 1{:}N$居住在州$s[n]$，收入为$x_n$。选民$n$的投票$y_n \in \{0, 1\}$的似然函数为
+考虑一个基于居住州的美国总统选举行为的分层模型。^[该示例是基于[@GelmanHill:2007, 14.2节]中描述的模型的简化形式]
 
 Each of the fifty states $k \in \{1,\dotsc,50\}$ will have its own slope
 $\beta_k$ and intercept $\alpha_k$ to model the log odds of voting for
 the Republican candidate as a function of income.  Suppose there are
 $N$ voters and with voter $n \in 1{:}N$ being in state $s[n]$ with
 income $x_n$.  The likelihood for the vote $y_n \in \{ 0, 1 \}$ is
+
+每个州$k \in \{1,\dotsc,50\}$都有自己的斜率$\beta_k$和截距$\alpha_k$，用于根据收入模拟投票给共和党候选人的对数几率。假设有$N$名选民，选民$n \in 1{:}N$居住在州$s[n]$，收入为$x_n$。选民$n$的投票$y_n \in \{0, 1\}$的似然函数为
+
 $$
 y_n \sim \textsf{Bernoulli}
 \Big(
@@ -679,19 +706,22 @@ y_n \sim \textsf{Bernoulli}
 \Big).
 $$
 
+The slopes and intercepts get hierarchical priors,
+
 斜率和截距使用层次先验进行建模，
 
-The slopes and intercepts get hierarchical priors,
 \begin{align*}
 \alpha_k &\sim \textsf{normal}(\mu_{\alpha}, \sigma_{\alpha}) \\
 \beta_k  &\sim \textsf{normal}(\mu_{\beta}, \sigma_{\beta})
 \end{align*}
 
-#### 未映射的实现 Unmapped implementation {-}
+#### Unmapped implementation {-}
 
-可以直接将此模型编写为Stan代码，如下所示。
+#### 未映射的实现 {-}
 
 This model can be coded up in Stan directly as follows.
+
+可以直接将此模型编写为Stan代码，如下所示。
 
 ```stan
 data {
@@ -716,15 +746,13 @@ model {
 }
 ```
 
-对于此模型，预测变量向量`x`被编码为一个向量，这与其在似然函数中的使用方式相对应。`mu`和`sigma`的先验分布是向量化的。`beta`的两个分量（截距和斜率）的先验分布均存储在一个 $K \times 2$ 矩阵中。
-
 For this model the vector of predictors `x` is coded as a vector,
 corresponding to how it is used in the likelihood.
 The priors for `mu` and `sigma` are vectorized.  The priors
 on the two components of `beta` (intercept and slope,
 respectively) are stored in a $K \times 2$ matrix.
 
-似然函数也是通过使用多索引`kk`来向量化，并使用逐元素乘法（`.*`）来处理收入 `x`。向量化的似然函数与以下效率较低的循环形式相同。
+对于此模型，预测变量向量`x`被编码为一个向量，这与其在似然函数中的使用方式相对应。`mu`和`sigma`的先验分布是向量化的。`beta`的两个分量（截距和斜率）的先验分布均存储在一个 $K \times 2$ 矩阵中。
 
 The likelihood is also
 vectorized using multi-indexing with index `kk` for the states
@@ -732,27 +760,31 @@ and elementwise multiplication (`.*`) for the income `x`.
 The vectorized likelihood works out to the same thing as the following
 less efficient looped form.
 
+似然函数也是通过使用多索引`kk`来向量化，并使用逐元素乘法（`.*`）来处理收入 `x`。向量化的似然函数与以下效率较低的循环形式相同。
+
 ```stan
 for (n in 1:N) {
   y[n] ~ bernoulli_logit(beta[kk[n], 1] + beta[kk[n], 2] * x[n]);
 }
 ```
 
-#### 映射实现 Mapped implementation {-}
+#### Mapped implementation {-}
 
-映射版本的模型将在状态`K`上进行映射。这意味着数组格式的参数、实值数据和整值数据必须具有相同的大小。
+#### 映射实现 {-}
 
 The mapped version of the model will map over the states `K`.
 This means the group-level parameters, real data, and integer-data
 must be arrays of the same size.
 
-映射实现需要一个进行映射的函数。以下函数同时评估了对于一组观测数据的似然函数和组特定参数的先验分布（其名称`bl_glm`来源于它是具有伯努利似然函数和逻辑连接函数的广义线性模型）。
+映射版本的模型将在状态`K`上进行映射。这意味着数组格式的参数、实值数据和整值数据必须具有相同的大小。
 
 The mapped implementation requires a function to be mapped.  The
 following function evaluates both the likelihood for the data observed
 for a group as well as the prior for the group-specific parameters
 (the name `bl_glm` derives from the fact that it's a generalized
 linear model with a Bernoulli likelihood and logistic link function).
+
+映射实现需要一个进行映射的函数。以下函数同时评估了对于一组观测数据的似然函数和组特定参数的先验分布（其名称`bl_glm`来源于它是具有伯努利似然函数和逻辑连接函数的广义线性模型）。
 
 ```stan
 functions {
@@ -767,8 +799,6 @@ functions {
 }
 ```
 
-共享参数`mu_sigma`包含先验分布的位置（`mu_sigma[1:2]`）和尺度（`mu_sigma[3:4]`），这在程序的前两行中被提取出来。变量`lp`被赋值为关于`beta`先验分布的对数密度。向量`beta`的大小为2，与向量`mu`和`sigma`的大小相同，因此一切都适用于向量化。接下来，变量`ll`被赋值为该组的对数似然函数贡献值。在这里，`beta[1]`是回归的截距，`beta[2]`是斜率。预测变量数组`x`需要转换为向量以允许乘法运算。
-
 The shared parameter `mu_sigma` contains the locations
 (`mu_sigma[1:2]`) and scales (`mu_sigma[3:4]`) of the
 priors, which are extracted in the first two lines of the program.
@@ -781,12 +811,14 @@ intercept of the regression and `beta[2]` the slope.  The
 predictor array `x` needs to be converted to a vector allow the
 multiplication.
 
-数据块与上一个程序中的数据块相同，但为了方便起见，在此重复说明。转换后的数据块通过将数据组织成按群组索引的数组来计算映射所需的数据结构。
+共享参数`mu_sigma`包含先验分布的位置（`mu_sigma[1:2]`）和尺度（`mu_sigma[3:4]`），这在程序的前两行中被提取出来。变量`lp`被赋值为关于`beta`先验分布的对数密度。向量`beta`的大小为2，与向量`mu`和`sigma`的大小相同，因此一切都适用于向量化。接下来，变量`ll`被赋值为该组的对数似然函数贡献值。在这里，`beta[1]`是回归的截距，`beta[2]`是斜率。预测变量数组`x`需要转换为向量以允许乘法运算。
 
 The data block is identical to that of the previous program, but
 repeated here for convenience.  A transformed data block computes the
 data structures needed for the mapping by organizing the data into
 arrays indexed by group.
+
+数据块与上一个程序中的数据块相同，但为了方便起见，在此重复说明。转换后的数据块通过将数据组织成按群组索引的数组来计算映射所需的数据结构。
 
 ```stan
 data {
@@ -812,23 +844,23 @@ transformed data {
 }
 ```
 
-整数 `J` 被设置为每个群组的观测数量。^[这假设每个群组具有相同数量的观测数据！]
-
 The integer `J` is set to the number of observations per group.^[This makes the  strong assumption that each group has the same number of observations!]
 
-实值数组 `x_r` 保存预测变量，整值数组`x_i`保存结果。通过对预测变量向量`x`进行切片（并将其转换为数组）以及对结果数组`y`进行切片来构建分组数据数组。
+整数 `J` 被设置为每个群组的观测数量。^[这假设每个群组具有相同数量的观测数据！]
 
 The real data array `x_r` holds the predictors and the integer
 data array `x_i` holds the outcomes.  The grouped data arrays
 are constructed by slicing the predictor vector `x` (and
 converting it to an array) and slicing the outcome array `y`.
 
-在给定了具有分组的转换数据之后，参数与前一个程序相同。模型对超参数`mu`和`sigma`假设与前一实验有相同的先验分布，但将`beta`的先验分布和似然函数移至映射函数中。
+实值数组 `x_r` 保存预测变量，整值数组`x_i`保存结果。通过对预测变量向量`x`进行切片（并将其转换为数组）以及对结果数组`y`进行切片来构建分组数据数组。
 
 Given the transformed data with groupings, the parameters are the same
 as the previous program.  The model has the same priors for the
 hyperparameters `mu` and `sigma`, but moves the prior for
 `beta` and the likelihood to the mapped function.
+
+在给定了具有分组的转换数据之后，参数与前一个程序相同。模型对超参数`mu`和`sigma`假设与前一实验有相同的先验分布，但将`beta`的先验分布和似然函数移至映射函数中。
 
 ```stan
 parameters {
@@ -844,8 +876,6 @@ model {
 }
 ```
 
-此处的模型计算了每个群组参数的先验分布以及群组的似然函数贡献。另一种映射方法是将先验分布保留在模型块中，只映射似然函数。在串行设置中，这不会有太大差异，但在并行化中，通信减少（无需传输先验的参数），并且在保留先验分布的版本中并行化减少。
-
 The model as written here computes the priors for each group's
 parameters along with the likelihood contribution for the group.  An
 alternative mapping would leave the prior in the model block and only
@@ -855,18 +885,21 @@ difference, but with parallelization, there is reduced communication
 parallelization with the version that leaves the prior in the model
 block.
 
+此处的模型计算了每个群组参数的先验分布以及群组的似然函数贡献。另一种映射方法是将先验分布保留在模型块中，只映射似然函数。在串行设置中，这不会有太大差异，但在并行化中，通信减少（无需传输先验的参数），并且在保留先验分布的版本中并行化减少。
 
-### 不规则输入和输出 Ragged inputs and outputs
+### Ragged inputs and outputs
 
-前面的示例包括了矩形数据结构和单个输出。尽管名称如此，但在 `map_rect` 中并不技术上要求这种结构。
+### 不规则输入和输出
 
 The previous examples included rectangular data structures and single
 outputs.  Despite the name, this is not technically required by
 `map_rect`.
 
-#### 不规则输入 Ragged inputs {-}
+前面的示例包括了矩形数据结构和单个输出。尽管名称如此，但在 `map_rect` 中并不技术上要求这种结构。
 
-如果每个群组具有不同数量的观测数据，则需要将预测变量和结果的矩形数据结构填充为矩形。此外，不规则结构的大小需要作为整数数据传递。这适用于具有不同数量参数和数据点的分片。
+#### Ragged inputs {-}
+
+#### 不规则输入 {-}
 
 If each group has a different number of observations, then the
 rectangular data structures for predictors and outcomes will need to
@@ -875,9 +908,11 @@ structure will need to be passed as integer data. This holds for
 shards with varying numbers of parameters as well as varying numbers
 of data points.
 
-#### 不规则输出 Ragged outputs {-}
+如果每个群组具有不同数量的观测数据，则需要将预测变量和结果的矩形数据结构填充为矩形。此外，不规则结构的大小需要作为整数数据传递。这适用于具有不同数量参数和数据点的分片。
 
-每个映射函数的输出按输入顺序连接以产生 `map_rect` 的输出。当每个分片返回一个大小为1的数组时，结果的大小与分片数相同，便于在下游进行处理。如果函数返回更长的数组，则可以使用 `to_matrix` 函数对其进行结构化，如果它们是矩形的。
+#### Ragged outputs {-}
+
+#### 不规则输出 {-}
 
 The output of each mapped function is concatenated in order of inputs
 to produce the output of `map_rect`.  When every shard returns a singleton
@@ -886,11 +921,13 @@ and is easy to deal with downstream.  If functions return longer
 arrays, they can still be structured using the `to_matrix`
 function if they are rectangular.
 
-如果输出的大小不同，因为无法直接返回大小或不规则结构，则必须找到一种基于输入将其转换回可用形式的方法。
+每个映射函数的输出按输入顺序连接以产生 `map_rect` 的输出。当每个分片返回一个大小为1的数组时，结果的大小与分片数相同，便于在下游进行处理。如果函数返回更长的数组，则可以使用 `to_matrix` 函数对其进行结构化，如果它们是矩形的。
 
 If the outputs are of varying sizes, then there will have to be some way
 to convert it back to a usable form based on the input, because there
 is no way to directly return sizes or a ragged structure.
+
+如果输出的大小不同，因为无法直接返回大小或不规则结构，则必须找到一种基于输入将其转换回可用形式的方法。
 
 ## OpenCL
 
