@@ -8,7 +8,9 @@ output:
 
 # Custom Probability Functions  {#custom-probability-functions.chapter}
 
-自定义概率函数
+#自定义概率函数{#custom-probability-functions.chapter}
+
+翻译贡献者：谭朕斯
 
 Custom distributions may also be implemented directly within Stan's
 programming language.  The only thing that is needed is to increment
@@ -18,11 +20,11 @@ the total log probability.  The rest of the chapter provides examples.
 
 ## Examples
 
-示例
+## 示例
 
 ### Triangle distribution {-}
 
-三角分布
+### 三角分布 {-}
 
 A simple example is the triangle distribution,
 whose density is shaped like an isosceles triangle with corners at
@@ -84,7 +86,7 @@ unconstrained scalar type `real`, the program would compile, but
 it would produce arithmetic exceptions at run time when the sampler
 explored values of `y` outside of $(-1,1)$.
 
-为y声明的受限类型`real<lower=-1, upper=1>`对于正确的采样行为至关重要。如果从程序中移除`y`的约束条件，例如将`y`声明为未受约束的标量类型`real`，程序将能够编译通过，但在运行时，当采样器探索超出$(-1,1)$范围的`y`值时，会产生算术异常。
+为`y`声明的受限类型`real<lower=-1, upper=1>`对于正确的采样行为至关重要。如果从程序中移除`y`的约束条件，例如将`y`声明为未受约束的标量类型`real`，程序将能够编译通过，但在运行时，当采样器探索超出$(-1,1)$范围的`y`值时，会产生算术异常。
 
 Now suppose the log probability function were extended to all of
 $\mathbb{R}$ as follows by defining the probability to be `log(0.0)`,
@@ -102,11 +104,11 @@ original program.  But if the constraint on `y` is removed,
 the model will compile and run without arithmetic errors, but will not
 sample properly.^[The problem is the (extremely!) light tails of the triangle distribution.  The standard HMC and NUTS samplers can't get into the corners of the triangle properly.  Because the Stan code declares `y` to be of type `real<lower=-1, upper=1>`, the inverse logit transform is applied to the unconstrained variable and its log absolute derivative added to the log probability.  The resulting distribution on the logit-transformed `y` is well behaved.]
 
-如果保留了`y`的约束条件，那么这只是原始程序的一个效率更低、速度更慢、数学计算稳定性较差的版本。但是如果移除了`y`的约束条件，模型将能够编译和运行，但是采样结果将不正确。^[上述的中文翻译：问题在于三角形分布的尾部非常轻。标准的HMC和NUTS采样器无法正确地进入三角形的角落。因为Stan代码声明了`y`的类型为`real<lower=-1, upper=1>`，因此将逆logit变换应用于无约束变量，并将其对数绝对导数添加到对数概率中。logit变换后的`y`得到的分布是良好的。]
+如果保留了`y`的约束条件，那么这只是原始程序的一个效率更低、速度更慢、数学计算稳定性较差的版本。但是如果移除了`y`的约束条件，模型将能够编译和运行，但是采样结果将不正确。^[问题在于三角形分布的尾部非常轻。标准的HMC和NUTS采样器无法正确地进入三角形的角落。因为Stan代码声明了`y`的类型为`real<lower=-1, upper=1>`，因此将逆logit变换应用于无约束变量，并将其对数绝对导数添加到对数概率中。logit变换后的`y`得到的分布是良好的。]
 
 ### Exponential distribution {-}
 
-指数分布
+### 指数分布 {-}
 
 If Stan didn't happen to include the exponential distribution, it
 could be coded directly using the following assignment statement,
@@ -153,7 +155,7 @@ check for out-of-domain errors on the inputs).
 
 ### Bivariate normal cumulative distribution function {-}
 
-双变量正态累积分布函数
+### 双变量正态累积分布函数 {-}
 
 For another example of user-defined functions, consider the following
 definition of the bivariate normal cumulative distribution function
