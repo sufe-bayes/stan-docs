@@ -9,7 +9,9 @@ output:
 ---
 # Posterior Predictive Sampling {#posterior-prediction.chapter}
 
-后验预测抽样
+# 后验预测抽样 {#posterior-prediction.chapter}
+
+翻译贡献者：谭朕斯
 
 The goal of inference is often posterior prediction, that is
 evaluating or sampling from the posterior predictive distribution
@@ -35,7 +37,7 @@ generated quantities in Stan
 
 ## Posterior predictive distribution
 
-后验预测分布
+## 后验预测分布
 
 Given a full Bayesian model $p(y, \theta)$, the posterior predictive
 density for new data $\tilde{y}$ given observed data $y$ is
@@ -58,7 +60,7 @@ observations.
 
 ## Computing the posterior predictive distribution
 
-计算后验预测分布
+## 计算后验预测分布
 
 The posterior predictive density (or mass) of a prediction $\tilde{y}$
 given observed data $y$ can be computed using $M$ Monte Carlo draws
@@ -110,7 +112,7 @@ of exponentials](#log-sum-of-exponentials) for more details.
 of exponentials](#log-sum-of-exponentials) ）的部分。
 
 ## Sampling from the posterior predictive distribution
-从后验预测分布中进行抽样
+## 从后验预测分布中进行抽样
 
 Given draws from the posterior $\theta^{(m)} \sim p(\theta \mid y),$
 draws from the posterior predictive $\tilde{y}^{(m)} \sim p(\tilde{y}
@@ -153,7 +155,7 @@ $$
 
 ## Posterior predictive simulation in Stan
 
-在Stan中进行后验预测模拟
+## 在Stan中进行后验预测模拟
 
 Posterior predictive quantities can be coded in Stan
 using the generated quantities block.
@@ -162,7 +164,7 @@ using the generated quantities block.
 
 ### Simple Poisson model
 
-简单泊松模型
+### 简单泊松模型
 
 For example, consider a simple Poisson model for count data with a
 rate parameter $\lambda > 0$ following a gamma-distributed prior,
@@ -183,7 +185,7 @@ $$
 
 ### Stan code
 
-Stan代码
+### Stan代码
 
 The following Stan program defines a variable for $\tilde{y}$
 by random number generation in the generated quantities
@@ -254,7 +256,7 @@ the expectation $\mathbb{E}[f(\tilde{y}, \theta) \mid y]$.
 
 ### Analytic posterior and posterior predictive
 
-解析后验和解析后验预测
+### 解析后验和解析后验预测
 
 The gamma distribution is the conjugate prior distribution for the
 Poisson distribution, so the posterior density $p(\lambda \mid y)$
@@ -278,11 +280,11 @@ $\tilde{y}^{(m)} \sim p(y \mid \lambda^{(m)}).$
 
 ## Posterior prediction for regressions
 
-回归的后验预测
+## 回归的后验预测
 
 ### Posterior predictive distributions for regressions
 
-回归模型的后验预测分布
+### 回归模型的后验预测分布
 
 Consider a regression with a single predictor $x_n$ for the training
 outcome $y_n$ and $\tilde{x}_n$ for the test outcome $\tilde{y}_n.$
@@ -404,8 +406,7 @@ required.
 
 ## Estimating event probabilities
 
-估计事件概率
-
+## 估计事件概率
 
 Event probabilities involving either parameters or predictions or both
 may be coded in the generated quantities block.  For example, to
@@ -496,7 +497,7 @@ where $\tilde{y}^{(m)} \sim p(\tilde{y} \mid \tilde{x}, x, y).$
 
 ## Stand-alone generated quantities and ongoing prediction
 
-独立的生成量和持续的预测
+## 独立的生成量和持续的预测
 
 Stan's sampling algorithms take a Stan program representing a
 posterior $p(\theta \mid y, x)$ along with actual data $x$ and $y$ to
