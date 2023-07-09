@@ -1,10 +1,21 @@
-# Held-Out Evaluation and Cross-Validation
+# Held-Out Evaluation and Cross-Validation 
+
+# 自动评估与交叉验证  
+
+翻译贡献者：沈梓梁
+
 
 Held-out evaluation involves splitting a data set into two parts, a
 training data set and a test data set.  The training data is used to
 estimate the model and the test data is used for evaluation.  Held-out
 evaluation is commonly used to declare winners in predictive modeling
 competitions such as those run by [Kaggle](https://kaggle.com).
+
+Held-out评估包括将数据集分成两部分，
+其中一个训练数据集和另一个测试数据集.
+训练数据集用于估计模型，而测试数据集用于对模型进行评价.
+在[Kaggle](https://kaggle.com)举办的预测建模竞赛中，
+Held-out评估常常用于宣布获胜者.
 
 Cross-validation involves repeated held-out evaluations performed by
 partitioning a single data set in different ways.  The training/test
@@ -13,16 +24,30 @@ partitioning the data set into several equally-sized subsets and then
 using each subset in turn as the test data with the other folds as
 training data.
 
+交叉验证涉及通过以不同方式划分单个数据集来执行重复的Held-out评估.
+训练/测试分割可以通过随机选择测试集来完成，
+也可以通过将数据集划分为几个大小相等的子集，
+然后依次使用每个子集作为测试数据，其他轮流作为训练数据.
+
 Held-out evaluation and cross-validation may involve any kind
 of predictive statistics, with common choices being the predictive log
 density on test data, squared error of parameter estimates, or accuracy
 in a classification task.
 
-## Evaluating posterior predictive densities {#evaluating-posterior-predictive.section}
+Held -out评估和交叉验证可能涉及任何类型的预测统计量，
+常见的选择是测试数据的预测对数密度、参数估计的均方误差或分类任务的准确性.
+
+## Evaluating posterior predictive densities  {#evaluating-posterior-predictive.section}
+
+## 评估后验预测密度  {#evaluating-posterior-predictive.section}
 
 Given training data $(x, y)$ consisting of parallel sequences of
 predictors and observations and test data $(\tilde{x}, \tilde{y})$ of
 the same structure, the posterior predictive density is
+
+假设训练数据$(x, y)$由预测因子和观测值的平行序列组成，
+测试数据$(\tilde{x}， \tilde{y})$具有相同的结构，则后验预测密度为
+
 $$
 p(\tilde{y} \mid \tilde{x}, x, y)
 =
@@ -34,9 +59,15 @@ $$
 
 where $\theta$ is the vector of model parameters.  This predictive
 density is the density of the test observations, conditioned on both
-the test predictors $\tilde{x}$ and the training data $(x, y).$
+the test predictors $\tilde{x}$ and the training data $(x, y)$.
+
+其中$\theta$为模型的参数向量.
+该预测密度是测试观测值的密度，给定测试预测因子$\tilde{x}$和训练数据$(x, y)$的条件密度.
 
 This integral may be calculated with Monte Carlo methods as usual,
+
+这个积分可以像往常一样用蒙特卡罗方法计算，
+
 $$
 p(\tilde{y} \mid \tilde{x}, x, y)
 \approx
@@ -45,9 +76,15 @@ $$
 where the $\theta^{(m)} \sim p(\theta \mid x, y)$ are draws from the
 posterior given only the training data $(x, y).$
 
+其中$\theta^{(m)} \sim p(\theta \mid x, y)$是从只给出训练数据$(x, y)$的后验中得出的.
+
 To avoid underflow in calculations, it will be more stable
 to compute densities on the log scale.  Taking the logarithm and
 pushing it through results in a stable computation,
+
+为了避免计算中的下溢，在对数尺度上计算密度会更稳定.
+取对数，能够得到一个稳定的计算结果，
+
 \begin{eqnarray*}
 \log p(\tilde{y} \mid \tilde{x}, x, y)
 & \approx &
@@ -61,12 +98,18 @@ pushing it through results in a stable computation,
 \end{eqnarray*}
 where the log sum of exponentials function is defined so as
 to make the above equation hold,
+
+对数指数和如此定义是为了使上式成立，
+
 $$
 \textrm{log-sum-exp}_{m = 1}^M \, \mu_m
 = \log \sum_{m=1}^M \exp(\mu_m).
 $$
 The log sum of exponentials function can be implemented so as to avoid
 underflow and maintain high arithmetic precision as
+
+指数对数和可以实现，以避免下溢，并保持较高的算术精度
+
 $$
 \textrm{log-sum-exp}_{m = 1}^M \mu_m
 = \textrm{max}(\mu)
@@ -76,7 +119,12 @@ Pulling the maximum out preserves all of its precision.  By
 subtracting the maximum, the terms $\mu_m - \textrm{max}(\mu) \leq 0$,
 and thus will not overflow.
 
-### Stan program
+将最大值取出保留了所有的精度.
+通过减去最大值，项$\mu_m - \textrm{max}(\mu) \leq 0$，因此不会溢出.
+
+### Stan program  
+
+### Stan程序  
 
 To evaluate the log predictive density of a model, it suffices to
 implement the log predictive density of the test data in the generated quantities
@@ -84,9 +132,18 @@ block.  The log sum of exponentials calculation must be done on the
 outside of Stan using the posterior draws of $\log p(\tilde{y} \mid \tilde{x},
 \theta^{(m)}).$
 
+要评估模型的对数预测密度，
+只需在生成量块中实现测试数据的对数预测密度即可.
+指数对数和计算完成的必须在Stan的外部使用 
+$\log p(\tilde{y} \mid \tilde{x},\theta^{(m)})$后验绘图.
+
 Here is the code for evaluating the log posterior predictive density
 in a simple linear regression of the test data $\tilde{y}$ given
 predictors $\tilde{x}$ and training data $(x, y).$
+
+以下是在给定预测因子$\tilde{x}$和训练数据$(x, y)$
+的简单线性回归中评估测试数据$\tilde{y}$的对数后验预测密度的代码
+
 ```stan
 data {
   int<lower=0> N;
@@ -108,6 +165,7 @@ generated quantities {
   real log_p = normal_lpdf(y_tilde | alpha + beta * x_tilde, sigma);
 }
 ```
+
 Only the training data `x` and `y` are used in the model block.  The
 test data `y_tilde` and test predictors `x_tilde` appear in only the
 generated quantities block.  Thus the program is not cheating by using
@@ -115,21 +173,39 @@ the test data during training.  Although this model does not do so,
 it would be fair to use `x_tilde` in the model block---only the
 test observations `y_tilde` are unknown before they are predicted.
 
+模型块中只使用训练数据`x`和`y`.
+测试数据`y_tilde`和测试预测器`x_tilde`只出现在生成的数量块中.
+因此，该程序不会在训练期间使用测试数据进行作弊.
+虽然这个模型没有这样做，但在模型块中使用`x_tilde`是公平的
+——只有测试观察`y_tilde`在预测之前是未知的.
+
 Given $M$ posterior draws from Stan, the sequence `log_p[1:M]` will be
 available, so that the log posterior predictive density of the test
 data given training data and predictors is just `log_sum_exp(log_p) -
 log(M)`.
 
+给定来自Stan的$M$后验绘图，序列`log_p[1:M]`将可用，
+因此给定训练数据和预测器的测试数据的对数后验预测密度只是
+`log_sum_exp(log_p) - log(M)`.
 
-## Estimation error
+## Estimation error  
 
-### Parameter estimates
+## 估计误差  
+
+### Parameter estimates  
+
+### 参数估计  
 
 Estimation is usually considered for unknown parameters.  If the data
 from which the parameters were estimated came from simulated data, the
 true value of the parameters may be known.  If $\theta$ is the true
 value and $\hat{\theta}$ the estimate, then error is just the
 difference between the prediction and the true value,
+
+通常考虑对未知参数的估计.
+如果估计参数的数据来自模拟数据，则可以知道参数的真实值.
+如果$\theta$是真实值，$\hat{\theta}$是估计值，那么误差就是预测值和真实值之间的差值，
+
 $$
 \textrm{err} = \hat{\theta} - \theta.
 $$
@@ -139,15 +215,27 @@ and if it's smaller, then error is negative.  If an estimator's
 unbiased, then expected error is zero.  So typically, absolute error
 or squared error are used, which will always have positive
 expectations for an imperfect estimator.  *Absolute error* is defined as
+
+如果估计值大于真实值，则误差为正，
+如果估计值小于真实值，则误差为负.
+如果一个估计量是无偏的，那么期望误差为零.
+对于一个不完美的估计量，使用绝对值误差或平方误差通常是可以被接受的，
+它们总是有正的数学期望值. 
+其中*绝对误差*定义为
 $$
 \textrm{abs-err} = \left| \hat{\theta} - \theta \right|
 $$
 and *squared error* as
+
+*平方误差*定义为
+
 $$
 \textrm{sq-err} = \left( \hat{\theta} - \theta \right)^2.
 $$
 @GneitingRaftery:2007 provide a thorough overview of such scoring rules
 and their properties.
+
+@GneitingRaftery:2007 提供这些评分规则及其属性的全面概述
 
 Bayesian posterior means minimize expected square error, whereas
 posterior medians minimize expected absolute error.  Estimates based
@@ -155,7 +243,13 @@ on modes rather than probability, such as (penalized) maximum
 likelihood estimates or maximum a posterior estimates, do not have
 these properties.
 
-### Predictive estimates
+贝叶斯后验意味着最小化期望平方误差，
+而后验中位数最小化期望绝对误差.
+基于众数而不是概率的估计，例如(惩罚的)最大似然估计或最大后验估计，则不具有这些属性.
+
+### Predictive estimates 
+
+### 预测估计 
 
 In addition to parameters, other unknown quantities may be estimated,
 such as the score of a football match or the effect of a medical
@@ -163,6 +257,11 @@ treatment given to a subject.  In these cases, square error is defined
 in the same way.  If there are multiple exchangeable outcomes being
 estimated, $z_1, \ldots, z_N,$ then it is common to report *mean square
 error* (MSE),
+
+除了参数之外，还可以估计其他未知量，
+例如足球比赛的比分或对受试者进行医疗治疗的效果.
+在这些情况下，平方误差以相同的方式定义.
+如果估计有多个可交换结果，$z_1， \ldots, z_N$，那么通常会报告*均方误差* (MSE)，
 $$
 \textrm{mse}
 = \frac{1}{N} \sum_{n = 1}^N \left( \hat{z}_n - z_n\right)^2.
@@ -170,16 +269,24 @@ $$
 To put the error back on the scale of the original value, the square
 root may be applied, resulting in what is known prosaically
 as *root mean square error* (RMSE),
+
+为了使误差回到原始值的范围内，可以取平方根，从而得到俗称的*均方根误差*(RMSE).
 $$
 \textrm{rmse} = \sqrt{\textrm{mean-sq-err}}.
 $$
 
-### Predictive estimates in Stan
+### Predictive estimates in Stan 
+
+### Stan中的预测估计 
 
 Consider a simple linear regression model, parameters for the
 intercept $\alpha$ and slope $\beta$, along with predictors
 $\tilde{x}_n$.  The standard Bayesian estimate is the expected value
 of $\tilde{y}$ given the predictors and training data,
+
+考虑一个简单的线性回归模型，截距$\alpha$和斜率$\beta$的参数，以及预测因子
+$\tilde{x}_n$.
+标准贝叶斯估计是给定预测因子和训练数据的$\tilde{y}$的期望值，
 \begin{eqnarray*}
 \hat{\tilde{y}}_n
 & = & \mathbb{E}[\tilde{y}_n \mid \tilde{x}_n, x, y]
@@ -187,11 +294,15 @@ of $\tilde{y}$ given the predictors and training data,
 & \approx & \frac{1}{M} \sum_{m = 1}^M \tilde{y}_n^{(m)}
 \end{eqnarray*}
 where $\tilde{y}_n^{(m)}$ is drawn from the sampling distribution
+
+其中$\tilde{y}_n^{(m)}$是从抽样分布中抽取的
 $$
 \tilde{y}_n^{(m)}
 \sim p(\tilde{y}_n \mid \tilde{x}_n, \alpha^{(m)}, \beta^{(m)}),
 $$
 for parameters $\alpha^{(m)}$ and $\beta^{(m)}$ drawn from the posterior,
+
+对于取自后验的参数$\alpha^{(m)}$和$\beta^{(m)}$，
 $$
 (\alpha^{(m)}, \beta^{(m)}) \sim p(\alpha, \beta \mid x, y).
 $$
@@ -200,6 +311,9 @@ In the linear regression case, two stages of simplification can be
 carried out, the first of which helpfully reduces the variance of the
 estimator. First, rather than averaging samples $\tilde{y}_n^{(m)}$,
 the same result is obtained by averaging linear predictions,
+
+在线性回归的情况下，可以进行两个阶段的简化，第一个阶段有助于减少估计量的方差.
+首先，不是平均样本$\tilde{y}_n^{(m)}$，而是通过平均线性预测获得相同的结果，
 \begin{eqnarray*}
 \hat{\tilde{y}}_n
 & = & \mathbb{E}\left[
@@ -212,6 +326,8 @@ the same result is obtained by averaging linear predictions,
   \alpha^{(m)} + \beta^{(m)} \cdot \tilde{x}_n
 \end{eqnarray*}
 This is possible because
+
+这可能是因为
 $$
 \tilde{y}_n^{(m)} \sim \textrm{normal}(\tilde{y}_n \mid \alpha^{(m)} +
 \beta^{(m)} \cdot \tilde{x}_n, \sigma^{(m)}),
@@ -222,9 +338,16 @@ $\tilde{y}_n^{(m)}$ is the same as $\alpha^{(m)} + \beta^{(m)} \cdot
 its expectation is a general variance reduction technique for Monte
 Carlo estimates known as *Rao-Blackwellization* [@Rao:1945; @Blackwell:1947].
 
+正态分布的误差是对称的，因此$\tilde{y}_n^{(m)}$的期望
+和$\alpha^{(m)} + \beta^{(m)} \cdot \tilde{x}_n$是一样的.
+用期望代替采样量$\tilde{y}_n^{(m)}$是蒙特卡罗估计的一般方差减少技术，
+称为*Rao-Blackwellization* [@Rao:1945; @Blackwell:1947].
+
 In the linear case, because the predictor is linear in the
 coefficients, the estimate can be further simplified to use the
 estimated coefficients,
+
+在线性情况下，由于预测器的系数是线性的，所以估计可以进一步简化为使用估计的系数，
 \begin{eqnarray*}
 \tilde{y}_n^{(m)}
 & \approx &
@@ -243,6 +366,9 @@ estimated coefficients,
 In Stan, only the first of the two steps (the important variance
 reduction step) can be coded in the object model.  The linear
 predictor is defined in the generated quantities block.
+
+在Stan中，只有两个步骤中的第一步(重要的方差缩减步骤)可以在对象模型中编码.
+线性预测器在生成数量块中定义.
 ```stan
 data {
   int<lower=0> N_tilde;
@@ -259,7 +385,13 @@ estimate $\hat{\tilde{y}}.$  The posterior median may also be
 calculated and used as an estimate, though square error and the
 posterior mean are more commonly reported.
 
-## Cross-validation
+Stan计算的`tilde_y`的后验均值是贝叶斯估计$\hat{\tilde{y}}.$
+后验中位数也可以被计算并用作估计，尽管平方误差和后验均值更常被报告.
+
+
+## Cross-validation 
+
+## 交叉验证 
 
 Cross-validation involves choosing multiple subsets of a data set as
 the test set and using the other data as training.  This can be done
@@ -269,6 +401,13 @@ subsets is common to reduce computational overhead.  In the limit,
 when the test set is just a single item, the result is known as
 leave-one-out (LOO) cross-validation [@VehtariEtAl:2017].
 
+交叉验证涉及选择数据集的多个子集作为测试集，
+并使用其他数据作为训练集.
+这可以通过划分数据并依次使用每个子集作为测试集，
+其余子集作为训练数据来实现.
+通常将分区分成十个子集以减少计算成本.
+在极限情况下，当测试集只有一个项目时，结果被称为留一(LOO)交叉验证[@VehtariEtAl:2017].
+
 Partitioning the data and reusing the partitions is very fiddly in the
 indexes and may not lead to even divisions of the data. It's far
 easier to use random partitions, which support arbitrarily sized
@@ -276,12 +415,21 @@ test/training splits and can be easily implemented in Stan.  The
 drawback is that the variance of the resulting estimate is higher than
 with a balanced block partition.
 
+对数据进行分区和重用分区在索引中非常繁琐，
+可能不会导致数据的均匀划分.
+使用随机分区要容易得多，它支持任意大小的测试/训练分割，
+并且可以很容易地在Stan中实现.缺点是结果估计的方差比使用平衡块分区的方差要大.
 
 ### Stan implementation with random folds
+
+### 用随机折叠的Stan实现
 
 For the simple linear regression model, randomized cross-validation
 can be implemented in a single model.  To randomly permute a vector in
 Stan, the simplest approach is the following.
+
+对于简单的线性回归模型，可以在单个模型中实现随机交叉验证.
+在Stan中随机排列一个向量，最简单的方法如下
 ```stan
 functions {
   array[] int permutation_rng(int N) {
@@ -309,9 +457,18 @@ through the vector exchanging each item with another randomly chosen
 item, resulting in a uniformly drawn permutation of the integers
 `1:N`.^[The traditional approach is to walk through a vector and replace each item with a random element from the remaining elements, which is guaranteed to only move each item once. This was not done here as it'd require new categorical `theta` because Stan does not have a uniform discrete RNG built in.]
 
+函数名必须以`_rng`结尾，因为它在内部使用其他随机函数.
+这将限制其用于转换数据和生成数量块.
+该代码遍历向量，将每个项与另一个随机选择的项交换，从而得到整数的统一排列
+`1:N`.^[传统的方法是遍历一个向量，并用剩余元素中的随机元素替换每一项，
+这样可以保证每一项只移动一次.这里没有这样做，因为它需要新的分类`theta`，
+因为Stan没有统一的离散RNG内置.]
+
 The transformed data block uses the permutation RNG to generate
 training data and test data by taking prefixes and suffixes of the
 permuted data.
+
+转换后的数据块使用置换RNG通过获取置换数据的前缀和后缀来生成训练数据和测试数据.
 ```stan
 data {
   int<lower=0> N;
@@ -331,11 +488,17 @@ transformed data {
 Recall that in Stan, `permutation[1:N_train]` is an array of integers,
 so that `x[permutation[1 : N_train]]` is a vector defined for `i in 1:N_train`
 by
+
+回想一下，在Stan中，
+`permutation[1:N_train]`是一个整数数组，
+因此`x[permutation[1 : N_train]]`是由`i in 1:N_train`定义的向量
 ```stan
 x[permutation[1 : N_train]][i] = x[permutation[1:N_train][i]]
                                = x[permutation[i]]
 ```
 Given the test/train split, the rest of the model is straightforward.
+
+考虑到测试/训练集的分割，模型的其余部分就很简单了.
 ```stan
 parameters {
   real alpha;
@@ -354,6 +517,10 @@ generated quantities {
 The prediction `y_test_hat` is defined in the generated quantities
 block using the general form involving all uncertainty.  The posterior
 of this quantity corresponds to using a posterior mean estimator,
+
+预测`y_test_hat`在生成的数量块中使用涉及所有不确定性的一般形式定义.
+这个量的后验值对应于使用后验均值估计量，
+
 \begin{eqnarray*}
 \hat{y}^{\textrm{test}}
 & = & \mathbb{E}\left[ y^{\textrm{test}} \mid x^{\textrm{test}}, x^{\textrm{train}} y^{\textrm{train}} \right]
@@ -364,6 +531,10 @@ of this quantity corresponds to using a posterior mean estimator,
 Because the test set is constant and the expectation operator is
 linear, the posterior mean of `err` as defined in the Stan program
 will be the error of the posterior mean estimate,
+
+因为测试集是常数，期望算子是线性的，
+所以Stan程序中定义的`err`的后验均值将是后验均值估计的误差，
+
 \begin{eqnarray*}
   \hat{y}^{\textrm{test}} - y^{\textrm{test}}
 & = &
@@ -394,20 +565,35 @@ value and square operation should *not* be done within the Stan
 program because neither is a linear function and the result of
 averaging squares is not the same as squaring an average in general.
 
+这只是计算误差;取绝对值或平方将计算绝对误差和均方误差.
+请注意，绝对值和平方操作*不*应该在Stan程序中完成，
+因为两者都不是线性函数，并且平均平方的结果与一般平均的平方不一样.
+
 Because the test set size is chosen for convenience in
 cross-validation, results should be presented on a per-item scale,
 such as average absolute error or root mean square error, not on the
 scale of error in the fold being evaluated.
 
+因为在交叉验证中选择测试集的大小是为了方便，
+所以结果应该以每个项目的尺度呈现，
+例如平均绝对误差或均方根误差，而不是以被评估折叠的误差尺度呈现.
+
 ### User-defined permutations
+
+### 用户定义的排列 
 
 It is straightforward to declare the variable `permutation` in the
 data block instead of the transformed data block and read it in as
 data.  This allows an external program to control the blocking,
 allowing non-random partitions to be evaluated.
 
+在数据块中声明变量`permutation`而不是转换后的数据块
+并将其作为数据读入是很简单的.
+这允许外部程序控制分组，允许评估非随机划分.
 
 ### Cross-validation with structured data
+
+### 使用结构化数据进行交叉验证 
 
 Cross-validation must be done with care if the data is inherently
 structured.  For example, in a simple natural language application,
@@ -417,6 +603,12 @@ level.  This is related to [mixed replication in posterior predictive
 checking](#mixed-replication), where there is a choice to simulate new
 elements of existing groups or generate entirely new groups.
 
+如果数据本身是结构化的，则必须谨慎地进行交叉验证.
+例如，在一个简单的自然语言应用程序中，数据可能是按文档结构化的.
+对于交叉验证，需要在文档级别进行交叉验证，而不是在单个单词级别.
+这与[后验预测检查中的混合复制](#mixed-replication)有关，
+其中可以选择模拟现有组的新元素或生成全新的组.
+
 Education testing applications are typically grouped by school
 district, by school, by classroom, and by demographic features of the
 individual students or the school as a whole.  Depending on the
@@ -425,8 +617,13 @@ evaluated.  For example, the focus of interest may be on the
 performance of entire classrooms, so it would make sense to
 cross-validate at the class or school level on classroom performance.
 
+教育测试应用程序通常按学区、学校、教室和学生个人或学校整体的人口统计特征分组.
+根据感兴趣的变量，应该评估不同的结构化子集.
+例如，关注的焦点可能是整个教室的表现，因此在班级或学校层面上交叉验证课堂表现是有意义的.
 
-### Cross-validation with spatio-temporal data
+### Cross-validation with spatio-temporal data 
+
+### 使用时空数据交叉验证 
 
 Often data measurements have spatial or temporal properties.  For
 example, home energy consumption varies by time of day, day of week,
@@ -439,9 +636,23 @@ an alternative to cross-validation, wherein individual weeks are each
 tested given previous data.  This often allows comparing how well
 prediction performs with more or less historical data.
 
-### Approximate cross-validation
+通常数据测量具有空间或时间属性.
+例如，家庭能源消耗随一天中的时间、一周中的某一天、假日、季节和环境温度(例如，热浪或寒流)而变化.
+交叉验证必须针对预测目标进行调整.
+例如，在预测能源消耗时，感兴趣的量可能是给定历史数据和当前天气协变量对下周能源消耗的预测.
+这提出了一种替代交叉验证的方法，其中每个星期都根据先前的数据进行测试.
+这通常允许将预测与或多或少的历史数据进行比较.
+
+### Approximate cross-validation 
+
+### 近似交叉检验
 
 @VehtariEtAl:2017 introduce a method that approximates the evaluation
 of leave-one-out cross validation inexpensively using only the data
 point log likelihoods from a single model fit.  This method is
 documented and implemented in the R package loo [@GabryEtAl:2019].
+
+@VehtariEtAl:2017 引入一种方法，
+该方法仅使用来自单个模型拟合的数据点日志似然，
+以较低的成本逼近留一交叉验证的评估.
+该方法在R包 loo 中有文档记录和实现[@GabryEtAl:2019].
