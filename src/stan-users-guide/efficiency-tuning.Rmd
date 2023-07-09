@@ -1,5 +1,9 @@
 # Efficiency Tuning {#efficiency-tuning.chapter}
 
+# 效率调优
+
+翻译贡献者：焦睿宇、苏田园
+
 This chapter provides a grab bag of techniques for optimizing Stan
 code, including vectorization, sufficient statistics, and conjugacy.
 At a coarse level, efficiency involves both the amount of time
@@ -8,7 +12,11 @@ practical applied statistical modeling, we are mainly concerned with
 reducing wall time (how long a program takes as measured by a clock on
 the wall) and keeping memory requirements within available bounds.
 
+本章提供了一系列优化Stan代码的技术，包括矢量化、充分统计和共轭。粗略而言，效率包括计算所需的时间量和所需的内存量。对于实际应用的统计建模，我们主要关注减少墙时间（通过墙上的时钟测量程序所需的时间），并将内存需求保持在可用范围内。
+
 ## What is efficiency?
+
+## 什么是效率？
 
 The standard algorithm analyses in computer science measure efficiency
 asymptotically as a function of problem size (such as data, number of
@@ -21,8 +29,11 @@ using built-in matrix operations as opposed to naive loops) and on
 asymptotic efficiency factors (such as using linear algorithms instead
 of quadratic algorithms in loops).
 
+计算机科学中的标准算法分析将效率渐近地测量为问题大小（如数据、参数数量等）的函数，通常不考虑启动时间等恒定的加法因子或运算速度等乘法因子。在实践中，恒定因素很重要；如果运行时间可以减少一半或更多，那将是一个巨大的收益。本章重点关注效率中涉及的恒定因子（例如使用内置矩阵运算而非简单的循环）和渐近效率因子（例如在循环中使用线性算法而非二次算法）。
 
 ## Efficiency for probabilistic models and algorithms
+
+## 概率模型和算法的效率
 
 Stan programs express models which are intrinsically statistical in
 nature.  The algorithms applied to these models may or may not
@@ -36,6 +47,8 @@ inference algorithm (ADVI) is probabilistic despite being an
 optimization algorithm; the randomization lies in a nested Monte Carlo
 calculation for an expected gradient.
 
+Stan程序表达的模型本质上是统计的。应用于这些模型的算法本身可能是概率的，也可能不是概率的。例如，给定参数的初始值（其本身可以是确定性的或随机生成的），用于惩罚最大似然估计的Stan优化算法（L-BFGS）是纯确定性的。Stan的采样算法基于马尔可夫链蒙特卡罗（Markov Chain Monte Carlo, MCMC）算法，该算法在每一步都具有概率性。Stan的变分推理算法（ADVI）虽然是一种优化算法，但却是概率性的，其随机化在于对期望梯度的嵌套蒙特卡罗计算。
+
 With probabilistic algorithms, there will be variation in run times
 (and maybe memory usage) based on the randomization involved.  For
 example, by starting too far out in the tail, iterative algorithms
@@ -44,6 +57,8 @@ equations, may take different numbers of steps.  Ideally this
 variation will be limited;  when there is a lot of variation it can be
 a sign that there is a problem with the model's parameterization in
 a Stan program or with initialization.
+
+对于概率算法，由于涉及随机化，运行时间（可能还有内存使用）会有所变化。例如，由于从尾部太远处开始，之后的迭代算法，如常微分方程的求解器，可能需要不同数量的步骤。理想情况下，这种变化是有限的；当有很多变化时，这可能意味着Stan程序中模型的参数化或初始化出现问题。
 
 A well-behaved Stan program will have low variance between runs with
 different random initializations and differently seeded random number
@@ -58,7 +73,11 @@ rate in order to target a lower step size.  This is because smaller
 step sizes allow Stan's gradient-based algorithms to better follow the
 curvature in the density or penalized maximum likelihood being fit.
 
+一个表现良好的Stan程序在具有不同随机初始化和不同种子随机数生成器的运行之间具有较低的方差。但有时算法可能会卡在后部的一部分，通常是由于曲率太大。这种卡住几乎总是表明需要重新对模型进行参数化。仅仅丢弃具有明显不良行为（缓慢或停滞）的马尔可夫链可能带来后验估计的偏差。这种陷入停滞的问题通常可以通过降低初始步长来克服，以避免在适应过程中陷入困境，并增加目标接受率以达到较低的步长。这是因为较小的步长允许Stan的基于梯度的算法更好地遵循密度中的曲率或被惩罚的最大拟合可能性。
+
 ## Statistical vs.\  computational efficiency
+
+## 统计效率 VS 计算效率
 
 There is a difference between pure computational efficiency and
 statistical efficiency for Stan programs fit with sampling-based
@@ -66,13 +85,19 @@ algorithms.  Computational efficiency measures the amount of time or
 memory required for a given step in a calculation, such as an
 evaluation of a log posterior or penalized likelihood.
 
+适用于基于采样的算法的Stan程序的纯计算效率和统计效率之间存在差异。计算效率衡量计算中给定步骤所需的时间或内存量，例如对数后验或惩罚似然的评估。
+
 Statistical efficiency typically involves requiring fewer steps in
 algorithms by making the statistical formulation of a model better
 behaved.  The typical way to do this is by applying a change of
 variables (i.e., reparameterization) so that sampling algorithms mix
 better or optimization algorithms require less adaptation.
 
+统计效率通常包括通过使模型的统计公式表现得更好来减少算法中的步骤。实现这一点的典型方法是应用变量的变化（即，重新参数化），以便采样算法更好地混合，或者优化算法需要更少的自适应。
+
 ## Model conditioning and curvature
+
+## 模型条件和曲率
 
 Because Stan's algorithms (other than Riemannian Hamiltonian Monte
 Carlo) rely on step-based gradient-based approximations of the density
@@ -80,14 +105,22 @@ Carlo) rely on step-based gradient-based approximations of the density
 not captured by this first-order approximation plays a central role in
 determining the statistical efficiency of Stan's algorithms.
 
+由于Stan的算法（除了黎曼哈密顿蒙特卡罗）依赖于所拟合的基于阶跃和梯度的密度（或惩罚最大似然）近似，因此这种一阶近似没有捕捉到的后验曲率在决定Stan算法的统计效率方面起着核心作用。
+
 A second-order approximation to curvature is provided by the
 Hessian, the matrix of second derivatives of the log density $\log
 p(\theta)$ with respect to the parameter vector $\theta$, defined
 as
+
+曲率的二阶近似由Hessian提供，Hessian是对数密度$\log p(\theta)$相对于参数向量$\theta$的二阶导数矩阵，定义为
+
 $$
 H(\theta) = \nabla \, \nabla \, \log p(\theta \mid y),
 $$
 so that
+
+所以
+
 $$
 H_{i, j}(\theta) = \frac{\partial^2 \log p(\theta \mid y)}
                 {\partial \theta_i \ \partial \theta_j}.
@@ -96,7 +129,11 @@ For pure penalized maximum likelihood problems, the posterior log
 density $\log p(\theta \mid y)$ is replaced by the penalized likelihood
 function $\mathcal{L}(\theta) = \log p(y \mid \theta) - \lambda(\theta)$.
 
+对于纯惩罚的最大似然问题，后验对数密度$\log p(\theta \mid y)$被惩罚似然函数$\mathcal{L}(\theta) = \log p(y \mid \theta) - \lambda(\theta)$取代。
+
 ### Condition number and adaptation {-}
+
+### 条件数和自适应 {-}
 
 A good gauge of how difficult a problem the curvature presents is
 given by the condition number of the Hessian matrix $H$, which is the
@@ -109,7 +146,11 @@ log densities or penalized likelihood functions, it is easier for
 Stan's adaptation, especially the diagonal adaptations that are used
 as defaults.
 
+Hessian矩阵$H$的条件数给出了曲率问题难度的一个很好的衡量标准，它是$H$最大特征值与最小特征值的比值（假设Hessian是正定的）。这基本上衡量了最平坦的运动方向和最弯曲的运动方向之间的差异。通常，基于梯度的算法的步长受到最陡峭的弯曲方向的限制。有了更好的条件对数密度或惩罚似然函数，Stan的自适应更容易，尤其是用作默认值的对角自适应。
+
 ### Unit scales without correlation {-}
+
+### 无相关性的单位尺度 {-}
 
 Ideally, all parameters should be programmed so that they have unit
 scale and so that posterior correlation is reduced; together, these
@@ -120,7 +161,11 @@ as it is where the algorithm initializes.  Riemannian Hamiltonian
 Monte Carlo performs this conditioning on the fly at every step, but
 such conditioning is  expensive computationally.
 
+理想情况下，所有参数都应该进行编程，以具有单位尺度并减少后验相关性；总之，这些性质意味着Stan算法的最佳性能不需要旋转或缩放。对于哈密顿蒙特卡罗，这意味着一个单位质量矩阵，它不需要自适应，因为它是算法初始化的地方。黎曼哈密顿蒙特卡罗在每一步都在动态地执行这种条件反射，但这种条件反射在计算上是昂贵的。
+
 ### Varying curvature {-}
+
+### 变曲率 {-}
 
 In all but very simple models (such as multivariate normals), the
 Hessian will vary as $\theta$ varies (an extreme example is Neal's
@@ -133,6 +178,8 @@ aimed at improving the conditioning of the Hessian and/or making it
 more consistent across the relevant portions of the density (or
 penalized maximum likelihood function) being fit.
 
+在除非常简单的模型（如多元正态）外的所有模型中，Hessian将随着$\theta$的变化而变化（一个极端的例子是Neal漏斗，这在数据很少或没有数据的分层模型中自然出现）。曲率变化越大，所有具有固定适应参数的算法（即，除了黎曼哈密顿蒙特卡罗之外的所有算法）就越难找到覆盖整个密度的适应。所提出的许多变量变换旨在改善Hessian的条件和/或使其在所拟合的密度（或惩罚最大似然函数）的相关部分之间更加一致。
+
 For all of Stan's algorithms, the curvature along the path from the
 initial values of the parameters to the solution is relevant.  For
 penalized maximum likelihood and variational inference, the solution
@@ -141,6 +188,8 @@ matters.  For sampling, the relevant "solution" is the typical set,
 which is the posterior volume where almost all draws from the
 posterior lies;  thus, the typical set contains almost all of the
 posterior probability mass.
+
+对于Stan的所有算法，从参数的初始值到解的路径上的曲率是相关的。对于惩罚最大似然和变分推理，迭代算法的解将是一个点，所以这才是最重要的。对于采样，相关的"解"是典型的集合，即几乎所有从后部提取的后部体积；因此，典型集合包含了几乎所有的后验概率质量。
 
 With sampling, the curvature may vary dramatically between the points
 on the path from the initialization point to the typical set and
@@ -154,8 +203,11 @@ first effective draw is ready to be realized).  Whether adaptation has
 run long enough can be measured by comparing the adaptation parameters
 derived from a set of diffuse initial parameter values.
 
+通过采样，曲率可以在从初始化点到典型集合的路径上的点之间以及在典型集合内显著变化。这就是为什么自适应需要运行足够长的时间来访问典型集中的足够多的点，以获得典型集合中曲率的良好一阶估计。如果自适应运行的时间不够长，则在自适应之后在典型集合内进行采样将是无效的。我们通常建议在达到典型集合后至少进行一百次迭代（并且第一次有效绘制已准备好实现）。自适应是否已经运行足够长可以通过比较从一组扩散初始参数值导出的自适应参数来测量。
 
 ### Reparameterizing with a change of variables {-}
+
+### 变量变化的重新参数化 {-}
 
 Improving statistical efficiency is achieved by reparameterizing the
 model so that the same result may be calculated using a density or
@@ -164,13 +216,18 @@ the example of reparameterizing Neal's funnel for an example, and also
 the examples in the [change of variables
 chapter](#change-of-variables.chapter).
 
+统计效率的提高可以通过对模型进行重新参数化，从而可以使用条件更好的密度或惩罚最大似然来计算相同的结果来实现。再次，请参阅重新参数化Neal漏斗的示例，以及[变量变化章节](#change-of-variables.chapter)中的示例。
+
 One has to be careful in using change-of-variables reparameterizations
 when using maximum likelihood estimation, because they can change the
 result if the Jacobian term is inadvertently included in the revised
 likelihood model.
 
+在使用最大似然估计时，必须小心使用变量变化重新参数化，因为如果雅可比项恰巧包含在修正的似然模型中，它们可能会改变结果。
 
 ## Well-specified models
+
+## 指定良好的模型
 
 Model misspecification, which roughly speaking means using a model
 that doesn't match the data, can be a major source of slow code.  This
@@ -180,6 +237,8 @@ intended runs slowly or may even have convergence and mixing issues.
 While some of the techniques recommended in the remaining sections of
 this chapter may mitigate the problem, the best remedy is a
 better model specification.
+
+模型的错误指定，大意上是指使用一个与数据不匹配的模型，这可能是慢代码的主要来源。这体现在这样的情况中：根据模型模拟的数据运行稳健而高效，而它所针对的真实数据的真实数据运行缓慢，甚至可能出现收敛和混合的问题。虽然本章其余部分推荐的一些技术可以缓解这个问题，但最好的补救措施是更好的模型指定。
 
 Counterintuitively, more complicated models often run faster
 than simpler models.  One common pattern is with a group of parameters
@@ -191,12 +250,18 @@ the fixed prior with a hierarchical prior such as `normal(mu,
   sigma)`, where `mu` and `sigma` are new parameters with
 their own hyperpriors, can be beneficial.
 
+与此相反的是，更复杂的模型往往比更简单的模型运行更快。一个常见的模式是，一组参数有一个广泛的固定先验，如`normal(0, 1000)`。由于先验和后验的不匹配（先验对上百甚至上千的值有支持，而后验可能集中在零附近），这可能适合得很慢。在这种情况下，用`normal(mu,sigma)`这样的分层先验代替固定先验可能会有好处，其中`mu`和`sigma`是有自己超先验的新参数。
+
 
 ## Avoiding validation
+
+## 避免验证
 
 Stan validates all of its data structure constraints.  For example,
 consider a transformed parameter defined to be a covariance matrix and
 then used as a covariance parameter in the model block.
+
+Stan验证了其所有的数据结构约束。例如，考虑一个被定义为协方差矩阵的转换参数，然后在模型块中作为协方差参数使用。
 
 ```stan
 transformed parameters {
@@ -216,8 +281,12 @@ also validates that `Sigma` is positive definite.  This test is
 expensive, having cubic run time (i.e., $\mathcal{O}(N^3)$ for
 $N \times N$ matrices), so it should not be done twice.
 
+因为`Sigma`被声明为协方差矩阵，它将在转换参数块的末尾被因子化以确保它是正定的。多变量正态对数密度函数也验证了`Sigma`是正定的。这个验证很昂贵，有三次方运行时间（即$N\times N $矩阵的$\mathcal{O}(N^3)$），所以不能做两次。
+
 The test may be avoided by simply declaring `Sigma` to be a simple
 unconstrained matrix.
+
+该测试可以通过简单地将`Sigma`声明为一个简单的无约束矩阵来避免。
 
 ```stan
 transformed parameters {
@@ -231,8 +300,11 @@ model {
 
 Now the only validation is carried out by the multivariate normal.
 
+现在，唯一的验证是由多变量正态进行的。
 
 ## Reparameterization {#reparameterization.section}
+
+## 重新参数化
 
 Stan's sampler can be slow in sampling from distributions with
 difficult posterior geometries.  One way to speed up such models is
@@ -241,19 +313,30 @@ dramatically increase effective sample size for the same number of
 iterations or even make programs that would not converge well
 behaved.
 
+Stan的采样器在从具有困难后验几何的分布中采样时可能很慢。加快此类模型的一种方法是通过重新参数化。在某些情况下，重新参数化可以在相同的迭代次数下大大增加有效样本量，甚至可以使不会收敛的程序表现良好。
+
 ### Example: Neal's funnel {- #funnel.figure}
+
+### 例：Neal漏斗 {-}
+
 In this section, we discuss a general transform from a centered to a
 non-centered parameterization [@papa-et-al:2007].^[This parameterization came to be known on our mailing lists as the "Matt trick" after Matt Hoffman, who independently came up with it while fitting hierarchical models in Stan.]
+
+在这一节中，我们将讨论从中心化到非中心化参数化的一般转换[@papa-et-al:2007]。^[这种参数化在我们的邮件列表中被称为 "Matt trick"，是以Matt Hoffman的名字命名的，他在Stan中拟合分层模型时独立提出了这个方案。]
 
 This reparameterization is helpful when there is not much data,
 because it separates the hierarchical parameters and lower-level
 parameters in the prior.
+
+在数据不多的情况下，这种重新参数化很有帮助，因为它将先验中的层次参数和低层次参数分开。
 
 @Neal:2003 defines a distribution that exemplifies the difficulties of
 sampling from some hierarchical models.  Neal's example is fairly
 extreme, but can be trivially reparameterized in such a way as to make
 sampling straightforward.  Neal's example has support for $y \in
 \mathbb{R}$ and $x \in \mathbb{R}^9$ with density
+
+@Neal:2003 定义了一个分布，体现了从一些层次模型中取样的困难。Neal的例子是相当极端的，但是可以以一种简单的方式重新参数化，从而使抽样变得简单。Neal的例子对$y\in \mathbb{R}$和$x\in \mathbb{R}^9$有支持，密度为
 
 $$
 p(y,x) = \textsf{normal}(y \mid 0,3) \times \prod_{n=1}^9
@@ -265,12 +348,17 @@ funnel's neck is particularly sharp because of the exponential
 function applied to $y$.  A plot of the log marginal density of $y$
 and the first dimension $x_1$ is shown in the following plot.
 
+概率轮廓的形状像十维的漏斗。由于应用于$y$的指数函数，漏斗的颈部特别尖锐。下图是$y$的对数边际密度和第一维$x_1$的图。
 
 The marginal density of Neal's funnel for the upper-level variable $y$ and one lower-level variable $x_1$ (see the text for the formula).  The blue region has log density greater than -8, the yellow region density greater than -16, and the gray background a density less than -16.
+
+上层变量$y$和一个下层变量$x_1$的Neal漏斗的边际密度（公式见文中）。蓝色区域的对数密度大于-8，黄色区域密度大于-16，而灰色背景的密度小于-16。
 
 ![Neal's funnel density](img/funnel.png)
 
 The funnel can be implemented directly in Stan as follows.
+
+漏斗可以直接在Stan中实现，具体方法如下。
 
 ```stan
 parameters {
@@ -290,6 +378,8 @@ changes with $y$, so that a step size that works well in the body will
 be too large for the neck, and a step size that works in the neck will be
 inefficient in the body.  This can be seen in the following plot.
 
+当模型以这种方式表达时，Stan很难从漏斗的颈部取样，因为那里的$y$很小，因此$x$被限制在0附近。这是由于密度的尺度随着$y$的变化而变化，因此在主体中效果好的步长对颈部来说会过大，而在颈部效果好的步长在主体中会效率低下。这可以从下面的图中看出。
+
 4000 draws are taken from a run of Stan's sampler with default settings.  Both
 plots are restricted to the shown window of $x_1$ and $y$ values; some
 draws fell outside of the displayed area as would be expected given
@@ -297,11 +387,15 @@ the density.  The samples are consistent with the marginal density
 $p(y) = \textsf{normal}(y \mid 0,3)$, which has mean 0 and standard
 deviation 3.
 
+4000次抽样取自Stan采样器的默认设置。两幅图都限制在所显示的$x_1$和$y$值的窗口内；有些抽样在所显示的区域之外，这是考虑到密度而预期的。这些样本与边际密度$p(y)=\textsf{normal}(y \mid 0,3)$一致，其平均值为0，标准差为3。
+
 ![](img/funnel-fit.png)
 
 In this particular instance, because the analytic form of the density
 from which samples are drawn is known, the model can be converted to
 the following more efficient form.
+
+在这个特殊的例子中，由于抽样的密度的分析形式是已知的，模型可以转换为以下更有效的形式。
 
 ```stan
 parameters {
@@ -331,11 +425,17 @@ Stan code, it is useful to provide a comment indicating what the
 distribution for the parameter implies for the distribution of the
 transformed parameter.
 
+在这里的第二个模型中，参数`x_raw`和`y_raw`是按照独立标准正态采样的，这对Stan来说很容易。然后这些被转换为漏斗的样本。在这种情况下，同样的转换可以用来直接定义基于独立标准正态样本的蒙特卡洛样本；马尔科夫链蒙特卡洛方法不是必要的。如果在Stan代码中使用这样的重新参数化，那么提供一个说明参数分布对于转化后参数的分布的意义的注释是很有用的。
+
 ### Reparameterizing the Cauchy {-}
+
+### 柯西分布的重新参数化 {-}
 
 Sampling from heavy tailed distributions such as the Cauchy is
 difficult for Hamiltonian Monte Carlo, which operates within a
 Euclidean geometry.^[Riemannian Manifold Hamiltonian Monte Carlo (RMHMC) overcomes this difficulty by simulating the Hamiltonian dynamics in a space with a position-dependent metric; see @GirolamiCalderhead:2011 and @Betancourt:2012.]
+
+从Cauchy等重尾分布中取样对哈密顿蒙特卡洛来说是困难的，它是在欧几里得几何中运行的。^[黎曼曼福哈密顿蒙特卡洛（RRMMC）通过在具有位置相关度量的空间中模拟哈密顿动力学来克服这一困难；见@GirolamiCalderhead:2011 和 @Betancourt:2012。]
 
 The practical problem is that tail of the Cauchy
 requires a relatively large step size compared to the trunk.  With a
@@ -347,16 +447,23 @@ Cauchy-distributed variable as the transform of a uniformly
 distributed variable using the Cauchy inverse cumulative distribution
 function.
 
+实际问题是Cauchy的尾部与主干相比需要相对较大的步长。如果步长小，No-U-Turn采样器在分布的尾部开始时需要很多步长；如果步长大，在分布的中心部分会有太多的拒绝。这个问题可以通过将Cauchy分布的变量定义为使用Cauchy反累积分布函数的均匀分布变量的变换来缓解。
+
 Suppose a random variable of interest $X$ has a Cauchy distribution
 with location $\mu$ and scale $\tau$, so that $X \sim
 \textsf{Cauchy}(\mu,\tau)$.  The variable $X$ has a cumulative
 distribution function $F_X:\mathbb{R} \rightarrow (0,1)$ defined by
+
+假设感兴趣的随机变量$X$具有位置$\mu$和尺度$\tau$的Cauchy分布，因此$X \sim\textsf{Cauchy}(\mu,\tau)$。变量$X$有一个累积分布函数$F_X:\mathbb{R}\rightarrow (0,1)$，定义为
+
 $$
 F_X(x) = \frac{1}{\pi} \arctan \left( \frac{x - \mu}{\tau} \right) +
 \frac{1}{2}.
 $$
 The inverse of the cumulative distribution function,
 $F_X^{-1}:(0,1) \rightarrow \mathbb{R}$, is thus
+
+因此，累积分布函数的逆函数，$F_X^{-1}:(0,1) \rightarrow \mathbb{R}$为：
 
 $$
 F^{-1}_X(y) = \mu + \tau \tan \left( \pi \left( y - \frac{1}{2} \right) \right).
@@ -366,8 +473,12 @@ Thus if the random variable $Y$ has a unit uniform distribution, $Y
 distribution with location $\mu$ and scale $\tau$, i.e., $F^{-1}_X(Y) \sim
 \textsf{Cauchy}(\mu,\tau)$.
 
+因此，如果随机变量$Y$具有单位均匀分布，$Y \sim \textsf{uniform}(0,1)$，那么$F^{-1}_X(Y)$服从具有位置$\mu$和规模$\tau$的Cauchy分布，即$F^{-1}_X(Y)\sim \textsf{Cauchy}(\mu,\tau)$。
+
 Consider a Stan program involving a Cauchy-distributed parameter
 `beta`.
+
+考虑一个涉及Cauchy分布参数`beta`的Stan程序。
 
 ```stan
 parameters {
@@ -383,6 +494,8 @@ model {
 This declaration of `beta` as a parameter may be replaced with a
 transformed parameter `beta` defined in terms of a
 uniform-distributed parameter `beta_unif`.
+
+这种将`beta`作为参数的声明，可以用一个以均匀分布参数`beta_unif`定义的转换参数`beta`来代替。
 
 ```stan
 parameters {
@@ -406,6 +519,8 @@ themselves be parameters.  The variable `beta` could also be
 defined as a local variable if it does not need to be included in the
 sampler's output.
 
+在Stan中，在$(-\pi/2, \pi/2)$上变换一个均匀变量比在$(0,1)$上变换更方便。Cauchy位置和尺度参数，`mu`和`tau`，可以定义为数据，也可以本身是参数。变量`beta`如果不需要包含在采样器的输出中，也可以定义为一个局部变量。
+
 The uniform distribution on `beta_unif` is defined explicitly in
 the model block, but it could be safely removed from the program
 without changing sampling behavior.  This is because $\log
@@ -416,21 +531,34 @@ some time checking that that `beta_unif` is between
 `-pi() / 2` and `pi() / 2`, but this condition is guaranteed by
 the constraints in the declaration of `beta_unif`.
 
+`beta_unif`上的均匀分布是在模型块中明确定义的，但它可以安全地从程序中删除，而不会改变采样行为。这是因为$\log\textsf{uniform}(\beta_{\textsf{unif}} \mid -\pi/2,\pi/2) = -\log \pi$是一个常数，而Stan只需要总的对数概率，直到一个加法常数。Stan会花一些时间检查`beta_unif`是否在`-pi() / 2`和`pi() / 2`之间，但是这个条件是由`beta_unif`的声明中的约束条件保证的。
+
 ### Reparameterizing a Student-t distribution {-}
+
+### Student-t分布的重新参数化 {-}
 
 One thing that sometimes works when you're having trouble with the
 heavy-tailedness of Student-t distributions is to use the
 gamma-mixture representation, which says that you can generate a
 Student-t distributed variable $\beta$,
+
+当Student-t分布的重尾性带来困扰时，使用gamma混合表示法有时是可行的，即可以生成一个Student-t分布的变量$\beta$，
+
 $$
 \beta \sim \textsf{Student-t}(\nu, 0, 1),
 $$
 by first generating a gamma-distributed precision (inverse variance)
 $\tau$ according to
+
+首先根据以下公式生成伽马分布的精度（逆方差）$\tau$：
+
 $$
 \tau \sim \textsf{Gamma}(\nu/2, \nu/2),
 $$
 and then generating $\beta$ from the normal distribution,
+
+然后从正态分布中生成$\beta$：
+
 $$
 \beta \sim \textsf{normal}\left(0,\tau^{-\frac{1}{2}}\right).
 $$
@@ -438,8 +566,13 @@ $$
 Because $\tau$ is precision, $\tau^{-\frac{1}{2}}$ is the scale
 (standard deviation), which is the parameterization used by Stan.
 
+因为$\tau$是精度，$\tau^{-\frac{1}{2}}$是尺度（标准差），这是Stan使用的参数化。
+
 The marginal distribution of $\beta$ when you integrate out $\tau$ is
 $\textsf{Student-t}(\nu, 0, 1)$, i.e.,
+
+当整合出$\tau$时，$\beta$的边际分布是$\textsf{Student-t}(\nu, 0, 1)$，即
+
 $$
 \textsf{Student-t}(\beta \mid \nu, 0, 1)
 =
@@ -456,10 +589,16 @@ $$
 To go one step further, instead of defining a $\beta$ drawn from a
 normal with precision $\tau$, define $\alpha$ to be drawn from a unit
 normal,
+
+更进一步，与其定义一个从精度为$\tau$的正态分布中抽取的$\beta$，不如定义$\alpha$从一个标准正态中抽取，
+
 $$
 \alpha \sim \textsf{normal}(0,1)
 $$
 and rescale by defining
+
+并通过以下定义来重新缩放
+
 $$
 \beta = \alpha \, \tau^{-\frac{1}{2}}.
 $$
@@ -471,7 +610,11 @@ regression predictor $x$.  Then the reparameterization $\mu = \alpha
 parameterization, $\beta$ has (potentially) heavy tails, whereas in
 the second, neither $\tau$ nor $\alpha$ have heavy tails.
 
+现在假设$\mu = \beta x$是$\beta$与回归预测器$x$的乘积。那么，重新参数化的$\mu = \alpha \tau^{-\frac{1}{2}} x$具有相同的分布，但在最初的直接参数化中，$\beta$具有（潜在的）重尾，而在第二个参数化中，$\tau$和$\alpha$都没有重尾。
+
 To translate into Stan notation, this reparameterization replaces
+
+为了转化为Stan的符号，这种重新参数化取消了
 
 ```stan
 parameters {
@@ -486,6 +629,8 @@ model {
 ```
 
 with
+
+取而代之的是
 
 ```stan
 parameters {
@@ -515,18 +660,28 @@ higher; when `nu` is 1, the result is a Cauchy distribution with
 distribution approaches a normal distribution.  Thus the parameter
 `nu` characterizes the heaviness of the tails of the model.
 
+虽然这里设置为`0`，但在大多数情况下，自由度参数`nu`的下限可以设置为`1`或更高；当`nu`为1时，结果是具有厚尾的Cauchy分布，当`nu`接近无穷大时，Student-t分布接近正态分布。因此，参数`nu`表征了模型尾部的肥厚程度。
+
 ### Hierarchical models and the non-centered parameterization {-}
+
+### 层次模型和非中心参数化 {-}
 
 Unfortunately, the usual situation in applied Bayesian modeling
 involves complex geometries and interactions that are not known
 analytically.  Nevertheless, reparameterization can still be 
 effective for separating parameters.
 
+然而，在应用贝叶斯建模中，通常涉及复杂的几何形状和相互作用，而这些都是无法用分析方法知道的。尽管如此，重新参数化对于分离参数仍然是有效的。
+
 #### Centered parameterization {-}
+
+#### 中心化参数化 {-}
 
 For example, a vectorized hierarchical model might draw a vector of
 coefficients $\beta$ with definitions as follows.  The so-called
 centered parameterization is as follows.
+
+例如，一个向量化分层模型可能会画出一个系数向量$\beta$，定义如下。所谓的中心化参数化如下。
 
 ```stan
 parameters {
@@ -549,6 +704,8 @@ regression with data matrix `x` and binary outcome vector
 `y ~ bernoulli_logit(x * beta)`, leading to an analytically
 intractable posterior.
 
+虽然没有显示，但一个完整的模型将有关于`mu_beta`和`sigma_beta`的先验，以及基于这些系数的数据模型。例如，一个标准的二元逻辑回归，其数据矩阵`x`和二元结果向量`y`将包括一个似然语句，如形式`y ~ bernoulli_logit(x * beta)`，导致一个分析上难以解决的后验。
+
 A hierarchical model such as the above will suffer from the same kind
 of inefficiencies as Neal's funnel, because the values of `beta`,
 `mu_beta` and `sigma_beta` are highly correlated in the
@@ -560,8 +717,11 @@ parameterization is more efficient.  See
 @Betancourt-Girolami:2013 for more information on the effects of
 centering in hierarchical models fit with Hamiltonian Monte Carlo.
 
+像上面这样的分层模型会出现和Neal漏斗一样的低效率，因为`beta`、`mu_beta`和`sigma_beta`的值在后验中是高度相关的。相关性的极端性取决于数据量，Neal漏斗是没有数据的极端。在这些情况下，下一节讨论的非中心参数化比较好；当有大量数据时，中心参数化更有效。关于用哈密顿蒙特卡洛拟合的分层模型中心化的影响，更多信息见@Betancourt-Girolami:2013。
 
 ### Non-centered parameterization {-}
+
+### 非中心化的参数化 {-}
 
 Sometimes the group-level effects do not constrain the hierarchical
 distribution tightly.  Examples arise when there are not many groups,
@@ -572,6 +732,8 @@ to the funnel example, this will be much more efficient in terms of
 effective sample size when there is not much data (see
 @Betancourt-Girolami:2013), and in more extreme cases will be
 necessary to achieve convergence.
+
+有时，组别层面的影响并不能严格约束层次分布。当组别不多，或者组间差异很大时，就会出现这种情况。在这种情况下，通过将数据与参数的相关性转移到超参数上，可以使层次模型的效率大大提升。与漏斗的例子类似，当数据不多时，这在有效样本量方面会更有效率（见@Betancourt-Girolami:2013），而在更极端的情况下，则需要实现收敛。
 
 ```stan
 parameters {
@@ -592,6 +754,8 @@ model {
 Any priors defined for `mu_beta` and `sigma_beta` remain as
 defined in the original model.
 
+任何为`mu_beta`和`sigma_beta`定义的预设值都与原始模型中的定义相同。
+
 Reparameterization of hierarchical models is not limited to the normal
 distribution, although the normal distribution is the best candidate
 for doing so. In general, any distribution of parameters in the
@@ -609,6 +773,8 @@ scale implies a prior distribution on $\beta$ with location $l$ and
 scale $s$. Doing so would reduce the dependence between $\alpha$,
 $l$, and $s$.
 
+分层模型的重新参数化并不限于正态分布，尽管正态分布是最好的候选分布。一般来说，位置尺度族中的任何参数分布都是重新参数化的良好备选者。令$\beta=l+s\alpha$，其中$l$是一个位置参数，$s$是一个尺度参数。参数$l$不需要是平均值，$s$不需要是标准差，平均值和标准差都不需要存在。如果$\alpha$和$\beta$来自同一个分布族，但$\alpha$的位置为零，尺度为单位，而$\beta$的位置为$l$，尺度为$s$，那么这个分布就是一个位置-尺度分布。因此，如果$\alpha$是一个参数，$\beta$是一个转换后的参数，那么在$\alpha$上有一个位置为零和单位尺度的位置-尺度族的先验分布就意味着在$\beta$上有一个位置为$l$和尺度为$s$的先验分布。这样做会减少$\alpha$、$l$和$s$之间的依赖性。
+
 There are several univariate distributions in the location-scale
 family, such as the Student t distribution, including its special
 cases of the Cauchy distribution (with one degree of freedom) and the
@@ -619,6 +785,8 @@ logistic, the double exponential, the generalized extreme value
 distributions, and the stable distribution are also in the
 location-scale family.
 
+在位置-尺度族中有几个单变量分布，如Student-t分布，包括其特殊情况下的Cauchy分布（自由度为1）和正态分布（自由度为无穷）。如上所示，如果$\alpha$是标准正态分布，那么$\beta$也是正态分布，其平均值$\mu=l$，标准差$\sigma=s$。Logistic、双指数、广义极值分布和稳定分布也属于位置-尺度族。
+
 Also, if $z$ is distributed standard normal, then $z^2$ is distributed
 chi-squared with one degree of freedom. By summing the squares of $K$
 independent standard normal variates, one can obtain a single variate
@@ -627,6 +795,7 @@ for large $K$, the computational gains of this reparameterization may
 be overwhelmed by the computational cost of specifying $K$ primitive
 parameters just to obtain one transformed parameter to use in a model.
 
+另外，如果$z$是标准正态分布，那么$z^2$是自由度为1的卡方分布。通过对$K$个独立标准正态变量的平方求和，可以得到一个单一变量，该变量是自由度为$K$的卡方分布。然而，对于大的$K$，这种重新参数化的计算收益可能会被确定$K$原始参数的计算成本所掩盖，而这些参数只是为了获得一个模型中使用的转换参数。
 
 
 ### Multivariate reparameterizations {-}
