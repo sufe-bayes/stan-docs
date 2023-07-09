@@ -2,7 +2,7 @@
 
 # 基于模拟的校准
 
-翻译者：郭鑫
+翻译贡献者：郭鑫
 
 A Bayesian posterior is calibrated if the posterior intervals have
 appropriate coverage.  For example, 80% intervals are expected to
@@ -15,7 +15,7 @@ is by simulating parameters according to the prior, then simulating
 data conditioned on the simulated parameters, then testing posterior
 calibration of the inference algorithm over independently simulated
 data sets.  This chapter follows @TaltsEtAl:2018, which improves on
-the original approach developed by @CookGelmanRubin:2006.1414
+the original approach developed by @CookGelmanRubin:2006.
 
 如果后验区间具有合适的覆盖范围，那么就校准贝叶斯后验。例如，80%的区间预计在80%的时间内包含真实参数。如果数据是由模型生成的，则通过构建贝叶斯后验推理来校准有关该模型。 基于仿真的校准（SBC）利用贝叶斯推理的这一特性来评估后验采样器的合理性。粗略地说，它的工作方式是根据先验模拟参数，然后模拟以模拟参数为条件的数据，然后在独立模拟的数据集上测试推理算法的后验校准。本章遵循 @TaltsEtAl:2018 ，它改进了 @CookGelmanRubin:2006 开发的原始方法。
 
@@ -25,7 +25,8 @@ the original approach developed by @CookGelmanRubin:2006.1414
 
 Suppose a Bayesian model is given in the form of a prior density
 $p(\theta)$ and sampling density $p(y \mid \theta).$  Now consider
-a process that first simulates parameters from the prior,
+a process that first simulates
+parameters from the prior,
 
 假设贝叶斯模型以先验密度的形式给出$p(\theta)$ 和采样密度 $p(y\mid\theta).$ 现在考虑首先模拟先验参数的过程，
 
@@ -55,14 +56,16 @@ From Bayes's rule, it follows that for any observed (fixed) data $y$,
 $$
 p(\theta \mid y) \propto p(y, \theta).
 $$
-Therefore, the simulated parameters constitute a draw from the posterior for the simulated data,
+Therefore, the simulated parameters constitute a
+draw from the posterior for the simulated data,
 
 因此，模拟参数构成了模拟数据的后验抽样，
 
 $$
 \theta^{\textrm{sim}} \sim p(\theta \mid y^{\textrm{sim}}).
 $$
-Now consider an algorithm that produces a sequence of draws from the posterior given this simulated data,
+Now consider an algorithm that produces a
+sequence of draws from the posterior given this simulated data,
 
 现在考虑一种算法，该算法在给定此模拟数据的情况下从后验生成一系列抽样，
 
@@ -227,7 +230,8 @@ the prior in the first simulation,
 $$
 (\mu^{\textrm{sim(1)}}, \sigma^{\textrm{sim(1)}}) = (1.01, 0.23).
 $$
-Then data $y^{\textrm{sim}(1)} \sim p(y \mid \mu^{\textrm{sim(1)}}, \sigma^{\textrm{sim(1)}})$ is drawn according to the sampling
+Then data $y^{\textrm{sim}(1)} \sim p(y \mid \mu^{\textrm{sim(1)}},
+\sigma^{\textrm{sim(1)}})$ is drawn according to the sampling
 distribution.  Next, $M = 4$ draws are taken from the posterior
 $\mu^{(1,m)}, \sigma^{(1,m)} \sim p(\mu, \sigma \mid y^{\textrm{sim}(1)})$,
 
