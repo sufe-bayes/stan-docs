@@ -1,8 +1,8 @@
-# Sparse and Ragged Data Structures {#sparse-ragged.chapter}
+# Sparse and Ragged Data Structures  {#sparse-ragged.chapter}
 
 # 稀疏与不规则数据结构 {#sparse-ragged.chapter}
 
-翻译者：郭鑫
+翻译贡献者：郭鑫
 
 Stan does not directly support either sparse or ragged data
 structures, though both can be accommodated with some programming
