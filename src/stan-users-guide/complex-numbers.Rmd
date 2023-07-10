@@ -124,7 +124,8 @@ trigonometric functions and their inverse, such as `sin(z)`,
 Promotion also works for complex-valued function arguments, which may
 be passed integer or real values, which will be promoted before the
 function is evaluated.  For example, the following user-defined
-complex function will accept integer, real, or complex arguments.\
+complex function will accept integer, real, or complex arguments.
+
 提升也适用于复值函数的参数，这些参数可以接受整数或实数值，且将在计算函数之前被提升为复数。例如，以下用户定义的复函数将接受整数、实数或复数参数。
 
 ```stan

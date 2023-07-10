@@ -202,6 +202,7 @@ does not report values above 300 pounds.
 ### Estimating censored values {.unnumbered}
 
 ### 估计删失值 {.unnumbered}
+
 One way to model censored data is to treat the censored data as missing
 data that is constrained to fall in the censored range of values. Since
 Stan does not allow unknown values in its arrays or matrices, the
@@ -245,13 +246,9 @@ Although it is wrong to ignore the censored values in estimating
 location and scale, it is not necessary to impute values. Instead, the
 values can be integrated out. Each censored data point has a probability
 of 
-\begin{align*}
-\operatorname{Pr}[y > U]
-  &= \int_U^{\infty} \textsf{normal}\left(y \mid \mu,\sigma \right) \,\textsf{d}y \\
-  &= 1 - \Phi\left(\frac{U - \mu}{\sigma}\right),
-\end{align*}
 
 虽然在估计位置和尺度参数时忽略删失值是错误的，但也没有必要去插补值。相反，可以将这些值通过积分去掉。每个删失数据点的概率为
+
 \begin{align*}
 \operatorname{Pr}[y > U]
   &= \int_U^{\infty} \textsf{normal}\left(y \mid \mu,\sigma \right) \,\textsf{d}y \\
@@ -261,13 +258,9 @@ of
 where $\Phi()$ is the standard normal cumulative distribution function.
 With $M$ censored observations, the total probability on the log scale
 is
-\begin{align*}
-\log \prod_{m=1}^M \operatorname{Pr}[y_m > U]
-  &= \log \left( 1 - \Phi\left(\frac{U - \mu}{\sigma}\right)\right)^{M} \\
-  &= M \times \texttt{normal}\mathtt{\_}\texttt{lccdf}\left(U \mid \mu, \sigma \right),
-\end{align*}
 
 其中$\Phi()$是标准正态累积分布函数。对于 M 个删失的观测值，对数尺度上的总概率为
+
 \begin{align*}
 \log \prod_{m=1}^M \operatorname{Pr}[y_m > U]
   &= \log \left( 1 - \Phi\left(\frac{U - \mu}{\sigma}\right)\right)^{M} \\

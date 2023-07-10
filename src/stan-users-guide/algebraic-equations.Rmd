@@ -32,6 +32,7 @@ As an illustrative example, we consider the following nonlinear system of two eq
 with two unknowns:
 
 作为一个说明性的例子，我们考虑以下具有两个方程的非线性系统，存在两个未知数：
+
 \begin{align*}
 z_1 &= y_1 - \theta_1 \\
 z_2 &= y_1 y_2 + \theta_2
@@ -83,7 +84,6 @@ vector constructor and transposition,
 
 这里的系统函数的主体也可以使用行向量和转置进行编码，
 
-
 ```stan
 return [ y[1] - theta[1],
          y[1] * y[2] - theta[2] ]';
@@ -99,7 +99,7 @@ goes a long way toward readability.
 
 #### Strict signature {-}
 
-#### 严格的署名
+#### 严格的署名{-}
 
 The function defining the system must have exactly these argument types and
 return type. This may require passing in zero-length arrays for data or a zero-length
@@ -153,7 +153,7 @@ which returns $y = (3, -2)$.
 
 ### Data versus parameters {-}
 
-### 数据与参数
+### 数据与参数 {-}
 
 The arguments for the real data `x_r` and
 the integer data `x_i` must be expressions that only involve data or
@@ -165,7 +165,7 @@ must only involve parameters. Note there are no restrictions on the initial gues
 
 ### Length of the algebraic function and of the vector of unknowns {-}
 
-### 代数函数和未知向量的长度
+### 代数函数和未知向量的长度{-}
 
 The Jacobian of the solution with respect to the parameters is computed
 using the implicit function theorem, which imposes certain restrictions. In particular,
