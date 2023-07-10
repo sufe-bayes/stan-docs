@@ -178,7 +178,7 @@ the system is the same as the number of unknowns.*
 
 ### Pathological solutions {-}
 
-### 病理解
+### 病理解 {-}
 
 Certain systems may be degenerate, meaning they have multiple solutions. The
 algebraic solver will not report these cases, as the algorithm stops once it has found
@@ -231,7 +231,6 @@ function tolerance becomes an increasingly difficult criterion to meet, given ea
 individual element of the vector contribute to the norm.
 
 相对容忍度和函数容忍度控制求解器生成的解的精度。相对容忍度是相邻两次迭代结果的差的范数。如果我们将得到的解代入方程，函数容忍度是代数值的范数。此范数应为 0（等价地，向量函数的所有元素均为 0）。从几何角度思考这个问题会有所帮助。理想情况下，代数函数的输出在原点;范数衡量与这一理想的偏差。随着返回向量的长度增加，向量的每个分量都对范数有贡献，给定的某个函数容忍度就会变成一个越来越难以满足的标准。
-
 
 Smaller relative tolerances produce more accurate solutions but require more computational time.\
 较小的相对容忍度产生更精确的解，但需要更多的计算时间。

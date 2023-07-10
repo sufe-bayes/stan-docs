@@ -10,6 +10,7 @@ editor_options:
 
 贡献者：段园家
 
+
 Data in which measurements have been truncated or censored can be coded
 in Stan following their respective probability models.
 
@@ -75,7 +76,6 @@ sampling statements.
 
 此模型默认尺度和位置参数使用不恰当的平坦先验;我们可以使用抽样语句给出其他先验分布。
 
-
 ### Constraints and out-of-bounds returns {-}
 
 ### 约束和越界返回值 {-}
@@ -106,7 +106,6 @@ values of `L` and `U`.
 为了避免变量偏离截断边界，需要加入适当的约束。例如，如果`y`是上述模型中的一个参数，则声明应将其约束为介于
 `L`和`U`之间的值.
 
-
 ``` stan
 parameters {
   array[N] real<lower=L, upper=U> y;
@@ -131,9 +130,15 @@ parameters {
 ```
 
 For pairs of real numbers, the function `fmax` is used rather than
-`max`.\
+`max`.
 
 对于实数对来说，需要使用函数`fmax`而不是`max`。
+
+
+
+
+
+
 
 ### Unknown truncation points {.unnumbered}
 
@@ -182,6 +187,7 @@ to not concentrate `L` strongly around `min(y)` and `U` strongly around
 
 省略号的位置表示边界`L`和`U`的先验,这里需要给定一个富含信息的先验，以便此模型不会将`L`强烈地集中在`min(y)`周围以及`U`不会强烈集中在`max(y)`周围。
 
+
 ## Censored data
 
 ## 删失数据
@@ -229,7 +235,6 @@ values of type `real<lower=U>`, all imputed values for censored data
 will be greater than `U`. The imputed censored data affects the location
 and scale parameters through the last sampling statement in the model.
 
-
 由于删失数据数组`y_cens`被声明为参数，因此它将与位置和尺度参数`mu`和`sigma`一起采样。由于删失数据数组`y_cens`被声明为具有类型为`real<lower=U>`的值，因此删失数据的所有插补值都将大于`U`。估计的删失数据通过模型中的最后一个采样语句来影响位置和尺度参数。
 
 ### Integrating out censored values {.unnumbered}
@@ -240,9 +245,13 @@ Although it is wrong to ignore the censored values in estimating
 location and scale, it is not necessary to impute values. Instead, the
 values can be integrated out. Each censored data point has a probability
 of 
+\begin{align*}
+\operatorname{Pr}[y > U]
+  &= \int_U^{\infty} \textsf{normal}\left(y \mid \mu,\sigma \right) \,\textsf{d}y \\
+  &= 1 - \Phi\left(\frac{U - \mu}{\sigma}\right),
+\end{align*}
 
 虽然在估计位置和尺度参数时忽略删失值是错误的，但也没有必要去插补值。相反，可以将这些值通过积分去掉。每个删失数据点的概率为
-
 \begin{align*}
 \operatorname{Pr}[y > U]
   &= \int_U^{\infty} \textsf{normal}\left(y \mid \mu,\sigma \right) \,\textsf{d}y \\
@@ -251,9 +260,14 @@ of
 
 where $\Phi()$ is the standard normal cumulative distribution function.
 With $M$ censored observations, the total probability on the log scale
-is\
-其中$\Phi()$是标准正态累积分布函数。对于 M 个删失的观测值，对数尺度上的总概率为
+is
+\begin{align*}
+\log \prod_{m=1}^M \operatorname{Pr}[y_m > U]
+  &= \log \left( 1 - \Phi\left(\frac{U - \mu}{\sigma}\right)\right)^{M} \\
+  &= M \times \texttt{normal}\mathtt{\_}\texttt{lccdf}\left(U \mid \mu, \sigma \right),
+\end{align*}
 
+其中$\Phi()$是标准正态累积分布函数。对于 M 个删失的观测值，对数尺度上的总概率为
 \begin{align*}
 \log \prod_{m=1}^M \operatorname{Pr}[y_m > U]
   &= \log \left( 1 - \Phi\left(\frac{U - \mu}{\sigma}\right)\right)^{M} \\
