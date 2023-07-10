@@ -1,6 +1,6 @@
 # Differential-Algebraic Equations {#dae-solver.chapter}
 
-微分代数方程  
+# 微分代数方程 {#dae-solver.chapter}
 
 本章译者：于娇
 
@@ -51,7 +51,7 @@ backward-differentiation formula implementation
 
 ## Notation 
 
-符号
+## 符号
 
 A DAE is defined by a set of expressions for the *residuals* of differential equations and algebraic equations
 $r(y', y, t, \theta)$, and *consistent* initial conditions
@@ -67,7 +67,7 @@ DAE由对应微分方程和代数方程的*残差*表达式$r(y', y, t, \theta)$
  
 ## Example: chemical kinetics 
 
-示例：化学动力学
+## 示例：化学动力学
 
 As an example of a system of DAEs, consider following chemical
 kinetics problem[@robertson_solution:1966]. The nondimensionalized DAE consists of two differential equations
@@ -102,7 +102,7 @@ $$
 
 ## Index of DAEs 
 
-DAEs的指数
+## DAEs的指数
 
 The index along a DAE solution $y(t)$ is the minimum number of
 differentiations of some of the components of the system required to
@@ -123,7 +123,7 @@ differentiations analytically [@ascher_computer:1998].
 
 ## Coding the DAE system function 
 
-DAE系统功能的编码
+## DAE系统功能的编码
 
 The first step in coding an DAE system in Stan is defining the DAE residual
 function. The system functions require a specific signature so that the solvers
@@ -174,7 +174,7 @@ an argument.
 
 ### Strict signature {-}
 
-严格的签名
+### 严格的签名 {-}
 
 The types in the DAE residual function are strict. The first argument is the time
 passed as a `real`, the second argument is the state passed as a `vector`,
@@ -211,7 +211,7 @@ vector my_dae3(real t, vector y);
 
 ## Solving DAEs 
 
-求解DAEs
+## 求解DAEs
 
 Stan provides a `dae` function for solving DAEs, so that the above chemical reaction
 equation can be solved in the following code.
@@ -244,7 +244,7 @@ Since `gamma` is a parameter, the DAE solver is called in the transformed parame
 
 ## Control parameters for DAE solving {#control-dae.section}
 
-用于DAE求解的控制参数
+## 用于DAE求解的控制参数 {#control-dae.section}
 
 Using `dae_tol` one can specify the `relative_tolerance`, `absolute_tolerance`, and
 `max_num_steps` parameters in order to control the DAE solution.
@@ -284,7 +284,7 @@ knowledge of the DAE system or the physics it models is available.
 
 ### Maximum number of steps {-}
 
-最大步数
+### 最大步数 {-}
 
 The maximum number of steps can be used to stop a runaway simulation.
 This can arise in when MCMC moves to a part of parameter space very far from

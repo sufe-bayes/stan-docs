@@ -1,6 +1,6 @@
 # Missing Data and Partially Known Parameters 
 
-缺失数据和部分参数已知
+# 缺失数据和部分参数已知
 
 本章译者：于娇
 
@@ -26,7 +26,7 @@ provided later in the chapter.
 
 ## Missing data 
 
-缺失数据
+## 缺失数据
 
 Stan treats variables declared in the `data` and
 `transformed data` blocks as known and the variables in the
@@ -69,8 +69,8 @@ have needless derivatives calculated.
 
 ## Partially known parameters  {#partially-known-parameters.section}
 
-部分参数已知
-
+## 部分参数已知 {#partially-known-parameters.section}
+ 
 In some situations, such as when a multivariate probability function
 has partially observed outcomes or parameters, it will be necessary to
 create a vector mixing known (data) and unknown (parameter) values.
@@ -136,7 +136,7 @@ it does not need to be included in the sampler's output.
 
 ## Sliced missing data 
 
-切片缺失数据
+## 切片缺失数据
 
 If the missing data are part of some larger data structure, then it can
 often be effectively reassembled using index arrays and slicing.
@@ -208,7 +208,7 @@ coding ragged data structures in Stan).
 
 ## Loading matrix for factor analysis 
 
-用于因子分析的加载矩阵 
+## 用于因子分析的加载矩阵 
 
 Rick Farouni, on the Stan users group, inquired as to how to build
 a Cholesky factor for a covariance matrix with a unit diagonal, as
@@ -262,7 +262,7 @@ adjustment is detailed in the reference manual.
 
 ## Missing multivariate data 
 
-缺失的多变量数据
+## 缺失的多变量数据
 
 It's often the case that one or more components of a multivariate
 outcome are missing.^[This is not the same as missing components of a multivariate predictor in a regression problem; in that case, you will need to represent the missing data as a parameter and impute missing values in order to feed them into the regression.]
