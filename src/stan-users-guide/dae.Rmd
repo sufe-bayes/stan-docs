@@ -212,7 +212,7 @@ vector my_dae3(real t, vector y);
 ```
 
 
-## Solving DAEs 
+## Solving DAEs
 
 ## 求解DAEs
 
