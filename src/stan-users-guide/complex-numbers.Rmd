@@ -1,17 +1,31 @@
 # Complex Numbers
 
+# 复数
+
+贡献者：段园家
+
 Stan supports complex scalars, matrices, and vectors as well as
 real-based ones.
+
+Stan在支持实数的标量、矩阵和向量的同时也支持复数的标量、矩阵和向量。
 
 
 ## Working with complex numbers
 
+## 使用复数
+
 This section describes the complex scalar type, including how to build
 complex numbers, assign them, and use them in arrays and functions.
 
+本节介绍复数标量的类型，包括如何构建复数、分配复数以及在数组和函数中使用复数。
+
 ### Constructing and accessing complex numbers
 
+### 构造和访问复数
+
 Complex numbers can be constructed using imaginary literals.  For example,
+
+复数可以使用虚数单位来构造。例如
 
 ```stan
 complex z = -1.1 + 2.3i;
@@ -24,6 +38,8 @@ function may be used.  For example, the following code will work if
 `x` and `y` are parameters, transformed data, or local variables in a
 function or model block.
 
+生成复数 $-1.1 + 2.3i$。 这仅在实部和虚部是字面量时才有效。 要从任意实变量中构造一个复数，可以使用`to_complex()`函数。 例如，如果`x`和`y`是函数或模型块中的参数、转换数据或局部变量，则以下代码将起作用。
+
 ```stan
 real x = // ...
 real y = // ...
@@ -32,6 +48,8 @@ complex z = to_complex(x, y);
 
 The real and imaginary parts of the complex number can be accessed
 with getters as follows.
+
+复数的实部和虚部可以用`get_`进行访问，如下所示
 
 ```stan
 real x = get_real(z);  // x = -1.1
@@ -43,6 +61,8 @@ not with greater than or less than operators.  For example, after
 running the code above, the following code snippet will print
 "hello".
 
+复数可以使用相等（或不相等）进行比较，但不能使用大于或小于运算符进行比较。 例如，运行上面的代码后，下面的代码片段将打印“hello”。
+
 ```stan
 complex a = 3.2 + 2i;
 complex b = to_complex(3.2, 2);
@@ -52,8 +72,12 @@ if (a == b) print("hello");
 
 ### Complex assignment and promotion
 
+### 复数的分配和晋升
+
 Integer- or real-valued expressions may be assigned to complex
 numbers, with the corresponding imaginary component set to zero.
+
+整数或实值表达式可以分配给复数，相应的虚部设置为零。
 
 ```stan
 complex z1 = 3;  // int promoted to 3 + 0i
@@ -63,8 +87,12 @@ complex z2 = 3.2;  // real promoted to 3.2 + 0.i
 
 ### Complex arrays
 
+### 复数数组
+
 Arrays of complex numbers work as usual and allow the usual
 curly bracket constructors.
+
+复数数组像实数一样且允许使用惯用的大括号进行构造。
 
 ```stan
 complex z1;  complex z2;  complex z3;
@@ -78,8 +106,12 @@ for (z in zs) {
 Complex arrays allow assignment into their elements, with integer or
 real assigned values being promoted to complex.
 
+复数数组允许对其元素进行赋值，整数或实数的赋值可以被提升为复数。
+
 
 ### Complex functions
+
+### 复数函数
 
 All of the standard complex functions are available, including
 natural logarithm `log(z)`, natural exponentiation `exp(z)`, and
@@ -87,10 +119,14 @@ powers `pow(z1, z2)`, as well as all of the trig and hyperbolic
 trigonometric functions and their inverse, such as `sin(z)`,
 `acos(z)`, `tanh(z)` and `asinh(z)`.
 
+所有标准复函数都可用，包括自然对数 `log(z)`、自然指数 `exp(z)` 和幂函数`pow(z1,z2)`，以及所有三角函数和双曲三角函数及其逆函数，如`sin(z)`、`acos(z)`、`tanh(z)` 和 `asinh(z)`。
+
 Promotion also works for complex-valued function arguments, which may
 be passed integer or real values, which will be promoted before the
 function is evaluated.  For example, the following user-defined
 complex function will accept integer, real, or complex arguments.
+
+提升也适用于复值函数的参数，这些参数可以接受整数或实数值，且将在计算函数之前被提升为复数。例如，以下用户定义的复函数将接受整数、实数或复数参数。
 
 ```stan
 complex times_i(complex z) {
@@ -102,13 +138,19 @@ complex times_i(complex z) {
 For instance, `times_i(1)` evaluates to the imaginary base $i$, as
 does `times_i(1.0)`.
 
+例如，`times_i（1）` 的计算结果为虚数$i$，`times_i（1.0）`也是如此。
+
 
 ## Complex random variables
+
+## 复随机变量
 
 The simplest way to model a distribution over a complex random number
 $z = x = yi$ is to consider its real part $x$ and imaginary part $y$
 to have a bivariate normal distribution.  For example, a complex prior
 can be expressed as follows.
+
+对复随机数 $z = x = yi$ 上的分布进行建模的最简单方法是将其实部 $x$ 和虚部 $y$ 视为具有二元正态分布。 例如，一个复数的先验可以表示如下。
 
 ```stan
 complex z;
@@ -123,12 +165,18 @@ covariance Cholesky factor `L_Sigma`.  Alternatively, if `z` is
 a parameter, `mu` and `L_Sigma` may constants defining a prior or
 further parameters defining a hierarchical model.
 
+例如，如果 `z` 是数据，则可用于估计 `mu` 和协方差 Cholesky 因子`L_Sigma`。或者，如果 `z` 是一个参数，则 `mu` 和 `L_Sigma` 可以是定义了一个先验的常数或者定义一个分层模型的参数。
+
 
 ## Complex matrices and vectors
+
+## 复数矩阵和向量
 
 Stan supports complex matrices, vectors, and row vectors.  Variables
 of these types are declared with sizes in the same way as their
 real-based counterparts.
+
+Stan 支持复数矩阵、向量和行向量。 这些类型的变量大小的定义同实数值的相同。
 
 ```stan
 complex_vector[3] v;
@@ -141,6 +189,8 @@ as for real-valued vectors and matrices.  For example, given the
 declaration of `rv` above, we could assign it to a constructed row
 vector.
 
+我们可以使用括号构造向量和矩阵，其方式与实值向量和矩阵相同。 例如，给定上面 `rv` 的声明，我们可以将其分配给一个构造好的行向量。
+
 ```stan
 rv =  [2 + 3i, 1.9 - 2.3i];
 ```
@@ -150,17 +200,25 @@ operations including negation, addition, subtraction, and
 multiplication (division involves a solve, and isn't a simple
 arithmetic operation for matrices).  They also support transposition.
 
+复矩阵和向量支持所有标准的算术运算，包括逻辑非、加法、减法和乘法（除法涉及方程的求解，而不是矩阵之间简单的算术运算）。 它们还支持转置。
+
 Furthermore, it is possible to convert back and forth between arrays
 and matrices using the `to_array` functions.
 
+此外，可以使用`to_array`函数在数组和矩阵之间来回转换。
+
 
 ## Complex linear regression
+
+## 复线性回归
 
 Complex valued linear regression with complex predictors and
 regression coefficients looks just like standard regression.  For
 example, if we take `x` to be predictors, `y` to be an array of
 outcomes.  For example, consider the following complete Stan program
 for an intercept and slope.
+
+具有复预测变量和回归系数的复值线性回归看起来就像标准回归一样。例如，如果我们把`x`作为预测因子，`y`是结果的数组。例如，考虑以下用于截距和斜率的完整 Stan 程序。
 
 ```stan
 data {
@@ -183,12 +241,18 @@ there are several alternatives.  We consider only two simple
 alternatives, and do not consider penalizing the absolute value of the
 error.
 
+问题仍然是如何给出误差分布。我们有几种选择方案，这里只考虑两种简单的方案，不考虑去惩罚误差的绝对值。
+
 
 ### Independent real and imaginary error
+
+### 独立的实部误差和虚部误差
 
 The simplest approach to error in complex regression is to give the
 real and imaginary parts of `eps_n` independent
 independent normal distributions, as follows.
+
+在复回归中最简单的误差设定是假设`eps_n`的实部和虚部服从独立的正态分布，如下所示。
 
 ```stan
 parameters {
@@ -207,13 +271,19 @@ model {
 A new error scale vector `sigma` is introduced, and it should itself
 get a prior based on the expected scale of error for the problem.
 
+引入了一个新的误差尺度向量`sigma`，它本身应该根据问题的预期误差尺度给出一个先验。
+
 
 ### Dependent complex error
+
+### 相依的复数误差
 
 The next simplest approach is to treat the real and imaginary parts of
 the complex number as having a multivariate normal prior.  This can be
 done by adding a parameter for correlation to the above, or just
 working with a multivariate covariance matrix, as we do here.
+
+下一个最简单的方法是将复数的实部和虚部视为服从多元正态的先验。这可以在上一部分添加一个协方差参数来实现，或者只是使用多元协方差矩阵，如下所示。
 
 ```stan
 parameters {
@@ -243,3 +313,5 @@ prior on the correlations is concentrated loosely around diagonal
 covariance, and the prior on the scales is left open.  In order to
 vectorize the call to `multi_normal_cholesky`, the vector of complex
 numbers needs to be converted to an array of size 2 vectors.
+
+在这里，误差的实部和虚部是具有相关和独立尺度的联合分布。该误差服从均值为零的多元正态分布和一个Cholesky因子协方差表示，其由尺度向量`sigma`和Cholesky因子或相关矩阵`L_Omega`构成。相关性的先验松散地分布在对角协方差附近，尺度上的先验未被指定。为了对`multi_normal_cholesky`的调用进行矢量化操作，需要将复数向量转换为大小为 2 的向量数组。
