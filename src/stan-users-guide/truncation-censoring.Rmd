@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # Truncated or Censored Data
 
 # 截断或者删失数据
@@ -11,12 +5,12 @@ editor_options:
 贡献者：段园家
 
 
-Data in which measurements have been truncated or censored can be coded
-in Stan following their respective probability models.
+Data in which measurements have been truncated or censored can be
+coded in Stan following their respective probability models.
 
 存在截断或删失的数据可以在 Stan 中按照各自的概率模型进行编程。
 
-## Truncated distributions {#truncation.section} 
+## Truncated distributions {#truncation.section}
 
 ## 截断分布 {#truncation.section} 
 
@@ -34,17 +28,17 @@ Stan 中的截断仅限于具有相应对数累积分布函数 （CDF） 和对�
 
 ## 截断数据 {#truncated-data.section}
 
-Truncated data are data for which measurements are only reported if they
-fall above a lower bound, below an upper bound, or between a lower and
-upper bound.
+Truncated data are data for which measurements are only reported if
+they fall above a lower bound, below an upper bound, or between a
+lower and upper bound.
 
 截断数据是指仅当数据值高于某个下限、低于某个上限或介于下限和上限之间时才可以被观测到的数据。
 
-Truncated data may be modeled in Stan using truncated distributions. For
-example, suppose the truncated data are $y_n$ with an upper truncation
-point of $U = 300$ so that $y_n < 300$. In Stan, this data can be
-modeled as following a truncated normal distribution for the
-observations as follows.
+Truncated data may be modeled in Stan using truncated distributions.
+For example, suppose the truncated data are $y_n$ with an upper
+truncation point of $U = 300$ so that $y_n < 300$.  In Stan, this
+data can be modeled as following a truncated normal distribution for
+the observations as follows.
 
 截断数据可以在Stan中使用截断分布进行建模。例如，假设截断的数据是$y_n$，截断点的上限为$U=300$，因此有$y_n<300$。在Stan中，可以将此数据建模成一个如下的带有截断的正态分布。
 
@@ -63,16 +57,16 @@ model {
 }
 ```
 
-The model declares an upper bound `U` as data and constrains the data
-for `y` to respect the constraint; this will be checked when the data
-are loaded into the model before sampling begins.
+The model declares an upper bound `U` as data and constrains
+the data for `y` to respect the constraint;  this will be checked
+when the data are loaded into the model before sampling begins.
 
 该模型将上限 `U` 声明为数据，并要求 y
 产生的数据服从约束;在开始采样之前将数据加载到模型中时，将对此进行检查。
 
 This model implicitly uses an improper flat prior on the scale and
 location parameters; these could be given priors in the model using
-sampling statements. 
+sampling statements.
 
 此模型默认尺度和位置参数使用不恰当的平坦先验;我们可以使用抽样语句给出其他先验分布。
 
@@ -87,21 +81,21 @@ statement.
 
 如果截断分布中的采样变量位于截断范围之外，则概率为零，因此概率对数值的计算结果为 $-\infty$。例如，如果使用下面的语句对变量`y`进行采样，
 
-``` stan
+```stan
 y ~ normal(mu, sigma) T[L, U];
 ```
 
-then if any value inside `y` is less than the value of `L` or greater
-than the value of `U`, the sampling statement produces a
-zero-probability estimate. For user-defined truncation, this zeroing
-outside of truncation bounds must be handled explicitly.
+then if any value inside `y` is less than the value of `L`
+or greater than the value of `U`, the sampling statement produces
+a zero-probability estimate.  For user-defined truncation, this
+zeroing outside of truncation bounds must be handled explicitly.
 
 如果 `y` 中的任何值小于`L`或大于`U`，则采样语句将生成一个零概率的估计。对于用户定义的截断，我们必须要显式地处理截断边界之外的这种归零。
 
 To avoid variables straying outside of truncation bounds, appropriate
-constraints are required. For example, if `y` is a parameter in the
-above model, the declaration should constrain it to fall between the
-values of `L` and `U`.
+constraints are required.  For example, if `y` is a parameter in
+the above model, the declaration should constrain it to fall between
+the values of `L` and `U`.
 
 为了避免变量偏离截断边界，需要加入适当的约束。例如，如果`y`是上述模型中的一个参数，则声明应将其约束为介于
 `L`和`U`之间的值.
@@ -113,12 +107,13 @@ parameters {
 }
 ```
 
-If in the above model, `L` or `U` is a parameter and `y` is data, then
-`L` and `U` must be appropriately constrained so that all data are in
-range and the value of `L` is less than that of `U` (if they are equal,
-the parameter range collapses to a single point and the Hamiltonian
-dynamics used by the sampler break down). The following declarations
-ensure the bounds are well behaved.
+If in the above model, `L` or `U` is a parameter and
+`y` is data, then `L` and `U` must be appropriately
+constrained so that all data are in range and the value of `L` is
+less than that of `U` (if they are equal, the parameter range
+collapses to a single point and the Hamiltonian dynamics used by
+the sampler break down).  The following declarations ensure the bounds
+are well behaved.
 
 如果在上述模型中，`L`或`U`是参数,`y`是数据，则必须适当约束`L`和`U`，以便所有数据都在范围内，并且`L`的值小于`U`的值（如果它们相等，
 参数范围就坍缩到一个点，采样时使用的哈密顿动力学方法就会失效）。以下的声明可确保边界表现良好。
@@ -129,8 +124,8 @@ parameters {
   real<lower=fmax(L, max(y))> U;  // L < U; y[n] < U
 ```
 
-For pairs of real numbers, the function `fmax` is used rather than
-`max`.
+For pairs of real numbers, the function `fmax` is used
+rather than `max`.
 
 对于实数对来说，需要使用函数`fmax`而不是`max`。
 
@@ -140,14 +135,14 @@ For pairs of real numbers, the function `fmax` is used rather than
 
 
 
-### Unknown truncation points {.unnumbered}
+### Unknown truncation points {-}
 
-### 截断点未知 {.unnumbered}
+### 截断点未知 {-}
 
 If the truncation points are unknown, they may be estimated as
-parameters. This can be done with a slight rearrangement of the variable
-declarations from the model in the previous section with known
-truncation points.
+parameters.  This can be done with a slight rearrangement of the
+variable declarations from the model in the previous section with
+known truncation points.
 
 如果截断点未知，则可以将其作为参数进行估计。这可以通过对上一节中已知截断点的模型中的变量声明进行微小的重排来完成。
 
@@ -168,22 +163,21 @@ model {
   y ~ normal(mu, sigma) T[L, U];
 }
 ```
-
-Here there is a lower truncation point `L` which is declared to be less
-than or equal to the minimum value of `y`. The upper truncation point
-`U` is declared to be larger than the maximum value of `y`. This
-declaration, although dependent on the data, only enforces the
-constraint that the data fall within the truncation bounds. With `N`
-declared as type `int<lower=1>`, there must be at least one data point.
-The constraint that `L` is less than `U` is enforced indirectly, based
-on the non-empty data.
+Here there is a lower truncation point `L` which is declared to
+be less than or equal to the minimum value of `y`.  The upper
+truncation point `U` is declared to be larger than the maximum
+value of `y`.  This declaration, although dependent on the data,
+only enforces the constraint that the data fall within the truncation
+bounds.  With `N` declared as type `int<lower=1>`, there must be
+at least one data point.  The constraint that `L` is less than
+`U` is enforced indirectly, based on the non-empty data.
 
 在这，有一个下截断点`L`，它被声明小于或等于`y`的最小值。上截断点`U`被声明大于`y`的最大值。尽管此声明依赖于数据，但也仅仅是强制数据落在截断边界内。将`N`声明为类型`int<lower=1>`是指至少有一个数据点。`L`小于`U`的约束基于非空数据便间接给定了。
 
-The ellipses where the priors for the bounds `L` and `U` should go
-should be filled in with a an informative prior in order for this model
-to not concentrate `L` strongly around `min(y)` and `U` strongly around
-`max(y)`.
+The ellipses where the priors for the bounds `L` and `U`
+should go should be filled in with a an informative prior in
+order for this model to not concentrate `L` strongly around
+`min(y)` and `U` strongly around `max(y)`.
 
 省略号的位置表示边界`L`和`U`的先验,这里需要给定一个富含信息的先验，以便此模型不会将`L`强烈地集中在`min(y)`周围以及`U`不会强烈集中在`max(y)`周围。
 
@@ -193,21 +187,21 @@ to not concentrate `L` strongly around `min(y)` and `U` strongly around
 ## 删失数据
 
 Censoring hides values from points that are too large, too small, or
-both. Unlike with truncated data, the number of data points that were
-censored is known. The textbook example is the household scale which
+both.  Unlike with truncated data, the number of data points that were
+censored is known.  The textbook example is the household scale which
 does not report values above 300 pounds.
 
 删失会掩盖太大、太小或两者兼而有之的点的值。与截断数据不同，被删减的数据点数量是已知的。教科书的例子是家用秤，它不报告超过300磅的值。
 
-### Estimating censored values {.unnumbered}
+### Estimating censored values {-}
 
-### 估计删失值 {.unnumbered}
+### 估计删失值 {-}
 
-One way to model censored data is to treat the censored data as missing
-data that is constrained to fall in the censored range of values. Since
-Stan does not allow unknown values in its arrays or matrices, the
-censored values must be represented explicitly, as in the following
-right-censored case.
+One way to model censored data is to treat the censored data as
+missing data that is constrained to fall in the censored range of
+values.  Since Stan does not allow unknown values in its arrays or
+matrices, the censored values must be represented explicitly, as in the
+following right-censored case.
 
 对删失数据进行建模的一种方法是将删失数据视为被限制在删失值范围内的缺失数据。由于 Stan 不允许在其数组或矩阵中使用未知值，因此必须显式表示删失值，如以下右删失情况所示。
 
@@ -229,23 +223,24 @@ model {
 }
 ```
 
-Because the censored data array `y_cens` is declared to be a parameter,
-it will be sampled along with the location and scale parameters `mu` and
-`sigma`. Because the censored data array `y_cens` is declared to have
-values of type `real<lower=U>`, all imputed values for censored data
-will be greater than `U`. The imputed censored data affects the location
-and scale parameters through the last sampling statement in the model.
+Because the censored data array `y_cens` is declared to be a parameter, it
+will be sampled along with the location and scale parameters `mu`
+and `sigma`.  Because the censored data array `y_cens` is
+declared to have values of type `real<lower=U>`, all imputed values
+for censored data will be greater than `U`.  The imputed censored
+data affects the location and scale parameters through the last
+sampling statement in the model.
 
 由于删失数据数组`y_cens`被声明为参数，因此它将与位置和尺度参数`mu`和`sigma`一起采样。由于删失数据数组`y_cens`被声明为具有类型为`real<lower=U>`的值，因此删失数据的所有插补值都将大于`U`。估计的删失数据通过模型中的最后一个采样语句来影响位置和尺度参数。
 
-### Integrating out censored values {.unnumbered}
+### Integrating out censored values {-}
 
-### 积分去掉删失值 {.unnumbered}
+### 积分去掉删失值 {-}
 
 Although it is wrong to ignore the censored values in estimating
-location and scale, it is not necessary to impute values. Instead, the
-values can be integrated out. Each censored data point has a probability
-of 
+location and scale, it is not necessary to impute values.  Instead,
+the values can be integrated out.  Each censored data point has a
+probability of
 
 虽然在估计位置和尺度参数时忽略删失值是错误的，但也没有必要去插补值。相反，可以将这些值通过积分去掉。每个删失数据点的概率为
 
@@ -267,16 +262,16 @@ is
   &= M \times \texttt{normal}\mathtt{\_}\texttt{lccdf}\left(U \mid \mu, \sigma \right),
 \end{align*}
 
-where `normal_lccdf` is the log of complementary CDF (Stan provides
-`<distr>_lccdf` for each distribution implemented in Stan).
+where `normal_lccdf` is the log of complementary CDF
+(Stan provides `<distr>_lccdf` for each distribution
+implemented in Stan).
 
 其中`normal_lccdf`是互补的 CDF 的日志（Stan 为 Stan当中实现的每个分布提供了`<distr>_lccdf`）。
 
-The following right-censored model assumes that the censoring point is
-known, so it is declared as data.
+The following right-censored model assumes
+that the censoring point is known, so it is declared as data.
 
-以下右删失模型假定删失点为
-已知，因此其被声明为数据。
+以下右删失模型假定删失点为已知，因此其被声明为数据。
 
 ``` stan
 data {
@@ -295,17 +290,17 @@ model {
 }
 ```
 
-For the observed values in `y_obs`, the normal sampling model is used
-without truncation. The log probability is directly incremented using
-the calculated log cumulative normal probability of the censored data
-items.
+For the observed values in `y_obs`, the normal sampling model is
+used without truncation.  The log probability is directly incremented
+using the calculated log cumulative normal probability of the censored
+data items.
 
 对于`y_obs`中的观测值，使用了没有截断的正态分布进行抽样。对计算出的删失数据项的对数累积正态分布概率进行加和得到最终的对数概率值。
 
-For the left-censored data the CDF (`normal_lcdf`) has to be used
-instead of complementary CDF. If the censoring point variable (`L`) is
-unknown, its declaration should be moved from the data to the parameters
-block.
+For the left-censored data the CDF (`normal_lcdf`) has to be
+used instead of complementary CDF.  If the censoring point variable
+(`L`) is unknown, its declaration should be moved from the data
+to the parameters block.
 
 对于左删失的数据，必须使用CDF（`normal_lcdf`）而不是互补的CDF。如果删失点变量（`L`）未知，则应将其声明从数据移动到参数块。
 
