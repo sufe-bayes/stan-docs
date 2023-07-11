@@ -1,4 +1,4 @@
-# Missing Data and Partially Known Parameters 
+# Missing Data and Partially Known Parameters
 
 # 缺失数据和部分参数已知
 
@@ -24,7 +24,7 @@ provided later in the chapter.
 
 混合观察和缺失数据的数组可能很难包含在Stan中，这在一定程度上是因为在Stan中建模离散未知数可能很棘手，而且与某些其他统计语言（例如R和Bugs）不同，在Stan中要求观测量和未知量在模型中分别定义。因此，可能需要在Stan程序中添加代码来拼接数据结构的观测部分和缺失部分。本章后面提供了示例。
 
-## Missing data 
+## Missing data
 
 ## 缺失数据
 
@@ -67,7 +67,7 @@ have needless derivatives calculated.
 
 观测到的和缺失的数据点的数量被编码为具有非负整数变量`N_obs`和`N_mis`的数据。观测数据被提供为数组数据变量`y_obs`。缺失数据编码为一个数组参数`y_mis`。被估计的普通参数包括位置`mu`和尺度`sigma`，它们也被编码为参数。该模型在观测和缺失数据上进行向量化；在这种情况下将它们组合起来效率会更低，因为数据观察值会被提升并且需要计算不必要的导数。
 
-## Partially known parameters  {#partially-known-parameters.section}
+## Partially known parameters {#partially-known-parameters.section}
 
 ## 部分参数已知 {#partially-known-parameters.section}
  
@@ -134,7 +134,7 @@ it does not need to be included in the sampler's output.
 
 这里，多元正态的矢量化对效率至关重要。如果不需要将转换后的参数`Sigma`包含在采样器的输出中，则可以在模型块中将其定义为局部变量。
 
-## Sliced missing data 
+## Sliced missing data
 
 ## 切片缺失数据
 
@@ -206,7 +206,7 @@ coding ragged data structures in Stan).
 
 其中相关变量都是硬编码为索引`2`，因为Stan不支持不规则数组。这些变量可以通过更精细的索引打包到一个数组中，从更长的向量中分割出向量（请参阅[ragged data structures section](#ragged-data-structs.section)，了解Stan中对不规则数据结构化编码的一般讨论）。 
 
-## Loading matrix for factor analysis 
+## Loading matrix for factor analysis
 
 ## 用于因子分析的加载矩阵 
 
@@ -260,7 +260,7 @@ adjustment is detailed in the reference manual.
 最方便的是直接在`L_lower`上放置先验。另一种选择是对完整的Cholesky因子`L`进行先验分布，因为从`L_lower`到`L`的变换仅仅是一个恒等变换，因此不需要雅可比调整（尽管解析器发出了警告，它无法聪明到通过代码分析推断出变换是线性的）。在完整的协方差矩阵`L
   * L'`上放置先验分布不是很方便，因为这需要雅可比调整；精确的调整在参考手册中有详细说明。
 
-## Missing multivariate data 
+## Missing multivariate data
 
 ## 缺失的多变量数据
 
