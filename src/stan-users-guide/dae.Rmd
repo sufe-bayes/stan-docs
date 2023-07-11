@@ -201,10 +201,13 @@ but these are not allowed:
 但这些是不允许的：
 ```stan
 vector my_dae1(real t, array[] real y, vector yp); 
+// Second argument is not a vector
 // 第二个参数不是一个`vector`
 array[] real my_dae2(real t, vector y, vector yp); 
+// Return type is not a vector
 // 返回类型不是`vector`
 vector my_dae3(real t, vector y); 
+// First argument is not a real and missing the third argument
 // 第一个参数不是`real`，并且缺少第三个参数
 ```
 
