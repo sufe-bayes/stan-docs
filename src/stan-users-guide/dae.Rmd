@@ -1,4 +1,4 @@
-# Differential-Algebraic Equations {#dae-solver.chapter}
+# Differential-Algebraic Equations  {#dae-solver.chapter}
 
 # 微分代数方程 {#dae-solver.chapter}
 
@@ -49,7 +49,7 @@ backward-differentiation formula implementation
 
 在内部，Stan的DAE求解器使用变步长、变阶数、向后差分公式实现[@CohenHindmarsh:1996; @SerbanHindmarsh:2005]。
 
-## Notation 
+## Notation
 
 ## 符号
 
@@ -65,7 +65,7 @@ DAE由对应微分方程和代数方程的*残差*表达式$r(y', y, t, \theta)$
 所定义。令残差函数$r(y', y, t, \theta)=0$可以用来定义DAE。符号中包含$\theta$的原因是为了强调解$y(t)$是与计算中使用的任何参数有关的函数。
 
  
-## Example: chemical kinetics 
+## Example: chemical kinetics
 
 ## 示例：化学动力学
 
@@ -100,7 +100,7 @@ $$
 r(y'(t_0), y(t_0), t_0) = 0
 $$
 
-## Index of DAEs 
+## Index of DAEs
 
 ## DAEs的指数
 
@@ -121,7 +121,7 @@ differentiations analytically [@ascher_computer:1998].
 
 大多数DAE求解器（包括Stan中的求解器）仅支持指数为1的DAEs。对于高指数DAE问题，用户必须首先将其转换为较低指数系统，这通常可以通过进行解析微分来完成[@ascher_computer:1998]。
 
-## Coding the DAE system function 
+## Coding the DAE system function
 
 ## DAE系统功能的编码
 
