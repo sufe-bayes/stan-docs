@@ -519,7 +519,9 @@ in each school.
 层次贝叶斯元分析，用于研究八所学校中 Scholastic Aptitude Test (SAT) 
 辅导的处理效果。
 
-#### Extensions and alternatives 扩展和替代方案 {-}
+#### Extensions and alternatives {-}
+
+#### 扩展和替代方案 {-}
 
 @SmithSpiegelhalterThomas:1995 and @GelmanEtAl:2013[, Section 19.4]
 provide meta-analyses based directly on binomial data.
