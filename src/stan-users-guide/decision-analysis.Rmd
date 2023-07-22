@@ -1,4 +1,8 @@
-# Decision Analysis 决策分析
+# Decision Analysis 
+
+# 决策分析
+
+翻译贡献者：马桢
 
 Statistical decision analysis is about making decisions under
 uncertainty.  In order to make decisions, outcomes must have some
@@ -8,12 +12,11 @@ equivalently, minimizes expected loss).  This chapter shows how Stan
 can be used to simultaneously estimate the distribution of outcomes
 based on decisions and compute the required expected utilities.
 
-统计决策分析是关于在不确定性下做出决策。为了做出决策，结果必须与
-某种“效用”概念相关联。所谓的“贝叶斯最优”决策是最大化期望效用
-（或等价地，最小化期望损失）的决策。本章展示了如何使用Stan同时估计
-基于决策的结果的分布并计算所需的期望效用。
+统计决策分析是关于在不确定性下做出决策。为了做出决策，结果必须与某种“效用”概念相关联。所谓的“贝叶斯最优”决策是最大化期望效用（或等价地，最小化期望损失）的决策。本章展示了如何使用Stan同时估计基于决策的结果的分布并计算所需的期望效用。
 
-## Outline of decision analysis 决策分析概要
+## Outline of decision analysis 
+
+## 决策分析概要
 
 Following @GelmanEtAl:2013, Bayesian decision analysis can be
 factored into the following four steps. 
@@ -22,22 +25,25 @@ factored into the following four steps.
 
 1. Define a set $X$ of possible outcomes and a set $D$ of possible
 decisions.
+
 将所有可能的结果定义为集合$X$，将所有可能的决策定义为集合$D$。
 
 2.  Define a probability distribution of outcomes conditional on
 decisions through a conditional density function $p(x \mid d)$
 for $x \in X$ and $d \in D.$
-用条件密度函数$p(x \mid d)$，$x \in X$且$d \in D.$，定义以决策为条件
-的结果的概率分布。
+
+用条件密度函数$p(x \mid d)$，$x \in X$且$d \in D.$，定义以决策为条件的结果的概率分布。
 
 3.  Define a utility function $U : X \rightarrow \mathbb{R}$ mapping
 outcomes to their utility.
+
 定义效用函数$U : X \rightarrow \mathbb{R}$，将各种结果映射到它们的效用上。
 
 4.  Choose action $d^* \in D$ with highest expected utility,
 $$
 d^* = \textrm{arg max}_d \ \mathbb{E}[U(x) \mid d].
 $$
+
 选择具有最高期望效用的决策$d^* \in D$
 
 The outcomes should represent as much information as possible that is
@@ -49,13 +55,11 @@ example, the utility of money is usually assumed to be strictly
 concave rather than linear (i.e., the marginal utility of getting
 another unit of money decreases the more money one has).
 
-结果应尽可能多地体现与效用相关的信息。在贝叶斯决策分析中，
-结果的分布通常是一个给定观察数据的后验预测分布。在心理学和经济学中，
-有大量有关定义效用函数的文献。例如，金钱的效用通常被认为是严格凹的，
-而不是线性的
-（即每多得到一单位的金钱的边际效用会随着金钱的增加而减少）。
+结果应尽可能多地体现与效用相关的信息。在贝叶斯决策分析中，结果的分布通常是一个给定观察数据的后验预测分布。在心理学和经济学中，有大量有关定义效用函数的文献。例如，金钱的效用通常被认为是严格凹的，而不是线性的（即每多得到一单位的金钱的边际效用会随着金钱的增加而减少）。
 
-## Example decision analysis 决策分析示例
+## Example decision analysis
+
+## 决策分析示例
 
 This section outlines a very simple decision analysis for a commuter
 deciding among modes of transportation to get to work: walk, bike
@@ -66,14 +70,11 @@ time.  Over the year, such a commuter might accumulate two hundred
 observations of the time it takes to get to work given a choice of
 commute mode.
 
-本节介绍了一个非常简单的决策分析，用于帮助一位通勤者在步行、
-共享单车、公共交通或出租车等不同交通方式中做出选择。
-假设这位通勤者在过去一年中已经尝试了各种交通方式，
-并且在这段时间内交通条件和费用都没有变化。在这一年内，
-这个通勤者可能已经累积两百条关于不同通勤方式所需到达
-工作地点的时间的观察数据。
+本节介绍了一个非常简单的决策分析，用于帮助一位通勤者在步行、共享单车、公共交通或出租车等不同交通方式中做出选择。假设这位通勤者在过去一年中已经尝试了各种交通方式，并且在这段时间内交通条件和费用都没有变化。在这一年内，这个通勤者可能已经累积两百条关于不同通勤方式所需到达工作地点的时间的观察数据。
 
-### Step 1. Define decisions and outcomes 定义决策和结果 {-}
+### Step 1. Define decisions and outcomes {-}
+
+### Step 1. 定义决策和结果 {-}
 
 A decision consists of the choice of commute mode and the outcome is a
 time and cost.  More formally,
@@ -83,16 +84,20 @@ time and cost.  More formally,
 * the set of decisions is $D = 1:4$, corresponding to the commute
   types walking, bicycling, public transportation, and cab,
   respectively, and
-  决策的集合是$D = 1:4$，分别对应于步行、自行车、公共交通和
+
+* 决策的集合是$D = 1:4$，分别对应于步行、自行车、公共交通和
   出租车等通勤类型，并且
 
 * the set of outcomes $X = \mathbb{R} \times \mathbb{R}_+$ contains
   pairs of numbers $x = (c, t)$ consisting of a cost $c$ and
   time $t \geq 0$.
-  结果的集合$X = \mathbb{R} \times \mathbb{R}_+$包含由费用$c$和
+
+* 结果的集合$X = \mathbb{R} \times \mathbb{R}_+$包含由费用$c$和
   时间$t \geq 0$组成的成对数字$x = (c, t)$。
 
-### Step 2. Define density of outcome conditioned on decision 定义以决策为条件的结果密度 {-}
+### Step 2. Define density of outcome conditioned on decision {-}
+
+### Step 2. 定义以决策为条件的结果密度 {-}
 
 The density required is $p(x \mid d),$ where $d \in D$ is a decision and
 $x = (c, t) \in X$ is an outcome.  Being a statistical decision
@@ -143,8 +148,7 @@ $\mu_2$ and $\sigma_2$ are the lognormal parameters for bicycling.
 $$
 t_n \sim \textrm{lognormal}(\mu_{d[n]}, \sigma_{d[n]}).
 $$
-为了理解符号$d_n$，也可写成$d[n]$，指行程$n$使用的交通工具。
-例如，如果行程$n$是骑自行车的，那么
+为了理解符号$d_n$，也可写成$d[n]$，指行程$n$使用的交通工具。例如，如果行程$n$是骑自行车的，那么
 $t_n \sim \textrm{lognormal}(\mu_2, \sigma_2)，$
 其中$\mu_2$和$\sigma_2$是骑自行车的对数正态参数。
 
@@ -163,9 +167,7 @@ here the commutes are taken to be exchangeable.
 \mu_k & \sim & \textrm{normal}(0, 5)
 \\[2pt]
 \sigma_k & \sim & \textrm{lognormal}(0, 1).
-\end{eqnarray*} 这些先验和广泛的通勤时间一致；在一个更现实的模型中，
-基于对城市的了解和一天中的时间作为协变量，每种通勤方式都有自己的先验；
-而此处通勤被认为是可交换的。
+\end{eqnarray*} 这些先验和广泛的通勤时间一致；在一个更现实的模型中，基于对城市的了解和一天中的时间作为协变量，每种通勤方式都有自己的先验；而此处通勤被认为是可交换的。
 
 Cost is usually a constant function for public transportation,
 walking, and bicycling.  Nevertheless, for simplicity, all costs will
@@ -183,8 +185,7 @@ A more realistic approach would model cost conditional on time,
 because the cost of a cab depends on route chosen and the time it
 takes.
 
-对于公共交通、步行和骑自行车来说，费用通常是一个常函数。然而，
-为了简单起见，所有的成本将被建模为服从对数正态分布，
+对于公共交通、步行和骑自行车来说，费用通常是一个常函数。然而，为了简单起见，所有的成本将被建模为服从对数正态分布，
 $$
 c_n \sim \textrm{lognormal}(\nu_{d[n]}, \tau_{d[n]}).
 $$ 
@@ -193,8 +194,7 @@ $$
 \nu_k & \sim & \textrm{normal}(0, 5)
 \\[2pt]
 \tau_k & \sim & \textrm{lognormal}(0, 1).
-\end{eqnarray*} 一个更现实的方法是以时间为条件来对费用建模，
-因为出租车的费用取决于所选择的路线和所花费的时间。
+\end{eqnarray*} 一个更现实的方法是以时间为条件来对费用建模，因为出租车的费用取决于所选择的路线和所花费的时间。
 
 The full set of parameters that are marginalized in the posterior
 predictive distribution is
@@ -207,7 +207,9 @@ $$
 \theta = (\mu_{1:4}, \sigma_{1:4}, \nu_{1:4}, \tau_{1:4}).
 $$
 
-### Step 3. Define the utility function 定义效用函数 {-}
+### Step 3. Define the utility function {-}
+
+### Step 3. 定义效用函数 {-}
 
 For the sake of concreteness, the utility function will be assumed to
 be a simple function of cost and time.  Further suppose the commuter
@@ -223,18 +225,16 @@ being late, different costs for different modes of transportation
 because of their comfort and environmental impact, and non-linearity
 of utility in cost.
 
-为了使问题更具体，我们假设效用函数是成本和时间的简单函数。
-进一步假设通勤者将通勤时间价值设定为每小时25美元，
-效用函数关于通勤成本和时间是线性的。那么这个效用函数可以定义为 
+为了使问题更具体，我们假设效用函数是成本和时间的简单函数。进一步假设通勤者将通勤时间价值设定为每小时25美元，效用函数关于通勤成本和时间是线性的。那么这个效用函数可以定义为 
 $$
 U(c, t) = -(c + 25 \cdot t).
 $$ 
-这个符号是负的，因为高成本是不可取的。一个更好的效用函数可能会
-有一个阶梯函数或增加上班迟到的成本，不同的交通方式因其舒适度和
-环境影响而有不同的成本，以及效用关于成本是非线性的。
+这个符号是负的，因为高成本是不可取的。一个更好的效用函数可能会有一个阶梯函数或增加上班迟到的成本，不同的交通方式因其舒适度和环境影响而有不同的成本，以及效用关于成本是非线性的。
 
 
-### Step 4. Maximize expected utility 最大化期望效用 {-}
+### Step 4. Maximize expected utility {-}
+
+### Step 4. 最大化期望效用 {-}
 
 At this point, all that is left is to calculate expected utility for
 each decision and choose the optimum.  If the decisions
@@ -301,17 +301,13 @@ would have to be hardcoded or read in as data, `nu` and
 `tau` would be declared as univariate, and the RNG for cost would only
 be employed when `k == 4`.
 
-为了简单起见，在最初的表述中，全部的四个通勤方案都有其成本估计，
-尽管其中三个方案的成本是固定的。为了处理某些成本是固定的这一事实，
-成本必须被硬编码或作为数据读入，`nu`和`tau`将被声明为单变量，
-而成本的RNG只在`k == 4`时被采用。
+为了简单起见，在最初的表述中，全部的四个通勤方案都有其成本估计，尽管其中三个方案的成本是固定的。为了处理某些成本是固定的这一事实，成本必须被硬编码或作为数据读入，`nu`和`tau`将被声明为单变量，而成本的RNG只在`k == 4`时被采用。
 
 Defining the utility function for pairs of vectors would allow the
 random number generation in the generated quantities block to be
 vectorized.
 
-为成对的向量定义效用函数将使generated quantities模块中的
-随机数生成被向量化。
+为成对的向量定义效用函数将使generated quantities模块中的随机数生成被向量化。
 
 All that is left is to run Stan. The posterior mean for `util[k]`
 is the expected utility, which written out with full conditioning, is
@@ -337,8 +333,7 @@ $$
 \sim p(\theta \mid d^{\textrm{obs}}, x^{\textrm{obs}}).
 $$
 
-剩下的就是运行Stan。`util[k]`的后验均值是期望效用，
-用完整的条件写出来，就是
+剩下的就是运行Stan。`util[k]`的后验均值是期望效用，用完整的条件写出来，就是
 \begin{eqnarray*}
 \mathbb{E}\!\left[U(x) \mid d = k, d^{\textrm{obs}}, x^{\textrm{obs}}\right]
 & = &
@@ -376,7 +371,9 @@ through Stan's interfaces.
 的最高后验均值的选择。这可以从Stan的汇总统计中的`mean`栏中读出，
 也可以通过Stan的接口以编程方式访问。
 
-## Continuous choices 连续选择
+## Continuous choices 
+
+## 连续选择
 
 Many choices, such as how much to invest for retirement or how long to
 spend at the gym are not discrete, but continuous.  In these cases,
@@ -388,9 +385,4 @@ difficult without gradient information.  Gradients could be supplied
 by automatic differentiation, but Stan is not currently instrumented
 to calculate those derivatives.
 
-许多选择，例如为退休投资多少钱或在健身房花多长时间，都不是离散的，
-而是连续的。在这些情况下，连续选择可以被编码为Stan程序中的数据。
-然后可以计算期望效用。换句话说，Stan可以被用作从选择到期望效用的函数。
-然后，外部优化器可以调用该函数。如果没有梯度信息，
-这种优化可能会变得困难。梯度可以通过自动微分来提供，
-但是Stan目前还不能计算这些导数。
+许多选择，例如为退休投资多少钱或在健身房花多长时间，都不是离散的，而是连续的。在这些情况下，连续选择可以被编码为Stan程序中的数据。然后可以计算期望效用。换句话说，Stan可以被用作从选择到期望效用的函数。然后，外部优化器可以调用该函数。如果没有梯度信息，这种优化可能会变得困难。梯度可以通过自动微分来提供，但是Stan目前还不能计算这些导数。
