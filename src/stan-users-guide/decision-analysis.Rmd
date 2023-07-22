@@ -345,9 +345,12 @@ $$
 \\[4pt]
 & \approx &
 \frac{1}{M} \sum_{m = 1}^M  U(x^{(m)} ),
-\end{eqnarray*} 其中 $$
+\end{eqnarray*} 其中 
+$$
 x^{(m)} \sim p(x \mid d = k, \theta^{(m)} )
-$$ 和 $$
+$$ 
+和 
+$$
 \theta^{(m)}
 \sim p(\theta \mid d^{\textrm{obs}}, x^{\textrm{obs}}).
 $$
