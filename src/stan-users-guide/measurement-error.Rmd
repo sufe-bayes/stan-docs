@@ -1,4 +1,6 @@
-# Measurement Error and Meta-Analysis 测量误差和元分析
+# Measurement Error and Meta-Analysis
+
+# 测量误差和元分析
 
 Most quantities used in statistical models arise from measurements.
 Most of these measurements are taken with some error.  When the
@@ -25,7 +27,9 @@ to true parameter values.
 推断被结合，来整体的对它们进行推断。对每个数据集的推断都被当作是
 提供了一种相对于真实参数值的测量误差。
 
-## Bayesian measurement error model 贝叶斯测量误差模型
+## Bayesian measurement error model 
+
+## 贝叶斯测量误差模型
 
 A Bayesian approach to measurement error can be formulated directly by
 treating the true quantities being measured as missing data
@@ -36,7 +40,9 @@ how the measurements are derived from the true values.
 [@Clayton:1992; @RichardsonGilks:1993]。这需要一个关于如何从真实值
 中获取测量值的模型。
 
-### Regression with measurement error  含测量误差的回归模型 {-} 
+### Regression with measurement error {-} 
+
+### 含测量误差的回归模型 {-} 
 
 Before considering regression with measurement error, first consider a
 linear regression model where the observed data for $N$ cases includes
@@ -143,7 +149,9 @@ $$
 这可以像任何其他回归一样在Stan中编码。当然，Stan也可以提供其他
 曝露模型。
 
-### Rounding 舍入 {-}
+### Rounding {-}
+
+### 舍入 {-}
 
 A common form of measurement error arises from rounding measurements.
 Rounding may be done in many ways, such as rounding weights to the
@@ -307,7 +315,9 @@ unrounded parameters.
 的$\mu$和$\sigma$后验分布。两种方法十分相似，但就每次迭代的有效样本
 而言，潜参数版本的效率约为前者的两倍，并且为未舍入参数提供了后验分布。
 
-## Meta-analysis 元分析
+## Meta-analysis
+
+## 元分析
 
 Meta-analysis aims to pool the data from several studies, such as the
 application of a tutoring program in several schools or treatment
@@ -327,7 +337,9 @@ the studies being analyzed.
 感兴趣的潜在量的有误差的测量。然后，模型直接来源于两个组成部分，
 即对感兴趣的潜在量的先验和对每个被分析的研究的测量误差式模型。
 
-### Treatment effects in controlled studies 对照研究中的治疗效果 {-}
+### Treatment effects in controlled studies {-}
+
+### 对照研究中的治疗效果 {-}
 
 Suppose the data in question arise from a total of $M$ studies
 providing paired binomial data for a treatment and control group.  For
@@ -341,7 +353,9 @@ myocardial infarction under a treatment of beta blockers
 的数据[@WarnThompsonSpiegelhalter:2002]或在应用beta受体阻滞剂治疗
 心肌梗死后的死亡率数据[@GelmanEtAl:2013, Section 5.6]。
 
-#### Data 数据 {-}
+#### Data {-}
+
+#### 数据 {-}
 
 The clinical data consists of $J$ trials, each with $n^t$ treatment cases, $n^c$ control cases, $r^t$ successful outcomes among those treated and $r^c$ successful outcomes among those in the control group.  This data can be declared in Stan as follows.^[Stan's integer constraints are not powerful enough to express the constraint that $\texttt{r}\mathtt{\_}\texttt{t[j]} \leq \texttt{n}\mathtt{\_}\texttt{t[j]}$, but this constraint could be checked in the transformed data block.]
 
@@ -360,7 +374,9 @@ data {
 ```
 
 
-#### Converting to log odds and standard error 转换为对数几率和标准差 {-}
+#### Converting to log odds and standard error {-}
+
+#### 转换为对数几率和标准差 {-}
 
 Although the clinical trial data are binomial in its raw format, it may
 be transformed to an unbounded scale by considering the log odds ratio
@@ -415,7 +431,9 @@ transforms must be used than the unregularized sample log odds.
 就会有问题。如果出现这种情况，就需要使用直接的二项模型或
 应该使用其他变换来代替未经正则化的样本对数几率。
 
-#### Non-hierarchical model 非分层模型 {-}
+#### Non-hierarchical model {-}
+
+#### 非分层模型 {-}
 
 With the transformed data in hand, two standard forms of meta-analysis
 can be applied.  The first is a so-called "fixed effects" model,
@@ -454,7 +472,9 @@ is fixed and $\textsf{normal}(y \mid \mu,\sigma) =
 因为`y`是固定的，因此 $\textsf{normal}(y \mid \mu,\sigma) = 
 \textsf{normal}(\mu \mid y,\sigma)$。
 
-#### Hierarchical model 分层模型 {-}
+#### Hierarchical model {-}
+
+#### 分层模型 {-}
 
 To model so-called "random effects," where the treatment effect may
 vary by clinical trial, a hierarchical model can be used.  The
