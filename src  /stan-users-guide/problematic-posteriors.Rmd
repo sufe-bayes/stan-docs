@@ -1,9 +1,3 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
 # Problematic Posteriors {#problematic-posteriors.chapter}
 
 引发问题的后验分布
