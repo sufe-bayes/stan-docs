@@ -29,7 +29,7 @@ to true parameter values.
 推断被结合，来整体的对它们进行推断。对每个数据集的推断都被当作是
 提供了一种相对于真实参数值的测量误差。
 
-## Bayesian measurement error model 
+## Bayesian measurement error model
 
 ## 贝叶斯测量误差模型
 
@@ -42,7 +42,7 @@ how the measurements are derived from the true values.
 [@Clayton:1992; @RichardsonGilks:1993]。这需要一个关于如何从真实值
 中获取测量值的模型。
 
-### Regression with measurement error {-} 
+### Regression with measurement error {-}
 
 ### 含测量误差的回归模型 {-} 
 
@@ -184,6 +184,9 @@ Exercise 3.5(b) by @GelmanEtAl:2013 provides an example.
 
 Letting $z_n$ be the unrounded measurement for $y_n$, the problem
 as stated assumes the likelihood
+
+令$z_n$是$y_n$未取整的测量值，按照问题陈述，假设似然函数为
+
 $$
 z_n \sim \textsf{normal}(\mu, \sigma).
 $$
@@ -191,6 +194,10 @@ $$
 The rounding process entails that $z_n \in (y_n - 0.5, y_n + 0.5)$.
 The probability mass function for the discrete observation $y$ is then given
 by marginalizing out the unrounded measurement, producing the likelihood
+
+舍入过程意味着$z_n \in (y_n - 0.5, y_n + 0.5)$。离散观测值$y$的
+概率质量函数可以通过边缘化消去未舍入的测量值得到，从而得到似然
+
 \begin{align*}
 p(y_n \mid \mu, \sigma)
  &= \int_{y_n - 0.5}^{y_n + 0.5} \textsf{normal}(z_n \mid \mu, \sigma) \,\textsf{d}z_n \\
@@ -200,39 +207,19 @@ p(y_n \mid \mu, \sigma)
 Gelman's answer for this problem took the noninformative prior to be
 uniform in the variance $\sigma^2$ on the log scale, which yields (due
 to the Jacobian adjustment), the prior density
+
+Gelman解决这个问题的方法是令无信息先验在对数尺度上关于方差
+$\sigma^2$是均匀的，由于Jacobian调整，这会产生先验密度函数： 
+
 $$
 p(\mu, \sigma^2) \propto \frac{1}{\sigma^2}.
 $$
 The posterior after observing $y = (10, 10, 12, 11, 9)$ can be
 calculated by Bayes's rule as
-\begin{align*}
-p(\mu, \sigma^2 \mid y)
- &\propto p(\mu, \sigma^2) \ p(y \mid \mu, \sigma^2) \\
- &\propto \frac{1}{\sigma^2} \ \prod_{n=1}^5
-  \left( \Phi\!\left(\frac{y_n + 0.5 - \mu}{\sigma}\right)
-        -\Phi\!\left(\frac{y_n - 0.5 - \mu}{\sigma}\right)
-  \right).
-\end{align*}
 
-令$z_n$是$y_n$未取整的测量值，按照题目陈述，假设似然函数为
-$$
-z_n \sim \textsf{normal}(\mu, \sigma).
-$$
 
-舍入过程意味着$z_n \in (y_n - 0.5, y_n + 0.5)$。离散观测值$y$的
-概率质量函数可以通过边缘化消去未舍入的测量值得到，从而得到似然
-\begin{align*}
-p(y_n \mid \mu, \sigma)
- &= \int_{y_n - 0.5}^{y_n + 0.5} \textsf{normal}(z_n \mid \mu, \sigma) \,\textsf{d}z_n \\
- &= \Phi\!\left(\frac{y_n + 0.5 - \mu}{\sigma}\right)
-   -\Phi\!\left(\frac{y_n - 0.5 - \mu}{\sigma}\right).
-\end{align*} 
-Gelman解决这个问题的方法是令无信息先验在对数尺度上关于方差
-$\sigma^2$是均匀的，由于Jacobian调整，这会产生先验密度函数： 
-$$
-p(\mu, \sigma^2) \propto \frac{1}{\sigma^2}.
-$$ 
 观测到 $y = (10, 10, 12, 11, 9)$ 后的后验分布可以通过贝叶斯定理计算得出
+
 \begin{align*}
 p(\mu, \sigma^2 \mid y)
  &\propto p(\mu, \sigma^2) \ p(y \mid \mu, \sigma^2) \\
