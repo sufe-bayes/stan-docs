@@ -17,7 +17,7 @@ is heavily commented.^[The main problem with comments is that they can be mislea
 
 ## Basic functions {#basic-functions.section}
 
-基本函数 {#basic-functions.section}
+## 基本函数 {#basic-functions.section}
 
 Here's an example of a skeletal Stan program with a user-defined
 relative difference function employed in the generated quantities
@@ -51,7 +51,7 @@ quantities block.
 
 ### User-defined functions block {-}
 
-###用户自定义功能块 {-}
+### 用户自定义功能块 {-}
 
 All functions are defined in their own block, which is labeled
 `functions` and must appear before all other program blocks.  The
@@ -61,7 +61,7 @@ user-defined functions block is optional.
 
 ### Function bodies {-}
 
-###函数主体 {-}
+### 函数主体 {-}
 
 The body (the part between the curly braces) contains ordinary Stan
 code, including local variables.  The new function is used in the
@@ -72,7 +72,7 @@ would be used.
 
 ### Return statements {-}
 
-###返回语句 {-}
+### 返回语句 {-}
 
 Return statements, such as the one on the last line of the definition
 of `relative_diff` above, are only allowed in the bodies of
@@ -84,7 +84,7 @@ return statement.
 
 ### Reject statements {-}
 
-###拒绝语句 {-}
+### 拒绝语句 {-}
 
 The Stan reject statement provides a mechanism to report errors or
 problematic values encountered during program execution.  It accepts
@@ -96,7 +96,7 @@ Stan 拒绝语句提供了一种程序执行期间报告错误或疑问值的机
 
 #### Catching errors {-}
 
-###捕获错误 {-}
+### 捕获错误 {-}
 
 Rejection is used to flag errors that arise in inputs or in program
 state.  It is far better to fail early with a localized informative
@@ -155,7 +155,7 @@ quantities block.
 
 ### Type declarations for functions {-}
 
-###函数的类型声明 {-}
+### 函数的类型声明 {-}
 
 Function argument and return types for vector and matrix types
 are not declared with their sizes, unlike type declarations for variables.
@@ -191,7 +191,7 @@ as return types or argument types in function declarations.
 
 ### Array types for function declarations {-}
 
-###函数声明的数组类型 {-}
+### 函数声明的数组类型 {-}
 
 Array arguments have their own syntax, which follows that used in this
 manual for function signatures.  For example, a function that operates
@@ -218,7 +218,7 @@ types.  As with other types, no constraints are allowed.
 
 ### Data-only function arguments {-}
 
-###纯数据函数参数 {-}
+### 纯数据函数参数 {-}
 
 A function argument which is a real-valued type or
 a container of a real-valued type,
@@ -266,6 +266,7 @@ and increases overall program understandability.
 
 在编写调用内置常微分方程 (ODE) 求解器，代数求解器或地图函数时可以使用这个限定符。这些高阶函数有严格指定的签名，其中一些参数仅是数据表达式。（参见 [ODE 求解器章节](#ode-solver.chapter)以获得更多使用细节，查阅函数参考手册获得完整的功能说明。）编写调用 ODE 或代数求解器的函数时，传递给调用求解器的该函数的参数应直接或间接应该有
 ‘data’ 前缀限定符。这允许编译时进行类型检查并提高整体程序的可理解性。
+
 
 ## Functions as statements
 
@@ -321,7 +322,7 @@ transformed parameters {
 
 ## Functions accessing the log probability accumulator
 
-##访问对数概率累加器的函数
+## 访问对数概率累加器的函数
 
 Functions whose names end in `_lp` are allowed to use sampling
 statements and `target +=` statements; other
@@ -364,7 +365,7 @@ transformed parameters {
 
 ## Functions acting as random number generators
 
-##充当随机数生成器的函数
+## 充当随机数生成器的函数
 
 A user-specified function can be declared to act as a (pseudo) random
 number generator (PRNG) by giving it a name that ends in `_rng`.
@@ -436,7 +437,7 @@ generated quantities {
 }
 ```
 
-A more sophisticated simulation might fit a multivariate normal to the
+A more sophisticated simulation might fit a multivariate\ normal to the
 predictors `x` and use the resulting parameters to generate
 multivariate normal draws for `x_sim`.
 
@@ -444,7 +445,7 @@ multivariate normal draws for `x_sim`.
 
 ## User-defined probability functions
 
-##用户自定义的概率函数
+## 用户自定义的概率函数
 
 Probability functions are distinguished in Stan by names ending in
 `_lpdf` for density functions and `_lpmf` for mass
@@ -512,13 +513,13 @@ function (`_lpmf`) must be discrete (integer or integer array).
 
 ## Overloading functions
 
-##重载函数
+## 重载函数
 
 As described in the [reference
 manual](https://mc-stan.org/docs/2_28/reference-manual/function-names.html)
 function overloading is permitted in Stan, beginning in version 2.29.
 
-根据【参考手册】(https://mc-stan.org/docs/2_28/reference-manual/function-names.html)中的描述，Stan从2.29版本开始允许函数重载。
+根据[参考手册](https://mc-stan.org/docs/2_28/reference-manual/function-names.html)中的描述，Stan从2.29版本开始允许函数重载。
 
 This means multiple functions can be defined with the same name as long as
 they accept different numbers or types of arguments. User-defined functions can
@@ -528,7 +529,7 @@ also overload Stan library functions.
 
 ### Warning on usage
 
-###使用警告
+### 使用警告
 
 Overloading is a powerful productivity tool in programming languages, but it can
 also lead to confusion.
@@ -571,7 +572,7 @@ merely to warn against uses of overloading which cause confusion.
 
 ### Function resolution
 
-###函数决议
+### 函数决议
 
 Stan resolves overloaded functions by the number and type of arguments passed to
 the function. This can be subtle when multiple signatures with the same number
@@ -639,7 +640,7 @@ argument such as `pop(0)`.
 
 ## Documenting functions {#documenting-functions.section}、
 
-##记录函数 {#documenting-functions.section}
+## 记录函数 {#documenting-functions.section}
 
 Functions will ideally be documented at their interface level.  The
 Stan style guide for function documentation follows the same format as
@@ -670,21 +671,6 @@ matrix predictors_rng(int N, int K) {
   // ...
 ```
 
-```stan
-/**
-*返回一个指定大小的数据矩阵
-*行对应于项目，第一列填充
-*值为1以表示截距
-*其余列随机填充单位正态抽样。
-*
-*@param N 行数对应于数据项
-*@param K 每个项目的预测向量数量，包括截距。
-*@return 模拟预测矩阵。
-*/
-matriax predictors_rng（int N，int K）{
-//...
-```
-
 The comment begins with `/**`, ends with `*/`, and has an
 asterisk (`*`) on each line.  It uses `@param` followed by
 the argument's identifier to document a function argument.  The tag
@@ -711,17 +697,6 @@ For example,
  */
 real entropy(vector theta) {
   // ...
-}
-```
-
-```stan 
-/**...
-*@param theta
-*@throws 如果theta的任何一个条目为负。
-*/
-*/
-实数熵（向量theta）{ 
-// … 
 }
 ```
 
@@ -756,7 +731,7 @@ arguments of a type that matches the declared return type.
 
 只有声明为返回非‘空’值的函数才能用作表达式。这些函数需要具有与声明的返回类型匹配的类型的参数的‘return’语句。
 
-### Suffixed or on-suffixed {-}
+### Suffixed or non-suffixed {-}
 
 ### 带后缀或不带后缀 {-}
 
@@ -808,6 +783,7 @@ directly translated to a recursive function definition.
 
 ```stan
 matrix matrix_pow(matrix a, int n);
+
 matrix matrix_pow(matrix a, int n) {
   if (n == 0) {
     return diag_matrix(rep_vector(1, rows(a)));
@@ -831,13 +807,14 @@ else if (n == 1) {
 }
 ```
 
+
 ## Truncated random number generation
 
-##截断随机数生成
+## 截断随机数生成
 
 ### Generation with inverse CDFs {-}
 
-###CDF逆的生成 {-}
+### CDF逆的生成 {-}
 
 To generate random numbers, it is often sufficient to invert their
 cumulative distribution functions.  This is built into many of the
@@ -916,7 +893,7 @@ finite and that `sigma` is non-negative, e.g.,
 
 ### Truncated variate generation 
 
-###截断变量生成
+### 截断变量生成
 
 Often truncated uniform variates are needed, as in survival analysis
 when a time of death is censored beyond the end of the observations.
@@ -929,7 +906,7 @@ back.
 
 #### Truncating below {-}
 
-####向下截断 {-}
+#### 向下截断 {-}
 
 For example, the following code generates a $\textsf{Weibull}(\alpha, \sigma)$ variate truncated below at a time $t$,^[The original code and impetus for including this in the manual came from the [Stan forums post](http://discourse.mc-stan.org/t/rng-for-truncated-distributions/3122/7); by user `lcomm`, who also explained truncation above and below.]
 
@@ -946,7 +923,7 @@ real weibull_lb_rng(real alpha, real sigma, real t) {
 
 #### Truncating above and below {-}
 
-####区间截断 {-}
+#### 区间截断 {-}
 
 If there is a lower bound and upper bound, then the CDF trick is used
 twice to find a lower and upper bound.  For example, to generate a
