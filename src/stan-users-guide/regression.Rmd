@@ -1,5 +1,5 @@
 # Regression Models
-本文译者：于曙光(1.1-1.6)、王才兴(1.7-1.11)、王超(1.12-1.16)
+
 Stan supports regression models from simple linear regressions to
 multilevel generalized linear models.
 
@@ -517,8 +517,7 @@ this will cause the maximum likelihood solutions to be different and
 also the posteriors to be slightly different when taking priors
 centered around zero, as is typical for regression coefficients.
 
-## Parameterizing centered vectors 
-
+## Parameterizing centered vectors
 
 It is often convenient to define a parameter vector $\beta$ that is
 centered in the sense of satisfying the sum-to-zero constraint,
@@ -534,16 +533,11 @@ the [item-response model section](#item-response-models.section) for
 details).
 
 
-
 ### $K-1$ degrees of freedom {-}
-
-
 
 There is more than one way to enforce a sum-to-zero constraint on a
 parameter vector, the most efficient of which is to define the $K$-th
 element as the negation of the sum of the elements $1$ through $K-1$.
-
-
 
 ```stan
 parameters {
@@ -566,16 +560,11 @@ the same prior on each component of an unconstrained $K$-vector
 on `beta` will produce a different posterior mode than placing
 the same prior on `beta_raw`.
 
-
 #### Marginal distribution of sum-to-zero components {-}
-
-
 
 On the Stan forums, Aaron Goodman provided the following code to
 produce a prior with standard normal marginals on the components of
 `beta`,
-
-
 
 ```stan
 model {
@@ -593,16 +582,11 @@ the resulting `beta` may be scaled by some factor `sigma` and
 translated to some new location `mu`.
 
 
-
-
 ### QR decomposition {-}
-
 
 Aaron Goodman, on the Stan forums, also provided this approach, which
 calculates a QR decomposition in the transformed data block, then uses
 it to transform to a sum-to-zero parameter `x`,
-
-
 
 ```stan
 transformed data{
@@ -627,14 +611,10 @@ This produces a marginal standard normal distribution on the values of
 `beta`, which will sum to zero by construction of the QR decomposition.
 
 
-
 ### Translated and scaled simplex {-}
-
 
 An alternative approach that's less efficient, but amenable to a
 symmetric prior, is to offset and scale a simplex.
-
-
 
 ```stan
 parameters {
@@ -661,9 +641,7 @@ With this parameterization, a Dirichlet prior can be placed on
 `beta_scale`, typically for "shrinkage."
 
 
-
 ### Soft centering {-}
-
 
 Adding a prior such as $\beta \sim \textsf{normal}(0,\sigma)$ will provide a kind
 of soft centering of a parameter vector $\beta$ by preferring, all
@@ -676,7 +654,6 @@ IRT models).  This is another way of achieving a symmetric prior.
 
 ## Ordered logistic and probit regression {#ordered-logistic.section}
 
-
 Ordered regression for an outcome $y_n \in \{ 1, \dotsc, k \}$ with
 predictors $x_n \in \mathbb{R}^D$ is determined by a single coefficient
 vector $\beta \in \mathbb{R}^D$ along with a sequence of cutpoints $c \in
@@ -686,17 +663,11 @@ $c_k$, assuming $c_0 = -\infty$ and $c_K = \infty$.  The noise term is
 fixed by the form of regression, with examples for ordered logistic
 and ordered probit models.
 
-
 ### Ordered logistic regression {-}
-
-
 
 The ordered logistic model can be coded in Stan using the
 `ordered` data type for the cutpoints and the built-in
 `ordered_logistic` distribution.
-
-
-
 
 
 ```stan
@@ -728,11 +699,7 @@ compute the effect of the constraint on the normalizing term because
 the probability is needed only up to a proportion.
 
 
-
-
 #### Ordered probit {-}
-
-
 
 An ordered probit model could be coded in exactly the same way by
 swapping the cumulative logistic (`inv_logit`) for the cumulative
@@ -773,10 +740,7 @@ stable.  A small efficiency gain could be achieved by computing the
 values `Phi(eta - c[k])` once and storing them for re-use.
 
 
-
 ## Hierarchical logistic regression
-
-
 
 The simplest multilevel model is a hierarchical model in which the
 data are grouped into $L$ distinct categories (or levels).  An extreme
@@ -787,8 +751,6 @@ coefficient vector $\beta_l$ that is estimated separately from the
 other levels.  A hierarchical model is an intermediate solution where
 the degree of pooling is determined by the data and a prior on the
 amount of pooling.
-
-
 
 Suppose each binary outcome $y_n \in \{ 0, 1 \}$ has an associated
 level, $ll_n \in \{ 1, \dotsc, L \}$.  Each outcome will also have
@@ -801,12 +763,8 @@ the data in each level are  similar, strong pooling will be
 reflected in low hierarchical variance.  If the data in the levels are
 dissimilar, weaker pooling will be reflected in higher hierarchical variance.
 
-
-
 The following model encodes a hierarchical logistic regression model
 with a hierarchical prior on the regression coefficients.
-
-
 
 
 ```stan
@@ -844,11 +802,7 @@ informative or at least weakly informative priors for all parameters;
 see the [regression priors section](#regression-priors.section) for
 recommendations on priors for regression coefficients and scales.
 
-
-
 #### Optimizing the model {-}
-
-
 
 Where possible, vectorizing sampling statements leads to faster log
 probability and derivative evaluations.  The speed boost is not
@@ -856,7 +810,6 @@ because loops are eliminated, but because vectorization allows sharing
 subcomputations in the log probability and gradient calculations and
 because it reduces the size of the expression tree required for
 gradient calculations.
-
 
 The first optimization vectorizes the for-loop over `D` as
 
@@ -916,10 +869,7 @@ the model and only work on optimizations when the simpler formulation
 has been debugged.
 
 
-
 ## Hierarchical priors {#hierarchical-priors.section}
-
-
 
 Priors on priors, also known as "hyperpriors," should be treated the
 same way as priors on lower-level parameters in that as much prior
@@ -929,12 +879,7 @@ care must be taken to ensure the posterior is both proper and not
 overly sensitive either statistically or computationally to wide tails
 in the priors.
 
-
-
-
 ### Boundary-avoiding priors for MLE in hierarchical models {-}
-
-
 
 The fundamental problem with maximum likelihood estimation (MLE) in
 the hierarchical model setting is that as the hierarchical variance
@@ -964,18 +909,7 @@ $$
 for a reasonably large value of $A$, such as $A = 10$.
 
 
-
-
-$$
-\sigma \sim \textsf{Gamma}(2, 1/A)
-$$
-
-
-
 ## Item-response theory models {#item-response-models.section}
-
-
-
 
 Item-response theory (IRT) models the situation in which a number of
 students each answer one or more of a group of test questions.  The
@@ -987,17 +921,11 @@ introduction to hierarchical IRT models and @Curtis:2010 for
 encodings of a range of IRT models in BUGS.
 
 
-
-
 ### Data declaration with missingness {-}
-
-
 
 The data provided for an IRT model may be declared as follows
 to account for the fact that not every student is required to answer
 every question.
-
-
 
 
 ```stan
@@ -1020,16 +948,14 @@ The prior hyperparameters will be hard coded in the rest of this
 section for simplicity, though they could be coded as data in
 Stan for more flexibility.
 
-
 ### 1PL (Rasch) model {-}
-
 
 The 1PL item-response model, also known as the Rasch model, has one
 parameter (1P) for questions and uses the logistic link function (L).
 
 
-The model parameters are declared as follows.
 
+The model parameters are declared as follows.
 
 
 ```stan
@@ -1046,10 +972,7 @@ The parameter `alpha[J]` is the ability coefficient for student
 an intercept term `delta`, which represents the average student's
 response to the average question.^[@GelmanHill:2007 treat the $\delta$ term equivalently as the location parameter in the distribution of student abilities.]
 
-
-
 The model itself is as follows.
-
 
 
 ```stan
@@ -1096,17 +1019,13 @@ priors should be fit hierarchically along with the other parameters,
 as described in the next section.
 
 
-
 ### Multilevel 2PL model {-}
-
 
 The simple 1PL model described in the previous section is generalized
 in this section with the addition of a discrimination parameter to
 model how noisy a question is and by adding multilevel priors for the
 question difficulty and discrimination parameters.  The model
 parameters are declared as follows.
-
-
 
 
 ```stan
@@ -1121,7 +1040,6 @@ parameters {
 ```
 
 The parameters should be clearer after the model definition.
-
 
 ```stan
 model {
@@ -1143,11 +1061,8 @@ $$
 $$
 
 
-
-
 The sampling statement is also vectorized using elementwise
 multiplication;  it is equivalent to
-
 
 ```stan
 for (n in 1:N) {
@@ -1176,8 +1091,6 @@ and `gamma` then have varying scales given hierarchically in this
 model.  They could also be given weakly informative non-hierarchical
 priors, such as
 
-
-
 ```stan
 beta ~ normal(0, 5);
 gamma ~ lognormal(0, 2);
@@ -1190,15 +1103,11 @@ The `beta` parameter is here given a non-centered
 parameterization, with parameter `mu_beta` serving as the mean
 `beta` location. An alternative would've been to take:
 
-
-
 ```stan
 beta ~ normal(mu_beta, sigma_beta);
 ```
 
 and
-
-
 
 ```stan
 y[n] ~ bernoulli_logit(gamma[kk[n]] * (alpha[jj[n]] - beta[kk[n]]));
