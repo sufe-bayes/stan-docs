@@ -931,7 +931,7 @@ back.
 
 ####向下截断 {-}
 
-For example, the following code generates a $\textsf{Weibull}(\alpha, \sigma)$ variate truncated below at a time $t$,^[The original code and impetus for including this in the manual came from the Stan forums post \url{http://discourse.mc-stan.org/t/rng-for-truncated-distributions/3122/7}; by user `lcomm`, who also explained truncation above and below.]
+For example, the following code generates a $\textsf{Weibull}(\alpha, \sigma)$ variate truncated below at a time $t$,^[The original code and impetus for including this in the manual came from the [Stan forums post](http://discourse.mc-stan.org/t/rng-for-truncated-distributions/3122/7); by user `lcomm`, who also explained truncation above and below.]
 
 例如，以下代码生成一个Weibull（α，σ）变量并且在在时间t以下截断，^[原始代码和将其包含在手册中的动机来自Stan论坛中由用户lcomm撰写的帖子{http://discourse.mc-stan.org/t/rng-for-truncated-distributions/3122/7}；他还解释了向上截断和向下截断。]
 
