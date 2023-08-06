@@ -104,7 +104,7 @@ $K$-单纯形。因此，该模型假设每个数据点都是从对聚类成员�
 decision）中得到的，软性（softness）是由于不确定哪个聚类生成了数据点。
 
 The data points themselves are generated from a multivariate normal
-distribution whose parameters are determined by the cluster assignment 
+distribution whose parameters are determined by the cluster assignment
 $z_n$,
 
 数据点本身是从多元正态分布中生成的，其参数由聚类分配$z_n$决定，
@@ -113,7 +113,7 @@ $$
 y_n \sim  \textsf{normal}(\mu_{z[n]},\Sigma_{z[n]})
 $$
 
-The sample implementation in this section assumes a fixed unit 
+The sample implementation in this section assumes a fixed unit
 covariance matrix shared by all clusters $k$,
 
 本节假定对于所有簇均具有固定的单位协方差矩阵，
@@ -229,6 +229,7 @@ situation, a hierarchical prior may be used for the covariance matrices.
 
 虽然没有全局空间模拟，但通常会使用每个聚类的协方差矩阵指定 soft
 $K$-means。在这种情况下，可以将层次先验用于协方差矩阵。
+
 
 ## The difficulty of Bayesian inference for clustering
 
