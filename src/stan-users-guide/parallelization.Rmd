@@ -2,7 +2,7 @@
 
 # 并行计算 {#parallelization.chapter}
 
-翻译贡献者：谭颂华
+翻译贡献者：谭颂华、杨智
 
 Stan has support for different types of parallelization: 
 multi-threading with Intel Threading Building Blocks (TBB),
@@ -936,13 +936,19 @@ execute across heterogeneous platforms. An OpenCL program can be run on CPUs and
 In order to run OpenCL programs, an OpenCL runtime be installed on
 the target system.
 
+OpenCL（Open Computing Language）是一种框架，可以在异构平台上编写并运行程序。OpenCL程序可以在CPU和GPU上运行。为了运行OpenCL程序，必须在目标系统上安装OpenCL运行时。
+
 Stan's OpenCL backend is currently supported in CmdStan and its wrappers. In order
 to use it, the model must be compiled with the `STAN_OPENCL` makefile flag. Setting
 this flag means that the Stan-to-C++ translator (`stanc3`) will be supplied the
 `--use-opencl` flag and that the OpenCL enabled backend (Stan Math functions) will be enabled.
 
+Stan的OpenCL后端目前在CmdStan及其包装器中受到支持。为了使用它，必须使用`STAN_OPENCL` makefile标志编译模型。设置此标志意味着将向Stan-to-C++翻译器（`stanc3`）提供`--use-opencl`标志，并启用OpenCL启用的后端（Stan Math函数）。
+
 In Stan, the following distributions can be automatically run in parallel on both CPUs
 and GPUs with OpenCL:
+
+在Stan中，以下分布可以在CPU和GPU上自动并行运行OpenCL：
 
 - bernoulli_lpmf
 - bernoulli_logit_lpmf
@@ -984,3 +990,5 @@ and GPUs with OpenCL:
 - weibull_lpdf
 
 \* OpenCL is not used when the covariate argument to the GLM functions is a `row_vector`.
+
+\* 当GLM函数的协变量参数是`row_vector`时，不使用OpenCL。
