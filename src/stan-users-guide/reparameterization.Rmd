@@ -401,18 +401,18 @@ The distribution is being assigned to $\log y$.
 
 当参数的变换由分布来描述时，需要应用变量变换（changes of variables）。标准教科书例子是对数正态分布，它是一个变量$y>0$的分布，其对数$\log y$具有正态分布。分布被分配给$\log y$。
 
-The change of variables requires an adjustment to the probability to 
-account for the distortion caused by the transform. For this to work, 
-univariate changes of variables must be monotonic and differentiable 
-everywhere in their support. Multivariate changes of variables must 
-be injective and differentiable everywhere in their support, and they 
+The change of variables requires an adjustment to the probability to
+account for the distortion caused by the transform. For this to work,
+univariate changes of variables must be monotonic and differentiable
+everywhere in their support. Multivariate changes of variables must
+be injective and differentiable everywhere in their support, and they
 must map $\mathbb{R}^N \rightarrow \mathbb{R}^N$.
 
 变量变换需要对概率进行调整，以考虑变换引起的扭曲。为了使其有效，单变量的变换必须在其支持的每个位置都是单调且可微的。多元变量的变换必须是单射的，并且在其支持的每个位置都是可微的，并且它们必须映射$\mathbb{R}^N \rightarrow \mathbb{R}^N$。
 
-The probability must be scaled by a *Jacobian adjustment* equal to 
-the absolute determinant of the Jacobian of the transform. In the 
-univariate case, the Jacobian adjustment is simply the absolute 
+The probability must be scaled by a *Jacobian adjustment* equal to
+the absolute determinant of the Jacobian of the transform. In the
+univariate case, the Jacobian adjustment is simply the absolute
 derivative of the transform.
 
 概率必须通过一个称为*雅可比调整*的缩放因子来进行调整，该缩放因子等于变换的雅可比矩阵的行列式的绝对值。在单变量情况下，雅可比调整仅是变换的绝对导数。
@@ -576,9 +576,9 @@ $$
 
 ### 多元变量变换 {-}
 
-In the case of a multivariate transform, the log of the absolute 
-determinant of the Jacobian of the transform must be added to the 
-log probability accumulator.  In Stan, this can be coded as 
+In the case of a multivariate transform, the log of the absolute
+determinant of the Jacobian of the transform must be added to the
+log probability accumulator.  In Stan, this can be coded as
 follows in the general case where the Jacobian is not a full matrix.
 
 在多元变换的情况下，必须将变换的雅可比矩阵的绝对值的对数加到对数概率累加器中。在Stan中，这可以在雅可比矩阵不是满秩矩阵的一般情况下编码如下。
@@ -602,9 +602,9 @@ model {
 }
 ```
 
-If the determinant of the Jacobian is known analytically, it will be 
-more efficient to apply it directly than to call the determinant 
-function, which is neither efficient nor particularly stable 
+If the determinant of the Jacobian is known analytically, it will be
+more efficient to apply it directly than to call the determinant
+function, which is neither efficient nor particularly stable
 numerically.
 
 如果雅可比矩阵的行列式可以通过解析方法得到，直接应用它会比调用行列式函数更有效，行列式函数在数值上也不是很稳定。
@@ -666,7 +666,7 @@ parameters {
 }
 ```
 
-The above is equivalent to manually calculating the vector bounds by the 
+The above is equivalent to manually calculating the vector bounds by the
 following.
 
 上述操作等价于通过以下方式手动计算向量边界。
@@ -699,8 +699,8 @@ a Jacobian derivative matrix with a unit determinant.
 
 即使下边界是参数而不是数据，也不需要雅可比矩阵，因为从$(L,\alpha_{\textrm{raw}})$到$(L+\alpha_{\textrm{raw}},\alpha_{\textrm{raw}})$的变换产生的雅可比导数矩阵的行列式是1。
 
-It's also possible to implement the transform using arrary or vector
-of parameters as bounds (with the requirement that the type of the 
+It's also possible to implement the transform using an array or vector
+of parameters as bounds (with the requirement that the type of the
 variable must match the bound type) in the following.
 
 也可以使用参数的数组或向量作为边界来实现变换（要求变量的类型必须与边界类型匹配），如下所示。
@@ -782,7 +782,7 @@ The same may be accomplished by manually constructing
 the transform as follows.
 
 也可以通过手动构建如下变换来实现相同的效果。
- 
+
 ```stan
 data {
   int N;

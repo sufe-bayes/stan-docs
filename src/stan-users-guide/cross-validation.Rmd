@@ -433,33 +433,31 @@ Stan, the simplest approach is the following.
 ```stan
 functions {
   array[] int permutation_rng(int N) {
-     int N = rows(x);
-     array[N] int y;
-     for (n in 1:N) {
-       y[n] = n;
-     }
-     vector[N] theta = rep_vector(1.0 / N, N);
-     for (n in 1:rows(y)) {
-       int i = categorical_rng(theta);
-     }
-      array[n] int temp = y;
+    array[N] int y;
+    for (n in 1 : N) {
+      y[n] = n;
+    }
+    vector[N] theta = rep_vector(1.0 / N, N);
+    for (n in 1 : size(y)) {
+      int i = categorical_rng(theta);
+      int temp = y[n];
       y[n] = y[i];
       y[i] = temp;
-     }
-     return y;
+    }
+    return y;
   }
 }
 ```
 The name of the function must end in `_rng` because it uses other
 random functions internally.  This will restrict its usage to the
 transformed data and generated quantities block.  The code walks
-through the vector exchanging each item with another randomly chosen
+through an array of integers exchanging each item with another randomly chosen
 item, resulting in a uniformly drawn permutation of the integers
 `1:N`.^[The traditional approach is to walk through a vector and replace each item with a random element from the remaining elements, which is guaranteed to only move each item once. This was not done here as it'd require new categorical `theta` because Stan does not have a uniform discrete RNG built in.]
 
 函数名必须以`_rng`结尾，因为它在内部使用其他随机函数.
 这将限制其用于转换数据和生成数量块.
-该代码遍历向量，将每个项与另一个随机选择的项交换，从而得到整数的统一排列
+该代码遍历一个整数数组，将每个项与另一个随机选择的项交换，从而得到整数的统一排列
 `1:N`.^[传统的方法是遍历一个向量，并用剩余元素中的随机元素替换每一项，
 这样可以保证每一项只移动一次.这里没有这样做，因为它需要新的分类`theta`，
 因为Stan没有统一的离散RNG内置.]

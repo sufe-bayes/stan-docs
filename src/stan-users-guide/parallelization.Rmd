@@ -411,7 +411,7 @@ terms and `M` cores, run a quick test model with `grainsize` set
 roughly to `N / M`. Record the time, cut the `grainsize` in half, and
 run the test again. Repeat this iteratively until the model runtime
 begins to increase. This is a suitable `grainsize` for the model,
-because this ensures the caculations can be carried out with the most
+because this ensures the calculations can be carried out with the most
 parallelism without losing too much efficiency.
 
 为了确定最佳的`grainsize`，假设有`N`个项和`M`个核心，可以使用大致等于`N / M`的`grainsize`运行一个快速测试模型。记录此次时间，将`grainsize`减半，再次运行测试。反复进行这个过程，直到模型运行时间开始增加。此时的`grainsize`适用于模型，因为它确保计算可以以最大的并行性进行，同时不会失去太多的效率。
@@ -567,7 +567,7 @@ into Stan to provide a map-reduce implementation.
 #### 未映射的逻辑回归 {-}
 
 Consider the following simple logistic regression model, which is
-coded unconventionally to accomodate direct translation to a mapped
+coded unconventionally to accommodate direct translation to a mapped
 implementation.
 
 考虑以下简单的逻辑回归模型，其以非常规的方式编码，以便直接转换为映射。
