@@ -26,25 +26,25 @@ factored into the following four steps.
 1. Define a set $X$ of possible outcomes and a set $D$ of possible
 decisions.
 
-将所有可能的结果定义为集合$X$，将所有可能的决策定义为集合$D$。
+1. 将所有可能的结果定义为集合$X$，将所有可能的决策定义为集合$D$。
 
 2.  Define a probability distribution of outcomes conditional on
 decisions through a conditional density function $p(x \mid d)$
 for $x \in X$ and $d \in D.$
 
-用条件密度函数$p(x \mid d)$，$x \in X$且$d \in D.$，定义以决策为条件的结果的概率分布。
+2. 用条件密度函数$p(x \mid d)$，$x \in X$且$d \in D.$，定义以决策为条件的结果的概率分布。
 
 3.  Define a utility function $U : X \rightarrow \mathbb{R}$ mapping
 outcomes to their utility.
 
-定义效用函数$U : X \rightarrow \mathbb{R}$，将各种结果映射到它们的效用上。
+3. 定义效用函数$U : X \rightarrow \mathbb{R}$，将各种结果映射到它们的效用上。
 
 4.  Choose action $d^* \in D$ with highest expected utility,
+
+4. 选择具有最高期望效用的决策$d^* \in D$，
 $$
 d^* = \textrm{arg max}_d \ \mathbb{E}[U(x) \mid d].
 $$
-
-选择具有最高期望效用的决策$d^* \in D$
 
 The outcomes should represent as much information as possible that is
 relevant to utility.  In Bayesian decision analysis, the distribution
@@ -104,6 +104,11 @@ $x = (c, t) \in X$ is an outcome.  Being a statistical decision
 problem, this density will the a posterior predictive distribution
 conditioned on previously observed outcome and decision pairs, based
 on a parameter model with parameters $\theta,$
+
+所需的密度是$p(x \mid d)，$其中$d \in D$是一项决策，$x = (c, t) \in X$
+是一个结果。作为一个统计决策问题，这个密度是一个以之前成对观察到的
+结果和决策为条件基于参数为$\theta$的参数模型的后验预测分布， 
+
 $$
 p(x \mid d, x^{\textrm{obs}}, d^{\textrm{obs}})
 =
@@ -117,24 +122,18 @@ chosen commute mode $d^{\textrm{obs}}_n$ and observed costs and times
 $x^{\textrm{obs}}_n = (c^{\textrm{obs}}_n, t^{\textrm{obs}}_n)$ for $n
 \in 1:200.$
 
-所需的密度是$p(x \mid d)，$其中$d \in D$是一项决策，$x = (c, t) \in X$
-是一个结果。作为一个统计决策问题，这个密度是一个以之前成对观察到的
-结果和决策为条件基于参数为$\theta$的参数模型的后验预测分布， 
-$$
-p(x \mid d, x^{\textrm{obs}}, d^{\textrm{obs}})
-=
-\int
-  p(x \mid d, \theta)
-  \cdot p(\theta \mid x^{\textrm{obs}}, d^{\textrm{obs}})
-  \, \textrm{d}\theta.
-$$ 
 一年的通勤观测数据包括通勤方式的选择$d^{\textrm{obs}}_n$
 和观测到的费用和时间
+
 $x^{\textrm{obs}}_n = (c^{\textrm{obs}}_n, t^{\textrm{obs}}_n)$，
 $n \in 1:200$。
 
 For simplicity, commute time $t_n$ for trip $n$ will be modeled as
 lognormal for a given choice of transportation $d_n \in 1:4,$
+
+为简单起见，行程$n$的通勤时间t_n$将被建模为对数正态，
+对于给定的交通方式选择$d_n \in 1:4,$ 
+
 $$
 t_n \sim \textrm{lognormal}(\mu_{d[n]}, \sigma_{d[n]}).
 $$
@@ -143,16 +142,14 @@ transportation used for trip $n$.  For example if trip $n$ was by
 bicycle, then $t_n \sim \textrm{lognormal}(\mu_2, \sigma_2),$ where
 $\mu_2$ and $\sigma_2$ are the lognormal parameters for bicycling.
 
-为简单起见，行程$n$的通勤时间t_n$将被建模为对数正态，
-对于给定的交通方式选择$d_n \in 1:4，$ 
-$$
-t_n \sim \textrm{lognormal}(\mu_{d[n]}, \sigma_{d[n]}).
-$$
 为了理解符号$d_n$，也可写成$d[n]$，指行程$n$使用的交通工具。例如，如果行程$n$是骑自行车的，那么
 $t_n \sim \textrm{lognormal}(\mu_2, \sigma_2)，$
 其中$\mu_2$和$\sigma_2$是骑自行车的对数正态参数。
 
 Simple fixed priors are used for each mode of transportation $k \in 1:4,$
+
+每一种交通工具$k \in 1:4，$都使用了简单、固定的先验，
+
 \begin{eqnarray*}
 \mu_k & \sim & \textrm{normal}(0, 5)
 \\[2pt]
@@ -163,19 +160,21 @@ more realistic model each commute mode would have its own prior based
 on knowledge of the city and the time of day would be used as a covariate;
 here the commutes are taken to be exchangeable.
 
-每一种交通工具$k \in 1:4，$都使用了简单、固定的先验， \begin{eqnarray*}
-\mu_k & \sim & \textrm{normal}(0, 5)
-\\[2pt]
-\sigma_k & \sim & \textrm{lognormal}(0, 1).
-\end{eqnarray*} 这些先验和广泛的通勤时间一致；在一个更现实的模型中，基于对城市的了解和一天中的时间作为协变量，每种通勤方式都有自己的先验；而此处通勤被认为是可交换的。
+这些先验和广泛的通勤时间一致；在一个更现实的模型中，基于对城市的了解和一天中的时间作为协变量，每种通勤方式都有自己的先验；而此处通勤被认为是可交换的。
 
 Cost is usually a constant function for public transportation,
 walking, and bicycling.  Nevertheless, for simplicity, all costs will
 be modeled as lognormal,
+
+对于公共交通、步行和骑自行车来说，费用通常是一个常函数。然而，为了简单起见，所有的成本将被建模为服从对数正态分布，
+
 $$
 c_n \sim \textrm{lognormal}(\nu_{d[n]}, \tau_{d[n]}).
 $$
 Again, the priors are fixed for the modes of transportation,
+
+同样，交通工具的先验也都是固定的，
+
 \begin{eqnarray*}
 \nu_k & \sim & \textrm{normal}(0, 5)
 \\[2pt]
@@ -185,24 +184,13 @@ A more realistic approach would model cost conditional on time,
 because the cost of a cab depends on route chosen and the time it
 takes.
 
-对于公共交通、步行和骑自行车来说，费用通常是一个常函数。然而，为了简单起见，所有的成本将被建模为服从对数正态分布，
-$$
-c_n \sim \textrm{lognormal}(\nu_{d[n]}, \tau_{d[n]}).
-$$ 
-同样，交通工具的先验也都是固定的，
-\begin{eqnarray*}
-\nu_k & \sim & \textrm{normal}(0, 5)
-\\[2pt]
-\tau_k & \sim & \textrm{lognormal}(0, 1).
-\end{eqnarray*} 一个更现实的方法是以时间为条件来对费用建模，因为出租车的费用取决于所选择的路线和所花费的时间。
+一个更现实的方法是以时间为条件来对费用建模，因为出租车的费用取决于所选择的路线和所花费的时间。
 
 The full set of parameters that are marginalized in the posterior
 predictive distribution is
-$$
-\theta = (\mu_{1:4}, \sigma_{1:4}, \nu_{1:4}, \tau_{1:4}).
-$$
 
 在后验预测分布中被边缘化的全部参数为
+
 $$
 \theta = (\mu_{1:4}, \sigma_{1:4}, \nu_{1:4}, \tau_{1:4}).
 $$
