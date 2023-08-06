@@ -1248,6 +1248,7 @@ y_n \sim \textsf{normal}(x_n \, \beta_{jj[n]}, \, \sigma)
 \quad\text{for}\quad n \in \{ 1, \dotsc, N \}.
 $$
 
+
 #### Coefficient prior {-}
 
 #### 系数先验 {-}
