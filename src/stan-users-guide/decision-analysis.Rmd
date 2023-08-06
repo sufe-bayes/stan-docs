@@ -124,7 +124,6 @@ $x^{\textrm{obs}}_n = (c^{\textrm{obs}}_n, t^{\textrm{obs}}_n)$ for $n
 
 一年的通勤观测数据包括通勤方式的选择$d^{\textrm{obs}}_n$
 和观测到的费用和时间
-
 $x^{\textrm{obs}}_n = (c^{\textrm{obs}}_n, t^{\textrm{obs}}_n)$，
 $n \in 1:200$。
 
@@ -143,7 +142,7 @@ bicycle, then $t_n \sim \textrm{lognormal}(\mu_2, \sigma_2),$ where
 $\mu_2$ and $\sigma_2$ are the lognormal parameters for bicycling.
 
 为了理解符号$d_n$，也可写成$d[n]$，指行程$n$使用的交通工具。例如，如果行程$n$是骑自行车的，那么
-$t_n \sim \textrm{lognormal}(\mu_2, \sigma_2)，$
+$t_n \sim \textrm{lognormal}(\mu_2, \sigma_2),$
 其中$\mu_2$和$\sigma_2$是骑自行车的对数正态参数。
 
 Simple fixed priors are used for each mode of transportation $k \in 1:4,$
