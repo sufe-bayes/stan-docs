@@ -57,24 +57,16 @@ data vectors $y$ as input.
 $K$-means聚类通常用以下算法进行几何描述，假设簇的数量$K$和数据向量$y$作为输入。
 
 1. For each $n$ in $\{1,\dotsc,N\}$, randomly assign vector $y_n$ to a cluster in $\{1,\dotsc,K\}$;
-
- 对于${1,\dotsc,N}$中的每个$n$，将向量$y_n$随机分配到${1,\dotsc,K}$中的一个簇中;
-
 1. Repeat
-
-重复
-
     1. For each cluster $k$ in $\{1,\dotsc,K\}$, compute the cluster centroid $\mu_k$  by averaging the vectors assigned to that cluster;
-
-对于${1,\dotsc,K}$中的每个簇$k$，通过对分配给该簇的向量进行平均来计算簇中心$\mu_k$;
-
     1. For each $n$ in $\{1,\dotsc,N\}$, reassign $y_n$ to the cluster $k$ for which the (Euclidean) distance from $y_n$ to $\mu_k$ is smallest;
-
-对于${1,\dotsc,N}$中的每个$n$，重新将$y_n$分配给欧几里得距离$\mu_k$最小的簇$k$;
-
     1. If no vectors changed cluster, return the cluster assignments.
 
-如果没有向量更改簇，则返回簇的分配结果。
+1. 对于${1,\dotsc,N}$中的每个$n$，将向量$y_n$随机分配到${1,\dotsc,K}$中的一个簇中;
+1. 重复
+    1. 对于${1,\dotsc,K}$中的每个簇$k$，通过对分配给该簇的向量进行平均来计算簇中心$\mu_k$;
+    1. 对于${1,\dotsc,N}$中的每个$n$，重新将$y_n$分配给欧几里得距离$\mu_k$最小的簇$k$;
+    1. 如果没有向量更改簇，则返回簇的分配结果。
 
 This algorithm is guaranteed to terminate.
 
@@ -112,8 +104,7 @@ $K$-单纯形。因此，该模型假设每个数据点都是从对聚类成员�
 decision）中得到的，软性（softness）是由于不确定哪个聚类生成了数据点。
 
 The data points themselves are generated from a multivariate normal
-distribution whose parameters are determined by the cluster 
-assignment 
+distribution whose parameters are determined by the cluster assignment 
 $z_n$,
 
 数据点本身是从多元正态分布中生成的，其参数由聚类分配$z_n$决定，
@@ -122,8 +113,7 @@ $$
 y_n \sim  \textsf{normal}(\mu_{z[n]},\Sigma_{z[n]})
 $$
 
-The sample implementation in this section assumes a fixed 
-unit 
+The sample implementation in this section assumes a fixed unit 
 covariance matrix shared by all clusters $k$,
 
 本节假定对于所有簇均具有固定的单位协方差矩阵，
@@ -131,8 +121,7 @@ covariance matrix shared by all clusters $k$,
 $$
 \Sigma_k = \mathrm{diag\_matrix}({\bf 1}),
 $$
-so that the log multivariate normal can be implemented 
-directly up to a proportion
+so that the log multivariate normal can be implemented directly up to a proportion
 by
 
 从而对数多元正态分布具有以下比例关系
