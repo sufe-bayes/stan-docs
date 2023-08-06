@@ -1,14 +1,25 @@
 # Regression Models
 
+# 回归模型
+
+翻译贡献者：于曙光(1.1-1.6)、王才兴(1.7-1.11)、王超(1.12-1.16)
+
 Stan supports regression models from simple linear regressions to
 multilevel generalized linear models.
 
+Stan支持从简单线性回归到多层次广义线性模型的回归模型。
+
 ## Linear regression
+
+## 线性回归
 
 The simplest linear regression model is the following, with a single
 predictor and a slope and intercept coefficient, and normally
 distributed noise.  This model can be written using standard
 regression notation as
+
+最简单的线性回归模型包含自变量、斜率、截距以及服从正态分布的噪声。使用标准回归符号，可以将该模型写成如下形式：
+
 $$
 y_n = \alpha + \beta x_n + \epsilon_n
 \quad\text{where}\quad
@@ -17,15 +28,23 @@ $$
 
 This is equivalent to the following sampling involving the
 residual,
+
+这相当于涉及残差的以下采样，
+
 $$
 y_n - (\alpha + \beta X_n) \sim \operatorname{normal}(0,\sigma),
 $$
 and reducing still further, to
+
+并可以进一步简化为如下形式：
+
 $$
 y_n \sim \operatorname{normal}(\alpha + \beta X_n, \, \sigma).
 $$
 
 This latter form of the model is coded in Stan as follows.
+
+最后一种模型的表述形式在Stan中的代码如下。
 
 ```stan
 data {
@@ -49,15 +68,24 @@ There are `N` observations and for each observation, $n \in N$,  we have predict
 distributed noise term with scale `sigma`.  This model has
 improper priors for the two regression coefficients.
 
+有N个观测值，对于每个观测值，其中$n \in N$，我们有自变量`x[n]`和因变量`y[n]`。截距参数为`alpha`，斜率参数为`beta`。
+该模型假设噪声项服从标准差为`sigma`的正态分布。该模型对于两个回归系数使用了非正常先验分布。
+
 ### Matrix notation and vectorization {- #vectorization.section}
 
+### 矩阵符号和向量化 {- #vectorization.section}
+
 The sampling statement in the previous model is vectorized, with
+
+前面模型中的采样形式进行向量化处理后，有如下表达形式，
 
 ```stan
 y ~ normal(alpha + beta * x, sigma);
 ```
 
 providing the same model as the unvectorized version,
+
+这与未向量化的版本对应的是相同的模型，
 
 ```stan
 for (n in 1:N) {
@@ -67,6 +95,8 @@ for (n in 1:N) {
 
 In addition to being more concise, the vectorized form is much faster.^[Unlike in Python and R, which are interpreted, Stan is translated to C++ and compiled, so loops and assignment statements are fast.  Vectorized code is faster in Stan because (a) the expression tree used to compute derivatives can be simplified, leading to fewer virtual function calls, and (b) computations that would be repeated in the looping version, such as `log(sigma)` in the above model, will be computed once and reused.]
 
+除了表达更简洁外，向量化形式还具有更高的运行速度。^[与Python和R不同，Stan是被转换为C++并进行编译的，因此循环和赋值语句速度较快。在Stan中，向量化代码更快的原因是：(1) 用于计算导数的表达式树可以简化，从而减少虚函数调用；(2) 在循环版本中会重复进行的计算，例如上述模型中的'log(sigma)'，将只计算一次并被重复使用。]
+
 In general, Stan allows the arguments to distributions such as
 `normal` to be vectors.  If any of the other arguments are vectors or
 arrays, they have to be the same size.  If any of the other arguments
@@ -74,12 +104,17 @@ is a scalar, it is reused for each vector entry.  See [the
 vectorization section](#vectorization.section) for more information on
 vectorization of probability functions.
 
+通常情况下，Stan允许像`normal`（正态分布）这样的分布函数的参数是向量。如果其他参数中有向量或数组，则它们必须具有相同的大小。如果其他参数是标量，
+则会为每个向量条目重复使用该标量。有关概率函数向量化的更多信息，请参阅[向量化部分](#vectorization.section)。
+
 The other reason this works is that Stan's arithmetic operators are
 overloaded to perform matrix arithmetic on matrices.  In this case,
 because `x` is of type `vector` and `beta` of type
 `real`, the expression `beta * x` is of type `vector`.
 Because Stan supports vectorization, a regression model with more than
 one predictor can be written directly using matrix notation.
+
+这种工作的另一个原因是，Stan的算术运算符被重载为在矩阵上执行矩阵运算。在这种情况下，因为`x`的类型是`vector`，`beta`的类型是`real`，所以表达式`beta * x`的类型是`vector`。由于Stan支持向量化，可以直接使用矩阵符号编写具有多个自变量的回归模型。
 
 ```stan
 data {
@@ -104,6 +139,9 @@ in the model block, the effect is an improper prior on non-negative
 real numbers.  Although a more informative prior may be added, improper
 priors are acceptable as long as they lead to proper posteriors.
 
+在`sigma`的声明中，约束条件`lower=0`将其值限制在大于等于0的区间上。在模型块中没有给出先验的情况下，将默认使用非正常的先验分布。
+尽管我们可以添加更具信息量的先验分布，但是只要最终能够导出正常的后验分布，使用非正常的先验分布也是可接受的。
+
 In the model above, `x` is an $N \times K$ matrix of predictors
 and `beta` a $K$-vector of coefficients, so `x * beta` is an
 $N$-vector of predictions, one for each of the $N$ data items.  These
@@ -112,9 +150,14 @@ the entire model may be written using matrix arithmetic as shown.  It
 would be possible to include a column of ones in the data matrix `x` to
 remove the `alpha` parameter.
 
+在上述模型中`x`是一个$N \times K$的自变量矩阵或数据矩阵，`beta`是一个$K$维的系数向量，因此`x * beta`是一个$N$维的预测向量，每个元素对应于$N$个数据项中的一个。这些预测值与$N$维向量`y`中的观测结果对应，因此整个模型可以使用矩阵运算来表示。
+如果想要去掉`alpha`参数，也可以在数据矩阵`x`中加入一列全为1的向量。
+
 The sampling statement in the model above is just a more efficient,
 vector-based approach to coding the model with a loop, as in the
 following statistically equivalent model.
+
+上述模型中的采样语句只是一种基于向量的更高效的代码写法。在统计学意义上，上述写法与下面这一使用循环语句写成的版本是等价的。
 
 ```stan
 model {
@@ -128,9 +171,15 @@ With Stan's matrix indexing scheme, `x[n]` picks out row `n`
 of the matrix `x`;  because `beta` is a column vector,
 the product `x[n] * beta` is a scalar of type `real`.
 
+根据Stan的矩阵索引方案，`x[n]`表示矩阵`x`的第`n`行；由于`beta`是一个列向量，因此乘积`x[n]` * `beta`是一个`real`类型的标量。
+
 #### Intercepts as inputs {-}
 
+#### 将截距作为输入 {-}
+
 In the model formulation
+
+在模型的表述中，
 
 ```stan
 y ~ normal(x * beta, sigma);
@@ -146,7 +195,11 @@ singled out because there's one fewer multiplications; it should not
 make that much of a difference to speed, though, so the choice should
 be based on clarity.
 
+不再存在截距系数`alpha`。取而代之的是，我们假设输入矩阵`x`的第一列是全为1的列。这样，`beta[1]`就扮演截距的角色。如果截距与斜率项有不同的先验分布，那么将其单独分离出来会更清晰。显式地将截距变量单独提出来，在运算上会略微高效一些，因为少了一个乘法操作；不过对速度来说，这并不会有太大的影响，所以我们应当选择更简明清晰的代码表述。
+
 ## The QR reparameterization {#QR-reparameterization.section}
+
+## QR重参数化 {#QR-reparameterization.section}
 
 In the previous example, the linear predictor can be written as $\eta
 = x \beta$, where $\eta$ is a $N$-vector of predictions, $x$ is a $N
@@ -155,6 +208,10 @@ Presuming $N \geq K$, we can exploit the fact that any design matrix
 $x$ can be decomposed using the thin QR decomposition into an
 orthogonal matrix $Q$ and an upper-triangular matrix $R$, i.e. $x = Q
 R$.
+
+在前面的例子中，线性预测器可以写作$\eta = x \beta$，其中，$\eta$是一个$N$维的预测向量，
+$x$ 是一个 $N \times K$ 的矩阵，$\beta$ 是一个 $K$ 维的系数向量。如果$N \geq K$，则说明
+我们可以对任意设计矩阵$x$进行薄QR分解（thin QR decomposition），将其分解为一个正交矩阵 $Q$ 和一个上三角矩阵 $R$，即 $x = Q R$。
 
 The functions `qr_thin_Q` and `qr_thin_R` implement the thin QR decomposition,
 which is to be preferred to the fat QR decomposition that would be obtained
@@ -166,6 +223,8 @@ R^\ast$ where $Q^\ast = Q * \sqrt{n - 1}$ and $R^\ast =
 \beta = Q R \beta = Q^\ast R^\ast \beta$. If we let $\theta = R^\ast
 \beta$, then we have $\eta = Q^\ast \theta$ and $\beta = R^{\ast^{-1}}
 \theta$. In that case, the previous Stan program becomes
+
+函数qr_thin_Q和qr_thin_R实现了薄QR分解，薄QR分解比使用qr_Q和qr_R得到的完整QR分解更可取，因为后者更容易耗尽内存（请参阅Stan函数参考手册，了解有关qr_thin_Q和qr_thin_R函数的更多信息）。在实践中，最好将其写成 $x = Q^\ast R^\ast$，其中 $Q^\ast = Q * \sqrt{n - 1}$，$R^\ast = \frac{1}{\sqrt{n - 1}} R$。因此，我们可以等价地写成 $\eta = x\beta = QR\beta = Q^\ast R^\ast\beta$。如果我们令 $\theta = R^\ast\beta$，那么我们有 $\eta = Q^\ast\theta$ 和 $\beta = R^{\ast^{-1}}\theta$。在这种情况下，前面的Stan程序变为：
 
 ```stan
 data {
@@ -204,6 +263,8 @@ reparameterization performs so much better in practice, often both in
 terms of wall time and in terms of effective sample size. The
 reasoning is threefold:
 
+由于这个Stan程序生成的预测值 $y$ 与之前的Stan程序生成的预测值相等，并且二者给出的 $\alpha$、$\beta$ 和 $\sigma$ 的后验分布也相同，许多人想知道为什么具有这种QR重参数化的版本在实践中表现得更好，通常在绝对时间和有效样本量方面都更好。原因有三点：
+
 1. The columns of $Q^\ast$ are orthogonal whereas the columns of
   $x$ generally are not. Thus, it is easier for a Markov Chain to move
   around in $\theta$-space than in $\beta$-space.
@@ -218,6 +279,13 @@ reasoning is threefold:
   units of $y$ are also reasonable. This also helps HMC move
   efficiently without compromising numerical accuracy.
 
+1. $Q^\ast$ 的列是正交的，而 $x$ 的列通常不是。因此，马尔可夫链在 $\theta$
+空间中移动比在 $\beta$ 空间中更容易。
+
+1. $Q^\ast$ 的列具有相同的尺度，而 $x$的列通常没有。
+因此，哈密顿蒙特卡罗算法只需以较大步长在参数空间中进行少量移动。
+
+1. 由于 $Q^\ast$ 的列的协方差矩阵是单位矩阵，如果 $y$ 的单位也合理，$\theta$ 通常具有合理的尺度。这也有助于哈密顿蒙特卡罗方法在保持数值精度的同时高效地移动。
 
 Consequently, this QR reparameterization is recommended for linear and
 generalized linear models in Stan whenever $K > 1$ and you do not have
@@ -228,15 +296,24 @@ distribution of $\theta$ or $\beta$ but does affect $\alpha$ and
 allows you to interpret $\alpha$ as the expectation of $y$ in a linear
 model.
 
+因此，在Stan中，对于线性和广义线性模型，如果 $K > 1$ 并且对 $\beta$ 的位置没有信息先验，则建议使用这种QR重参数化方法。在获得QR分解之前，将每列的均值减去也是值得考虑的做法。这不会影响 $\theta$ 或 $\beta$ 的后验分布，但会影响 $\alpha$，并使您能够将 $\alpha$ 解释为线性模型中 $y$ 的期望值。
+
 ## Priors for coefficients and scales {#regression-priors.section}
+
+## 系数和尺度的先验分布 {#regression-priors.section}
 
 See our [general discussion of priors](https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations)
 for tips on priors for parameters in regression models.
+
+关于回归模型参数先验分布的建议，请参阅我们的[先验分布的概述讨论](https://github.com/stan-dev/stan/wiki/Prior-Choice-Recommendations)。
 
 Later sections discuss [univariate
 hierarchical priors](#hierarchical-priors.section) and [multivariate
 hierarchical priors](#multivariate-hierarchical-priors.section), as well
 as [priors used to identify models](#priors-for-identification.section).
+
+
+后续章节讨论了[单变量层次先验分布](#hierarchical-priors.section)和[多变量层次先验分布](#multivariate-hierarchical-priors.section)，以及[用于识别模型的先验分布](#priors-for-identification.section)。
 
 However, as described in [QR-reparameterization
 section](#QR-reparameterization.section), if you do not have an
@@ -247,10 +324,12 @@ usually does not matter much what prior is used on on the
 reparameterized regression coefficients and almost any weakly
 informative prior that scales with the outcome will do.
 
-
+然而，如在[QR重参数化章节](#QR-reparameterization.section)所述，如果你对回归系数的*位置*没有信息先验，那么最好对模型进行重参数化，使得回归系数成为输出量。在这种情况下，通常对重参数化后的回归系数使用何种先验并不重要，几乎任何随着结果变化的弱信息先验都可以使用。
 
 
 ## Robust noise models
+
+## 鲁棒噪声模型
 
 The standard approach to linear regression is to model the noise
 term $\epsilon$ as having a normal distribution.  From Stan's
@@ -259,6 +338,7 @@ noise.  For instance, robust regression can be accommodated by giving
 the noise term a Student-$t$ distribution.  To code this in Stan, the
 sampling distribution is changed to the following.
 
+线性回归的标准方法是将噪声项 $\epsilon$ 建模为服从正态分布。从Stan的角度来看，正态分布的噪声没有什么特别之处。例如，鲁棒回归中可以让噪声项服从学生-$t$分布。为了在Stan中编码这个模型，需要将采样分布更改为以下形式。
 
 ```stan
 data {
@@ -273,7 +353,11 @@ model {
 
 The degrees of freedom constant `nu` is specified as data.
 
+自由度常数`nu`被指定为数据。
+
 ## Logistic and probit regression {#logistic-probit-regression.section}
+
+## 逻辑回归和概率回归 {#logistic-probit-regression.section}
 
 For binary outcomes, either of the closely related logistic or probit
 regression models may be used.  These generalized linear models vary
@@ -282,9 +366,12 @@ $(-\infty,\infty)$ to probability values in $(0,1)$.  Their respective
 link functions, the logistic function and the standard normal cumulative distribution
 function, are both sigmoid functions (i.e., they are both *S*-shaped).
 
+对于二元结果，可以使用紧密相关的逻辑回归（logistic regression）模型或概率回归（probit regression）模型之一。这些广义线性模型仅在它们用于将线性预测从$(-\infty,\infty)$映射到$(0,1)$的链接函数上有所不同。它们各自的链接函数，即逻辑函数和标准正态累积分布函数，都是S型函数（即这些函数的形状都与字母*S*相同）。
+
 A logistic regression model with one predictor and an intercept is coded as
 follows.
 
+具有一个自变量和截距项的逻辑回归模型可以按以下方式进行编码。
 
 ```stan
 data {
@@ -304,19 +391,30 @@ model {
 The noise parameter is built into the Bernoulli formulation here
 rather than specified directly.
 
+噪声参数在这里内置于伯努利公式中，而不是直接给定。
+
 Logistic regression is a kind of generalized linear model with binary
 outcomes and the log odds (logit) link function, defined by
+
+逻辑回归是一种具有二元结果和对数几率（逻辑）链接函数的广义线性模型，定义如下：
+
 $$
 \operatorname{logit}(v) = \log \left( \frac{v}{1-v} \right).
 $$
 
 The inverse of the link function appears in the model:
+
+模型中出现的连接函数的反函数：
+
 $$
 \operatorname{logit}^{-1}(u) = \texttt{inv}\mathtt{\_}\texttt{logit}(u) = \frac{1}{1 + \exp(-u)}.
 $$
 
 The model formulation above uses the logit-parameterized version of
 the Bernoulli distribution, which is defined by
+
+上面的模型中使用了伯努利分布的逻辑参数化版本（logit-parameterized version），其定义如下：
+
 $$
 \texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha \right)
 =
@@ -328,6 +426,7 @@ The formulation is also vectorized in the sense that `alpha` and
   + beta * x` is a vector.  The vectorized formulation is equivalent
 to the less efficient version
 
+在这种表达中，`alpha`和`beta`是标量，`x`是向量，因此`alpha + beta * x`是一个向量。该向量化表达式和下面这个低效形式等价：
 
 ```stan
 for (n in 1:N) {
@@ -338,6 +437,7 @@ for (n in 1:N) {
 Expanding out the Bernoulli logit, the model is equivalent to the more
 explicit, but less efficient and less arithmetically stable
 
+将伯努利逻辑表达式展开，模型等同于如下形式。该形式表述清晰，但更加低效，数值计算上也更不稳定。
 
 ```stan
 for (n in 1:N) {
@@ -349,6 +449,8 @@ Other link functions may be used in the same way.  For example, probit
 regression uses the cumulative normal distribution function, which is
 typically written as
 
+其他链接函数可以以相同的方式使用。例如，概率回归使用的是累积正态分布函数，通常表示为：
+
 $$
 \Phi(x) = \int_{-\infty}^x \textsf{normal}\left(y \mid 0,1 \right) \,\textrm{d}y.
 $$
@@ -358,6 +460,7 @@ in Stan as the function `Phi`.  The probit regression model
 may be coded in Stan by replacing the logistic model's sampling
 statement with the following.
 
+在Stan中，标准正态的累积分布函数$\Phi$被实现为函数`Phi`。要在Stan中实现概率回归模型，只需用以下语句替换逻辑回归模型的采样语句即可。
 
 ```stan
 y[n] ~ bernoulli(Phi(alpha + beta * x[n]));
@@ -369,11 +472,15 @@ function $\Phi$ is implemented in Stan as the function
 The approximate probit regression model may
 be coded with the following.
 
+在Stan中，对累积标准正态分布函数$\Phi$的快速近似实现为函数`Phi_approx`。^[Phi_approx函数是逆逻辑函数的重新缩放版本，因此尽管尺度大致与$\Phi$相同，但尾部并不匹配。]可以使用以下代码编写近似概率回归模型。
+
 ```stan
 y[n] ~ bernoulli(Phi_approx(alpha + beta * x[n]));
 ```
 
 ## Multi-logit regression {#multi-logit.section}
+
+## 多类别逻辑回归 {#multi-logit.section}
 
 Multiple outcome forms of logistic regression can be coded directly in
 Stan.  For instance, suppose there are $K$ possible outcomes for each
@@ -381,6 +488,7 @@ output variable $y_n$.  Also suppose that there is a $D$-dimensional
 vector $x_n$ of predictors for $y_n$.  The multi-logit model with
 $\textsf{normal}(0,5)$ priors on the coefficients is coded as follows.
 
+在Stan中可以直接编码多类别的逻辑回归。例如，假设对于每个输出变量$y_n$，有$K$个可能的类别。还假设存在一个$D$维的自变量向量$x_n$，用于预测$y_n$。系数的先验分布为$\textsf{normal}(0,5)$的多类别逻辑模型可以编码如下。
 
 ```stan
 data {
@@ -412,12 +520,19 @@ is pulled out to define a local variable for all of the predictors for
 efficiency.  Like the Bernoulli-logit, the categorical-logit
 distribution applies softmax internally to convert an arbitrary vector
 to a simplex,
+
+其中 `x_beta[n]'`是`x_beta[n]`的转置。`beta`的先验也是向量形式。截至Stan 2.18版本，分类-逻辑分布（categorical-logit distribution）的参数未进行向量化处理，因此需要使用循环。这里用矩阵乘法来定义一个对应所有自变量的局部变量，以提高效率。与伯努利-逻辑（Bernoulli-logit）分布一样，分类-逻辑分布在内部应用softmax函数将任意向量转换为单纯形，
+
 $$
 \texttt{categorical}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right)
 =
 \texttt{categorical}\left(y \mid \texttt{softmax}(\alpha)\right),
 $$
+
 where
+
+其中
+
 $$
 \texttt{softmax}(u) = \exp(u) / \operatorname{sum}\left(\exp(u)\right).
 $$
@@ -425,13 +540,15 @@ $$
 The categorical distribution with log-odds (logit) scaled parameters
 used above is equivalent to writing
 
+上面使用对数几率（逻辑）缩放参数的分布也等价于下面的代码：
+
 ```stan
 y[n] ~ categorical(softmax(x[n] * beta));
 ```
 
-
-
 #### Constraints on data declarations {-}
+
+#### 数据声明的约束 {-}
 
 The data block in the above model is defined without constraints on
 sizes `K`, `N`, and `D` or on the outcome array
@@ -441,6 +558,7 @@ before sampling begins.  Constraints on data declarations also make
 the model author's intentions more explicit, which can help with
 readability.  The above model's declarations could be tightened to
 
+上述模型中的数据块没有给`K`、`N`、`D`和`y`定义约束。数据声明的约束可以在读取数据（或定义转换数据）时进行错误检查，该步骤发生在采样开始之前。数据声明的约束还可以使模型作者的意图更加明确，从而提高可读性。上述模型的声明可以进一步加强，如下所示：
 
 ```stan
 int<lower=2> K;
@@ -460,6 +578,8 @@ appropriate argument for `softmax()`.  The categorical outcomes
 `y[n]` must be between `1` and `K` in order for the
 discrete sampling to be well defined.
 
+这些约束是因为在分类模型中，类别数量`K`必须至少为2才能有用。数据项数量`N`可以为零，但不能为负数；与R不同，Stan的for循环总是向前移动，因此当`N`等于零时，循环范围为`1:N`可确保循环体不会被执行。自变量的数量`D`必须至少为1，以便`beta * x[n]`生成`softmax()`的适当参数。分类结果`y[n]`必须在`1`和`K`之间，以使离散采样定义良好。
+
 Constraints on data declarations are optional.  Constraints on
 parameters declared in the `parameters` block, on the other hand,
 are *not* optional---they are required to ensure support for all
@@ -467,17 +587,25 @@ parameter values satisfying their constraints.  Constraints on
 transformed data, transformed parameters, and generated quantities are
 also optional.
 
+数据声明的约束是可选的。另一方面，在参数（parameters）块中声明的约束是不可选的，它们是必需的，以确保所有参数的支撑集满足约束条件。在变换后数据、变换后参数和生成量部分，约束也是可选的。
+
 ### Identifiability {-}
+
+### 可识别性 {-}
 
 Because softmax is invariant under adding a constant to each component
 of its input, the model is typically only identified if there is a
 suitable prior on the coefficients.
+
+因为在向softmax输入值的每个分量添加同一个常数时，输出不变，所以模型通常只有系数有合适的先验分布时才有可识别性。
 
 An alternative is to use $(K-1)$-vectors by fixing one of them to be
 zero. The [partially known parameters
 section](#partially-known-parameters.section) discusses how to mix
 constants and parameters in a vector.  In the multi-logit case, the
 parameter block would be redefined to use $(K - 1)$-vectors
+
+另一种方法是通过将其中之一固定为零的方式，来使用$(K-1)$-向量。[部分已知参数章节](#partially-known-parameters.section)讨论了如何在向量中混合常数和参数。在多类别逻辑回归情况下，参数块将被重新定义为使用$(K-1)$-向量的形式
 
 ```stan
 parameters {
@@ -489,6 +617,8 @@ and then these are transformed to parameters to use in the model.
 First, a transformed data block is added before the parameters block
 to define a vector of zero values,
 
+然后这些会被转换为在模型中使用的参数。首先，在参数块之前需要添加一个转换数据块，以定义一个零向量，
+
 ```stan
 transformed data {
   vector[D] zeros = rep_vector(0, D);
@@ -497,6 +627,8 @@ transformed data {
 
 which can then be appended to `beta_raw` to produce the
 coefficient matrix `beta`,
+
+然后可以将其附加到`beta_raw`上，以生成系数矩阵`beta`，
 
 ```stan
 transformed parameters {
@@ -511,13 +643,20 @@ end of `beta_raw`;  the vector `zeros` is defined as transformed
 data so that it doesn't need to be constructed from scratch each time
 it is used.
 
+`rep_vector(0, D)`的调用创建了一个长度为`D`的列向量，其中所有元素均设为零。然后，通过在`beta_raw`的末尾作为新列附加向量`zeros`的方式，定义矩阵`beta`；向量`zeros`被定义为转换数据，这样每次使用时就不需要从头开始构建它。
+
+
 This is not the same model as using $K$-vectors as parameters,
 because now the prior only applies to $(K-1)$-vectors.  In practice,
 this will cause the maximum likelihood solutions to be different and
 also the posteriors to be slightly different when taking priors
 centered around zero, as is typical for regression coefficients.
 
+这与将$K$-向量作为参数使用的模型不同，因为现在先验分布仅适用于 $(K-1)$-向量。实际上，这将导致最大似然的解有所不同，并且在采用以零为中心的先验分布（通常用于回归系数）时，得到的后验分布也会略有不同。
+
 ## Parameterizing centered vectors
+
+## 中心化向量的参数化 
 
 It is often convenient to define a parameter vector $\beta$ that is
 centered in the sense of satisfying the sum-to-zero constraint,
@@ -532,12 +671,22 @@ ability or difficulty parameters (but not both) in an IRT model (see
 the [item-response model section](#item-response-models.section) for
 details).
 
+为了方便，我们通常定义一个中心化的参数向量$\beta$，即满足总和为零的约束条件，
+$$
+\sum_{k=1}^K \beta_k = 0.
+$$
+这样的参数向量可以用于识别多分类逻辑回归回归的参数向量（详见[多分类逻辑回归部分](#multi-logit.section)），或者项目反应模型中的能力或难度参数（但不能同时识别，详见[项目反应模型部分](#item-response-models.section)）。
+
 
 ### $K-1$ degrees of freedom {-}
+
+### $K-1$维自由度 {-}
 
 There is more than one way to enforce a sum-to-zero constraint on a
 parameter vector, the most efficient of which is to define the $K$-th
 element as the negation of the sum of the elements $1$ through $K-1$.
+
+对于参数向量，有多种方式可以让它满足总和为零的约束条件，其中最高效的方式是将第$K$个元素定义为前$K-1$个元素的和的相反数。
 
 ```stan
 parameters {
@@ -560,11 +709,17 @@ the same prior on each component of an unconstrained $K$-vector
 on `beta` will produce a different posterior mode than placing
 the same prior on `beta_raw`.
 
+在对`beta_raw`设置先验时是否加入总和为$0$的约束条件将会导致后验结果产生微妙差异。特别值得注意的是，在每个`beta_raw`分量上设置简单的先验与在无约束的$K$维向量`beta`的每个分量上设置相同的先验会产生不同的结果。例如，设置`beta`和`beta_raw`服从相同的先验分布$\textsf{normal}(0,5)$将产生不同的后验结果。
+
 #### Marginal distribution of sum-to-zero components {-}
+
+#### 和为零的成分的边际分布 {-}
 
 On the Stan forums, Aaron Goodman provided the following code to
 produce a prior with standard normal marginals on the components of
 `beta`,
+
+在Stan论坛上，Aaron Goodman提供了以下代码，用于生成在`beta`各分量上具有标准正态边缘分布的先验，
 
 ```stan
 model {
@@ -581,12 +736,19 @@ To generate distributions with marginals other than standard normal,
 the resulting `beta` may be scaled by some factor `sigma` and
 translated to some new location `mu`.
 
+由于分量总和为零，所以各分量之间不是独立的。由于求和和取负都是线性操作，我们不需要雅可比矩阵（因此雅可比为常数）。
+
+我们可以通过对`beta`进行平移和伸缩变换（参数分别为`mu`和 `sigma`）来生成具有非标准正态边缘分布的先验。
+
 
 ### QR decomposition {-}
+### QR分解 {-}
 
 Aaron Goodman, on the Stan forums, also provided this approach, which
 calculates a QR decomposition in the transformed data block, then uses
 it to transform to a sum-to-zero parameter `x`,
+
+Aaron Goodman在stan论坛上还提供了另一种方法，即在转化后的数据块上进行QR分解，然后转换成一个求和为零的参数`x`，
 
 ```stan
 transformed data{
@@ -610,11 +772,15 @@ model {
 This produces a marginal standard normal distribution on the values of
 `beta`, which will sum to zero by construction of the QR decomposition.
 
+这样就生成了一个每一个分量的边缘分布为标准正态分布的向量`beta`，且通过QR分解使得求和为零。
 
 ### Translated and scaled simplex {-}
+###  平移与缩放后的单纯形 {-}
 
 An alternative approach that's less efficient, but amenable to a
 symmetric prior, is to offset and scale a simplex.
+
+另一种效率较低，但适用于对称先验的替代方法是对一个单纯形进行平移和缩放。
 
 ```stan
 parameters {
@@ -640,8 +806,10 @@ With this parameterization, a Dirichlet prior can be placed on
 `beta_raw`, perhaps uniform, and another prior put on
 `beta_scale`, typically for "shrinkage."
 
+其中，`inv(K)`是`1.0 / K`的简写形式。由于`beta_raw`是一个单纯形向量，其总和为1，通过逐元素减去inv(K)，可以确保其总和为零。由于单纯形元素的取值范围是有界的，因此需要一个缩放因子来使 `beta`具有K个自由度，以便能够取得总和为零的所有可能值。
 
 ### Soft centering {-}
+### 软中心化 {-}
 
 Adding a prior such as $\beta \sim \textsf{normal}(0,\sigma)$ will provide a kind
 of soft centering of a parameter vector $\beta$ by preferring, all
@@ -651,8 +819,11 @@ for a scalar constant $c$ produce the same likelihood (perhaps by
 another vector $\alpha$ being transformed to $\alpha - c$, as in the
 IRT models).  This is another way of achieving a symmetric prior.
 
+相较于使$\sum_{k=1}^K \beta_k = 0$（在其他条件相等的情况下），添加例如$\beta \sim \textsf{normal}(0,\sigma)$的先验提供了一种对参数向量$\beta$进行软中心化的方式。只有当$\beta$和$\beta + c$（$c$是标量常数）产生相同的似然（可能通过将另一个向量$\alpha$转化为$\alpha - c$，如在IRT模型中一样），这种方法才能保证能够大致中心化。这是实现对称先验的另一种方式。
 
 ## Ordered logistic and probit regression {#ordered-logistic.section}
+
+## 有序logistic回归和probit回归 {#ordered-logistic.section}
 
 Ordered regression for an outcome $y_n \in \{ 1, \dotsc, k \}$ with
 predictors $x_n \in \mathbb{R}^D$ is determined by a single coefficient
@@ -663,11 +834,18 @@ $c_k$, assuming $c_0 = -\infty$ and $c_K = \infty$.  The noise term is
 fixed by the form of regression, with examples for ordered logistic
 and ordered probit models.
 
+有序回归包含输出$y_n \in \{ 1, \dotsc, k \}$和预测变量$x_n \in \mathbb{R}^D$，它由单个系数向量$\beta \in \mathbb{R}^D$和按顺序排列的截断点序列$c \in \mathbb{R}^{K-1}$确定。如果线性预测器$x_n \beta$的值落在$c_{k-1}$和$c_k$之间（假设$c_0 = -\infty$和$c_K = \infty$），则离散输出为$k$。噪声项由回归形式确定，这包括有序Logistic模型和有序Probit模型的示例。
+
 ### Ordered logistic regression {-}
+
+### 有序logistic回归 {-}
 
 The ordered logistic model can be coded in Stan using the
 `ordered` data type for the cutpoints and the built-in
 `ordered_logistic` distribution.
+
+有序Logistic模型可以使用Stan编码，其中使用`ordered`数据类型表示截断点，并使用内置的`ordered_logistic`分布。
+
 
 
 ```stan
@@ -698,13 +876,20 @@ satisfy the ordering constraint.  Luckily, Stan does not need to
 compute the effect of the constraint on the normalizing term because
 the probability is needed only up to a proportion.
 
+截断点向量 `c` 被声明为 `ordered[K - 1]`，这确保 `c[k]` 小于 `c[k + 1]`。
+
+如果给截断点分配独立的先验，约束条件会有效地将联合先验截断为满足排序约束的支持点。幸运的是，Stan 不需要计算约束对归一化项的影响，因为只需要计算概率的比例。
+
 
 #### Ordered probit {-}
+
+#### 有序probit回归 {-}
 
 An ordered probit model could be coded in exactly the same way by
 swapping the cumulative logistic (`inv_logit`) for the cumulative
 normal (`Phi`).
 
+通过将累积逻辑函数 (`inv_logit`) 替换为累积正态函数 (`Phi`)，可以以完全相同的方式编码有序Probit模型。
 
 ```stan
 data {
@@ -739,8 +924,11 @@ on the softmax transform is more efficient and more numerically
 stable.  A small efficiency gain could be achieved by computing the
 values `Phi(eta - c[k])` once and storing them for re-use.
 
+尽管基于 softmax 变换的内置编码更高效且数值上更稳定，逻辑回归模型也可以通过将 `Phi` 替换为 `inv_logit` 这种方式进行编码。通过计算值 `Phi(eta - c[k])` 一次并将其存储以供重复使用，可以获得一定的效率提升。
 
 ## Hierarchical logistic regression
+
+## 分层logistic回归
 
 The simplest multilevel model is a hierarchical model in which the
 data are grouped into $L$ distinct categories (or levels).  An extreme
@@ -751,6 +939,8 @@ coefficient vector $\beta_l$ that is estimated separately from the
 other levels.  A hierarchical model is an intermediate solution where
 the degree of pooling is determined by the data and a prior on the
 amount of pooling.
+
+最简单的多层次模型是一种分层模型，其中数据被分组为 $L$ 个不同的类别（或层级）。一种极端的方法是完全汇集所有数据并估计一个共同的回归系数向量 $\beta$。另一种极端的方法是不进行汇集，为每个层级 $l$ 分别进行估计并分配其系数向量 $\beta_l$，。分层模型是一种中间解决方案，其中汇集程度由数据和对汇集数量的先验确定。
 
 Suppose each binary outcome $y_n \in \{ 0, 1 \}$ has an associated
 level, $ll_n \in \{ 1, \dotsc, L \}$.  Each outcome will also have
@@ -763,8 +953,12 @@ the data in each level are  similar, strong pooling will be
 reflected in low hierarchical variance.  If the data in the levels are
 dissimilar, weaker pooling will be reflected in higher hierarchical variance.
 
+假设每个二元结果 $y_n \in \{0, 1\}$ 都有一个相关的层级 $ll_n \in \{1, \dots, L\}$。每个结果还将有一个相关的预测向量 $x_n \in \mathbb{R}^D$。每个层级 $l$ 都有自己的系数向量 $\beta_l \in \mathbb{R}^D$。分层结构包括从先验中抽取系数 $\beta_{l,d} \in \mathbb{R}$，该先验也由数据估计得到。这种分层估计的先验决定了汇集的数量。如果每个层级中的数据相似，强汇集将反映在较低的层次方差中。如果层级中的数据不同，较弱的汇集将反映在较高的层次方差中。
+
 The following model encodes a hierarchical logistic regression model
 with a hierarchical prior on the regression coefficients.
+
+以下模型编码了一个具有分层先验的分层 logistic 回归模型。
 
 
 ```stan
@@ -802,7 +996,11 @@ informative or at least weakly informative priors for all parameters;
 see the [regression priors section](#regression-priors.section) for
 recommendations on priors for regression coefficients and scales.
 
+标准差参数 `sigma` 在声明中有一个下界约束为零，因此隐式地获得了 $(0, \infty)$ 的均匀先验分布。Stan 允许使用不正确的先验分布，只要后验分布是正确的。然而，通常情况下，为所有参数提供信息量较大或至少是弱信息的先验分布是有帮助的；有关回归系数和尺度的先验分布建议，请参阅[回归先验章节](#regression-priors.section)。
+
 #### Optimizing the model {-}
+
+#### 模型优化 {-}
 
 Where possible, vectorizing sampling statements leads to faster log
 probability and derivative evaluations.  The speed boost is not
@@ -811,8 +1009,11 @@ subcomputations in the log probability and gradient calculations and
 because it reduces the size of the expression tree required for
 gradient calculations.
 
+在可能的情况下，向量化采样语句可以加快对数概率和导数的计算速度。速度提升的原因不是因为消除了循环，而是因为向量化允许在对数概率和梯度计算中共享子计算，并且减少了梯度计算所需的表达式树的大小。
+
 The first optimization vectorizes the for-loop over `D` as
 
+第一个优化是将对 `D` 的循环向量化，如下所示：
 
 ```stan
 mu ~ normal(0, 100);
@@ -833,6 +1034,9 @@ arithmetically stable by replacing the application of inverse-logit
 inside the Bernoulli distribution with the logit-parameterized
 Bernoulli,^[The Bernoulli-logit distribution builds in the log link function, taking $$\texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right) = \texttt{bernoulli}\left(y \mid \operatorname{logit}^{-1}(\alpha)\right).$$]
 
+`beta`的声明为一个向量数组意味着表达式 `beta[l]` 表示一个向量。尽管 `beta` 可以声明为一个矩阵，但是对于访问行而言，向量数组（或二维数组）更高效；有关数组、向量和矩阵之间的效率权衡的更多信息，请参阅[索引效率部分](#indexing-efficiency.section)。
+
+通过将伯努利分布中的逆对数概率应用替换为对数参数化的伯努利分布，可以进一步加快模型速度并提高算法稳定性。^[伯努利对数几率分布内置了对数链接函数，采用 $$\texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right) = \texttt{bernoulli}\left(y \mid \operatorname{logit}^{-1}(\alpha)\right).$$]
 
 ```stan
 for (n in 1:N) {
@@ -847,6 +1051,7 @@ for by the increased efficiency due to vectorizing the log probability
 and gradient calculations.  Thus the following version is faster than
 the original formulation as a loop over a sampling statement.
 
+与R或BUGS不同，Stan中的循环、数组访问和赋值速度很快，因为它们直接转化为C++代码。在大多数情况下，分配和赋值容器的成本都可以通过向量化的对数概率和梯度计算的提高效率来弥补。因此，以下版本比作为采样语句的循环版本更快。
 
 ```stan
 {
@@ -868,8 +1073,13 @@ cases is to first develop and debug the more transparent version of
 the model and only work on optimizations when the simpler formulation
 has been debugged.
 
+括号引入了一个新的作用域，用于局部变量 `x_beta_ll`；或者，该变量可以在模型块的顶部声明。
+
+在某些情况下，例如上述情况，局部变量赋值会导致模型可读性较差。在这种情况下，建议的做法是首先开发和调试更简单、更透明的模型版本，只有在简单版本调试完成后才进行优化工作。
 
 ## Hierarchical priors {#hierarchical-priors.section}
+
+## 分层先验 {#hierarchical-priors.section}
 
 Priors on priors, also known as "hyperpriors," should be treated the
 same way as priors on lower-level parameters in that as much prior
@@ -879,7 +1089,12 @@ care must be taken to ensure the posterior is both proper and not
 overly sensitive either statistically or computationally to wide tails
 in the priors.
 
+
+关于先验的先验，也被称为“超先验”应该与对低层参数的先验相同地对待，即要尽可能利用所有可用的先验信息。由于超先验通常只适用于少数低层参数，因此需要注意确保后验分布既是合理的，又不会对先验中厚尾部分的统计或计算过于敏感。
+
 ### Boundary-avoiding priors for MLE in hierarchical models {-}
+
+### 在分层模型的极大似然估计中的边界避免先验 {-}
 
 The fundamental problem with maximum likelihood estimation (MLE) in
 the hierarchical model setting is that as the hierarchical variance
@@ -909,7 +1124,28 @@ $$
 for a reasonably large value of $A$, such as $A = 10$.
 
 
+在分层模型中，极大似然估计的基本问题是随着分层方差的减小和值聚集在分层均值周围，整体密度将无限增大。以一个简单的分层线性回归模型（具有固定的先验均值）作为例子，假设有 $y_n \in \mathbb{R}$ 和 $x_n \in \mathbb{R}^K$，模型可以表述为：
+
+\begin{align*}
+y_n     & \sim \textsf{normal}(x_n \beta, \sigma) \\
+\beta_k & \sim \textsf{normal}(0,\tau) \\
+\tau    & \sim \textsf{Cauchy}(0,2.5)
+\end{align*}
+
+在这种情况下，当 $\tau \rightarrow 0$ 且 $\beta_k \rightarrow 0$ 时，后验密度 $p(\beta,\tau,\sigma|y,x)$ 将无限增大。可以参考 [Neal's funnel 密度的图表](#funnel.figure)，它展示了类似的行为。
+
+在这种情况下，$\beta,\tau,\sigma$ 没有极大似然估计，因此如果要使用后验模型进行推断，必须修改模型。根据 @ChungEtAl:2013 推荐的方法，可以使用伽马分布作为 $\sigma$ 的先验，例如：
+
+$$
+\sigma \sim \textsf{Gamma}(2, 1/A)
+$$
+
+这里，$A$ 可以选择一个相对较大的值，比如 $A = 10$。通过选择这样的先验，可以在合理的 $\sigma$ 值周围集中更多的概率质量，减少对极端值的敏感性，从而解决密度无限增大的问题。
+
 ## Item-response theory models {#item-response-models.section}
+
+## 项目反应理论模型 {#item-response-models.section}
+
 
 Item-response theory (IRT) models the situation in which a number of
 students each answer one or more of a group of test questions.  The
@@ -920,12 +1156,18 @@ correctly; see @GelmanHill:2007 [pps. 314--320] for a textbook
 introduction to hierarchical IRT models and @Curtis:2010 for
 encodings of a range of IRT models in BUGS.
 
+项目反应理论（Item-Response Theory，IRT）模型用于描述一组学生中的每个学生对一组测试题目中一个或更多问题的回答情况。该模型基于学生的能力、题目的难度以及在更详细的模型中，例如题目的区分度和猜测正确的概率等参数。有关分层IRT模型的教材介绍，可以参考 @GelmanHill:2007 [pps. 314--320]，而关于在BUGS中编码各种IRT模型的内容，可以参考 @Curtis:2010。
+
 
 ### Data declaration with missingness {-}
+
+### 带有缺失值的数据声明 {-}
 
 The data provided for an IRT model may be declared as follows
 to account for the fact that not every student is required to answer
 every question.
+
+为了考虑到并非每个学生都需要回答每个问题的情况，可以将提供的IRT模型数据声明如下所示：
 
 
 ```stan
@@ -948,15 +1190,23 @@ The prior hyperparameters will be hard coded in the rest of this
 section for simplicity, though they could be coded as data in
 Stan for more flexibility.
 
+这里声明了数据集中的`N`个学生-问题对，其中每个`n`（在`1:N`范围内）对应一个二元观测`y[n]`，表示学生`jj[n]`对问题`kk[n]`的答案是否正确。
+
+为了简单起见，剩余部分的先验超参数将被硬编码，但在Stan中，它们也可以作为数据进行编码，以增加灵活性。
+
 ### 1PL (Rasch) model {-}
+
+### 一参数logistic（Rasch）模型
 
 The 1PL item-response model, also known as the Rasch model, has one
 parameter (1P) for questions and uses the logistic link function (L).
 
+The 1PL item-response model（一参数logistic模型，也称为Rasch模型）是一种经典的项目反应理论模型，该模型假设每个问题只有一个参数，且使用了逻辑斯蒂链接函数（L）。
 
 
 The model parameters are declared as follows.
 
+模型参数的声明如下：
 
 ```stan
 parameters {
@@ -972,7 +1222,11 @@ The parameter `alpha[J]` is the ability coefficient for student
 an intercept term `delta`, which represents the average student's
 response to the average question.^[@GelmanHill:2007 treat the $\delta$ term equivalently as the location parameter in the distribution of student abilities.]
 
+参数`alpha[J]`是学生`j`的能力系数，`beta[k]`是问题`k`的难度系数。
+在这里使用的非标准参数化还包括截距项 `delta`，它表示平均学生对平均问题的响应。^[@GelmanHill:2007 treat the $\delta$ term equivalently as the location parameter in the distribution of student abilities.]
+
 The model itself is as follows.
+模型具体如下：
 
 
 ```stan
@@ -1018,14 +1272,33 @@ and only 25% missingness at random.  For real applications, the
 priors should be fit hierarchically along with the other parameters,
 as described in the next section.
 
+这个模型使用了对数几率参数化的伯努利分布，其中
+$$
+\texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right)
+=
+\texttt{bernoulli}\left(y \mid \operatorname{logit}^{-1}(\alpha)\right).
+$$
+
+理解这个模型的关键在于 `bernoulli_logit` 分布中的表达式，根据这个表达式可以得到
+$$
+\textsf{Pr}[y_n = 1] = \operatorname{logit}^{-1}\left(\alpha_{jj[n]} - \beta_{kk[n]} + \delta\right).
+$$
+
+如果没有使用先验，该模型存在加法可识别性问题。例如，给每个 $\alpha_j$ 和 $\beta_k$ 添加一个项 $\xi$ 将导致相同的预测结果。通过为 $\alpha$ 和 $\beta$ 使用位于0的先验概率可以解决这个问题。有关可识别性问题和可替代的识别方法，可以参考 @GelmanHill:2007 中的讨论。
+
+为了进行测试，Stan中分发的IRT 1PL模型使用了具有信息量的先验，这些先验与在R中用于模拟数据的实际数据生成过程相匹配（模拟代码与模型位于同一目录下）。这对于大多数实际应用来说是不现实的，但可以用来验证Stan的推断结果。通过使用更宽松的先验进行简单的敏感性分析，可以发现即使在具有400个学生和100个问题，并且只有25%的随机缺失情况下，后验分布对先验相当敏感。在实际应用中，应该将先验与其他参数一起进行分层拟合，如下一节所述。
 
 ### Multilevel 2PL model {-}
+
+### 多层两参数logistic模型
 
 The simple 1PL model described in the previous section is generalized
 in this section with the addition of a discrimination parameter to
 model how noisy a question is and by adding multilevel priors for the
 question difficulty and discrimination parameters.  The model
 parameters are declared as follows.
+
+在本节中，我们将对上一节中描述的简单1PL模型进行推广，通过添加一个区分度参数来模拟问题的噪声程度，并为问题的难度和区分度参数添加多层先验。模型的参数声明如下：
 
 
 ```stan
@@ -1040,6 +1313,7 @@ parameters {
 ```
 
 The parameters should be clearer after the model definition.
+在定义模型后，参数将更加清晰。
 
 ```stan
 model {
@@ -1060,8 +1334,18 @@ $$
 \textsf{normal}\left(y \mid 0, 1\right).
 $$
 
+在这里使用了`std_normal`函数，其定义为
+$$
+\texttt{std}\mathtt{\_}\texttt{normal}(y)
+=
+\textsf{normal}\left(y \mid 0, 1\right).
+$$
+
+
 The sampling statement is also vectorized using elementwise
 multiplication;  it is equivalent to
+
+采样语句还使用了逐元素乘法进行向量化处理；其等价于以下形式：
 
 ```stan
 for (n in 1:N) {
@@ -1090,6 +1374,10 @@ and `gamma` then have varying scales given hierarchically in this
 model.  They could also be given weakly informative non-hierarchical
 priors, such as
 
+2PL模型与1PL模型类似，但额外引入了参数`gamma[k]`来衡量问题`k`的区分度。如果`gamma[k]`大于1，则答案更加模糊，随机猜对的几率较低。我们限制参数`gamma[k]`为正数，这禁止了存在对低能力学生来说更容易的问题；虽然这种问题并非罕见，但它们在大多数应用IRT模型的测试情境中会被剔除。
+
+在此模型中，学生能力`alpha`的先验分布为标准正态分布。这样做是为了确定参数的尺度和位置，否则它们将无法确定；有关可识别性的进一步讨论，请参阅[有问题的后验分布章节](#problematic-posteriors.chapter)。难度参数`beta`和区分度参数`gamma`在此模型中具有层次化的不同尺度。它们也可以给出弱信息的非层次化先验，例如
+
 ```stan
 beta ~ normal(0, 5);
 gamma ~ lognormal(0, 2);
@@ -1102,11 +1390,17 @@ The `beta` parameter is here given a non-centered
 parameterization, with parameter `mu_beta` serving as the mean
 `beta` location. An alternative would've been to take:
 
+关键在于`alpha`确定了尺度和位置，而`beta`和`gamma`可以浮动。
+
+在这里，`beta`参数采用了非中心参数化，其中参数`mu_beta`作为`beta`位置的均值。另一种选择是采用以下形式:
+
 ```stan
 beta ~ normal(mu_beta, sigma_beta);
 ```
 
 and
+
+和
 
 ```stan
 y[n] ~ bernoulli_logit(gamma[kk[n]] * (alpha[jj[n]] - beta[kk[n]]));
@@ -1128,7 +1422,9 @@ because the log probability need only be calculated up to a proportion
 and the scale variables are constrained to $(0,\infty)$ by their
 declarations.
 
+非中心参数化在分层模型中往往更高效；有关非中心参数化的更多信息，请参阅[重参数化部分](#reparameterization.section)。
 
+截距项`mu_beta`本身不能被分层建模，因此它被赋予了一个弱信息先验$\textsf{Cauchy}(0,5)$。类似地，尺度项`sigma_beta`和`sigma_gamma`被赋予半柯西先验。如上所述，为了确保可识别性，`alpha`的尺度和位置是固定的。半柯西先验的截断是隐式的；不需要显式截断，因为对数概率只需计算比例，并且尺度变量的声明将其约束在$(0,\infty)$范围内。
 
 ## Priors for identifiability {#priors-for-identification.section}
 
