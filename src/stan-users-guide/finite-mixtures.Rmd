@@ -206,6 +206,7 @@ mixture component $k$.  The posterior can be computed via Bayes's rule,
   &= \textsf{normal}\left(y_n \mid \mu_k, \sigma_k\right) \cdot \lambda_k.
 \end{align*}
 
+
 The normalization can be done via summation, because $z_n \in 1{:}K$ only
 takes on finitely many values.  In detail,
 
@@ -218,6 +219,7 @@ p\left(z_n = k \mid y_n, \mu, \sigma, \lambda \right) =
 $$
 
 On the log scale, the normalized probability is computed as
+
 在对数尺度上，归一化后的概率为
 \begin{align*}
 \log\,&\operatorname{Pr}\left(z_n = k \mid y_n, \mu, \sigma, \lambda\right) \\
@@ -229,6 +231,7 @@ This can be coded up directly in Stan; the change-point model in the
 [change point section](#change-point.section) provides an example.
 
 这可以直接在Stan里编程；变点模型[change point section](#change-point.section)提供了一个例子。
+
 ### Estimating parameters of a mixture {-}
 
 Given the scheme for representing mixtures, it may be moved to an
@@ -589,6 +592,7 @@ $$
 The log likelihood can be implemented directly in Stan (with `target +=`) as follows.
 
 对数似然函数可以直接在 Stan 中实现（使用`target +=`）如下。
+
 ```stan
 data {
   int<lower=0> N;
@@ -617,6 +621,7 @@ The `log_sum_exp(lp1,lp2)` function adds the log probabilities
 on the linear scale; it is defined to be equal to `log(exp(lp1) + exp(lp2))`, but is more computationally stable and faster.
 
 `log1m(theta)` 计算 `log(1-theta)`，但更具计算稳定性。`log_sum_exp(lp1,lp2)`函数在线性尺度上求和对数概率；它被定义为等于 `log(exp(lp1) + exp(lp2))`，但更具计算稳定性和速度。
+
 #### Optimizing the zero-inflated Poisson model {-}
 
 The code given above to compute the zero-inflated Poisson
