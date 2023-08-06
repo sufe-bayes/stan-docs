@@ -47,7 +47,7 @@ two real-valued arguments and return a real-valued result.   It is
 used the same way a built-in function would be used in the generated
 quantities block.
 
-该函数被命名为 ‘relative_diff’，声明具有两个实值参数并返回一个实值结果。它与内置函数一样在预测值模块中使用。
+该函数被命名为 `relative_diff`，声明具有两个实值参数并返回一个实值结果。它与内置函数一样在预测值模块中使用。
 
 ### User-defined functions block {-}
 
@@ -57,7 +57,7 @@ All functions are defined in their own block, which is labeled
 `functions` and must appear before all other program blocks.  The
 user-defined functions block is optional.
 
-所有函数都在它们自有区块中定义，该块标记为 ‘functions’ 并且必须出现在所有其他程序块之前。用户自定义功能块是可选的。
+所有函数都在它们自有区块中定义，该块标记为 `functions` 并且必须出现在所有其他程序块之前。用户自定义功能块是可选的。
 
 ### Function bodies {-}
 
@@ -80,7 +80,7 @@ function definitions.  Return statements may appear anywhere in a
 function, but functions with non-void return types must end in a
 return statement.
 
-返回语句，例如上面定义的函数‘relative_diff’的最后一行，仅允许在函数定义的主体中使用。返回语句可以出现在函数的任何位置，但具有非空返回类型的函数必须以返回语句结尾。
+返回语句，例如上面定义的函数`relative_diff`的最后一行，仅允许在函数定义的主体中使用。返回语句可以出现在函数的任何位置，但具有非空返回类型的函数必须以返回语句结尾。
 
 ### Reject statements {-}
 
@@ -136,7 +136,7 @@ value and tries to reduce it by arithmetic, likely consuming all
 available memory and crashing an interface.  Much better to catch
 errors early and report on their origin.
 
-正数测试的拒绝很重要，因为它也捕获了‘x’ 是非数字值的情况。如果条件被编码为 ‘(x<0)'，它将不会捕获非数字情况，尽管可以写成 ‘(x < 0 || is_nan(x))’。正无穷大的情况尽管被允许，但也可以使用函数‘is_inf(x)’进行检查。平方根函数本身不拒绝负数，但是‘dbl_sqrt(-2)’可能会引发错误，因此需要检查不合法的输入来源。或者更糟糕的是，正如 Matt Simpson 在 GitHub 评论中指出的那样，如果函数从无穷大值开始并尝试通过计算减少它，则可能进入无限循环，可能消耗所有可用内存并崩溃接口。最好尽早捕获错误并报告其来源。
+正数测试的拒绝很重要，因为它也捕获了`x` 是非数字值的情况。如果条件被编码为 `(x<0)`，它将不会捕获非数字情况，尽管可以写成 `(x < 0 || is_nan(x))`。正无穷大的情况尽管被允许，但也可以使用函数`is_inf(x)`进行检查。平方根函数本身不拒绝负数，但是`dbl_sqrt(-2)`可能会引发错误，因此需要检查不合法的输入来源。或者更糟糕的是，正如 Matt Simpson 在 GitHub 评论中指出的那样，如果函数从无穷大值开始并尝试通过计算减少它，则可能进入无限循环，可能消耗所有可用内存并崩溃接口。最好尽早捕获错误并报告其来源。
 
 The effect of rejection depends on the program block in which the
 rejection is executed.  In transformed data, rejections cause the
@@ -171,7 +171,7 @@ for full details.
 For example, here's a function to compute the entropy of a categorical
 distribution with simplex parameter `theta`.
 
-例如，下面是一个计算含有单纯形参数 ‘theta’ 的类别分布熵的函数。
+例如，下面是一个计算含有单纯形参数 `theta` 的类别分布熵的函数。
 
 ```stan
 real entropy(vector theta) {
@@ -182,7 +182,7 @@ real entropy(vector theta) {
 Although `theta` must be a simplex, only the type `vector`
 is used.^[A range of built-in validation routines is coming to Stan soon! Alternatively, the `reject` statement can be used to check constraints on the simplex.]
 
-尽管‘theta’必须是单纯形，只能使用‘vector’类型。^[Stan很快就会有一系列内置的验证程序！或者，可以使用‘reject’语句来检查单纯形的约束。]
+尽管`theta`必须是单纯形，只能使用`vector`类型。^[Stan很快就会有一系列内置的验证程序！或者，可以使用`reject`语句来检查单纯形的约束。]
 
 Upper or lower bounds on values or constrained types are not allowed
 as return types or argument types in function declarations.
@@ -209,7 +209,7 @@ return above), `[ , ]` for two-dimensional arrays,
 
 `[ , , ]` for three-dimensional arrays, and so on.
 
-符号‘[ ]’用于一维数组（如上面的返回），‘[ , ]’用于二维数组， ‘[ , , ]’用于三维数组，依此类推。
+符号`[ ]`用于一维数组（如上面的返回），`[ , ]`用于二维数组， `[ , , ]`用于三维数组，依此类推。
 
 Functions support arrays of any type, including matrix and vector
 types.  As with other types, no constraints are allowed.
@@ -226,7 +226,7 @@ i.e., not an integer type or integer array type,
 can be qualified using the prefix qualifier `data`.
 The following is an example of a data-only function argument.
 
-函数参数可以是一个实值类型或实值类型分类，即不是整数类型或整数数组类型但可以使用前缀限定符‘data’。 下面是一个纯数据函数参数的示例。
+函数参数可以是一个实值类型或实值类型分类，即不是整数类型或整数数组类型但可以使用前缀限定符`data`。 下面是一个纯数据函数参数的示例。
 
 ```stan
 real foo(real y, data real mu) {
@@ -250,7 +250,7 @@ parser.
 Use of the `data` qualifier must be consistent between the
 forward declaration and the definition of a functions.
 
-在函数的前向声明和定义之间，‘data’限定符的使用必须保持一致。
+在函数的前向声明和定义之间，`data`限定符的使用必须保持一致。
 
 This qualifier should be used when writing functions that call the
 built-in ordinary differential equation (ODE) solvers, algebraic
@@ -265,7 +265,7 @@ call to the solver, either directly or indirectly, should have the
 and increases overall program understandability.
 
 在编写调用内置常微分方程 (ODE) 求解器，代数求解器或地图函数时可以使用这个限定符。这些高阶函数有严格指定的签名，其中一些参数仅是数据表达式。（参见 [ODE 求解器章节](#ode-solver.chapter)以获得更多使用细节，查阅函数参考手册获得完整的功能说明。）编写调用 ODE 或代数求解器的函数时，传递给调用求解器的该函数的参数应直接或间接应该有
-‘data’ 前缀限定符。这允许编译时进行类型检查并提高整体程序的可理解性。
+`data` 前缀限定符。这允许编译时进行类型检查并提高整体程序的可理解性。
 
 
 ## Functions as statements
@@ -301,7 +301,7 @@ merely indicates the lack of a value.  As such, return statements for
 void functions are not allowed to have arguments, as in the return
 statement in the body of the previous example.
 
-特殊符号‘void’用作返回类型。这本身并不是一种类型，因为没有‘void’类型的值；它仅仅表示缺少值。因此，空函数的返回语句不允许有参数，如前面例子中的返回语句。
+特殊符号`void`用作返回类型。这本身并不是一种类型，因为没有`void`类型的值；它仅仅表示缺少值。因此，空函数的返回语句不允许有参数，如前面例子中的返回语句。
 
 Void functions applied to appropriately typed arguments may be used on
 their own as statements.  For example, the pretty-print function
@@ -329,7 +329,7 @@ statements and `target +=` statements; other
 functions are not.  Because of this access, their use is restricted to
 the transformed parameters and model blocks.
 
-函数名以‘_lp’ 结尾的函数可以使用采样语句和 ‘target +=’ 语句；其他函数则不能。由于这种访问权限，它们的使用仅限于转换参数和模型块。
+函数名以`_lp` 结尾的函数可以使用采样语句和 `target +=` 语句；其他函数则不能。由于这种访问权限，它们的使用仅限于转换参数和模型块。
 Here is an example of a function to assign standard normal priors to a
 vector of coefficients, along with a center and scale, and return the
 translated and scaled coefficients; see the [reparameterization
@@ -378,7 +378,7 @@ be restricted to transformed data and generated quantities blocks like
 other PRNG functions; they may also be used in the bodies of other
 user-defined functions ending in `_rng`.
 
-用户设定的函数可以通过给它一个以‘_rng’结尾的名称来声明（伪）随机数生成器（PRNG）。给函数一个以‘_rng’结尾的名称允许它访问以‘_rng’结尾的内置函数和用户自定义函数，其中包括所有内置的PRNG函数。只有以‘_rng’结尾的函数才能访问内置的PRNG函数。因此，以‘_rng’结尾的函数的使用像其他PRNG函数一样，必须限制在转换数据和预测值模块中；它们也可以用在以‘_rng'结尾的其他用户自定义函数的主体中。
+用户设定的函数可以通过给它一个以`_rng`结尾的名称来声明（伪）随机数生成器（PRNG）。给函数一个以`_rng`结尾的名称允许它访问以`_rng`结尾的内置函数和用户自定义函数，其中包括所有内置的PRNG函数。只有以`_rng`结尾的函数才能访问内置的PRNG函数。因此，以`_rng`结尾的函数的使用像其他PRNG函数一样，必须限制在转换数据和预测值模块中；它们也可以用在以`_rng'结尾的其他用户自定义函数的主体中。
 
 For example, the following function generates an $N \times K$ data
 matrix, the first column of which is filled with 1 values for the
@@ -404,7 +404,7 @@ The following function defines a simulator for regression outcomes
 based on a data matrix `x`, coefficients `beta`, and noise
 scale `sigma`.
 
-下面的函数定义了一个基于数据矩阵‘x’，系数 ‘beta’ 和噪声尺度 ‘sigma’ 的回归结果模拟器。
+下面的函数定义了一个基于数据矩阵`x`，系数 `beta` 和噪声尺度 `sigma` 的回归结果模拟器。
 
 ```stan
 vector regression_rng(vector beta, matrix x, real sigma) {
@@ -441,7 +441,7 @@ A more sophisticated simulation might fit a multivariate\ normal to the
 predictors `x` and use the resulting parameters to generate
 multivariate normal draws for `x_sim`.
 
-更复杂的模拟可能会从预测值‘x’得到一个多元正态分布，使用这个结果参数从‘x_sim’得到一个新的多元正态分布抽样。
+更复杂的模拟可能会从预测值`x`得到一个多元正态分布，使用这个结果参数从`x_sim`得到一个新的多元正态分布抽样。
 
 ## User-defined probability functions
 
@@ -451,7 +451,7 @@ Probability functions are distinguished in Stan by names ending in
 `_lpdf` for density functions and `_lpmf` for mass
 functions; in both cases, they must have `real` return types.
 
-在 Stan 中，以 ‘_lpdf’ 结尾表示概率密度函数，以 ‘_lpmf’ 结尾表示概率质量函数；在这两种情况下，它们都必须具有真实的返回类型。
+在 Stan 中，以 `_lpdf` 结尾表示概率密度函数，以 `_lpmf` 结尾表示概率质量函数；在这两种情况下，它们都必须具有真实的返回类型。
 
 Suppose a model uses several standard normal distributions, for which
 there is not a specific overloaded density nor defaults in Stan.  So
@@ -478,12 +478,12 @@ The ability to use the `unit_normal` function as a density is
 keyed off its name ending in `_lpdf` (names ending in
 `_lpmf` for probability mass functions work the same way).
 
-使用‘unit_normal’函数作为概率密度函数的关键在于以‘_lpdf’结尾命名（以‘_lpmf’结尾的概率质量函数也同样起效）。
+使用`unit_normal`函数作为概率密度函数的关键在于以`_lpdf`结尾命名（以`_lpmf`结尾的概率质量函数也同样起效）。
 
 In general, if `foo_lpdf` is defined to consume $N + 1$
 arguments, then
 
-通常，如果‘foo_lpdf’被定义为包含N+1个参数，那么
+通常，如果`foo_lpdf`被定义为包含N+1个参数，那么
 
 ```stan
 y ~ foo(theta1, ..., thetaN);
@@ -501,7 +501,7 @@ As with the built-in functions, the suffix `_lpdf` is dropped and
 the first argument moves to the left of the sampling symbol (`~`)
 in the sampling statement.
 
-在采样语句中，与内置函数一样，后缀‘_lpdf’被删除，第一个参数移动到采样符号（‘~’）的左侧。
+在采样语句中，与内置函数一样，后缀`_lpdf`被删除，第一个参数移动到采样符号（`~`）的左侧。
 
 Functions ending in `_lpmf` (for probability mass functions),
 behave exactly the same way.  The difference is that the first
@@ -509,7 +509,7 @@ argument of a density function (`_lpdf`) must be continuous (not
 an integer or integer array), whereas the first argument of a mass
 function (`_lpmf`) must be discrete (integer or integer array).
 
-以‘_lpmf’结尾的函数（概率质量函数）的表现完全相同。区别在于，概率密度函数（‘_lpdf’）的第一个参数必须是连续的（不是整数或整数数组），而概率质量函数（‘_lpmf’）的第一个参数必须是离散的（整数或整数数组）。
+以`_lpmf`结尾的函数（概率质量函数）的表现完全相同。区别在于，概率密度函数（`_lpdf`）的第一个参数必须是连续的（不是整数或整数数组），而概率质量函数（`_lpmf`）的第一个参数必须是离散的（整数或整数数组）。
 
 ## Overloading functions
 
@@ -543,7 +543,7 @@ overloaded functions maintain the same meaning across definitions.
 For example, consider a function `triple` which has the following three
 signatures
 
-例如，考虑一个名为‘triple’的函数，它具有以下三个签名
+例如，考虑一个名为`triple`的函数，它具有以下三个签名
 
 ```stan
 real triple(real x);
@@ -592,14 +592,14 @@ to the second signature.
 But, the function call `foo(1, 1.5)` could be valid for _either_ under Stan's
 promotion rules, which allow integers to be promoted to real numbers.
 
-鉴于这些，函数调用‘foo(1.5, 2.5)’是明确的-它必须转为第二个签名。但是，函数调用‘foo(1, 1.5)’在Stan的提升规则下可能对_任一_都有效，可以从整数拓展到为实数。
+鉴于这些，函数调用`foo(1.5, 2.5)`是明确的-它必须转为第二个签名。但是，函数调用`foo(1, 1.5)`在Stan的提升规则下可能对_任一_都有效，可以从整数拓展到为实数。
 
 To resolve this, Stan selects the signature which requires the fewest number of
 promotions for a given function call. In the above case, this means
 the call `foo(1, 1.5)` would select the first signature, because it requires 0
 promotions (the second signature would require 1 promotion).
 
-为了解决这个问题，对于特定的函数调用，Stan选择需要最少数量提升的签名。在上述情况下，这意味着调用‘foo(1,1.5)’将选择第一个签名，因为它需要0次提升（第二个签名将需要1次提升）。
+为了解决这个问题，对于特定的函数调用，Stan选择需要最少数量提升的签名。在上述情况下，这意味着调用`foo(1,1.5)`将选择第一个签名，因为它需要0次提升（第二个签名将需要1次提升）。
 
 Furthermore, there must be only one such signature, e.g., the minimum number of
 promotions must be a unique minimum. This requirement forbids certain kinds of
@@ -616,14 +616,14 @@ These signatures do not have a unique minimum number of promotions for the call
 cannot be determined which is correct. Stan will produce a compilation error in
 this case.
 
-这些签名对于调用‘bar(1,2)’没有唯一的最小提升数量。两个签名都需要一个‘整数’到‘实数’的提升，因此无法确定哪个是正确的。在这种情况下，Stan将产生一个编译错误。
+这些签名对于调用`bar(1,2)`没有唯一的最小提升数量。两个签名都需要一个`int`到`real`的提升，因此无法确定哪个是正确的。在这种情况下，Stan将产生一个编译错误。
 
 Promotion from integers to complex numbers is considered to be two
 separate promotions, first from `int` to `real`, then from `real` to `complex`. This
 means that integer arguments will "prefer" a signature with real types over
 complex types.
 
-从整数到复数的提升被认为是两个单独的提升，首先从‘整数型’到‘实数’，然后从‘实数’到‘复数’。这意味着整数参数将“更喜欢”具有实数类型而不是复数类型的签名。
+从整数到复数的提升被认为是两个单独的提升，首先从`int`到`real`，然后从`real`到`complex`。这意味着整数参数将“更喜欢”具有实数类型而不是复数类型的签名。
 
 For example, consider the function signatures
 
@@ -636,9 +636,9 @@ real pop(complex x);
 Stan will select the first signature when `pop` is called with an integer
 argument such as `pop(0)`.
 
-当使用整数参数如‘pop(0)’来调用‘pop’时，Stan将选择第一个签名。
+当使用整数参数如`pop(0)`来调用`pop`时，Stan将选择第一个签名。
 
-## Documenting functions {#documenting-functions.section}、
+## Documenting functions {#documenting-functions.section}
 
 ## 记录函数 {#documenting-functions.section}
 
@@ -679,12 +679,12 @@ the argument's identifier to document a function argument.  The tag
 Doxygen, so this just looks like a big comment starting with `/*`
 and ending with `*/` to the Stan parser.
 
-注释以‘/**’开头，以‘*/’结尾，并且每行都有一个星号（‘*’）。它使用‘@param’后跟参数的标识符来记录函数参数。标记‘@return’用于指示返回值。 Stan没有（尚未）像Javadoc或Doxygen那样的自动文档生成器，因此对于Stan解析器，这看起来就像一个以‘/*’开头并以‘*/’结尾的大注释。
+注释以`/**`开头，以`*/`结尾，并且每行都有一个星号（`*`）。它使用`@param`后跟参数的标识符来记录函数参数。标记`@return`用于指示返回值。 Stan没有（尚未）像Javadoc或Doxygen那样的自动文档生成器，因此对于Stan解析器，这看起来就像一个以`/*`开头并以`*/`结尾的大注释。
 
 For functions that raise exceptions, exceptions can be documented using
 `@throws`.^[As of Stan 2.9.0, the only way a user-defined producer will raise an exception is if a function it calls (including sampling statements) raises an exception via the reject statement.]
 
-对于引发异常的函数，可以使用‘@throws’记录异常。^[截至Stan 2.9.0，用户定义的生产者唯一引发异常的方式是它调用的函数（包括采样语句）通过拒绝语句引发异常。]
+对于引发异常的函数，可以使用`@throws`记录异常。^[截至Stan 2.9.0，用户定义的生产者唯一引发异常的方式是它调用的函数（包括采样语句）通过拒绝语句引发异常。]
 
 For example,
 
@@ -713,7 +713,7 @@ Functions may have a void or non-void return type and they may or may
 not have one of the special suffixes, `_lpdf`, `_lpmf`,
 `_lp`, or `_rng`.
 
-函数返回类型可能为无类型或非无类型返回类型，并且可能具有或不具有其中一种特殊后缀，‘_lpdf’，‘_lpmf’，‘_lp’或‘_rng’。
+函数返回类型可能为无类型或非无类型返回类型，并且可能具有或不具有其中一种特殊后缀，`_lpdf`，`_lpmf`，`_lp`或`_rng`。
 
 ### Void vs. non-void return {-}
 
@@ -723,13 +723,13 @@ Only functions declared to return `void` may be used as
 statements.  These are also the only functions that use `return`
 statements with no arguments.
 
-只有声明为返回‘空’的函数才能用作语句。这些也是唯一使用没有参数的‘return’语句的函数。
+只有声明为返回`void`的函数才能用作语句。这些也是唯一使用没有参数的`return`语句的函数。
 
 Only functions declared to return non-`void` values may be used
 as expressions.  These functions require `return` statements with
 arguments of a type that matches the declared return type.
 
-只有声明为返回非‘空’值的函数才能用作表达式。这些函数需要具有与声明的返回类型匹配的类型的参数的‘return’语句。
+只有声明为返回非`void`值的函数才能用作表达式。这些函数需要具有与声明的返回类型匹配的类型的参数的`return`语句。
 
 ### Suffixed or non-suffixed {-}
 
@@ -739,14 +739,14 @@ Only functions ending in `_lpmf` or `_lpdf` and with
 return type `real` may be used as probability functions in
 sampling statements.
 
-只有以‘_lpmf’或‘_lpdf’结尾并且返回类型为‘real’的函数才能用作采样语句中的概率函数。
+只有以`_lpmf`或`_lpdf`结尾并且返回类型为`real`的函数才能用作采样语句中的概率函数。
 
 Only functions ending in `_lp` may access the log probability
 accumulator through sampling statements or `target +=`
 statements.  Such functions may only be used in the transformed
 parameters or model blocks.
 
-只有以‘_lp’结尾的函数才能通过采样语句或‘target + =’
+只有以`_lp`结尾的函数才能通过采样语句或`target + =`
 语句访问对数概率累加器。这样的函数只能在转换参数或模型块中使用。
 
 Only functions ending in `_rng` may access the built-in
@@ -754,7 +754,7 @@ pseudo-random number generators.  Such functions may only be used in
 the generated quantities block or transformed data block, or in the
 bodies of other user-defined functions ending in `_rng`.
 
-只有以‘_rng’结尾的函数才能访问内置伪随机数生成器。这样的函数只能在预测值模块或转换数据块中使用，或在以其他用户自定义的以‘_rng’结尾的函数主体中使用。
+只有以`_rng`结尾的函数才能访问内置伪随机数生成器。这样的函数只能在预测值模块或转换数据块中使用，或在以其他用户自定义的以`_rng`结尾的函数主体中使用。
 
 ## Recursive functions
 
@@ -799,7 +799,7 @@ well-defined when it is encountered.  It would be more efficient to
 not allow the recursion to go all the way to the base case, adding the
 following conditional clause.
 
-在定义之前先声明函数签名是必要的，以便在嵌入式使用‘matrix_pow’时已经被定义好。添加以下条件子句不允许递归一直到基本情况，会更有效率。
+在定义之前先声明函数签名是必要的，以便在嵌入式使用`matrix_pow`时已经被定义好。添加以下条件子句不允许递归一直到基本情况，会更有效率。
 
 ```stan
 else if (n == 1) {
@@ -825,7 +825,7 @@ cumulative distribution function, $y = \textrm{logit}(u)$.  If this
 were not already built in as `logistic_rng(0, 1)`, it could be
 coded in Stan directly as
 
-为了生成随机数，通常只需反转它们的累积分布函数。这已经内置在许多随机数生成器中。例如，要生成标准logistic变量，首先生成均匀变量u∼uniform（0,1），然后通过运行累积分布函数的逆，y=logit（u）。如果这还没有内置为‘logistic_rng(0,1)’，则可以直接在Stan使用如下编码
+为了生成随机数，通常只需反转它们的累积分布函数。这已经内置在许多随机数生成器中。例如，要生成标准logistic变量，首先生成均匀变量u∼uniform（0,1），然后通过运行累积分布函数的逆，y=logit（u）。如果这还没有内置为`logistic_rng(0,1)`，则可以直接在Stan使用如下编码
 
 ```stan
 real standard_logistic_rng() {
@@ -852,7 +852,7 @@ that is, $y = \Phi^{-1}(u)$, where $\Phi^{-1}$ is the inverse cumulative
 distribution function for the standard normal distribution, implemented in
 the Stan function `inv_Phi`.
 
-也就是说，y=Φ^{−1}（u），其中Φ^{−1}是标准正态分布累积分布的逆函数，在Stan函数可以用‘inv_Phi’实现。
+也就是说，y=Φ^{−1}（u），其中Φ^{−1}是标准正态分布累积分布的逆函数，在Stan函数可以用`inv_Phi`实现。
 
 In order to generate non-standard variates of the location-scale
 variety, the variate is scaled by the scale parameter and shifted by
@@ -878,7 +878,7 @@ real my_normal_rng(real mu, real sigma) {
 A robust version of this function would test that the arguments are
 finite and that `sigma` is non-negative, e.g.,
 
-这个函数的稳健版本将测试参数是否有限且‘sigma’是否为非负数，例如
+这个函数的稳健版本将测试参数是否有限且`sigma`是否为非负数，例如
 
 ```stan
   if (is_nan(mu) || is_inf(mu)) {
@@ -960,4 +960,4 @@ for readability.  The names like `p` indicate probabilities, and
 bounds.  The variable `u` is clearly named as a uniform variate,
 and `y` is used to denote the variate being generated itself.
 
-为了使其更稳健，应测试所有变量是否有限，‘sigma’是否为正数，并测试‘lb’和‘ub’以确保上限大于下限。与上面的多个语句版本的可读性进行比较，虽然压缩行可能很诱人，但变量名称充当操作分块和命名。像‘p’这样的名称表示概率，并且‘p_lb’和‘p_ub’表示概率的上界和下界。变量‘u’显然命名为均匀变量，‘y’表示正在生成的变量本身。
+为了使其更稳健，应测试所有变量是否有限，`sigma`是否为正数，并测试`lb`和`ub`以确保上限大于下限。与上面的多个语句版本的可读性进行比较，虽然压缩行可能很诱人，但变量名称充当操作分块和命名。像`p`这样的名称表示概率，并且`p_lb`和`p_ub`表示概率的上界和下界。变量`u`显然命名为均匀变量，`y`表示正在生成的变量本身。
