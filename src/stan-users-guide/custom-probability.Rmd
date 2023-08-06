@@ -1,11 +1,3 @@
----
-output:
-  pdf_document:
-    latex_engine: xelatex
-    includes:
-      in_header: preamble.tex
----
-
 # Custom Probability Functions  {#custom-probability-functions.chapter}
 
 #自定义概率函数{#custom-probability-functions.chapter}
