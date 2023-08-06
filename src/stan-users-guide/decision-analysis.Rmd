@@ -1,4 +1,4 @@
-# Decision Analysis 
+# Decision Analysis
 
 # 决策分析
 
@@ -14,12 +14,12 @@ based on decisions and compute the required expected utilities.
 
 统计决策分析是关于在不确定性下做出决策。为了做出决策，结果必须与某种“效用”概念相关联。所谓的“贝叶斯最优”决策是最大化期望效用（或等价地，最小化期望损失）的决策。本章展示了如何使用Stan同时估计基于决策的结果的分布并计算所需的期望效用。
 
-## Outline of decision analysis 
+## Outline of decision analysis
 
 ## 决策分析概要
 
 Following @GelmanEtAl:2013, Bayesian decision analysis can be
-factored into the following four steps. 
+factored into the following four steps.
 
 按照@GelmanEtAl:2013 的观点，贝叶斯决策分析可以分为以下四个步骤。
 
@@ -311,6 +311,9 @@ vectorized.
 
 All that is left is to run Stan. The posterior mean for `util[k]`
 is the expected utility, which written out with full conditioning, is
+
+剩下的就是运行Stan。`util[k]`的后验均值是期望效用，用完整的条件写出来，就是
+
 \begin{eqnarray*}
 \mathbb{E}\!\left[U(x) \mid d = k, d^{\textrm{obs}}, x^{\textrm{obs}}\right]
 & = &
@@ -323,33 +326,17 @@ is the expected utility, which written out with full conditioning, is
 & \approx &
 \frac{1}{M} \sum_{m = 1}^M  U(x^{(m)} ),
 \end{eqnarray*}
+
 where
+其中
+
 $$
 x^{(m)} \sim p(x \mid d = k, \theta^{(m)} )
-$$
-and
-$$
-\theta^{(m)}
-\sim p(\theta \mid d^{\textrm{obs}}, x^{\textrm{obs}}).
 $$
 
-剩下的就是运行Stan。`util[k]`的后验均值是期望效用，用完整的条件写出来，就是
-\begin{eqnarray*}
-\mathbb{E}\!\left[U(x) \mid d = k, d^{\textrm{obs}}, x^{\textrm{obs}}\right]
-& = &
-\int
-  U(x)
-  \cdot p(x \mid d = k, \theta)
-  \cdot p(\theta \mid d^{\textrm{obs}}, x^{\textrm{obs}})
-  \, \textrm{d}\theta
-\\[4pt]
-& \approx &
-\frac{1}{M} \sum_{m = 1}^M  U(x^{(m)} ),
-\end{eqnarray*} 其中 
-$$
-x^{(m)} \sim p(x \mid d = k, \theta^{(m)} )
-$$ 
-和 
+and
+以及
+
 $$
 \theta^{(m)}
 \sim p(\theta \mid d^{\textrm{obs}}, x^{\textrm{obs}}).
@@ -374,7 +361,7 @@ through Stan's interfaces.
 的最高后验均值的选择。这可以从Stan的汇总统计中的`mean`栏中读出，
 也可以通过Stan的接口以编程方式访问。
 
-## Continuous choices 
+## Continuous choices
 
 ## 连续选择
 
