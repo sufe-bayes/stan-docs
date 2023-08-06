@@ -477,6 +477,7 @@ model {
 }
 ```
 
+
 If `y` were declared as data instead of as a parameter, then the
 adjustment can be ignored because the data will be constant and Stan
 only requires the log probability up to a constant.
@@ -570,6 +571,7 @@ $$
 =  -2 \log u.
 $$
 
+
 ### Multivariate changes of variables {-}
 
 ### 多元变量变换 {-}
@@ -628,6 +630,7 @@ transformed parameters {
   // ...
 }
 ```
+
 
 ## Vectors with varying bounds
 
