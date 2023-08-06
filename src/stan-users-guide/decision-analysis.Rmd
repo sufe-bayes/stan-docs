@@ -194,6 +194,7 @@ $$
 \theta = (\mu_{1:4}, \sigma_{1:4}, \nu_{1:4}, \tau_{1:4}).
 $$
 
+
 ### Step 3. Define the utility function {-}
 
 ### Step 3. 定义效用函数 {-}
