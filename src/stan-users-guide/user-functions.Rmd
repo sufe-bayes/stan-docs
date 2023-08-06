@@ -891,7 +891,7 @@ finite and that `sigma` is non-negative, e.g.,
   }
 ```
 
-### Truncated variate generation 
+### Truncated variate generation {-}
 
 ### 截断变量生成
 
