@@ -2,7 +2,7 @@
 
 # 聚类模型 {#clustering.chapter}
 
-译者：王钦怡
+本节译者：王钦怡
 
 Unsupervised methods for organizing data into groups are collectively
 referred to as clustering.  This chapter describes the implementation
@@ -559,7 +559,7 @@ information on missing data imputation.  The model is also an instance
 of semisupervised learning because the unlabeled data contributes to
 the parameter estimations.
 
-在Stan中，可以通过将有标签和无标签数据的模型结合起来，实现朴素贝叶斯模型的全贝叶斯后验推断。推断的目标包括模型参数和无标签数据的类别的后验分布。该模型实际上是一个缺失数据模型，假设未知的类别标签完全随机缺失。有关缺失数据处理的更多信息，@GelmanEtAl:2013和@GelmanHill:2007。该模型也是半监督学习的一个实例，因为未标记的数据有助于参数估计。
+在Stan中，可以通过将有标签和无标签数据的模型结合起来，实现朴素贝叶斯模型的全贝叶斯后验推断。推断的目标包括模型参数和无标签数据的类别的后验分布。该模型实际上是一个缺失数据模型，假设未知的类别标签完全随机缺失。有关缺失数据处理的更多信息，@GelmanEtAl:2013 和 @GelmanHill:2007。该模型也是半监督学习的一个实例，因为未标记的数据有助于参数估计。
 
 To specify a Stan model for performing full Bayesian inference, the
 model for labeled data is combined with the model for unlabeled data.
@@ -599,7 +599,7 @@ LDA, each document is modeled as having a mixture of topics, with each
 word drawn from a topic based on the mixing proportions.
 
 潜在狄利克雷分配 （LDA） 是一种混合成员多项式聚类模型
-[@BleiNgJordan：2003]，是朴素贝叶斯的推广。使用LDA讨论中常见的主题和文本，每个文本都被建模为具有混合主题，每个词语都基于混合比例从主题中提取。
+[@BleiNgJordan:2003]，是朴素贝叶斯的推广。使用LDA讨论中常见的主题和文本，每个文本都被建模为具有混合主题，每个词语都基于混合比例从主题中提取。
 
 ### The LDA Model {-}
 

@@ -2,7 +2,7 @@
 
 # 缺失数据和部分参数已知
 
-本章译者：于娇
+本节译者：于娇
 
 Bayesian inference supports a  general approach to missing data in
 which any missing data item is represented as a parameter that is

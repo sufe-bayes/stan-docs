@@ -2,7 +2,7 @@
 
 # 基于模拟的校准
 
-翻译贡献者：郭鑫
+本节译者：郭鑫
 
 A Bayesian posterior is calibrated if the posterior intervals have
 appropriate coverage.  For example, 80% intervals are expected to

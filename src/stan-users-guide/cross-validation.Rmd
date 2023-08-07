@@ -2,8 +2,7 @@
 
 # 自动评估与交叉验证  
 
-翻译贡献者：沈梓梁
-
+本节译者：沈梓梁
 
 Held-out evaluation involves splitting a data set into two parts, a
 training data set and a test data set.  The training data is used to

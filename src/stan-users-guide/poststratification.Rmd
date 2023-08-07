@@ -2,7 +2,7 @@
 
 ### 事后分层
 
-译者：隋阳
+本节译者：隋阳
 
 Stratification is a technique developed for survey sampling in which a
 population is partitioned into subgroups (i.e., stratified) and each

@@ -2,7 +2,7 @@
 
 # 时间序列模型
 
-本章译者：林余昌 洪世哲
+本节译者：林余昌 洪世哲
 
 Times series data come arranged in temporal order.  This chapter
 presents two kinds of time series models, regression-like models such

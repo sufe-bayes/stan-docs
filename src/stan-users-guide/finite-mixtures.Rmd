@@ -2,7 +2,7 @@
 
 （当前版本尚不完善）
 
-翻译贡献者：胡向宇
+本节译者：胡向宇
 
 Finite mixture models of an outcome assume that the outcome is drawn
 from one of several distributions, the identity of which is controlled

@@ -2,7 +2,7 @@
 
 # 潜在离散参数 {#latent-discrete.chapter}
 
-翻译贡献者：方志清
+本节译者：方志清
 
 Stan does not support sampling discrete parameters.  So it is not
 possible to directly translate BUGS or JAGS models with discrete

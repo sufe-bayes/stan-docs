@@ -2,7 +2,7 @@
 
 # 复数
 
-贡献者：段园家
+本节译者：段园家
 
 Stan supports complex scalars, matrices, and vectors as well as
 real-based ones.

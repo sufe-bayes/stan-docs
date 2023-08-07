@@ -2,7 +2,7 @@
 
 # 浮点数算术
 
-翻译贡献者：洪世哲
+本节译者：洪世哲
 
 Computers approximate real values in $\mathbb{R}$ using a fixed number
 of bits. This chapter explains how this is done and why it is

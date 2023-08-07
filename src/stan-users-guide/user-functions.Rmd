@@ -4,7 +4,7 @@
 
 （当前版本尚不完善）
 
-翻译贡献者：杜丽英
+本节译者：杜丽英
 
 This chapter explains functions from a user perspective with examples;
 see the language reference for a full specification.  User-defined

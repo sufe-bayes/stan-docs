@@ -2,7 +2,7 @@
 
 # 回归模型
 
-翻译贡献者：于曙光(1.1-1.6)、王才兴(1.7-1.11)、王超(1.12-1.16)
+本节译者：于曙光、王才兴、王超
 
 Stan supports regression models from simple linear regressions to
 multilevel generalized linear models.
@@ -2285,7 +2285,7 @@ parts, based on whether the corresponding value of $y$ is 0 or 1.
 Otherwise, the model is identical to the seemingly unrelated
 regression model in the previous section.
 
-使用 @AlbertChib:1993引入的技巧，可以在Stan中编码多元probit回归，其中基础连续值向量$y_n$被编码为截断参数。在Stan中编码该模型的关键是将潜变量向量$z$分为两部分，根据相应的$y$值是0还是1。除此之外，该模型与前一节中的看似无关回归模型相同。
+使用 @AlbertChib:1993 引入的技巧，可以在Stan中编码多元probit回归，其中基础连续值向量$y_n$被编码为截断参数。在Stan中编码该模型的关键是将潜变量向量$z$分为两部分，根据相应的$y$值是0还是1。除此之外，该模型与前一节中的看似无关回归模型相同。
 
 First, we introduce a sum function for two-dimensional arrays of
 integers;  this is going to help us calculate how many total 1 values

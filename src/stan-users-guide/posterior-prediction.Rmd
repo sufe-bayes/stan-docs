@@ -2,7 +2,7 @@
 
 # 后验预测抽样 {#posterior-prediction.chapter}
 
-翻译贡献者：谭朕斯
+本节译者：谭朕斯
 
 The goal of inference is often posterior prediction, that is
 evaluating or sampling from the posterior predictive distribution

@@ -2,6 +2,8 @@
 
 # 矩阵、向量和数组
 
+本节译者：程书宁
+
 This chapter provides pointers as to how to choose among the various
 matrix, vector, and array data structures provided by Stan.
 

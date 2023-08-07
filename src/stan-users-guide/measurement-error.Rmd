@@ -2,7 +2,7 @@
 
 # 测量误差和元分析
 
-翻译贡献者：马桢
+本节译者：马桢
 
 Most quantities used in statistical models arise from measurements.
 Most of these measurements are taken with some error.  When the

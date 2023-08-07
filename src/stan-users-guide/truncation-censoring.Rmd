@@ -2,8 +2,7 @@
 
 # 截断或者删失数据
 
-贡献者：段园家
-
+本节译者：段园家
 
 Data in which measurements have been truncated or censored can be
 coded in Stan following their respective probability models.

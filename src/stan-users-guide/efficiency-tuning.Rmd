@@ -2,7 +2,7 @@
 
 # 效率调优
 
-翻译贡献者：焦睿宇、苏田园
+本节译者：焦睿宇、苏田园
 
 This chapter provides a grab bag of techniques for optimizing Stan
 code, including vectorization, sufficient statistics, and conjugacy.

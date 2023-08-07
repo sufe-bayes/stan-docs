@@ -2,6 +2,8 @@
 
 # 解代数方程  {#algebra-solver.chapter}
 
+本节译者：段园家
+
 Stan provides a built-in mechanism for specifying systems of algebraic equations.
 These systems can be solved either with the Newton method,
 as implemented in the Kinsol package [@Hindmarsh:2005],

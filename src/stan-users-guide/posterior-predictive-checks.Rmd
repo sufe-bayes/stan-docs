@@ -2,7 +2,7 @@
 
 # 后验和先验预测检查 {#ppcs.chapter}
 
-翻译贡献者：陈苑莹
+本节译者：陈苑莹
 
 Posterior predictive checks are a way of measuring whether a model
 does a good job of capturing relevant aspects of the data, such as

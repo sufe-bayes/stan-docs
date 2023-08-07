@@ -4,7 +4,7 @@
 
 （本章有两个翻译版本，需进行合并）
 
-本章译者：马汉腾、谈英文
+本节译者：马汉腾、谈英文
 
 Mathematically speaking, with a proper posterior, one can do Bayesian
 inference and that's that. There is not even a need to require a
