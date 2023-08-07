@@ -94,7 +94,7 @@ the error.  All of Stan's containers check the sizes of all indexes.
 
 ## Data type and indexing efficiency {#indexing-efficiency.section}
 
-## 数据类型和索引效率{#indexing-efficiency.section}
+## 数据类型和索引效率 {#indexing-efficiency.section--cn}
 
 The underlying matrix and linear algebra operations are implemented in
 terms of data types from the Eigen C++ library.  By having vectors

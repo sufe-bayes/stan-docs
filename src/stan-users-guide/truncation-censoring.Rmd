@@ -11,7 +11,7 @@ coded in Stan following their respective probability models.
 
 ## Truncated distributions {#truncation.section}
 
-## 截断分布 {#truncation.section} 
+## 截断分布 {#truncation.section--cn} 
 
 Truncation in Stan is restricted to univariate distributions for which
 the corresponding log cumulative distribution function (CDF) and log
@@ -25,7 +25,7 @@ Stan 中的截断仅限于具有相应对数累积分布函数 （CDF） 和对�
 
 ## Truncated data {#truncated-data.section}
 
-## 截断数据 {#truncated-data.section}
+## 截断数据 {#truncated-data.section--cn}
 
 Truncated data are data for which measurements are only reported if
 they fall above a lower bound, below an upper bound, or between a

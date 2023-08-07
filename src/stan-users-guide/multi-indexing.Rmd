@@ -1,6 +1,6 @@
 # Multiple Indexing and Range Indexing  {#multi-indexing.chapter}
 
-# 多索引和范围索引 {#multi-indexing.chapter}
+# 多索引和范围索引 {#multi-indexing.chapter--cn}
 
 本节译者：王嘉宁
 

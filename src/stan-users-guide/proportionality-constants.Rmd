@@ -1,6 +1,6 @@
 # Proportionality Constants  {#proportionality-constants.chapter}
 
-# 比例常数 {#proportionality-constants.chapter}
+# 比例常数 {#proportionality-constants.chapter--cn}
 
 本节译者：沈梓梁
 

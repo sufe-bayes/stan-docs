@@ -1,6 +1,6 @@
 # Custom Probability Functions  {#custom-probability-functions.chapter}
 
-#自定义概率函数{#custom-probability-functions.chapter}
+# 自定义概率函数 {#custom-probability-functions.chapter--cn}
 
 本节译者：谭朕斯
 

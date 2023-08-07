@@ -38,7 +38,7 @@ Held -out评估和交叉验证可能涉及任何类型的预测统计量，
 
 ## Evaluating posterior predictive densities  {#evaluating-posterior-predictive.section}
 
-## 评估后验预测密度  {#evaluating-posterior-predictive.section}
+## 评估后验预测密度  {#evaluating-posterior-predictive.section--cn}
 
 Given training data $(x, y)$ consisting of parallel sequences of
 predictors and observations and test data $(\tilde{x}, \tilde{y})$ of

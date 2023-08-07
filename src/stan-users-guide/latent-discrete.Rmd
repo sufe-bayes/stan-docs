@@ -1,6 +1,6 @@
 # Latent Discrete Parameters  {#latent-discrete.chapter}
 
-# 潜在离散参数 {#latent-discrete.chapter}
+# 潜在离散参数 {#latent-discrete.chapter--cn}
 
 本节译者：方志清
 
@@ -21,7 +21,7 @@ models involving latent discrete parameters.
 
 ## The benefits of marginalization {#rao-blackwell.section}
 
-## 边际化的好处 {#rao-blackwell.section}
+## 边际化的好处 {#rao-blackwell.section--cn}
 
 Although it requires some algebra on the joint probability function,
 a pleasant byproduct of the required calculations is the posterior
@@ -43,7 +43,7 @@ exactly the marginalization needed for coding the model in Stan.
 
 ## Change point models {#change-point.section}
 
-## 变点模型 {#change-point.section}
+## 变点模型 {#change-point.section--cn}
 
 The first example is a model of coal mining disasters in the U.K. for the years 1851--1962.^[The source of the data is [@Jarret:1979], which itself is a note correcting an earlier data collection.]
 
@@ -1027,7 +1027,7 @@ predictors.
 
 ## Data coding and diagnostic accuracy models {#data-coding-models.section}
 
-## 数据编码和诊断准确性模型 {#data-coding-models.section}
+## 数据编码和诊断准确性模型 {#data-coding-models.section--cn}
 
 Although seemingly disparate tasks, the rating/coding/annotation of
 items with categories and diagnostic testing for disease or other
@@ -1336,7 +1336,7 @@ distribution over each $z_i$.
 
 ## The mathematics of recovering marginalized parameters {#marginalization-mathematics.section}
 
-## 从边缘化模型中恢复边缘化参数的数学原理 {#marginalization-mathematics.section}
+## 从边缘化模型中恢复边缘化参数的数学原理 {#marginalization-mathematics.section--cn}
 
 ### Introduction {-}
 

@@ -1,6 +1,6 @@
 # Parallelization {#parallelization.chapter}
 
-# 并行计算 {#parallelization.chapter}
+# 并行计算 {#parallelization.chapter--cn}
 
 本节译者：谭颂华、杨智
 
@@ -68,7 +68,7 @@ law](https://en.wikipedia.org/wiki/Amdahl's_law).
 
 ## Reduce-sum { #reduce-sum }
 
-## 求和归约 { #reduce-sum }
+## 求和归约 {#reduce-sum--cn}
 
 It is often necessary in probabilistic modeling to compute the sum of
 a number of independent function evaluations. This occurs, for instance, when
@@ -381,7 +381,7 @@ model {
 
 ### Picking the grainsize {#reduce-sum-grainsize}
 
-### 选择调优参数 {#reduce-sum-grainsize}
+### 选择调优参数 {#reduce-sum-grainsize--cn}
 
 The rational for choosing a sensible `grainsize` is based on
 balancing the overhead implied by creating many small tasks versus

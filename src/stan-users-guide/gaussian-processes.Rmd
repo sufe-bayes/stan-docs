@@ -1,6 +1,6 @@
 # Gaussian Processes  {#gaussian-processes.chapter}
 
-# 高斯过程 {#gaussian-processes.chapter@cn}
+# 高斯过程 {#gaussian-processes.chapter--cn}
 
 本节译者：李巧玲，王嘉宁
 
@@ -347,7 +347,7 @@ encoding of the transform described above.
 
 ## Fitting a Gaussian process {#fit-gp.section}
 
-## 拟合高斯过程 {#fit-gp.section@cn}
+## 拟合高斯过程 {#fit-gp.section--cn}
 
 ### GP with a normal outcome {-}
 
@@ -722,7 +722,7 @@ model {
 
 ### Priors for Gaussian process parameters {#priors-gp.section}
 
-### 高斯过程的先验参数 {#priors-gp.section@cn}
+### 高斯过程的先验参数 {#priors-gp.section--cn}
 
 Formulating priors for GP hyperparameters requires the analyst to consider the
 inherent statistical properties of a GP, the GP's purpose in the model, and the

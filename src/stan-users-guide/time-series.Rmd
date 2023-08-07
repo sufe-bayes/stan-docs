@@ -1,6 +1,6 @@
 # Time-Series Models  {#time-series.chapter}
 
-# 时间序列模型
+# 时间序列模型 {#time-series.chapter--cn}
 
 本节译者：林余昌 洪世哲
 
@@ -18,7 +18,7 @@ spatial) data.
 
 ## Autoregressive models {#autoregressive.section}
 
-## 自回归模型
+## 自回归模型 {#autoregressive.section--cn}
 
 A first-order autoregressive model (AR(1)) with normal noise takes
 each point $y_n$ in a sequence $y$ to be generated according to
@@ -770,7 +770,7 @@ time of the original iterations.
 
 ## Hidden Markov models {#hmms.section}
 
-## 隐马尔可夫模型
+## 隐马尔可夫模型 {#hmms.section--cn}
 
 A hidden Markov model (HMM) generates a sequence of $T$ output
 variables $y_t$ conditioned on a parallel sequence of latent

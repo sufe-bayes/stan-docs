@@ -1,6 +1,6 @@
 # Ordinary Differential Equations  {#ode-solver.chapter}
 
-# 常微分方程 {#ode-solver.chapter}
+# 常微分方程 {#ode-solver.chapter--cn}
 
 本节译者：杨静远
 
@@ -450,7 +450,7 @@ variables (e.g., with a multivariate Student-t distribution).
 
 ## Stiff ODEs {#stiff-ode.section}
 
-## 刚性 ODEs {#stiff-ode.section}
+## 刚性 ODEs {#stiff-ode.section--cn}
 
 Stiffness is a numerical phenomena that causes some differential equation
 solvers difficulty, notably the Runge-Kutta RK45 solver used in the examples
@@ -497,7 +497,7 @@ to the `bdf` solver each of these steps is more expensive to compute.
 
 ## Control parameters for ODE solving {#control-ode.section}
 
-## ODE求解中的控制参数 {#control-ode.section}
+## ODE求解中的控制参数 {#control-ode.section--cn}
 
 For additional control of the solves, both the stiff and non-stiff
 forward ODE solvers have function signatures that makes it possible to
@@ -648,7 +648,7 @@ step sizes.
 
 ## Adjoint ODE solver {#adjoint-ode.section}
 
-## 伴随ODE求解器 {#adjoint-ode.section}
+## 伴随ODE求解器 {#adjoint-ode.section--cn}
 
 The adjoint ODE solver method differs mathematically from the forward
 ODE solvers in the way gradients of the ODE solution are obtained. The

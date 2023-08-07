@@ -1,6 +1,6 @@
 # Efficiency Tuning {#efficiency-tuning.chapter}
 
-# 效率调优
+# 效率调优 {#efficiency-tuning.chapter--cn}
 
 本节译者：焦睿宇、苏田园
 
@@ -304,7 +304,7 @@ Now the only validation is carried out by the multivariate normal.
 
 ## Reparameterization {#reparameterization.section}
 
-## 重新参数化
+## 重新参数化 {#reparameterization.section--cn}
 
 Stan's sampler can be slow in sampling from distributions with
 difficult posterior geometries.  One way to speed up such models is

@@ -1,6 +1,6 @@
 # Clustering Models  {#clustering.chapter}
 
-# 聚类模型 {#clustering.chapter}
+# 聚类模型 {#clustering.chapter--cn}
 
 本节译者：王钦怡
 

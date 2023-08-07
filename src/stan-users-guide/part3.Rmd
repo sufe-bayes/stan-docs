@@ -1,6 +1,6 @@
 # <i style="font-size: 110%; color:#990017;">Part 3. Posterior Inference & Model Checking</i> {- #meta-models.part}
 
-# <i style="font-size: 110%; color:#990017;">第3部分 后验推断与模型检验</i> {- #meta-models.part}
+# <i style="font-size: 110%; color:#990017;">第3部分 后验推断与模型检验</i> {- #meta-models.part--cn}
 
 This part of the user's guide surveys algorithms that perform
 posterior predictive inference and model checking.  Many of these

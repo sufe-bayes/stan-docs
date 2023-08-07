@@ -406,7 +406,7 @@ scale.
 
 ## Log sum of exponentials {#log-sum-of-exponentials}
 
-## 对数求和的指数化
+## 对数求和的指数化 {#log-sum-of-exponentials--cn}
 
 Working on the log scale, multiplication is converted to addition,
 

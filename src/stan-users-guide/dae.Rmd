@@ -1,6 +1,6 @@
 # Differential-Algebraic Equations  {#dae-solver.chapter}
 
-# 微分代数方程 {#dae-solver.chapter}
+# 微分代数方程 {#dae-solver.chapter--cn}
 
 本节译者：于娇
 
@@ -247,7 +247,7 @@ Since `gamma` is a parameter, the DAE solver is called in the transformed parame
 
 ## Control parameters for DAE solving {#control-dae.section}
 
-## 用于DAE求解的控制参数 {#control-dae.section}
+## 用于DAE求解的控制参数 {#control-dae.section--cn}
 
 Using `dae_tol` one can specify the `relative_tolerance`, `absolute_tolerance`, and
 `max_num_steps` parameters in order to control the DAE solution.

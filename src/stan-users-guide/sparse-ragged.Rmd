@@ -1,6 +1,6 @@
 # Sparse and Ragged Data Structures  {#sparse-ragged.chapter}
 
-# 稀疏与不规则数据结构 {#sparse-ragged.chapter}
+# 稀疏与不规则数据结构 {#sparse-ragged.chapter--cn}
 
 本节译者：郭鑫
 
@@ -143,7 +143,7 @@ formulations produce exactly the same log posterior density.
 
 ## Ragged data structures {#ragged-data-structs.section}
 
-## 不规则数据结构 {#ragged-data-structs.section}
+## 不规则数据结构 {#ragged-data-structs.section--cn}
 
 Ragged arrays are arrays that are not rectangular, but have different
 sized entries.  This kind of structure crops up when there are

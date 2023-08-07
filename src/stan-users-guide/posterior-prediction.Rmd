@@ -1,6 +1,6 @@
 # Posterior Predictive Sampling {#posterior-prediction.chapter}
 
-# 后验预测抽样 {#posterior-prediction.chapter}
+# 后验预测抽样 {#posterior-prediction.chapter--cn}
 
 本节译者：谭朕斯
 

@@ -1,6 +1,6 @@
 # <i style="font-size: 110%; color:#990017;">Part 1. Example Models</i> {- #example-models.part}
 
-# <i style="font-size: 110%; color:#990017;">第1部分 示例模型</i> {- #example-models.part}
+# <i style="font-size: 110%; color:#990017;">第1部分 示例模型</i> {- #example-models.part--cn}
 
 In this part of the book, we survey a range of example models,
 with the goal of illustrating how to code them efficiently in Stan.

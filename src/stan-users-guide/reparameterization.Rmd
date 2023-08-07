@@ -1,6 +1,6 @@
 # Reparameterization and Change of Variables  {#change-of-variables.chapter}
 
-# 重参数化和变量转换 {#change-of-variables.chapter}
+# 重参数化和变量转换 {#change-of-variables.chapter--cn}
 
 本节译者：杨智
 
@@ -515,7 +515,7 @@ target += normal_lpdf(log(y) | mu, sigma);
 
 #### Gamma and inverse gamma distribution {- #jacobian-adjustment.section}
 
-#### 伽马与逆伽马分布 {- #jacobian-adjustment.section}
+#### 伽马与逆伽马分布 {- #jacobian-adjustment.section--cn}
 
 Like the log normal, the inverse gamma distribution is a distribution
 of variables whose inverse has a gamma distribution.  This section

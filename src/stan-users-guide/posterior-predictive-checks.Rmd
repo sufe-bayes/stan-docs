@@ -1,6 +1,6 @@
 # Posterior and Prior Predictive Checks {#ppcs.chapter}
 
-# 后验和先验预测检查 {#ppcs.chapter}
+# 后验和先验预测检查 {#ppcs.chapter--cn}
 
 本节译者：陈苑莹
 
@@ -532,7 +532,7 @@ wide that it will pull probability mass away from feasible values.
 
 ## Mixed predictive replication for hierarchical models {#mixed-replication}
 
-## 分层模型的混合预测复制集 {#mixed-replication}
+## 分层模型的混合预测复制集 {#mixed-replication--cn}
 
 @GelmanEtAl:1996 discuss the case of mixed replication for
 hierarchical models in which the hyperparameters remain fixed, but
