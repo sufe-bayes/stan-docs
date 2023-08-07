@@ -1,6 +1,10 @@
 # <i style="font-size: 110%; color:#990017;">Part 3. Posterior Inference & Model Checking</i> {- #meta-models.part}
 
+# <i style="font-size: 110%; color:#990017;">第3部分 后验推断与模型检验</i> {- #meta-models.part}
+
 This part of the user's guide surveys algorithms that perform
 posterior predictive inference and model checking.  Many of these
 algorithms require multiple runs of Stan in order to fit varying
 simulated data samples.
+
+用户指南的这一部分将考察后验预测推断和模型检验的各类方法。许多这类算法需要将 Stan 程序进行多次运行，从而对不同的模拟数据样本进行拟合。
