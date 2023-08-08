@@ -11,13 +11,13 @@ or with the Powell hybrid method [@Powell:1970].
 The function signatures for Stan's algebraic solvers are fully
 described in the algebraic solver section of the reference manual.
 
-Stan 提供了一种内置机制来指定代数方程组系统。这些方程组系统可以使用牛顿方法，如Kinsol包[@Hindmarsh:2005]中实现的那样，或鲍威尔混合方法[@Powell:1970]求解。Stan 用于代数方程求解器的函数署名在参考手册的代数求解器部分有完整的描述。
+Stan 提供了一种内置机制来指定代数方程组系统。这些方程组系统可以使用牛顿方法，如 Kinsol 包 [@Hindmarsh:2005] 中实现的那样，或鲍威尔混合方法 [@Powell:1970] 求解。Stan 用于代数方程求解器的函数署名在参考手册的代数求解器部分有完整的描述。
 
 Solving any system of algebraic equations can be translated into a root-finding
 problem, that is, given a function $f$, we wish to find $y$ such that
 $f(y) = 0$.
 
-求解任何代数方程组都可以转化为寻根问题，也就是说，给定一个函数$f$，我们希望找到$y$，使得
+求解任何代数方程组都可以转化为寻根问题，也就是说，给定一个函数 $f$，我们希望找到 $y$，使得
 $f(y)=0$。
 
 ## Example: system of nonlinear algebraic equations
@@ -43,7 +43,7 @@ z_2 &= y_1 y_2 + \theta_2
 Our goal is to simultaneously solve all equations for
 $y_1$ and $y_2$, such that the vector $z$ goes to 0.
 
-我们的目标是同时解出$y_1$和$y_2$，使得向量$z$趋于0。
+我们的目标是同时解出 $y_1$ 和 $y_2$，使得向量 $z$ 趋于0。
 
 ## Coding an algebraic system
 
