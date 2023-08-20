@@ -477,7 +477,7 @@ y[n] ~ bernoulli(Phi_approx(alpha + beta * x[n]));
 
 Multiple outcome forms of logistic regression can be coded directly in
 Stan.  For instance, suppose there are $K$ possible outcomes for each
-output variable $y_n$.  Also suppose that there is a $D$-dimensional
+output variable $y_n$.  Also suppose that there is a $D$ -dimensional
 vector $x_n$ of predictors for $y_n$.  The multi-logit model with
 $\textsf{normal}(0,5)$ priors on the coefficients is coded as follows.
 
@@ -591,7 +591,7 @@ Because softmax is invariant under adding a constant to each component
 of its input, the model is typically only identified if there is a
 suitable prior on the coefficients.
 
-因为在向softmax输入值的每个分量添加同一个常数时，输出不变，所以模型通常只有系数有合适的先验分布时才有可识别性。
+因为在向 softmax 输入值的每个分量添加同一个常数时，输出不变，所以模型通常只有系数有合适的先验分布时才有可识别性。
 
 An alternative is to use $(K-1)$-vectors by fixing one of them to be
 zero. The [partially known parameters
@@ -599,7 +599,7 @@ section](#partially-known-parameters.section) discusses how to mix
 constants and parameters in a vector.  In the multi-logit case, the
 parameter block would be redefined to use $(K - 1)$-vectors
 
-另一种方法是通过将其中之一固定为零的方式，来使用$(K-1)$-向量。[部分已知参数章节](#partially-known-parameters.section)讨论了如何在向量中混合常数和参数。在多类别逻辑回归情况下，参数块将被重新定义为使用$(K-1)$-向量的形式
+另一种方法是通过将其中之一固定为零的方式，来使用 $(K-1)$ -向量。[部分已知参数章节](#partially-known-parameters.section)讨论了如何在向量中混合常数和参数。在多类别逻辑回归情况下，参数块将被重新定义为使用 $(K-1)$ -向量的形式
 
 ```stan
 parameters {
@@ -622,7 +622,7 @@ transformed data {
 which can then be appended to `beta_raw` to produce the
 coefficient matrix `beta`,
 
-然后可以将其附加到`beta_raw`上，以生成系数矩阵`beta`，
+然后可以将其附加到 `beta_raw` 上，以生成系数矩阵 `beta`，
 
 ```stan
 transformed parameters {
@@ -637,7 +637,7 @@ end of `beta_raw`;  the vector `zeros` is defined as transformed
 data so that it doesn't need to be constructed from scratch each time
 it is used.
 
-`rep_vector(0, D)`的调用创建了一个长度为`D`的列向量，其中所有元素均设为零。然后，通过在`beta_raw`的末尾作为新列附加向量`zeros`的方式，定义矩阵`beta`；向量`zeros`被定义为转换数据，这样每次使用时就不需要从头开始构建它。
+`rep_vector(0, D)` 的调用创建了一个长度为 `D` 的列向量，其中所有元素均设为零。然后，通过在 `beta_raw` 的末尾作为新列附加向量 `zeros` 的方式，定义矩阵 `beta`；向量 `zeros` 被定义为转换数据，这样每次使用时就不需要从头开始构建它。
 
 
 This is not the same model as using $K$-vectors as parameters,
@@ -646,7 +646,7 @@ this will cause the maximum likelihood solutions to be different and
 also the posteriors to be slightly different when taking priors
 centered around zero, as is typical for regression coefficients.
 
-这与将$K$-向量作为参数使用的模型不同，因为现在先验分布仅适用于 $(K-1)$-向量。实际上，这将导致最大似然的解有所不同，并且在采用以零为中心的先验分布（通常用于回归系数）时，得到的后验分布也会略有不同。
+这与将 $K$ -向量作为参数使用的模型不同，因为现在先验分布仅适用于 $(K-1)$ -向量。实际上，这将导致最大似然的解有所不同，并且在采用以零为中心的先验分布（通常用于回归系数）时，得到的后验分布也会略有不同。
 
 ## Parameterizing centered vectors
 
@@ -654,6 +654,9 @@ centered around zero, as is typical for regression coefficients.
 
 It is often convenient to define a parameter vector $\beta$ that is
 centered in the sense of satisfying the sum-to-zero constraint,
+
+为了方便，我们通常定义一个中心化的参数向量 $\beta$，即满足总和为零的约束条件，
+
 $$
 \sum_{k=1}^K \beta_k = 0.
 $$
@@ -665,10 +668,6 @@ ability or difficulty parameters (but not both) in an IRT model (see
 the [item-response model section](#item-response-models.section) for
 details).
 
-为了方便，我们通常定义一个中心化的参数向量$\beta$，即满足总和为零的约束条件，
-$$
-\sum_{k=1}^K \beta_k = 0.
-$$
 这样的参数向量可以用于识别多分类逻辑回归回归的参数向量（详见[多分类逻辑回归部分](#multi-logit.section)），或者项目反应模型中的能力或难度参数（但不能同时识别，详见[项目反应模型部分](#item-response-models.section)）。
 
 
@@ -680,7 +679,7 @@ There is more than one way to enforce a sum-to-zero constraint on a
 parameter vector, the most efficient of which is to define the $K$-th
 element as the negation of the sum of the elements $1$ through $K-1$.
 
-对于参数向量，有多种方式可以让它满足总和为零的约束条件，其中最高效的方式是将第$K$个元素定义为前$K-1$个元素的和的相反数。
+对于参数向量，有多种方式可以让它满足总和为零的约束条件，其中最高效的方式是将第 $K$ 个元素定义为前 $K-1$ 个元素的和的相反数。
 
 ```stan
 parameters {
@@ -703,7 +702,7 @@ the same prior on each component of an unconstrained $K$-vector
 on `beta` will produce a different posterior mode than placing
 the same prior on `beta_raw`.
 
-在对`beta_raw`设置先验时是否加入总和为$0$的约束条件将会导致后验结果产生微妙差异。特别值得注意的是，在每个`beta_raw`分量上设置简单的先验与在无约束的$K$维向量`beta`的每个分量上设置相同的先验会产生不同的结果。例如，设置`beta`和`beta_raw`服从相同的先验分布$\textsf{normal}(0,5)$将产生不同的后验结果。
+在对 `beta_raw` 设置先验时是否加入总和为 $0$ 的约束条件将会导致后验结果产生微妙差异。特别值得注意的是，在每个 `beta_raw` 分量上设置简单的先验与在无约束的 $K$ 维向量 `beta` 的每个分量上设置相同的先验会产生不同的结果。例如，设置 `beta` 和 `beta_raw` 服从相同的先验分布 $\textsf{normal}(0,5)$ 将产生不同的后验结果。
 
 #### Marginal distribution of sum-to-zero components {-}
 
@@ -713,7 +712,7 @@ On the Stan forums, Aaron Goodman provided the following code to
 produce a prior with standard normal marginals on the components of
 `beta`,
 
-在Stan论坛上，Aaron Goodman提供了以下代码，用于生成在`beta`各分量上具有标准正态边缘分布的先验，
+在 Stan 论坛上，Aaron Goodman 提供了以下代码，用于生成在 `beta` 各分量上具有标准正态边缘分布的先验，
 
 ```stan
 model {
@@ -726,23 +725,22 @@ The components are not independent, as they must sum zero.  No
 Jacobian is required because summation and negation are linear
 operations (and thus have constant Jacobians).
 
+由于分量总和为零，所以各分量之间不是独立的。由于求和和取负都是线性操作，我们不需要雅可比矩阵（因此雅可比为常数）。
+
 To generate distributions with marginals other than standard normal,
 the resulting `beta` may be scaled by some factor `sigma` and
 translated to some new location `mu`.
 
-由于分量总和为零，所以各分量之间不是独立的。由于求和和取负都是线性操作，我们不需要雅可比矩阵（因此雅可比为常数）。
-
-我们可以通过对`beta`进行平移和伸缩变换（参数分别为`mu`和 `sigma`）来生成具有非标准正态边缘分布的先验。
-
+我们可以通过对 `beta` 进行平移和伸缩变换（参数分别为 `mu` 和 `sigma`）来生成具有非标准正态边缘分布的先验。
 
 ### QR decomposition {-}
-### QR分解 {-}
+### QR 分解 {-}
 
 Aaron Goodman, on the Stan forums, also provided this approach, which
 calculates a QR decomposition in the transformed data block, then uses
 it to transform to a sum-to-zero parameter `x`,
 
-Aaron Goodman在stan论坛上还提供了另一种方法，即在转化后的数据块上进行QR分解，然后转换成一个求和为零的参数`x`，
+Aaron Goodman 在 stan 论坛上还提供了另一种方法，即在转化后的数据块上进行 QR 分解，然后转换成一个求和为零的参数 `x`，
 
 ```stan
 transformed data{
@@ -766,7 +764,7 @@ model {
 This produces a marginal standard normal distribution on the values of
 `beta`, which will sum to zero by construction of the QR decomposition.
 
-这样就生成了一个每一个分量的边缘分布为标准正态分布的向量`beta`，且通过QR分解使得求和为零。
+这样就生成了一个每一个分量的边缘分布为标准正态分布的向量 `beta`，且通过 QR 分解使得求和为零。
 
 ### Translated and scaled simplex {-}
 ###  平移与缩放后的单纯形 {-}
@@ -796,11 +794,13 @@ Because the magnitude of the elements of the simplex is bounded, a
 scaling factor is required to provide `beta` with $K$ degrees of
 freedom necessary to take on every possible value that sums to zero.
 
+其中，`inv(K)` 是 `1.0 / K` 的简写形式。由于 `beta_raw` 是一个单纯形向量，其总和为1，通过逐元素减去 inv(K)，可以确保其总和为零。由于单纯形元素的取值范围是有界的，因此需要一个缩放因子来使  `beta` 具有 K 个自由度，以便能够取得总和为零的所有可能值。
+
 With this parameterization, a Dirichlet prior can be placed on
 `beta_raw`, perhaps uniform, and another prior put on
 `beta_scale`, typically for "shrinkage."
 
-其中，`inv(K)`是`1.0 / K`的简写形式。由于`beta_raw`是一个单纯形向量，其总和为1，通过逐元素减去inv(K)，可以确保其总和为零。由于单纯形元素的取值范围是有界的，因此需要一个缩放因子来使 `beta`具有K个自由度，以便能够取得总和为零的所有可能值。
+通过这个参数化方式，对参数 `beta_raw` 设置狄利克雷先验分布（Dirichlet prior），比如均匀分布。对 `beta_scale` 设置另一个先验分布，一般用于实现"缩减"（shrinkage）效果
 
 ### Soft centering {-}
 ### 软中心化 {-}
@@ -813,7 +813,7 @@ for a scalar constant $c$ produce the same likelihood (perhaps by
 another vector $\alpha$ being transformed to $\alpha - c$, as in the
 IRT models).  This is another way of achieving a symmetric prior.
 
-相较于使$\sum_{k=1}^K \beta_k = 0$（在其他条件相等的情况下），添加例如$\beta \sim \textsf{normal}(0,\sigma)$的先验提供了一种对参数向量$\beta$进行软中心化的方式。只有当$\beta$和$\beta + c$（$c$是标量常数）产生相同的似然（可能通过将另一个向量$\alpha$转化为$\alpha - c$，如在IRT模型中一样），这种方法才能保证能够大致中心化。这是实现对称先验的另一种方式。
+相较于使 $\sum_{k=1}^K \beta_k = 0$（在其他条件相等的情况下），添加例如 $\beta \sim \textsf{normal}(0,\sigma)$ 的先验提供了一种对参数向量 $\beta$ 进行软中心化的方式。只有当 $\beta$ 和 $\beta + c$（$c$是标量常数）产生相同的似然（可能通过将另一个向量 $\alpha$ 转化为 $\alpha - c$，如在 IRT 模型中一样），这种方法才能保证能够大致中心化。这是实现对称先验的另一种方式。
 
 ## Ordered logistic and probit regression {#ordered-logistic.section}
 
@@ -828,17 +828,17 @@ $c_k$, assuming $c_0 = -\infty$ and $c_K = \infty$.  The noise term is
 fixed by the form of regression, with examples for ordered logistic
 and ordered probit models.
 
-有序回归包含输出$y_n \in \{ 1, \dotsc, k \}$和预测变量$x_n \in \mathbb{R}^D$，它由单个系数向量$\beta \in \mathbb{R}^D$和按顺序排列的截断点序列$c \in \mathbb{R}^{K-1}$确定。如果线性预测器$x_n \beta$的值落在$c_{k-1}$和$c_k$之间（假设$c_0 = -\infty$和$c_K = \infty$），则离散输出为$k$。噪声项由回归形式确定，这包括有序Logistic模型和有序Probit模型的示例。
+有序回归包含输出 $y_n \in \{ 1, \dotsc, k \}$ 和预测变量 $x_n \in \mathbb{R}^D$，它由单个系数向量 $\beta \in \mathbb{R}^D$ 和已排序的截断点序列 $c \in \mathbb{R}^{K-1}$ 确定，其中 $c_d < c_{d+1}$。如果线性预测器 $x_n \beta$ 的值落在 $c_{k-1}$和$c_k$ 之间（假设 $c_0 = -\infty$ 和 $c_K = \infty$），则离散输出为 $k$。噪声项由回归模型的形式确定，以有序 Logistic 模型和有序 Probit 模型为例。
 
 ### Ordered logistic regression {-}
 
-### 有序logistic回归 {-}
+### 有序 logistic 回归 {-}
 
 The ordered logistic model can be coded in Stan using the
 `ordered` data type for the cutpoints and the built-in
 `ordered_logistic` distribution.
 
-有序Logistic模型可以使用Stan编码，其中使用`ordered`数据类型表示截断点，并使用内置的`ordered_logistic`分布。
+有序 Logistic 模型可以在 Stan 中使用 `ordered` 数据类型表示截断点和内置的 `ordered_logistic` 分布进行编码。
 
 
 
@@ -864,26 +864,25 @@ model {
 The vector of cutpoints `c` is declared as `ordered[K - 1]`,
 which guarantees that `c[k]` is less than `c[k + 1]`.
 
+截断点向量 `c` 被声明为 `ordered[K - 1]`，这确保 `c[k]` 小于 `c[k + 1]`。
+
 If the cutpoints were assigned independent priors, the constraint
 effectively truncates the joint prior to support over points that
 satisfy the ordering constraint.  Luckily, Stan does not need to
 compute the effect of the constraint on the normalizing term because
 the probability is needed only up to a proportion.
 
-截断点向量 `c` 被声明为 `ordered[K - 1]`，这确保 `c[k]` 小于 `c[k + 1]`。
-
 如果给截断点分配独立的先验，约束条件会有效地将联合先验截断为满足排序约束的支持点。幸运的是，Stan 不需要计算约束对归一化项的影响，因为只需要计算概率的比例。
-
 
 #### Ordered probit {-}
 
-#### 有序probit回归 {-}
+#### 有序 probit 回归 {-}
 
 An ordered probit model could be coded in exactly the same way by
 swapping the cumulative logistic (`inv_logit`) for the cumulative
 normal (`Phi`).
 
-通过将累积逻辑函数 (`inv_logit`) 替换为累积正态函数 (`Phi`)，可以以完全相同的方式编码有序Probit模型。
+通过将累积逻辑函数 (`inv_logit`) 替换为累积正态函数 (`Phi`)，可以以完全相同的方式编码有序 Probit 模型。
 
 ```stan
 data {
@@ -918,7 +917,7 @@ on the softmax transform is more efficient and more numerically
 stable.  A small efficiency gain could be achieved by computing the
 values `Phi(eta - c[k])` once and storing them for re-use.
 
-尽管基于 softmax 变换的内置编码更高效且数值上更稳定，逻辑回归模型也可以通过将 `Phi` 替换为 `inv_logit` 这种方式进行编码。通过计算值 `Phi(eta - c[k])` 一次并将其存储以供重复使用，可以获得一定的效率提升。
+尽管基于 softmax 变换的内置编码更高效且数值上更稳定，逻辑回归模型也可以通过将 `Phi` 替换为 `inv_logit` 这种方式进行编码。通过一次性计算值 `Phi(eta - c[k])` 并将其存储以供重复使用，可以获得一定的效率提升。
 
 ## Hierarchical logistic regression
 
