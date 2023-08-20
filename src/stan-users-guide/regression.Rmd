@@ -572,7 +572,7 @@ appropriate argument for `softmax()`.  The categorical outcomes
 `y[n]` must be between `1` and `K` in order for the
 discrete sampling to be well defined.
 
-这些约束是因为在分类模型中，类别数量`K`必须至少为2才能有用。数据项数量`N`可以为零，但不能为负数；与R不同，Stan的for循环总是向前移动，因此当`N`等于零时，循环范围为`1:N`可确保循环体不会被执行。自变量的数量`D`必须至少为1，以便`beta * x[n]`生成`softmax()`的适当参数。分类结果`y[n]`必须在`1`和`K`之间，以使离散采样定义良好。
+这些约束是因为在分类模型中，类别数量 `K` 必须至少为2才能有用。数据项数量 `N` 可以为零，但不能为负数；与 R 不同，Stan 的 for 循环总是向前移动，因此当 `N` 等于零时，循环范围为 `1:N` 可确保循环体不会被执行。自变量的数量 `D` 必须至少为 1，以便 `beta * x[n]` 生成 `softmax()` 的适当参数。分类结果 `y[n]` 必须在 `1` 和 `K` 之间，以使离散采样定义良好。
 
 Constraints on data declarations are optional.  Constraints on
 parameters declared in the `parameters` block, on the other hand,
