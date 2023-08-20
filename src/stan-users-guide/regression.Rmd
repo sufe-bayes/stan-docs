@@ -481,7 +481,8 @@ output variable $y_n$.  Also suppose that there is a $D$-dimensional
 vector $x_n$ of predictors for $y_n$.  The multi-logit model with
 $\textsf{normal}(0,5)$ priors on the coefficients is coded as follows.
 
-在 Stan 中可以直接编码多类别的逻辑回归。例如，假设对于每个输出变量 $y_n$，有 $K$ 个可能的类别。还假设存在一个 $D$ 维的自变量向量 $x_n$，用于预测 $y_n$。系数的先验分布为 $\textsf{normal}(0,5)$ 的多类别逻辑模型可以编码如下。
+在 Stan 中可以直接编码多输出形式的逻辑回归。例如，假设对于每个输出变量 $y_n$有 $K$ 个可能的结果。同时假设对于每个 $y_n$ 都有一个维度为 $D$ 的预测变量向量 $x_n$ 。系数的先验分布为 $\textsf{normal}(0,5)$ 的多输出形式的逻辑模型的编码如下。
+
 
 ```stan
 data {
@@ -514,7 +515,7 @@ efficiency.  Like the Bernoulli-logit, the categorical-logit
 distribution applies softmax internally to convert an arbitrary vector
 to a simplex,
 
-其中 `x_beta[n]'`是`x_beta[n]`的转置。`beta`的先验也是向量形式。截至Stan 2.18版本，分类-逻辑分布（categorical-logit distribution）的参数未进行向量化处理，因此需要使用循环。这里用矩阵乘法来定义一个对应所有自变量的局部变量，以提高效率。与伯努利-逻辑（Bernoulli-logit）分布一样，分类-逻辑分布在内部应用softmax函数将任意向量转换为单纯形，
+其中 `x_beta[n]'` 是 `x_beta[n]` 的转置。`beta` 的先验也是向量形式。截至 Stan 2.18版本，分类-逻辑分布（categorical-logit distribution）的参数未进行向量化处理，因此需要使用循环。这里用矩阵乘法来定义一个对应所有自变量的局部变量，以提高效率。与伯努利-逻辑（Bernoulli-logit）分布一样，分类-逻辑分布在内部应用 softmax 函数将任意向量转换为单纯形，
 
 $$
 \texttt{categorical}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right)
@@ -551,7 +552,7 @@ before sampling begins.  Constraints on data declarations also make
 the model author's intentions more explicit, which can help with
 readability.  The above model's declarations could be tightened to
 
-上述模型中的数据块没有给`K`、`N`、`D`和`y`定义约束。数据声明的约束可以在读取数据（或定义转换数据）时进行错误检查，该步骤发生在采样开始之前。数据声明的约束还可以使模型作者的意图更加明确，从而提高可读性。上述模型的声明可以进一步加强，如下所示：
+上述模型中的数据块没有给 `K`、`N`、`D` 和 `y` 定义约束。数据声明的约束可以在读取数据（或定义转换数据）时进行错误检查，该步骤发生在采样开始之前。数据声明的约束还可以使模型作者的意图更加明确，从而提高可读性。上述模型的声明可以进一步加强，如下所示：
 
 ```stan
 int<lower=2> K;
