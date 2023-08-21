@@ -406,7 +406,7 @@ $$
 The model formulation above uses the logit-parameterized version of
 the Bernoulli distribution, which is defined by
 
-上面的模型中使用了伯努利分布的逻辑参数化版本（logit-parameterized version），其定义如下：
+上面的模型中使用了伯努利分布的对数几率参数化版本（logit-parameterized version），其定义如下：
 
 $$
 \texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha \right)
@@ -921,7 +921,7 @@ values `Phi(eta - c[k])` once and storing them for re-use.
 
 ## Hierarchical logistic regression
 
-## 分层logistic回归
+## 分层 logistic 回归
 
 The simplest multilevel model is a hierarchical model in which the
 data are grouped into $L$ distinct categories (or levels).  An extreme
@@ -933,7 +933,7 @@ other levels.  A hierarchical model is an intermediate solution where
 the degree of pooling is determined by the data and a prior on the
 amount of pooling.
 
-最简单的多层次模型是一种分层模型，其中数据被分组为 $L$ 个不同的类别（或层级）。一种极端的方法是完全汇集所有数据并估计一个共同的回归系数向量 $\beta$。另一种极端的方法是不进行汇集，为每个层级 $l$ 分别进行估计并分配其系数向量 $\beta_l$，。分层模型是一种中间解决方案，其中汇集程度由数据和对汇集数量的先验确定。
+最简单的多层次模型是一种分层模型，其中数据被分为 $L$ 个不同的类别（或层级）。一种极端的方法是完全汇集所有数据并估计一个共同的回归系数向量 $\beta$。另一种极端的方法是不进行汇集，为每个层级 $l$ 分别进行估计并分配其系数向量 $\beta_l$，。分层模型是一种中间解决方案，其中汇集程度由数据和汇集数量的先验确定。
 
 Suppose each binary outcome $y_n \in \{ 0, 1 \}$ has an associated
 level, $ll_n \in \{ 1, \dotsc, L \}$.  Each outcome will also have
@@ -1002,7 +1002,7 @@ subcomputations in the log probability and gradient calculations and
 because it reduces the size of the expression tree required for
 gradient calculations.
 
-在可能的情况下，向量化采样语句可以加快对数概率和导数的计算速度。速度提升的原因不是因为消除了循环，而是因为向量化允许在对数概率和梯度计算中共享子计算，并且减少了梯度计算所需的表达式树的大小。
+在可能的情况下，向量化采样语句可以加快对数概率和导数的计算速度。速度提升不是因为消除了循环，而是因为向量化允许在对数概率和梯度计算中共享子计算过程，并且减少了梯度计算所需的表达式树的大小。
 
 The first optimization vectorizes the for-loop over `D` as
 
@@ -1022,14 +1022,14 @@ array) is more efficient for accessing rows; see the [indexing
 efficiency section](#indexing-efficiency.section) for more information
 on the efficiency tradeoffs among arrays, vectors, and matrices.
 
+`beta` 的声明为一个向量数组意味着表达式 `beta[l]` 表示一个向量。尽管 `beta` 可以声明为一个矩阵，但是对于访问行而言，向量数组（或二维数组）更高效；有关数组、向量和矩阵之间的效率权衡的更多信息，请参阅[索引效率部分](#indexing-efficiency.section)。
+
 This model can be further sped up and at the same time made more
 arithmetically stable by replacing the application of inverse-logit
 inside the Bernoulli distribution with the logit-parameterized
 Bernoulli,^[The Bernoulli-logit distribution builds in the log link function, taking $$\texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right) = \texttt{bernoulli}\left(y \mid \operatorname{logit}^{-1}(\alpha)\right).$$]
 
-`beta`的声明为一个向量数组意味着表达式 `beta[l]` 表示一个向量。尽管 `beta` 可以声明为一个矩阵，但是对于访问行而言，向量数组（或二维数组）更高效；有关数组、向量和矩阵之间的效率权衡的更多信息，请参阅[索引效率部分](#indexing-efficiency.section)。
-
-通过将伯努利分布中的逆对数概率应用替换为对数参数化的伯努利分布，可以进一步加快模型速度并提高算法稳定性。^[伯努利对数几率分布内置了对数链接函数，采用 $$\texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right) = \texttt{bernoulli}\left(y \mid \operatorname{logit}^{-1}(\alpha)\right).$$]
+通过将伯努利分布中的逆 logit（inverse-logit）的应用替换为对数几率参数化的伯努利分布（logit-parameterized Bernoulli），可以进一步加快模型速度并提高算法稳定性。^[伯努利对数几率分布内置了对数链接函数，其公式为 $$\texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right) = \texttt{bernoulli}\left(y \mid \operatorname{logit}^{-1}(\alpha)\right).$$]
 
 ```stan
 for (n in 1:N) {
@@ -1044,7 +1044,7 @@ for by the increased efficiency due to vectorizing the log probability
 and gradient calculations.  Thus the following version is faster than
 the original formulation as a loop over a sampling statement.
 
-与R或BUGS不同，Stan中的循环、数组访问和赋值速度很快，因为它们直接转化为C++代码。在大多数情况下，分配和赋值容器的成本都可以通过向量化的对数概率和梯度计算的提高效率来弥补。因此，以下版本比作为采样语句的循环版本更快。
+与 R 或 BUGS 不同，Stan 中的循环、数组访问和赋值速度很快，因为它们直接转化为 C++ 代码。在大多数情况下，分配和赋值容器的成本被向量化的对数概率和梯度计算带来的效率提升所抵消。因此，以下版本比原始的循环采样语句更快。
 
 ```stan
 {
@@ -1060,15 +1060,15 @@ The brackets introduce a new scope for the local variable
 `x_beta_ll`; alternatively, the variable may be declared at the
 top of the model block.
 
+括号引入了一个新的作用域，用于局部变量 `x_beta_ll`；或者，该变量可以在模型块的顶部声明。
+
 In some cases, such as the above, the local variable assignment leads
 to models that are less readable.  The recommended practice in such
 cases is to first develop and debug the more transparent version of
 the model and only work on optimizations when the simpler formulation
 has been debugged.
 
-括号引入了一个新的作用域，用于局部变量 `x_beta_ll`；或者，该变量可以在模型块的顶部声明。
-
-在某些情况下，例如上述情况，局部变量赋值会导致模型可读性较差。在这种情况下，建议的做法是首先开发和调试更简单、更透明的模型版本，只有在简单版本调试完成后才进行优化工作。
+在某些情况下，例如上述情况，局部变量赋值会导致模型可读性较差。在这种情况下，建议的做法是首先开发和调试更简单、更透明的模型版本，只有在简单版本调试完成后才进行优化。
 
 ## Hierarchical priors {#hierarchical-priors.section}
 
@@ -1082,12 +1082,11 @@ care must be taken to ensure the posterior is both proper and not
 overly sensitive either statistically or computationally to wide tails
 in the priors.
 
-
 关于先验的先验，也被称为“超先验”应该与对低层参数的先验相同地对待，即要尽可能利用所有可用的先验信息。由于超先验通常只适用于少数低层参数，因此需要注意确保后验分布既是合理的，又不会对先验中厚尾部分的统计或计算过于敏感。
 
 ### Boundary-avoiding priors for MLE in hierarchical models {-}
 
-### 在分层模型的极大似然估计中的边界避免先验 {-}
+### 为层次模型中的最大似然估计设置避免边界的先验分布 {-}
 
 The fundamental problem with maximum likelihood estimation (MLE) in
 the hierarchical model setting is that as the hierarchical variance
@@ -1095,6 +1094,9 @@ drops and the values cluster around the hierarchical mean, the overall
 density grows without bound.  As an illustration, consider a simple
 hierarchical linear regression (with fixed prior mean) of $y_n \in
 \mathbb{R}$ on $x_n \in \mathbb{R}^K$, formulated as
+
+在分层模型中，极大似然估计的基本问题是，随着分层方差的减小和值聚集在分层均值周围，整体密度将无限增大。以一个简单的分层线性回归模型（具有固定的先验均值）作为例子，假设有 $y_n \in \mathbb{R}$ 和 $x_n \in \mathbb{R}^K$，模型可以表述为
+
 \begin{align*}
 y_n     & \sim \textsf{normal}(x_n \beta, \sigma) \\
 \beta_k & \sim \textsf{normal}(0,\tau) \\
@@ -1106,34 +1108,23 @@ posterior density
 $$ p(\beta,\tau,\sigma|y,x) \propto p(y|x,\beta,\tau,\sigma) $$
 grows without bound.  See the [plot of Neal's funnel density](#funnel.figure), which has similar behavior.
 
+在这种情况下，当 $\tau \rightarrow 0$ 且 $\beta_k \rightarrow 0$ 时，后验密度 $$ p(\beta,\tau,\sigma|y,x) \propto p(y|x,\beta,\tau,\sigma) $$ 将无限增大。参考 [Neal's funnel 密度的图表](#funnel.figure)，其表现类似。
+
 There is obviously no MLE estimate for $\beta,\tau,\sigma$ in such a
 case, and therefore the model must be modified if posterior modes are
 to be used for inference.  The approach recommended by
 @ChungEtAl:2013 is to use a gamma distribution as a prior, such
 as
+
+很显然在这种情况下，$\beta,\tau,\sigma$ 没有极大似然估计，因此如果要使用后验模型进行推断，必须修改模型。根据 @ChungEtAl:2013 推荐的方法，可以使用伽马分布作为 $\sigma$ 的先验，例如：
+
 $$
 \sigma \sim \textsf{Gamma}(2, 1/A),
 $$
+
 for a reasonably large value of $A$, such as $A = 10$.
 
-
-在分层模型中，极大似然估计的基本问题是随着分层方差的减小和值聚集在分层均值周围，整体密度将无限增大。以一个简单的分层线性回归模型（具有固定的先验均值）作为例子，假设有 $y_n \in \mathbb{R}$ 和 $x_n \in \mathbb{R}^K$，模型可以表述为：
-
-\begin{align*}
-y_n     & \sim \textsf{normal}(x_n \beta, \sigma) \\
-\beta_k & \sim \textsf{normal}(0,\tau) \\
-\tau    & \sim \textsf{Cauchy}(0,2.5)
-\end{align*}
-
-在这种情况下，当 $\tau \rightarrow 0$ 且 $\beta_k \rightarrow 0$ 时，后验密度 $p(\beta,\tau,\sigma|y,x)$ 将无限增大。可以参考 [Neal's funnel 密度的图表](#funnel.figure)，它展示了类似的行为。
-
-在这种情况下，$\beta,\tau,\sigma$ 没有极大似然估计，因此如果要使用后验模型进行推断，必须修改模型。根据 @ChungEtAl:2013 推荐的方法，可以使用伽马分布作为 $\sigma$ 的先验，例如：
-
-$$
-\sigma \sim \textsf{Gamma}(2, 1/A)
-$$
-
-这里，$A$ 可以选择一个相对较大的值，比如 $A = 10$。通过选择这样的先验，可以在合理的 $\sigma$ 值周围集中更多的概率质量，减少对极端值的敏感性，从而解决密度无限增大的问题。
+这里，$A$ 可以选择一个相对较大的值，比如 $A = 10$。
 
 ## Item-response theory models {#item-response-models.section}
 
@@ -1149,7 +1140,7 @@ correctly; see @GelmanHill:2007 [pps. 314--320] for a textbook
 introduction to hierarchical IRT models and @Curtis:2010 for
 encodings of a range of IRT models in BUGS.
 
-项目反应理论（Item-Response Theory，IRT）模型用于描述一组学生中的每个学生对一组测试题目中一个或更多问题的回答情况。该模型基于学生的能力、题目的难度以及在更详细的模型中，例如题目的区分度和猜测正确的概率等参数。有关分层IRT模型的教材介绍，可以参考 @GelmanHill:2007 [pps. 314--320]，而关于在BUGS中编码各种IRT模型的内容，可以参考 @Curtis:2010。
+项目反应理论（Item-Response Theory，IRT）模型用于描述许多学生中的每个学生对一组测试题目中一个或多个问题的回答情况。该模型基于学生的能力、题目的难度，以及在更详细的模型中，还考虑题目的区分度和猜测正确的概率等参数。有关分层 IRT 模型的教材介绍，请参考 @GelmanHill:2007 [pps. 314--320]，而关于在 BUGS 中编码各种 IRT 模型的内容，请参考 @Curtis:2010。
 
 
 ### Data declaration with missingness {-}
@@ -1160,8 +1151,7 @@ The data provided for an IRT model may be declared as follows
 to account for the fact that not every student is required to answer
 every question.
 
-为了考虑到并非每个学生都需要回答每个问题的情况，可以将提供的IRT模型数据声明如下所示：
-
+考虑到不是每个学生都需要回答每个问题，可以将提供的 IRT 模型数据声明如下所示：
 
 ```stan
 data {
@@ -1179,23 +1169,22 @@ set, where each `n` in `1:N` indexes a binary observation
 `y[n]` of the correctness of the answer of student `jj[n]`
 on question `kk[n]`.
 
+这里声明了数据集中的 `N` 个学生-问题对，其中每个 `n`（在 `1:N` 范围内）对应一个二元观测 `y[n]`，表示学生 `jj[n]` 对问题 `kk[n]` 的答案是否正确。
+
 The prior hyperparameters will be hard coded in the rest of this
 section for simplicity, though they could be coded as data in
 Stan for more flexibility.
 
-这里声明了数据集中的`N`个学生-问题对，其中每个`n`（在`1:N`范围内）对应一个二元观测`y[n]`，表示学生`jj[n]`对问题`kk[n]`的答案是否正确。
-
-为了简单起见，剩余部分的先验超参数将被硬编码，但在Stan中，它们也可以作为数据进行编码，以增加灵活性。
+在本节剩下的内容中,先验超参数将被硬编码以简化说明，但在 Stan 中，它们也可以作为数据进行编码，以增加灵活性。
 
 ### 1PL (Rasch) model {-}
 
-### 一参数logistic（Rasch）模型
+### 一参数 logistic（Rasch）模型 {-}
 
 The 1PL item-response model, also known as the Rasch model, has one
 parameter (1P) for questions and uses the logistic link function (L).
 
-The 1PL item-response model（一参数logistic模型，也称为Rasch模型）是一种经典的项目反应理论模型，该模型假设每个问题只有一个参数，且使用了逻辑斯蒂链接函数（L）。
-
+The 1PL item-response model（一参数 logistic 模型，也称为 Rasch 模型）是一种经典的项目反应理论模型，该模型假设每个问题只有一个参数，且使用了 logistic 链接函数（L）。
 
 The model parameters are declared as follows.
 
@@ -1215,10 +1204,11 @@ The parameter `alpha[J]` is the ability coefficient for student
 an intercept term `delta`, which represents the average student's
 response to the average question.^[@GelmanHill:2007 treat the $\delta$ term equivalently as the location parameter in the distribution of student abilities.]
 
-参数`alpha[J]`是学生`j`的能力系数，`beta[k]`是问题`k`的难度系数。
-在这里使用的非标准参数化还包括截距项 `delta`，它表示平均学生对平均问题的响应。^[@GelmanHill:2007 treat the $\delta$ term equivalently as the location parameter in the distribution of student abilities.]
+参数 `alpha[J]` 是学生 `j` 的能力系数，`beta[k]` 是问题 `k` 的难度系数。
+在这里使用的非标准参数化还包括截距项  `delta`，它表示平均学生对平均问题的响应。^[@GelmanHill:2007 将 $\delta$ 视为学生能力分布的位置参数。]
 
 The model itself is as follows.
+
 模型具体如下：
 
 
@@ -1234,6 +1224,9 @@ model {
 ```
 
 This model uses the logit-parameterized Bernoulli distribution, where
+
+这个模型使用了对数几率参数化的伯努利分布，其中
+
 $$
 \texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right)
 =
@@ -1242,6 +1235,9 @@ $$
 
 The key to understanding it is the term inside the
 `bernoulli_logit` distribution, from which it follows that
+
+理解这个模型的关键在于 `bernoulli_logit` 分布中的项，根据这个表达式可以得到
+
 $$
 \textsf{Pr}[y_n = 1] = \operatorname{logit}^{-1}\left(\alpha_{jj[n]} - \beta_{kk[n]}
 + \delta\right).
@@ -1254,6 +1250,8 @@ $\alpha$ and $\beta$ located at 0 identifies the parameters; see
 @GelmanHill:2007 for a discussion of identifiability issues and
 alternative approaches to identification.
 
+如果没有使用先验，该模型存在加法可识别性问题。例如，给每个 $\alpha_j$ 和 $\beta_k$ 添加一个项 $\xi$ 将导致相同的预测结果。通过为 $\alpha$ 和 $\beta$ 使用位于0的先验概率可以解决这个问题。有关可识别性问题和可替代的识别方法，可以参考 @GelmanHill:2007 中的讨论。
+
 For testing purposes, the IRT 1PL model distributed with Stan uses
 informative priors that match the actual data generation process used
 to simulate the data in R (the simulation code is supplied in the same
@@ -1265,25 +1263,11 @@ and only 25% missingness at random.  For real applications, the
 priors should be fit hierarchically along with the other parameters,
 as described in the next section.
 
-这个模型使用了对数几率参数化的伯努利分布，其中
-$$
-\texttt{bernoulli}\mathtt{\_}\texttt{logit}\left(y \mid \alpha\right)
-=
-\texttt{bernoulli}\left(y \mid \operatorname{logit}^{-1}(\alpha)\right).
-$$
-
-理解这个模型的关键在于 `bernoulli_logit` 分布中的表达式，根据这个表达式可以得到
-$$
-\textsf{Pr}[y_n = 1] = \operatorname{logit}^{-1}\left(\alpha_{jj[n]} - \beta_{kk[n]} + \delta\right).
-$$
-
-如果没有使用先验，该模型存在加法可识别性问题。例如，给每个 $\alpha_j$ 和 $\beta_k$ 添加一个项 $\xi$ 将导致相同的预测结果。通过为 $\alpha$ 和 $\beta$ 使用位于0的先验概率可以解决这个问题。有关可识别性问题和可替代的识别方法，可以参考 @GelmanHill:2007 中的讨论。
-
-为了进行测试，Stan中分发的IRT 1PL模型使用了具有信息量的先验，这些先验与在R中用于模拟数据的实际数据生成过程相匹配（模拟代码与模型位于同一目录下）。这对于大多数实际应用来说是不现实的，但可以用来验证Stan的推断结果。通过使用更宽松的先验进行简单的敏感性分析，可以发现即使在具有400个学生和100个问题，并且只有25%的随机缺失情况下，后验分布对先验相当敏感。在实际应用中，应该将先验与其他参数一起进行分层拟合，如下一节所述。
+为了进行测试，Stan 中分发的 IRT 1PL 模型使用了具有信息量的先验，这些先验与在 R 中用于模拟数据的实际数据生成过程相匹配（模拟代码与模型位于同一目录下）。这对于大多数实际应用来说是不现实的，但可以用来验证 Stan 的推断结果。通过使用更宽松的先验进行简单的敏感性分析，可以发现即使在具有400个学生和100个问题，并且只有25%的随机缺失情况下，后验分布对先验相当敏感。在实际应用中，应该将先验与其他参数一起进行分层拟合，这在后面的章节有详细描述。
 
 ### Multilevel 2PL model {-}
 
-### 多层两参数logistic模型
+### 多层两参数 logistic 模型 {-}
 
 The simple 1PL model described in the previous section is generalized
 in this section with the addition of a discrimination parameter to
@@ -1291,7 +1275,7 @@ model how noisy a question is and by adding multilevel priors for the
 question difficulty and discrimination parameters.  The model
 parameters are declared as follows.
 
-在本节中，我们将对上一节中描述的简单1PL模型进行推广，通过添加一个区分度参数来模拟问题的噪声程度，并为问题的难度和区分度参数添加多层先验。模型的参数声明如下：
+在本节中，我们将对上一节中描述的简单 1PL 模型进行推广，通过添加一个区分度参数来模拟问题的噪声程度，并为问题的难度和区分度参数添加多层先验。模型的参数声明如下：
 
 
 ```stan
@@ -1306,6 +1290,7 @@ parameters {
 ```
 
 The parameters should be clearer after the model definition.
+
 在定义模型后，参数将更加清晰。
 
 ```stan
@@ -1321,19 +1306,14 @@ model {
 ```
 
 The `std_normal` function is used here, defined by
-$$
-\texttt{std}\mathtt{\_}\texttt{normal}(y)
-=
-\textsf{normal}\left(y \mid 0, 1\right).
-$$
 
 在这里使用了`std_normal`函数，其定义为
+
 $$
 \texttt{std}\mathtt{\_}\texttt{normal}(y)
 =
 \textsf{normal}\left(y \mid 0, 1\right).
 $$
-
 
 The sampling statement is also vectorized using elementwise
 multiplication;  it is equivalent to
@@ -1357,6 +1337,8 @@ being questions that are easier for students of lesser ability;  such
 questions are not unheard of, but they tend to be eliminated from most
 testing situations where an IRT model would be applied.
 
+2PL 模型与 1PL 模型类似，但额外引入了参数 `gamma[k]` 来衡量问题 `k` 的区分度。如果 `gamma[k]` 大于1，则答案更加模糊，随机猜对的几率较低。我们限制参数 `gamma[k]` 为正数，这禁止了存在对低能力学生来说更容易的问题；虽然这种问题并非罕见，但它们在大多数应用 IRT 模型的考试情境中会被剔除。
+
 The model is parameterized here with student abilities `alpha` being
 given a standard normal prior.  This is to identify both the scale and
 the location of the parameters, both of which would be unidentified
@@ -1367,9 +1349,7 @@ and `gamma` then have varying scales given hierarchically in this
 model.  They could also be given weakly informative non-hierarchical
 priors, such as
 
-2PL模型与1PL模型类似，但额外引入了参数`gamma[k]`来衡量问题`k`的区分度。如果`gamma[k]`大于1，则答案更加模糊，随机猜对的几率较低。我们限制参数`gamma[k]`为正数，这禁止了存在对低能力学生来说更容易的问题；虽然这种问题并非罕见，但它们在大多数应用IRT模型的测试情境中会被剔除。
-
-在此模型中，学生能力`alpha`的先验分布为标准正态分布。这样做是为了确定参数的尺度和位置，否则它们将无法确定；有关可识别性的进一步讨论，请参阅[有问题的后验分布章节](#problematic-posteriors.chapter)。难度参数`beta`和区分度参数`gamma`在此模型中具有层次化的不同尺度。它们也可以给出弱信息的非层次化先验，例如
+在此模型中，学生能力 `alpha` 的先验分布为标准正态分布。这样做是为了确定参数的尺度和位置，否则它们将无法确定；有关可识别性的进一步讨论，请参阅[问题性后验分布章节](#problematic-posteriors.chapter)。难度参数 `beta` 和区分度参数 `gamma` 在此模型中具有层次化的不同尺度。它们也可以给出弱信息的非层次化先验，例如
 
 ```stan
 beta ~ normal(0, 5);
@@ -1379,13 +1359,13 @@ gamma ~ lognormal(0, 2);
 The point is that the `alpha` determines the scale and location
 and `beta` and `gamma` are allowed to float.
 
+关键在于 `alpha` 确定了尺度和位置，而 `beta` 和 `gamma` 可以浮动。
+
 The `beta` parameter is here given a non-centered
 parameterization, with parameter `mu_beta` serving as the mean
 `beta` location. An alternative would've been to take:
 
-关键在于`alpha`确定了尺度和位置，而`beta`和`gamma`可以浮动。
-
-在这里，`beta`参数采用了非中心参数化，其中参数`mu_beta`作为`beta`位置的均值。另一种选择是采用以下形式:
+在这里，`beta` 参数采用了非中心参数化，其中参数 `mu_beta` 作为 `beta` 位置的均值。另一种选择是采用以下形式:
 
 ```stan
 beta ~ normal(mu_beta, sigma_beta);
@@ -1404,6 +1384,8 @@ hierarchical models; see the [reparameterization
 section](#reparameterization.section) for more information on
 non-centered reparameterizations.
 
+非中心参数化在分层模型中往往更高效；有关非中心重参数化的更多信息，请参阅[重参数化部分](#reparameterization.section)。
+
 The intercept term `mu_beta` can't itself be modeled
 hierarchically, so it is given a weakly informative
 $\textsf{Cauchy}(0,5)$ prior.  Similarly, the scale terms,
@@ -1415,9 +1397,7 @@ because the log probability need only be calculated up to a proportion
 and the scale variables are constrained to $(0,\infty)$ by their
 declarations.
 
-非中心参数化在分层模型中往往更高效；有关非中心参数化的更多信息，请参阅[重参数化部分](#reparameterization.section)。
-
-截距项`mu_beta`本身不能被分层建模，因此它被赋予了一个弱信息先验$\textsf{Cauchy}(0,5)$。类似地，尺度项`sigma_beta`和`sigma_gamma`被赋予半柯西先验。如上所述，为了确保可识别性，`alpha`的尺度和位置是固定的。半柯西先验的截断是隐式的；不需要显式截断，因为对数概率只需计算比例，并且尺度变量的声明将其约束在$(0,\infty)$范围内。
+截距项 `mu_beta` 本身不能被分层建模，因此它被赋予了一个弱信息先验 $\textsf{Cauchy}(0,5)$。类似地，尺度项 `sigma_beta` 和 `sigma_gamma` 被赋予半柯西先验。如上所述，为了确保可识别性，`alpha` 的尺度和位置是固定的。半柯西先验的截断是隐式的；不需要显式截断，因为对数概率只需计算比例，并且尺度变量的声明将其约束在 $(0,\infty)$ 范围内。
 
 ## Priors for identifiability {#priors-for-identification.section}
 
@@ -1435,7 +1415,7 @@ float in terms of both scale and location.  See the [collinearity
 section](#collinearity.section) for a simple example of the problems
 this poses for estimation.
 
-（分层）先验的一个应用是识别一组参数的尺度和/或位置。例如，在前面讨论的IRT模型中，存在尺度和位置的不可识别问题。如果使用均匀先验，后验将在尺度和位置上浮动。请参考[共线性章节](#collinearity.section)中对此估计问题的简单示例。
+（分层）先验的一个应用是识别一组参数的尺度和/或位置。例如，在前面讨论的 IRT 模型中，存在尺度和位置的不可识别问题。如果使用均匀先验，后验将在尺度和位置上浮动。请参考[共线性章节](#collinearity.section)中对此估计问题的简单示例。
 
 The non-identifiability is resolved by providing a standard normal (i.e.,
 $\textsf{normal}(0,1)$) prior on one group of coefficients, such as
@@ -1448,7 +1428,7 @@ then be given a diffuse, or ideally a hierarchical prior, which will
 identify these parameters by scaling and locating relative to the
 student ability parameters.
 
-这种不可识别问题可以通过为一组系数提供标准正态（即$\textsf{normal}(0,1)$）先验来解决，例如学生能力。对于学生能力参数，使用标准正态先验可以使IRT模型变成可识别，因为后验将产生一个对学生能力参数的估计组，其样本均值接近于零，样本方差接近于一。然后，对于问题难度和区分度参数，应该给予一个模糊的，或者理想情况下的分层先验，通过相对于学生能力参数的尺度和位置来确定这些参数。
+这种不可识别问题可以通过为一组系数（如学生能力）提供标准正态（即 $\textsf{normal}(0,1)$）先验来解决。对于学生能力参数，使用标准正态先验可以使 IRT 模型变成可识别，因为后验将产生一个对学生能力参数的估计组，其样本均值接近于零，样本方差接近于一。然后，对于问题难度和区分度参数，应该给予一个模糊的，或者理想情况下的分层先验，通过相对于学生能力参数的尺度和位置来确定这些参数。
 
 ### Collinearity {-}
 
