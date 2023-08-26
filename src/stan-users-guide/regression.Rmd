@@ -1477,7 +1477,7 @@ individual-level variables may be assigned hierarchical priors.  For
 example, a model with multiple varying intercepts and slopes within
 might assign them a multivariate prior.
 
-在分层回归模型（以及其他情况）中，多个个体级别的变量可以被赋予分层先验。例如，在一个具有多个变化截距和斜率的模型中，可以为它们分配多元先验。
+在分层回归模型（以及其他情况）中，多个个体级别的变量可以被赋予分层先验。例如，在一个具有多个变化截距和斜率的模型中，可以为这些截距与斜率参数指定一个多元分布作为先验。
 
 As an example, the individuals might be people and the outcome income,
 with predictors such as education level and age, and the groups might be states
@@ -1486,7 +1486,7 @@ as well as an intercept might be allowed to vary by state.
 Furthermore, there might be state-level predictors, such as average
 state income and unemployment level.
 
-举个例子，个体可以是人，结果变量可以是收入，预测变量可以包括教育水平和年龄，而群体可以是州或其他地理划分。教育水平和年龄的效应以及截距可能会因州而异。此外，州级别可能还有其他预测变量，比如平均州收入和失业率。
+举个例子，个体可以是人，结果变量可以是收入，预测变量可以包括教育水平和年龄，组可以是州或其他地理划分。教育水平和年龄的效应以及截距可能会因州而异。此外，州级别可能还有其他预测变量，比如平均州收入和失业率。
 
 ### Multivariate regression example {-}
 
@@ -1500,7 +1500,7 @@ predictor.  To encode group membership, they assume individual $n$
 belongs to group $jj[n] \in \{ 1, \dotsc, J \}$.  Each individual $n$ also has an
 observed outcome $y_n$ taking on real values.
 
-@GelmanHill:2007 [, Chapter 13, Chapter 17] 讨论了一个具有N个个体并组织成J个群体的分层模型。每个个体都有一个大小为K的预测行向量$x_n$；为了统一符号，他们假设$x_{n,1} = 1$是一个固定的“截距”预测变量。为了编码群体成员关系，他们假设个体$n$属于群体$jj[n] \in \{ 1, \dotsc, J \}$。每个个体n还具有一个取实值的观测结果$y_n$。
+@GelmanHill:2007 [, Chapter 13, Chapter 17] 讨论了一个具有 $N$ 个个体并分成 $J$ 组的分层模型。每个个体都有一个大小为 $K$ 的预测行向量 $x_n$；为了统一符号，他们假设 $x_{n,1} = 1$ 是一个固定的“截距”预测变量。为了编码群体成员关系，他们假设个体 $n$ 属于群体 $jj[n] \in \{ 1, \dotsc, J \}$。每个个体 $n$ 还具有一个取实值的观测结果 $y_n$。
 
 #### Likelihood {-}
 
@@ -1510,7 +1510,7 @@ The model is a linear regression with slope and intercept coefficients
 varying by group, so that $\beta_j$ is the coefficient $K$-vector for
 group $j$.  The likelihood function for individual $n$ is then just
 
-该模型是一个具有不同群体间斜率和截距系数的线性回归模型，其中 $\beta_j$ 是群体 $j$ 的系数 $K$-向量。对于个体 $n$，其似然函数可以表示为：
+该模型是一个具有不同群体间斜率和截距系数的线性回归模型，其中 $\beta_j$ 是第 $j$ 组的回归系数向量，大小为 $K$。对于个体 $n$，其似然函数可以表示为：
 
 $$
 y_n \sim \textsf{normal}(x_n \, \beta_{jj[n]}, \, \sigma)
@@ -1526,7 +1526,7 @@ Gelman and Hill model the coefficient vectors $\beta_j$ as being drawn
 from a multivariate distribution with mean vector $\mu$ and
 covariance matrix $\Sigma$,
 
-Gelman和Hill将系数向量 $\beta_j$ 建模为从具有均值向量 $\mu$ 和协方差矩阵 $\Sigma$ 的多元正态分布中抽取，即
+Gelman 和 Hill 将系数向量 $\beta_j$ 建模为从多元正态分布中采样得到，该分布有均值向量为 $\mu$,协方差矩阵为 $\Sigma$，即
 
 $$
 \beta_j \sim \textsf{multivariate normal}(\mu_j, \, \Sigma)
@@ -1537,7 +1537,7 @@ Below, we discuss the full model of Gelman and Hill, which uses
 group-level predictors to model $\mu$; for now, we assume $\mu$ is a
 simple vector parameter.
 
-接下来，我们将讨论Gelman和Hill的完整模型，该模型使用群体水平的预测变量来建模 $\mu$；在此之前，我们假设 $\mu$ 是一个简单的向量参数。
+接下来，我们将讨论 Gelman 和 Hill 的完整模型，该模型使用组级预测变量来建模 $\mu$；在此之前，我们假设 $\mu$ 是一个简单的向量参数。
 
 #### Hyperpriors {-}
 
@@ -1548,7 +1548,7 @@ covariance matrix $\Sigma$ must themselves be given priors.  The
 group-level mean vector can be given a reasonable weakly-informative
 prior for independent coefficients, such as
 
-在分层建模中，群组水平的均值向量 $\mu$ 和协方差矩阵 $\Sigma$ 本身也必须被赋予先验分布。群组水平的均值向量可以被赋予合理的弱信息先验，用于独立系数的情况，例如
+在分层建模中，群组水平的均值向量 $\mu$ 和协方差矩阵 $\Sigma$ 本身也必须被赋予先验分布。我们可以个群组水平的均值向量指定合理的弱信息先验，比如独立系数的情况下可以指定
 
 $$
 \mu_j \sim \textsf{normal}(0,5).
@@ -1564,7 +1564,7 @@ a scaled inverse Wishart.  That choice was motivated primarily by
 convenience as it is conjugate to the multivariate likelihood function
 and thus simplifies Gibbs sampling
 
-对于协方差矩阵的先验，Gelman和Hill建议使用伸缩逆Wishart分布。这个选择主要是出于方便考虑，因为它与多变量似然函数共轭，从而简化了Gibbs采样过程。
+对于协方差矩阵的先验，Gelman 和 Hill 建议使用伸缩逆 Wishart 分布。这个选择主要是出于方便考虑，因为它与多变量似然函数共轭，从而简化了 Gibbs 采样过程。
 
 In Stan, there is no restriction to conjugacy for multivariate priors,
 and we in fact recommend a slightly different approach.  Like Gelman
@@ -1572,7 +1572,7 @@ and Hill, we decompose our prior into a scale and a matrix, but are
 able to do so in a more natural way based on the actual variable
 scales and a correlation matrix.  Specifically, we define
 
-在Stan中，对于多元先验，没有限制于共轭性，事实上我们推荐稍微不同的方法。与Gelman和Hill类似，我们将先验分解为一个尺度和一个矩阵，但我们能够更自然地基于实际变量尺度和相关矩阵来进行分解。具体来说，我们定义
+在 Stan 中，对于多元先验，没有限制于共轭性，事实上我们推荐稍微不同的方法。与 Gelman 和 Hill 类似，我们将先验分解为一个尺度参数和一个矩阵，但我们能够更自然地基于实际变量尺度和相关矩阵来进行分解。具体来说，我们定义
 
 $$
 \Sigma = \texttt{diag}\mathtt{\_}\texttt{matrix}(\tau) \times \Omega \times \texttt{diag}\mathtt{\_}\texttt{matrix}(\tau),
@@ -1581,7 +1581,7 @@ where $\Omega$ is a correlation matrix and $\tau$ is the vector of
 coefficient scales.   This mapping from scale vector $\tau$ and
 correlation matrix $\Omega$ can be inverted, using
 
-其中$\Omega$是一个相关矩阵，$\tau$是系数尺度的向量。这种从尺度向量$\tau$和相关矩阵$\Omega$的映射可以被反转，使用以下公式：
+其中 $\Omega$ 是一个相关矩阵，$\tau$ 是系数尺度的向量。这种从尺度向量 $\tau$ 和相关矩阵 $\Omega$ 的映射可以被反转，使用以下公式：
 
 $$
 \tau_k = \sqrt{\Sigma_{k,k}}
@@ -1593,7 +1593,7 @@ The components of the scale vector $\tau$ can be given any reasonable
 prior for scales, but we recommend something weakly informative like a
 half-Cauchy distribution with a small scale, such as
 
-尺度向量$\tau$的组成部分可以使用任何合理的尺度先验，但我们推荐使用一些弱信息的先验，比如尺度较小的半柯西分布，例如
+尺度向量 $\tau$ 的组成部分可以使用任何合理的尺度先验，但我们推荐使用一些弱信息的先验，比如尺度较小的半柯西分布，例如
 
 $$
 \tau_k \sim \textsf{Cauchy}(0, 2.5)
