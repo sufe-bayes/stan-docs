@@ -1611,7 +1611,7 @@ intercept) may themselves be given a hierarchical prior.
 Our final recommendation is to give the correlation matrix $\Omega$ an
 LKJ prior with shape $\eta \geq 1$,^[The prior is named for Lewandowski, Kurowicka, and Joe, as it was derived by inverting the random correlation matrix generation strategy of @LewandowskiKurowickaJoe:2009.]
 
-我们最后的建议是给予相关矩阵 $\Omega$ 一个 LKJ 先验，其中形状参数 $\eta \geq 1$。^[该先验以 Lewandowski、Kurowicka 和 Joe 的名字命名，因为它是通过反转@LewandowskiKurowickaJoe:2009 中的随机相关矩阵生成策略推导得到的。]
+我们最后的建议是给予相关矩阵 $\Omega$ 一个 LKJ 先验，其中形状参数 $\eta \geq 1$。^[该先验以 Lewandowski、Kurowicka 和 Joe 的名字命名，因为它是通过反转 @LewandowskiKurowickaJoe:2009 中的随机相关矩阵生成策略推导得到的。]
 
 $$
 \Omega \sim \textsf{LKJCorr}(\eta).
@@ -1978,7 +1978,7 @@ reconstruction or cosmology, they are sometimes called "backcasts"
 (or "aftcasts" or "hindcasts" or "antecasts," depending on the
 author's feelings about the opposite of "fore").
 
-Stan模型可以用于“预测”任意模型未知变量的值。当预测是关于未来的时候，它们被称为“预报”（forecasts）；当它们是关于过去的预测，例如气候重建或宇宙学中，有时被称为“回溯”（backcasts）（或“后验”、“推测”、“反向预测”等，取决于作者对“预测”相反概念的感受）。
+Stan 模型可以用于“预测”任意模型未知变量的值。当预测是关于未来的时候，它们被称为“预报”（forecasts）；当它们是关于过去的预测，例如气候重建或宇宙学中，有时被称为“回溯”（backcasts）（或“后验”、“推测”、“反向预测”等，取决于作者对“预测”相反概念的感受）。
 
 ### Programming predictions {-}
 
@@ -2034,7 +2034,7 @@ use the generated quantities block.  This provides proper Monte Carlo
 (not Markov chain Monte Carlo) inference, which can have a much higher
 effective sample size per iteration.
 
-在可能的情况下，生成预测的最有效方式是使用`generated quantities`块。这提供了适当的蒙特卡洛（而不是马尔可夫链蒙特卡洛）推断，每次迭代的有效样本量可以更高。
+在可能的情况下，生成预测的最有效方式是使用生成数量块（generated quantities block）。这提供了适当的蒙特卡洛（不是马尔可夫链蒙特卡洛）推断，每次迭代的有效样本量可以更高。
 
 ```stan
 // ...data as above...
@@ -2059,7 +2059,7 @@ declared as a generated quantity, and the prediction model is
 removed from the model and replaced by a pseudo-random draw from a
 normal distribution.
 
-现在数据与之前一样，但参数`y_new`现在被声明为生成的量，并且预测模型从模型中移除，被一个从正态分布中的伪随机抽样所取代。
+现在数据与之前一样，但参数 `y_new` 现在被声明为生成的量，并且预测模型从模型中移除，被一个从正态分布中的伪随机抽样所取代。
 
 #### Overflow in generated quantities {-}
 
@@ -2076,7 +2076,7 @@ be intercepted and dealt with. This is typically done by reparameterizing or
 reimplementing the random number generator using real values rather
 than integers, which are upper-bounded by $2^{31} - 1$ in Stan.
 
-在生成的量中，值可能会溢出或下溢。问题在于，如果结果为NaN，则会违反对变量施加的任何约束条件。可以通过检查由随机数生成器分配的值，并在溢出时拒绝它，但这既低效又会导致偏倚的后验估计。相反，应拦截并处理导致溢出的条件，例如尝试生成均值为$2^{31}$的负二项式随机变量，通常通过重新参数化或重新实现随机数生成器，使用实数而不是整数来处理。在Stan中，整数的上限是$2^{31} - 1$。
+在生成的量中，值可能会溢出或下溢。问题在于，如果结果为 NaN，则会违反对变量施加的全部约束条件。可以通过检查由随机数生成器（RNG）分配的值，并在溢出时拒绝它，但这既低效又会导致有偏的后验估计。更好的方法是，识别并处理导致溢出的条件，例如尝试生成均值为 $2^{31}$ 的负二项分布的随机变量。通常通过重新参数化， 或使用实数值而不是整数值来重新实现随机数生成器，因为整数在 Stan 中上限是 $2^{31} - 1$。
 
 
 ## Multivariate outcomes
