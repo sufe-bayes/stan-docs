@@ -1606,12 +1606,12 @@ into the prior for $\tau$.  For large numbers of exchangeable
 coefficients, the components of $\tau$ itself (perhaps excluding the
 intercept) may themselves be given a hierarchical prior.
 
-至于先验均值，如果存在关于不同组之间系数变化尺度的信息，应该将其纳入$\tau$的先验中。对于可交换系数的大量情况，$\tau$的组成部分本身（可能不包括截距项）也可以给予一个分层先验。
+至于先验均值，如果存在关于不同组之间系数变化程度的信息，应该将其纳入 $\tau$ 的先验假设中。对于大量可交换系数的情况，$\tau$ 的组成部分本身（可能不包括截距项）也可以给予一个分层先验。
 
 Our final recommendation is to give the correlation matrix $\Omega$ an
 LKJ prior with shape $\eta \geq 1$,^[The prior is named for Lewandowski, Kurowicka, and Joe, as it was derived by inverting the random correlation matrix generation strategy of @LewandowskiKurowickaJoe:2009.]
 
-我们最后的建议是给予相关矩阵$\Omega$一个LKJ先验，其中形状参数$\eta \geq 1$。^[该先验以Lewandowski、Kurowicka和Joe的名字命名，因为它是通过反转@LewandowskiKurowickaJoe:2009中的随机相关矩阵生成策略推导得到的。]
+我们最后的建议是给予相关矩阵 $\Omega$ 一个 LKJ 先验，其中形状参数 $\eta \geq 1$。^[该先验以 Lewandowski、Kurowicka 和 Joe 的名字命名，因为它是通过反转@LewandowskiKurowickaJoe:2009 中的随机相关矩阵生成策略推导得到的。]
 
 $$
 \Omega \sim \textsf{LKJCorr}(\eta).
@@ -1619,7 +1619,7 @@ $$
 
 The LKJ correlation distribution is defined by
 
-LKJ相关分布的定义如下：
+LKJ 相关分布的定义如下：
 
 $$
 \textsf{LKJCorr}\left(\Sigma \mid \eta\right)
@@ -1635,21 +1635,21 @@ correlations) is not uniform between -1 and 1.  Rather, it
 concentrates around zero as the dimensionality increases due to the
 complex constraints.
 
-LKJ相关分布的基本行为类似于Beta分布。当$\eta = 1$时，结果是均匀分布。尽管它在相关矩阵上是一个恒等变换，但在该矩阵的元素（即相关性）上的边际分布在-1和1之间并不均匀。相反，由于复杂的约束条件，随着维度的增加，它会集中在零附近。
+LKJ 相关分布的基本性质类似于 Beta 分布。当 $\eta = 1$ 时，其结果是均匀分布。尽管它在相关矩阵上是一个恒等变换，但该矩阵的元素（即相关系数）上的边际分布在-1和1之间并不均匀。相反，由于复杂的约束条件，随着维度的增加，它会集中在零附近。
 
 For $\eta > 1$, the density increasingly concentrates
 mass around the unit matrix, i.e., favoring less correlation.  For
 $\eta < 1$, it increasingly concentrates mass in the other direction,
 i.e., favoring more correlation.
 
-对于$\eta > 1$，概率密度越来越集中在单位矩阵附近，即更倾向于较低的相关性。对于$\eta < 1$，概率密度越来越集中在另一个方向，即更倾向于较高的相关性。
+对于 $\eta > 1$，概率密度越来越集中在单位矩阵附近，即更倾向于较低的相关性。对于 $\eta < 1$，概率密度越来越集中在另一个方向，即更倾向于较高的相关性。
 
 The LKJ prior may thus be used to control the expected amount of
 correlation among the parameters $\beta_j$.  For a discussion of
 decomposing a covariance prior into a prior on correlation matrices
 and an independent prior on scales, see @barnard-mcculloch-meng:2000.
 
-因此，LKJ先验可以用于控制参数$\beta_j$之间的预期相关性程度。有关将协方差先验分解为关于相关矩阵的先验和关于尺度的独立先验的讨论，请参考 @barnard-mcculloch-meng:2000。
+因此，LKJ 先验可以用于控制参数 $\beta_j$ 之间的预期相关性程度。有关将协方差先验分解为相关矩阵的先验和独立的尺度先验的讨论，请参考 @barnard-mcculloch-meng:2000。
 
 #### Group-level predictors for prior mean {-}
 
@@ -1661,7 +1661,7 @@ predictors $u_j$.  The prior mean for the $\beta_j$ can then itself be
 modeled as a regression, using an $L$-dimensional coefficient vector
 $\gamma$.  The prior for the group-level coefficients then becomes
 
-为了完善Gelman和Hill的模型，假设每个群组$j \in \{ 1, \dotsc, J \}$都有一个$L$维的行向量群组级别预测变量$u_j$。然后，$\beta_j$的先验均值本身可以使用一个$L$维系数向量$\gamma$建模为一个回归模型。群组级别系数的先验分布则变为
+为了完善 Gelman 和 Hill 的模型，假设每个组 $j \in \{ 1, \dotsc, J \}$ 都有一个 $L$ 维的行向量组级预测变量 $u_j$。然后，$\beta_j$ 的先验均值本身可以使用一个 $L$ 维系数向量 $\gamma$ 建模为一个回归模型。组级系数的先验分布则变为
 
 $$
 \beta_j \sim \textsf{multivariate normal}(u_j \, \gamma, \Sigma)
@@ -1670,7 +1670,7 @@ $$
 The group-level coefficients $\gamma$ may themselves be given
 independent weakly informative priors, such as
 
-群组级别系数$\gamma$本身可以被赋予独立的弱信息先验，例如
+组级系数 $\gamma$ 本身可以被赋予独立的弱信息先验，例如
 
 $$
 \gamma_l \sim \textsf{normal}(0,5).
@@ -1678,17 +1678,17 @@ $$
 As usual, information about the group-level means should be
 incorporated into this prior.
 
-通常情况下，关于群组级别均值的信息应该被纳入这个先验中。可以根据先验信息调整$\gamma$的先验分布以更好地反映实际情况。
+通常情况下，关于组级均值的信息应该被纳入这个先验中。
 
 #### Coding the model in Stan {-}
 
-#### 在Stan中建模 {-}
+#### 在 Stan 中建模 {-}
 
 The Stan code for the full hierarchical model with multivariate priors
 on the group-level coefficients and group-level prior means follows
 its definition.
 
-完整的分层模型的 Stan 代码采用了对群组级别系数和群组级别先验均值使用多元先验分布的定义。
+下面完整的分层模型的 Stan 代码，根据模型定义给组级系数和组级先验均值设置多元先验。
 
 ```stan
 data {
@@ -1736,7 +1736,7 @@ zeroes off diagonal; the version using `quad_form_diag` should be
 faster.  For details on these and other matrix arithmetic operators and
 functions, see the function reference manual.
 
-超先验协方差矩阵通过代码中的二次形式隐式定义，因为在输出时，相关矩阵 `Omega` 和尺度向量 `tau` 更容易检查；为了输出 `Sigma`，将其定义为一个转换后的参数。函数 `quad_form_diag` 的定义是使得 `quad_form_diag(Sigma, tau)` 等同于 `diag_matrix(tau) * Sigma * diag_matrix(tau)`，其中 `diag_matrix(tau)` 返回以 `tau` 为对角线元素且非对角线元素为零的矩阵；使用 `quad_form_diag` 版本应该更快。有关这些和其他矩阵运算符和函数的详细信息，请参阅函数参考手册。
+超先验协方差矩阵通过代码中的二次型隐式定义，因为在输出时，相关矩阵 `Omega` 和尺度向量 `tau` 更容易检查；为了输出 `Sigma`，将其定义为一个转换后的参数。函数 `quad_form_diag` 的定义是使得 `quad_form_diag(Sigma, tau)` 等同于 `diag_matrix(tau) * Sigma * diag_matrix(tau)`，其中 `diag_matrix(tau)` 返回以 `tau` 为对角线元素，零为非对角线元素的矩阵；使用 `quad_form_diag` 版本应该更快。有关这些和其他矩阵运算符和函数的详细信息，请参阅函数参考手册。
 
 #### Optimization through vectorization {-}
 
@@ -1744,7 +1744,7 @@ functions, see the function reference manual.
 
 The code in the Stan program above can be sped up dramatically by replacing:
 
-上述的Stan程序中的代码可以通过替换以下部分来大幅提速：
+上述的 Stan 程序中的代码可以通过替换以下部分来大幅提速：
 
 ```stan
 for (n in 1:N) {
@@ -1773,12 +1773,12 @@ big win is that it allows us to take the log of sigma only once and it
 greatly reduces the size of the resulting expression graph by packing
 all of the work into a single density function.
 
-外部的括号在局部范围内定义了变量 `x_beta_jj`，然后在循环中填充并用于定义向量化的采样语句。这样做的原因是它可以使我们只对 sigma 进行一次对数运算，并且通过将所有工作打包到一个密度函数中，大大减少了结果表达式图的大小。
+外层括号创建了一个局部作用域,在其中定义变量 `x_beta_jj`,然后在循环中为其赋值,并用于定义一个向量化的采样语句。这样做的原因是它可以使我们只对 sigma 进行一次对数运算，并且通过将所有工作打包到一个密度函数中，大大减少了结果表达式图的大小。
 
 Although it is tempting to redeclare `beta` and include a revised
 model block sampling statement,
 
-虽然重新声明 `beta` 并包含修订后的模型块采样语句很吸引人，
+尽管重新声明 `beta` 并包含修订后的模型块采样语句看起来很有诱惑力，
 
 ```stan
 parameters {
@@ -1794,7 +1794,7 @@ model {
 this fails because it breaks the vectorization of sampling for
 `beta`,^[Thanks to Mike Lawrence for pointing this out in the GitHub issue for the manual.]
 
-这样做会导致 `beta` 的采样向量化失败，从而破坏了向量化的采样过程。[感谢 Mike Lawrence 在 GitHub 上的问题反馈。]
+这样做会失败,因为它破坏了 `beta` 采样的向量化。。^[感谢 Mike Lawrence 在 GitHub 上的问题反馈。]
 
 ```stan
 beta ~ multi_normal(...);
@@ -1805,14 +1805,14 @@ vectorizations are important, so the best solution is to just use the
 loop above, because `rows_dot_product` cannot do much
 optimization in and of itself because there are no shared computations.
 
-这要求`beta`必须是一个向量数组。两种向量化都很重要，所以最好的解决方案是使用上面的循环，因为`rows_dot_product`本身无法进行太多优化，因为没有共享的计算。
+这要求 `beta` 必须是一个向量数组。两种向量化都很重要，所以最好的解决方案是使用上面的循环，因为 `rows_dot_product` 本身无法进行太多优化，因为它的计算中没有可以共享的部分。
 
 The code in the Stan program above also builds up an array of vectors
 for the outcomes and for the multivariate normal, which provides a
 major speedup by reducing the number of linear systems that
 need to be solved and differentiated.
 
-在上面的 Stan 程序中，代码还构建了一个用于观测值和多元正态分布的向量数组，通过减少需要求解和微分的线性系统的数量，大大加快了速度。
+在上面的 Stan 程序中，对观测值和多元正态分布也构建了向量数组，通过减少需要求解和求导的线性系统的数量，大大加快了速度。
 
 ```stan
 {
@@ -1829,11 +1829,11 @@ as a local variable so as not to have to repeat the quadratic form
 computation $J$ times.  This vectorization can be combined with the
 Cholesky-factor optimization in the next section.
 
-在这个例子中，协方差矩阵`Sigma_beta`被定义为局部变量，这样就不需要重复进行$J$次的二次形式计算。这种向量化可以与下一节的Cholesky分解优化结合使用。
+在这个例子中，协方差矩阵 `Sigma_beta` 被定义为局部变量，这样就不需要重复进行 $J$ 次的二次型计算。这种向量化可以与下一节的 Cholesky 分解优化结合使用。
 
 #### Optimization through Cholesky factorization {-}
 
-#### Cholesky分解优化 {-}
+#### Cholesky 分解优化 {-}
 
 The multivariate normal density and LKJ prior on correlation matrices
 both require their matrix parameters to be factored.  Vectorizing, as
@@ -1845,7 +1845,7 @@ version of the non-centered parameterization.  For the model in the
 previous section, the program fragment to replace the full matrix
 prior with an equivalent Cholesky factorized prior is as follows.
 
-多元正态密度和LKJ相关矩阵先验都要求它们的矩阵参数进行因子分解。如前一节所述的向量化确保每个密度只需进行一次因子分解。更好的解决方案，无论是在效率还是数值稳定性方面，是直接使用相关矩阵的Cholesky因子对模型进行参数化，使用非中心参数化的多元版本。对于前一节的模型，将完整的矩阵先验替换为等效的Cholesky因子先验的程序片段如下所示。
+多元正态密度和 LKJ 相关矩阵先验都要求它们的矩阵参数进行因子分解。如前一节所述的向量化可以确保每个分布只需进行一次因子分解。从效率和数值稳定性来看,一个更好的解决方案是:直接使用相关矩阵的 Cholesky 因子对模型进行参数化，使用非中心参数化的多元版本。对于前一节的模型如此改进，将完整的矩阵先验替换为等价的 Cholesky 因子先验的程序片段如下所示。
 
 ```stan
 data {
@@ -1876,7 +1876,7 @@ use it in matrix arithmetic.  Moreover, it is transposed, along with
 The new parameter `L_Omega` is the Cholesky factor of the original
 correlation matrix `Omega`, so that
 
-数据变量`u`最初是一个向量数组，这样访问起来很高效；这里重新声明为矩阵，以便在矩阵运算中使用。此外，它与`gamma`和`beta`一起被转置，以最小化转置操作的次数。新的参数`L_Omega`是原始相关矩阵`Omega`的Cholesky分解因子，即
+数据变量`u`最初是一个向量数组，这样访问起来很高效；这里重新声明为矩阵，以便在矩阵运算中使用。此外，它与 `gamma` 和 `beta` 一起被转置，以最小化转置操作的次数。新的参数 `L_Omega` 是原始相关矩阵 `Omega` 的 Cholesky 分解因子，即
 
 ```
 Omega = L_Omega * L_Omega'
@@ -1886,7 +1886,7 @@ The prior scale vector `tau` is unchanged, and furthermore,
 pre-multiplying the Cholesky factor by the scale produces the Cholesky
 factor of the final covariance matrix,
 
-先前的先验比例向量 `tau` 保持不变，此外，将 Cholesky 因子预乘以比例会产生最终协方差矩阵的 Cholesky 因子，即
+先前的先验尺度向量 `tau` 保持不变，此外，将 Cholesky 因子预乘以尺度会产生最终协方差矩阵的 Cholesky 因子，即
 
 ```
 Sigma_beta
@@ -1912,7 +1912,7 @@ covariance matrix and adding the mean `(u * gamma)'` produces a `beta`
 distributed as in the original model, where the variance is,
 letting $L = \mathrm{diag}(\tau)\,\Omega_L$,
 
-新的变量 `z` 被声明为矩阵，其元素具有独立的标准正态先验分布；`to_vector` 操作将矩阵转换为向量，以便将其用作单变量正态密度函数的向量化参数。这导致 `z` 的每一列都是一个具有单位协方差矩阵的 $K$ 维正态随机向量。因此，将 `z` 乘以协方差矩阵的 Cholesky 分解因子，并加上均值 `(u * gamma)'`，就可以得到与原模型中相同分布的 `beta`。其中方差是根据 $L = \mathrm{diag}(\tau)\,\Omega_L$ 计算的，
+新的变量 `z` 被声明为矩阵，其每个元素具有独立的标准正态先验分布；`to_vector` 操作将矩阵转换为向量，以便将其用作单变量正态密度函数的向量化参数。这导致 `z` 的每一列都是一个具有单位协方差矩阵的 $K$ 维正态随机向量。因此，将 `z` 乘以协方差矩阵的 Cholesky 分解因子，并加上均值 `(u * gamma)'`，就可以得到与原模型中相同分布的 `beta`。其中方差是根据 $L = \mathrm{diag}(\tau)\,\Omega_L$ 计算的，
 
 $$
 \begin{aligned}
@@ -1965,7 +1965,7 @@ distribution. The statement `tau_unif ~ uniform(0, pi() / 2)` can be
 omitted from the model block because Stan increments the log posterior
 for parameters with uniform priors without it.
 
-这个模型还对先验尺度 `tau` 进行了重参数化，以避免可能出现的柯西分布的重尾问题。语句 `tau_unif ~ uniform(0, pi() / 2)` 可以从模型块中省略，因为 Stan 会自动对具有均匀先验的参数进行对数后验的增量计算。
+这个模型还对先验尺度 `tau` 进行了重参数化，以避免柯西分布的厚尾可能带来的潜在问题。语句 `tau_unif ~ uniform(0, pi() / 2)` 可以从模型块中省略，因为 Stan 会自动对具有均匀先验的参数进行对数后验的增量计算。
 
 ## Prediction, forecasting, and backcasting
 
