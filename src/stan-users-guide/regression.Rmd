@@ -2125,12 +2125,12 @@ coefficients for outcome $k$), and $\Sigma$ is covariance matrix
 governing the error.  As usual, the intercept can be rolled into $x$
 as a column of ones.
 
-其中$x_n$是一个$J$行向量的预测变量（$x$是一个$(N \times J)$矩阵），$y_n$是一个$K$维观测向量，$\beta$是一个$(K \times J)$的回归系数矩阵（向量$\beta_k$保存了结果$k$的系数），$\Sigma$是控制误差的协方差矩阵。通常情况下，截距可以通过将一列全为1的列加入$x$中来处理。
+其中 $x_n$ 是一个长度为 $J$ 的行向量，表示预测变量（$x$ 是一个大小为 $(N \times J)$ 的矩阵），$y_n$ 是一个 $K$ 维观测向量，$\beta$ 是一个 $(K \times J)$ 的回归系数矩阵（向量 $\beta_k$ 存储的是第 $k$ 个结果的系数），$\Sigma$ 是控制误差的协方差矩阵。通常情况下，截距可以通过将一列全为1的列加入 $x$ 中来处理。
 
 The basic Stan code is straightforward (though see below for more
 optimized code for use with LKJ priors on correlation).
 
-基本的Stan代码十分直接（尽管请参考下文以获取在使用LKJ先验概率时更优化的代码）：
+基本的 Stan 代码十分直接（尽管在后面会提出在使用 LKJ 先验概率时更优化的代码）：
 
 ```stan
 data {
@@ -2156,7 +2156,7 @@ model {
 For efficiency, the multivariate normal is vectorized by precomputing
 the array of mean vectors and sharing the same covariance matrix.
 
-为了提高效率，可以通过预计算均值向量数组并共享相同的协方差矩阵来向量化多元正态分布。
+为了提高效率，可以通过预计算均值向量数组，并共享相同的协方差矩阵来向量化多元正态分布。
 
 Following the advice in the [multivariate hierarchical priors
 section](#multivariate-hierarchical-priors.section), we will place a
@@ -2165,7 +2165,10 @@ prior on the correlations and a half-Cauchy prior on standard
 deviations.  The covariance structure is parameterized in terms of
 Cholesky factors for efficiency and arithmetic stability.
 
-根据[多元层次先验](#multivariate-hierarchical-priors.section)部分的建议，我们将在回归系数上放置一个弱信息正态先验，LKJ先验用于相关性，半Cauchy先验用于标准差。为了提高效率和算术稳定性，协方差结构使用Cholesky分解参数化。
+根据[多元层次先验](#multivariate-hierarchical-priors.section)部分的建议，我们将为回归系数设置一个弱信息正态先验，为相关性设置一个 LKJ 先验，为标准差设置一个半 Cauchy 先验。为了提高效率和算术稳定性，协方差结构使用 Cholesky 因子分解参数化。
+
+
+
 
 ```stan
 // ...
@@ -2198,30 +2201,30 @@ a local variable and used in the model by scaling the Cholesky factor
 of the correlation matrices. The regression coefficients get a prior
 all at once by converting the matrix `beta` to a vector.
 
-然后，协方差矩阵的Cholesky分解被重建为一个局部变量，并通过缩放相关矩阵的Cholesky分解来在模型中使用。回归系数通过将矩阵beta转换为向量，一次性获得一个先验。
+然后，协方差矩阵的 Cholesky 因子分解被重建为一个局部变量，并通过缩放相关矩阵的 Cholesky 因子分解来在模型中使用。回归系数通过将矩阵 beta 转换为向量，一次性获得一个先验。
 
 If required, the full correlation or covariance matrices may be
 reconstructed from their Cholesky factors in the generated quantities
 block.
 
-如果需要，可以在生成的量块中从它们的Cholesky因子中重建完整的相关或协方差矩阵。
+如果需要，可以在生成的量块中从它们的 Cholesky 因子中重建完整的相关矩阵或协方差矩阵。
 
 ### Multivariate probit regression {-}
 
-### 多元probit回归 {-}
+### 多元 probit 回归 {-}
 
 The multivariate probit model generates sequences of boolean variables
 by applying a step function to the output of a seemingly unrelated
 regression.
 
-多元Probit模型通过将一个步函数应用于看似无关的回归的输出来生成布尔变量的序列。
+多元 Probit 模型通过将阶跃函数应用于看似无关的回归的输出，来生成布尔变量的序列。
 
 The observations $y_n$ are $D$-vectors of boolean values (coded 0 for
 false, 1 for true).  The values for the observations $y_n$ are based
 on latent values $z_n$ drawn from a seemingly unrelated regression
 model (see the previous section),
 
-观测值$y_n$是一个$D$维的布尔向量（用0表示false，1表示true）。观测值$y_n$的取值基于从一个看似无关回归模型（参见前一节）中绘制的潜在值$z_n$，
+观测值 $y_n$ 是一个 $D$ 维的布尔向量（用0表示 false，1表示 true）。观测值 $y_n$ 的取值基于从一个看似无关回归模型（参见前一节）中得到的潜在值 $z_n$，
 
 \begin{align*}
 z_n        &=     x_n \, \beta + \epsilon_n \\
@@ -2231,7 +2234,7 @@ z_n        &=     x_n \, \beta + \epsilon_n \\
 These are then put through the step function to produce a $K$-vector $z_n$
 of boolean values with elements defined by
 
-然后，这些值经过阶跃函数处理，生成一个$K$维的布尔向量$z_n$，其中元素的定义如下：
+然后，这些值经过阶跃函数处理，生成一个 $K$ 维的布尔向量 $z_n$，其中元素的定义如下：
 
 $$
 y_{n, k} = \operatorname{I}\left(z_{n, k} > 0\right),
@@ -2239,7 +2242,7 @@ $$
 where $\operatorname{I}()$ is the indicator function taking the value 1 if its
 argument is true and 0 otherwise.
 
-其中$\operatorname{I}()$是指示函数，如果其参数为真，则取值为1；否则取值为0。
+其中 $\operatorname{I}()$ 是指示函数，如果其参数为真，则取值为1；否则取值为0。
 
 Unlike in the seemingly unrelated regressions case, here the
 covariance matrix $\Sigma$ has unit standard deviations (i.e., it is a
@@ -2248,7 +2251,7 @@ regressions, letting the scale vary causes the model (which is defined
 only by a cutpoint at 0, not a scale) to be unidentified (see
 @Greene:2011).
 
-与看似无关回归情况不同，这里的协方差矩阵$\Sigma$具有单位标准差（即它是一个相关矩阵）。与普通的probit和logistic回归一样，如果允许标准差变化，那么模型（只由0处的切点定义，而不是标准差）将无法确定（参见 @Greene:2011）。
+与看似无关回归情况不同，这里的协方差矩阵 $\Sigma$ 具有单位标准差（即它是一个相关矩阵）。与普通的 probit 和 logistic 回归一样，如果允许标准差变化，那么模型（只由0处的切点定义，而不是标准差）将无法确定（参见 @Greene:2011）。
 
 Multivariate probit regression can be coded in Stan using the trick
 introduced by @AlbertChib:1993, where the underlying continuous
@@ -2258,7 +2261,7 @@ parts, based on whether the corresponding value of $y$ is 0 or 1.
 Otherwise, the model is identical to the seemingly unrelated
 regression model in the previous section.
 
-使用 @AlbertChib:1993 引入的技巧，可以在Stan中编码多元probit回归，其中基础连续值向量$y_n$被编码为截断参数。在Stan中编码该模型的关键是将潜变量向量$z$分为两部分，根据相应的$y$值是0还是1。除此之外，该模型与前一节中的看似无关回归模型相同。
+使用 @AlbertChib:1993 引入的技巧，可以在 Stan 中编码多元 probit 回归，其中基础连续值向量 $y_n$ 被编码为截断参数。在 Stan 中编码该模型的关键是将潜变量向量 $z$ 分为两部分，根据相应的 $y$ 值是0还是1。除此之外，该模型与前一节中的看似无关回归模型相同。
 
 First, we introduce a sum function for two-dimensional arrays of
 integers;  this is going to help us calculate how many total 1 values
@@ -2282,7 +2285,7 @@ The function is trivial, but it's not a built-in for Stan and it's easier to
 understand the rest of the model if it's pulled into its own function
 so as not to create a distraction.
 
-该函数很简单，但它在Stan中并不是内置函数，如果将其作为单独的函数提取出来，可以更容易理解模型的其余部分，以免分散注意力。
+该函数很简单，但它在 Stan 中并不是内置函数，如果将其作为单独的函数提取出来，可以更容易理解模型的其余部分，以免分散注意力。
 
 The data declaration block is much like for the seemingly unrelated
 regressions, but the observations `y` are now integers
@@ -2306,7 +2309,7 @@ positive and negative components, keeping track of indexes so that
 `z` can be easily reassembled in the transformed parameters
 block.
 
-在声明完数据后，有一个相当复杂的转换数据块，其唯一目的是将数据数组 `y` 按照正负组件进行排序，并跟踪索引，以便在转换参数块中可以轻松地重新组装 `z`。
+在声明完数据后，有一个相当复杂的转换数据块，其唯一目的是将数据数组 `y` 分成正部和负部并排序，并跟踪索引，以便在转换参数块中可以轻松地重组 `z`。
 
 ```stan
 transformed data {
@@ -2374,7 +2377,7 @@ components, whose size was conveniently calculated in the transformed
 data block.  The transformed data block's real work was to allow the
 transformed parameter block to reconstruct $z$.
 
-参数声明的关键部分是将潜在的实值 $z$ 分解为正约束和负约束的分量，其大小在转换的数据块中方便地计算出来。转换的数据块的真正工作是允许转换的参数块重新构建 $z$。
+参数声明的关键部分是将潜在的实值 $z$ 分解为正约束和负约束的分量，其大小在转换的数据块中方便地计算出来。转换的数据块的真正作用是允许转换的参数块重新构建 $z$。
 
 ```stan
 transformed parameters {
@@ -2410,7 +2413,7 @@ model {
 This simple form of model is made possible by the Albert and
 Chib-style constraints on `z`.
 
-这种简单形式的模型是通过对`z`施加的Albert和Chib风格的约束实现的。
+这种简单形式的模型是通过对 `z` 施加的 Albert 和 Chib 风格的约束实现的。
 
 Finally, the correlation matrix itself can be put back together in the
 generated quantities block if desired.
@@ -2453,7 +2456,7 @@ intercept $\alpha$, slope $\beta$, and error scale $\sigma$, along with
 improper uniform priors, the posterior over the parameters given $x$
 and $y$ is
 
-在使用线性回归进行未观测结果预测时，给定预测变量 $x_1, \dotsc, x_N$ 和观测结果 $y_1, \dotsc, y_N$，假设标准线性回归模型具有截距 $\alpha$，斜率 $\beta$ 和误差标度 $\sigma$，以及不合适的均匀先验分布，给定 $x$ 和 $y$ 的参数后验概率为
+在使用线性回归进行未观测结果预测时，给定预测变量 $x_1, \dotsc, x_N$ 和观测结果 $y_1, \dotsc, y_N$，假设标准线性回归模型具有截距 $\alpha$，斜率 $\beta$ 和误差尺度 $\sigma$，以及不合适的均匀先验分布，给定 $x$ 和 $y$ 的参数后验分布为
 
 $$
 p\left(\alpha, \beta, \sigma \mid x, y \right)
@@ -2481,7 +2484,7 @@ To code the posterior predictive inference in Stan, a standard linear
 regression is combined with a random number in the generated
 quantities block.
 
-为了在Stan中编码后验预测推断，可以在生成量块中将标准线性回归与随机数结合起来。
+为了在 Stan 中编码后验预测推断，可以在生成量块中将标准线性回归与随机数结合起来。
 
 ```stan
 data {
