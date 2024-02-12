@@ -16,7 +16,7 @@ data are not explicitly modeled, as in the predictors for most
 regression models, then the result is an improper prior on the
 parameter representing the missing predictor.
 
-贝叶斯推断支持一种通用的缺失数据处理方法，其中任何缺失的数据项都被表示为一个参数，在后验中进行估计[@GelmanEtAl:2013]。如果缺失的数据没有明确地建模，例如大多数回归模型中的预测变量，则代表缺失预测变量的参数将具有不确定的先验分布。
+贝叶斯推断支持一种通用的缺失数据处理方法，其中任何缺失的数据项都表示为后验分布中要估计的一个参数 [@GelmanEtAl:2013]。如果缺失的数据没有像大多数回归模型中的预测变量那样被显式建模，那么这个表示缺失预测变量的参数将具有不合适的先验分布。
 
 Mixing arrays of observed and missing data can be difficult to
 include in Stan, partly because it can be tricky to model discrete
@@ -27,7 +27,7 @@ it can be necessary to include code in a Stan program to splice
 together observed and missing parts of a data structure.  Examples are
 provided later in the chapter.
 
-混合观察和缺失数据的数组可能很难包含在Stan中，这在一定程度上是因为在Stan中建模离散未知数可能很棘手，而且与某些其他统计语言（例如R和Bugs）不同，在Stan中要求观测量和未知量在模型中分别定义。因此，可能需要在Stan程序中添加代码来拼接数据结构的观测部分和缺失部分。本章后面提供了示例。
+在 Stan 中包含观测数据和缺失数据的混合数组可能比较困难，一部分原因是在 Stan 中建模离散未知数可能很棘手，而且与某些其他统计语言（例如 R 和 Bugs）不同，Stan 要求在模型中分别定义观测量和未知量。因此，可能需要在 Stan 程序中添加代码来拼接数据结构的观测部分和缺失部分。本章后面提供了示例。
 
 ## Missing data
 
@@ -37,11 +37,11 @@ Stan treats variables declared in the `data` and
 `transformed data` blocks as known and the variables in the
 `parameters` block as unknown.
 
-Stan将在`data`和`transformed data`块中声明的变量视为已知，将`parameters`块中声明的变量视为未知量。
+Stan 将在 `data` 和 `transformed data` 块中声明的变量视为已知的，将 `parameters` 块中声明的变量视为未知量。
 
 An example involving missing normal observations could be coded as follows.^[A more meaningful estimation example would involve a regression of the observed and missing observations using predictors that were known for each and specified in the `data` block.]
 
-涉及缺失正态观测值的示例可以编写如下。^[一个更有意义的估计示例涉及使用对于每个观察和缺失值已知且在`data`块中指定的预测变量对观测和缺失值进行回归。]
+涉及缺失正态观测值的示例可以如下编码。^[一个更有意义的估计示例涉及到，使用在 `data` 块中为每个观测值指定的已知预测变量，对观测到的和缺失的观测值进行回归分析。]
 
 ```stan
 data {
@@ -70,7 +70,7 @@ on the observed and missing data; combining them in this case would be
 less efficient because the data observations would be promoted and
 have needless derivatives calculated.
 
-观测到的和缺失的数据点的数量被编码为具有非负整数变量`N_obs`和`N_mis`的数据。观测数据被提供为数组数据变量`y_obs`。缺失数据编码为一个数组参数`y_mis`。被估计的普通参数包括位置`mu`和尺度`sigma`，它们也被编码为参数。该模型在观测和缺失数据上进行向量化；在这种情况下将它们组合起来效率会更低，因为数据观察值会被提升并且需要计算不必要的导数。
+观测数据和缺失数据的数量分别通过非负整数变量 `N_obs` 和 `N_mis` 编码为数据。观测数据被表示为数组数据变量 `y_obs` 。缺失数据编码为一个数组参数 `y_mis`。被估计的普通参数包括位参数 `mu` 和尺度参数 `sigma`，它们也被编码为参数。该模型在观测和缺失数据上进行向量化；在这种情况下将它们组合起来效率会更低，因为数据观察值会被提升，并且会需要计算不必要的导数。
 
 ## Partially known parameters {#partially-known-parameters.section}
 
@@ -82,7 +82,7 @@ create a vector mixing known (data) and unknown (parameter) values.
 This can be done in Stan by creating a vector or array in the
 `transformed parameters` block and assigning to it.
 
-在某些情况下，例如当多变量概率函数具有部分观察到的结果或参数时，将有必要创建混合已知（数据）和未知（参数）值的向量。这可以在Stan中通过在`transformed parameters`块中创建向量或数组并分配给它来完成。
+在某些情况下，例如当多变量概率函数具有部分观察到的结果或参数时，将有必要创建混合已知（数据）和未知（参数）值的向量。这可以在 Stan 中通过在 `transformed parameters` 块中创建向量或数组并对其赋值来完成。
 
 The following example involves a bivariate covariance matrix in which the
 variances are known, but the covariance is not.
@@ -123,21 +123,21 @@ is defined as a transformed parameter, with the variances assigned to
 the two diagonal elements and the covariance to the two off-diagonal
 elements.
 
-方差定义为变量`var1`和`var2`中的数据，而协方差定义为变量`cov`中的参数。$2 \times 2$协方差矩阵`Sigma`被定义为一个变换参数，其中方差被分配给两个对角元素，协方差被分配给这两个非对角元素。
+定义方差为变量 `var1` 和 `var2` 中的数据，定义协方差为变量 `cov` 中的参数。$2 \times 2$ 协方差矩阵 `Sigma` 被定义为一个变换参数，其中把方差分配给两个对角元素，把协方差分配给这两个非对角元素。
 
 The constraint on the covariance declaration ensures that the
 resulting covariance matrix `sigma` is positive definite.  The
 bound, plus or minus the square root of the product of the variances,
 is defined as transformed data so that it is only calculated once.
 
-协方差声明上的限制确保生成的协方差矩阵`sigma`是正定的。上下限被定义为转换后的数据，其值为方差乘积的平方根再加上或减去一个常数，这样可以只计算一次。
+协方差声明上的限制确保生成的协方差矩阵 `sigma` 是正定的。上下限被定义为转换后的数据，即方差乘积的平方根的正负值，这样可以只计算一次。
 
 The vectorization of the multivariate normal is critical for
 efficiency here.  The transformed parameter `Sigma` could be
 defined as a local variable within the model block if
 it does not need to be included in the sampler's output.
 
-这里，多元正态的矢量化对效率至关重要。如果不需要将转换后的参数`Sigma`包含在采样器的输出中，则可以在模型块中将其定义为局部变量。
+这里，多元正态的矢量化对效率至关重要。如果不需要将转换后的参数 `Sigma` 包含在采样器的输出中，则可以在模块中将其定义为局部变量。
 
 ## Sliced missing data
 
