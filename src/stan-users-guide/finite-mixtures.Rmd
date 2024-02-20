@@ -1,8 +1,8 @@
-# Finite Mixtures  {#mixture-modeling.chapter}
+# Finite Mixtures  
 
-（当前版本尚不完善）
+# 有限混合  
 
-本节译者：胡向宇
+本节译者：胡向宇、张梓源
 
 Finite mixture models of an outcome assume that the outcome is drawn
 from one of several distributions, the identity of which is controlled
@@ -13,9 +13,11 @@ described in the following sections.  Mixture models may be used
 directly for modeling data with multimodal distributions, or they may
 be used as priors for other parameters.
 
-有限混合模型假设结果是从多个分布中的一个中抽取的，并由分类混合分布控制。混合模型通常具有多峰密度，其峰值接近混合成分的峰值。混合模型可以通过多种方式进行参数化，如以下各节所述。混合模型可以用于直接建模具有多峰分布的数据，也可以用作其他参数的先验。
+有限混合模型中,我们假设最终的结果是从几个不同的分布中抽取出来的,而从哪个具体的分布中抽取,是由一个分类的混合分布模型来决定的。混合模型通常具有多峰密度，其峰值接近混合成分的峰值。混合模型可以通过多种方式进行参数化，以下各节所述。混合模型可以用于直接建模具有多峰分布的数据，也可以用作其他参数的先验。
 
-## Relation to clustering {#clustering-mixture.section}
+## Relation to clustering
+
+## 与聚类的关系
 
 Clustering models, as discussed in the [clustering
 chapter](#clustering.chapter), are just a particular class of mixture
@@ -26,9 +28,11 @@ basis for the $K$-means algorithm; the latent Dirichlet allocation
 model, usually applied to clustering problems, can be viewed as a
 mixed-membership multinomial mixture model.
 
-在[clusteringchapter](#clustering.chapter)讨论过的聚类模型是一类特殊的混合模型，已广泛应用于工程和机器学习文献中的聚类。本章讨论的正态混合模型以多元形式重新出现，作为K均值算法的统计基础；通常应用于聚类问题的潜在狄利克雷分布可以视为混合成分版本的多项混合模型。
+在[聚类模型](#clustering.chapter)讨论过的聚类模型是一类特殊的混合模型，这类模型在工程和机器学习领域的聚类研究中被广泛应用。本章讨论的正态混合模型以多元形式重新出现，作为 $K$ 均值算法的统计基础；通常应用于聚类问题的潜在狄利克雷分布模型，可以视为混合成分版本的多项混合模型。
 
 ## Latent discrete parameterization
+
+## 通过潜在离散变量参数化
 
 One way to parameterize a mixture model is with a latent categorical
 variable indicating which mixture component was responsible for the
@@ -39,58 +43,69 @@ $\sum_{k=1}^K \lambda_k = 1$ (i.e., $\lambda$ lies in the unit $K$-simplex).
 For each outcome $y_n$ there is a latent variable $z_n$ in
 $\{ 1,\dotsc,K \}$ with a categorical distribution parameterized
 by $\lambda$,
+
+一种参数化混合模型的方法是，使用潜在分类变量来指定哪个混合成分决定结果。例如，考虑 $K$ 个正态分布，它们的位置参数是 $\mu_k \in \mathbb{R}$ ，尺度参数是 $\sigma_k \in (0,\infty)$。现在将它们按比例 $\lambda$ 混合，其中 $\lambda_k \geq 0$ and
+$\sum_{k=1}^K \lambda_k = 1$（即 $\lambda $位于单位 $K$ -单纯形上）。对于每个结果 $y_n$，都有一个从 $\{ 1,\dotsc,K \}$ 中取值的潜在变量 $z_n$，并有一个参数为 $\lambda$ 的分类分布。
+
 $$
 z_n \sim \textsf{categorical}(\lambda).
 $$
 
-一种参数化混合模型的方法是使用潜在分类变量用来指定哪个混合成分决定结果。例如，考虑K个具有位置参数$\mu_k \in \mathbb{R}$和尺度参数$\sigma_k \in (0,\infty)$的正态分布。现在考虑将他们按比例$\lambda$混合，其中$\lambda_k \geq 0$ and
-$\sum_{k=1}^K \lambda_k = 1$（即$\lambda$位于单位K-单纯形上）。对于每个结果$y_n$，都有一个潜在变量$z_n$取值于$\{ 1,\dotsc,K \}$，并有一个参数为$\lambda$的分类分布。
-
-
 The variable $y_n$ is distributed according to the parameters
 of the mixture component $z_n$,
+
+变量 $y_n$ 的分布由混合成分 $z_n$ 所对应的参数决定，
+
 $$
 y_n \sim \textsf{normal}(\mu_{z[n]},\sigma_{z[n]}).
 $$
-变量$y_n$的分布的参数由混合成分$z_n$决定，
-
 This model is not directly supported by Stan because it involves
 discrete parameters $z_n$, but Stan can sample $\mu$ and $\sigma$
 by summing out the $z$ parameter as described in the next section.
 
-这个模型无法由Stan直接支持，因为它涉及离散参数$z_n$，但是Stan可以通过在下一节中描述的对$z$求和，来采样$\mu$和$\sigma$。
+这个模型不是 Stan 直接支持的，因为它涉及离散参数 $z_n$，但是 Stan 可以通过对 $z$ 求和，来采样 $\mu$ 和 $\sigma$，就像下一节描述的那样。
 
 ## Summing out the responsibility parameter
+
+## 对责任参数进行求和
 
 To implement the normal mixture model outlined in the previous
 section in Stan, the discrete parameters can be summed out of the
 model. If $Y$ is a mixture of $K$ normal distributions with
 locations $\mu_k$ and scales $\sigma_k$ with mixing proportions
 $\lambda$ in the unit $K$-simplex, then
+
+为了在 Stan 中实现前面概述的正态混合模型，可以将模型中的离散参数求和消除。如果 $Y$ 是由 $K$ 个正态分布混合而成的，这些正态分布的位置参数是 $\mu_k$ ，尺度参数是 $\sigma_k$，并且混合比例 $\lambda$ 位于单位 $K$ -单纯形上，则
+
 $$
 p_Y\left(y \mid \lambda, \mu, \sigma \right)
 =
 \sum_{k=1}^K \lambda_k \, \textsf{normal}\left(y \mid \mu_k, \sigma_k\right).
 $$
 
-为了在Stan中实现前面概述的正态混合模型，可以对离散参数从模型中求和。如果Y是具有位置参数$\mu_k$和尺度参数$\sigma_k$的K个正态分布的混合，并且混合比例$\lambda$位于单位K-单纯形上，则
+
 
 ### Log sum of exponentials: linear Sums on the log scale {-}
 
+### 指数的对数和：对数尺度上的线性求和 {-}
+
 The log sum of exponentials function is used to define mixtures on the
 log scale.  It is defined for two inputs by
+
+“指数的对数和”函数用于在对数尺度上定义混合。它由两个输入定义
+
 $$
 \texttt{log}\mathtt{\_}\texttt{sum}\mathtt{\_}\texttt{exp}(a, b) = \log \left(\exp(a) + \exp(b)\right).
 $$
-
-指数的对数和函数用于在对数尺度上定义混合。它由两个输入定义
-
 If $a$ and $b$ are probabilities on the log scale, then $\exp(a) +
 \exp(b)$ is their sum on the linear scale, and the outer log converts
 the result back to the log scale; to summarize, log_sum_exp does
 linear addition on the log scale.   The reason to use Stan's built-in
 `log_sum_exp`  function is that it can prevent underflow and overflow
 in the exponentiation, by calculating the result as
+
+如果 $a$ 和 $b$ 是对数尺度上的概率，那么 $\exp(a) + \exp(b)$ 是它们在线性尺度上的和，外部对数将结果转换回对数尺度；总结来说，log_sum_exp 在对数尺度上进行线性加法。使用 Stan 内置的 `log_sum_exp` 函数的原因是，它可以通过下面的计算方式防止在指数运算中发生下溢和上溢，
+
 $$
 \log \left( \exp(a) + \exp(b)\right)
 = c + \log \left( \exp(a - c) + \exp(b - c) \right),
@@ -101,15 +116,14 @@ possibility of overflow or underflow in the leading term while
 extracting the most arithmetic precision possible by pulling the
 $\max(a, b)$ out of the log-exp round trip.
 
-如果$a$和$b$是对数尺度上的概率，则$\exp(a) + 
-\exp(b)$是它们在线性尺度上的和，外部对数将结果转换回对数尺度；总之，log_sum_exp在对数尺度上进行线性加法。使用Stan内置的`log_sum_exp`函数的原因是它可以通过下面方式计算结果来防止指数中的下溢和上溢，
+其中$c = \max(a, b)$。在这个计算中，$a - c$ 和 $b - c$ 中一个是零，另一个是负数，这样就在主要项中消除了溢出或下溢的可能性，同时通过提取 $\max(a, b)$ 来避免对数-指数转换，从而获得尽可能高的算术精度。
 
 For example, the mixture of $\textsf{normal}(-1, 2)$ with
 $\textsf{normal}(3, 1)$, with mixing proportion $\lambda =
 [0.3,0.7]^{\top}$, can be implemented in Stan as follows.
 
-例如，具有混合比例$\lambda =
-[0.3,0.7]^{\top}$的$\textsf{normal}(-1, 2)$和$\textsf{normal}(3, 1)$的混合分布可以在Stan中实现如下。
+例如，具有混合比例 $\lambda =
+[0.3,0.7]^{\top}$ 的 $\textsf{normal}(-1, 2)$ 和 $\textsf{normal}(3, 1)$ 的混合分布可以参考如下代码在 Stan 中实现。
 
 ```stan
 parameters {
@@ -139,11 +153,12 @@ The log probability term is derived by taking
 
 ### Dropping uniform mixture ratios {-}
 
+### 放弃均匀的混合比例 {-}
+
 If a two-component mixture has a mixing ratio of 0.5, then the mixing
 ratios can be dropped, because
 
 如果一个两成分混合分布的混合比例为0.5，则可以删除混合比例，因为
-
 
 ```stan
 log_half = log(0.5);
@@ -157,7 +172,7 @@ for (n in 1:N) {
 then the $\log 0.5$ term isn't contributing to the proportional
 density, and the above can be replaced with the more efficient version
 
-$\log 0.5$项不会影响密度比例，上述代码可以替换为更高效的版本
+$\log 0.5$ 项不会影响比例密度，上述代码可以替换为更高效的版本
 
 
 ```stan
@@ -170,7 +185,7 @@ for (n in 1:N) {
 The same result holds if there are $K$ components and the mixing
 simplex $\lambda$ is symmetric, i.e.,
 
-如果有K个成分并且混合比例$\lambda$是对称的，如下，则同样的结果成立
+则同样的结果在这种条件下也成立：如果有 $K$ 个成分并且混合单纯形 $\lambda$ 是对称的，即，
 
 $$
 \lambda = \left( \frac{1}{K}, \dotsc, \frac{1}{K} \right).
@@ -178,30 +193,33 @@ $$
 
 The result follows from the identity
 
-由以下恒等式得出
+这个结论来自于下面的等式
 
 $$
 \texttt{log}\mathtt{\_}\texttt{sum}\mathtt{\_}\texttt{exp}(c + a, c + b)
 =
 c + \texttt{log}\mathtt{\_}\texttt{sum}\mathtt{\_}\texttt{exp}(a, b)
 $$
+
 and the fact that adding a constant $c$ to the log density accumulator
 has no effect because the log density is only specified up to an
 additive constant in the first place.  There is nothing specific to
 the normal distribution here; constants may always be dropped from the
 target.
 
-并且将常数$c$添加到对数密度累加器中没有任何影响，因为首先对数密度指定的加法常数不影响结果。结论不仅限于正态分布；常量始终可以从target中删除。
+并且将常数 $c$ 添加到对数密度累加器中没有任何影响，因为对数密度本身就是在一个可加常数的基础上指定的。结论不仅限于正态分布；从目标中省略常数是一种常见的做法。
 
 ### Recovering posterior mixture proportions {-}
+
+### 恢复后验混合比例 {-}
 
 The posterior $p(z_n \mid y_n, \mu, \sigma)$ over the mixture indicator $z_n
 \in 1:K$ is often of interest as $p(z_n = k \mid y, \mu, \sigma)$ is the
 posterior probability that that observation $y_n$ was generated by
 mixture component $k$.  The posterior can be computed via Bayes's rule,
 
-我们通常对混合指示器$z_n\in 1:K$的后验$p(z_n \mid y_n, \mu, \sigma)$感兴趣，因为$p(z_n = k \mid y, \mu, \sigma)$
-是观测值$y_n$由混合成分$k$生成的后验概率。后验概率可以通过贝叶斯定理计算，
+对于混合指示变量 $z_n \in 1:K$,它的后验分布 $p(z_n \mid y_n, \mu, \sigma)$ 通常很有意义,因为 $p(z_n = k \mid y, \mu, \sigma)$ 是观测值 $y_n$ 由混合成分 $k$ 生成的后验概率。这个后验分布可以通过贝叶斯法则计算得到,
+
 \begin{align*}
 \operatorname{Pr}\left(z_n = k \mid y_n, \mu, \sigma, \lambda \right)
   &\propto p\left(y_n \mid z_n = k, \mu, \sigma\right)\, p\left(z_n = k \mid \lambda\right) \\
@@ -212,7 +230,8 @@ mixture component $k$.  The posterior can be computed via Bayes's rule,
 The normalization can be done via summation, because $z_n \in 1{:}K$ only
 takes on finitely many values.  In detail,
 
-归一化参数可以通过求和来完成，因为$z_n \in 1{:}K$只取有限多个值。详细来说，
+归一化参数可以通过求和来完成，因为 $z_n \in 1{:}K$ 只取有限多个值。详细来说，
+
 $$
 p\left(z_n = k \mid y_n, \mu, \sigma, \lambda \right) =
 \frac{p\left(y_n \mid z_n = k, \mu, \sigma \right) \cdot p\left(z_n = k \mid \lambda \right)}
@@ -223,26 +242,30 @@ $$
 On the log scale, the normalized probability is computed as
 
 在对数尺度上，归一化后的概率为
+
 \begin{align*}
 \log\,&\operatorname{Pr}\left(z_n = k \mid y_n, \mu, \sigma, \lambda\right) \\
  &= \log p\left(y_n \mid z_n = k, \mu, \sigma\right) + \log \operatorname{Pr}\left(z_n = k \mid \lambda\right) \\
  &\quad  - \texttt{log}\mathtt{\_}\texttt{sum}\mathtt{\_}\texttt{exp}_{k' = 1}^K \big(\log p\left(y_n \mid z_n = k', \mu, \sigma\right)
                                                  + \log p\left(z_n = k' \mid \lambda\right)\big).
 \end{align*}
+
 This can be coded up directly in Stan; the change-point model in the
 [change point section](#change-point.section) provides an example.
 
-这可以直接在Stan里编程；变点模型[change point section](#change-point.section)提供了一个例子。
+这可以直接在 Stan 中编程；[变点模型章节](#change-point.section)中的变点模型提供了一个例子。
 
 ### Estimating parameters of a mixture {-}
+
+### 混合模型的参数估计 {-}
 
 Given the scheme for representing mixtures, it may be moved to an
 estimation setting, where the locations, scales, and mixture
 components are unknown.  Further generalizing to a number of mixture
 components specified as data yields the following model.
 
-给定表示混合分布的方案，可以对其进行估计，
-其中位置参数、尺度参数和混合成分是未知的。进一步将混合成分的数量作为data进行指定，得到以下模型。
+给定表示混合分布的方案，可以对其进行估计，其中位置参数、尺度参数和混合成分是未知的。进一步将混合成分的数量作为 data 进行指定，得到以下模型。
+
 ```stan
 data {
   int<lower=1> K;          // number of mixture components
@@ -274,9 +297,9 @@ a unit $K$-simplex, whereas the component location parameter `mu`
 and scale parameter `sigma` are both defined to be
 `K`-vectors.
 
-该模型涉及`K`个混合成分和`N`个数据点。
-混合比例参数`theta`被声明为单位K-单纯形，
-而每个成分的位置参数`mu`和尺度参数`sigma`都被定义为`K`维向量。
+该模型涉及 `K` 个混合成分和 `N` 个数据点。
+混合比例参数 `theta` 被声明为单位 $K$--单纯形，
+而每个成分的位置参数 `mu` 和尺度参数 `sigma` 都被定义为 `K` 维向量。
 
 The location parameter `mu` is declared to be an ordered vector
 in order to identify the model.  This will not affect inferences that
@@ -285,13 +308,13 @@ for the components `mu[k]` is symmetric, as it is here (each
 component has an independent $\textsf{normal}(0, 10)$ prior).  It
 would even be possible to include a hierarchical prior for the components.
 
-为了识别模型，位置参数`mu`被声明为有序向量。只要混合成分的先验分布`mu[k]`是对称的（在这里是这样的，每个混合成分都有独立的$\textsf{normal}(0, 10)$先验分布），成分的排序就不会影响推断。甚至可以为成分设定分层先验。
+为了识别模型，位置参数 `mu` 被声明为有序向量。只要混合成分的先验分布 `mu[k]` 是对称的（这里每个成分都有独立的 $\textsf{normal}(0, 10)$ 先验分布），那么成分的排序就不会影响最后的推断结果。甚至可以为成分设定分层先验。
 
 The values in the scale array `sigma` are constrained to be
 non-negative, and have a weakly informative prior given in the model
 chosen to avoid zero values and thus collapsing components.
 
-尺度参数数组`sigma`中的值被限制为非负，并且在所选模型中具有弱信息先验，以避免零值产生的退化情况。
+尺度参数数组 `sigma` 中的值被限制为非负，并在模型中给出了一个弱信息先验分布，选择这样的先验是为了避免零值产生的退化情况。
 
 The model declares a local array variable `lps` to be size
 `K` and uses it to accumulate the log contributions from the
@@ -301,8 +324,8 @@ mixture components.  The main action is in the loop over data points
 array `lpps`.  Then the log probability is incremented with the log
 sum of exponentials of those values.
 
-该模型声明一个大小K的局部数组变量`lps`，并使用它来累积混合成分的对数贡献。主要操作是对数据点`n`的循环。对于每个这样的点，计算$\theta_k \times
-\textsf{normal}\left(y_n \mid \mu_k,\sigma_k\right)$的对数，并添加到数组`lpps`中。然后，将对数概率增加这些值的指数对数和。
+该模型声明一个大小为 `K` 的局部数组变量 `lps`，并使用它来累积混合成分的对数贡献值。主要操作发生在对数据点 `n` 的循环中。对于每个这样的点，计算 $\theta_k \times
+\textsf{normal}\left(y_n \mid \mu_k,\sigma_k\right)$ 的对数，并添加到数组 `lpps` 中。然后，用这些值的指数和的对数来增加对数概率。
 
 ## Vectorizing mixtures
 
