@@ -43,7 +43,7 @@ over the latent Gaussian process, and applies a Cholesky-factor
 reparameterization of the Gaussian to compute the likelihood and the posterior
 predictive distribution analytically.
 
-高斯过程可以通过实现其均值和协方差函数并将结果代入其采样分布的高斯形式，或使用下面概述的专用协方差函数，在 Stan 中编码。 这种形式的模型很简单，可用于模拟、模型拟合或后验预测推理。具有正态分布结果的GP的更有效的Stan实现在潜在高斯过程中被边缘化，并应用高斯的Cholesky因子重新参数化来分析计算可能性和后验预测分布。
+高斯过程可以通过实现其均值和协方差函数并将结果代入其采样分布的高斯形式，或使用下面概述的专用协方差函数，在 Stan 中编码。这种形式的模型很简单，可用于模拟、模型拟合或后验预测推理。具有正态分布结果的 GP 的更有效的 Stan 实现在潜在高斯过程中被边缘化，并应用高斯的 Cholesky 因子重新参数化来分析计算可能性和后验预测分布。
 
 After defining Gaussian processes, this chapter covers the basic
 implementations for simulation, hyperparameter estimation, and
@@ -53,8 +53,7 @@ Gaussian processes are  general, and by necessity this chapter
 only touches on some basic models.  For more information, see
 @RasmussenWilliams:2006.
 
-定义高斯过程后，本章将介绍单变量回归、多元回归和多元逻辑回归的模拟、超参数估计和后验预测推理的基本实现。高斯过程是一般的过程，本章必然只涉及一些基本模型。 有关详细信息，请参阅
-@RasmussenWilliams:2006.
+定义高斯过程后，本章将介绍单变量回归、多元回归和多元逻辑回归的模拟、超参数估计和后验预测推理的基本实现。高斯过程是一般的过程，本章必然只涉及一些基本模型。 有关详细信息，请参阅 @RasmussenWilliams:2006.
 
 
 ## Gaussian process regression
@@ -467,7 +466,7 @@ inference in this model [@Neal:1997]. If the posterior is
 well-concentrated for the hyperparameters the Stan implementation will fit
 hyperparameters in models with a few hundred data points in seconds.
 
-在这个模型中，Hamilton Monte Carlo 抽样对于超参数推断是快速和有效的[@Neal:1997]。如果后验密度函数在超参数方面高度集中，则Stan实现将在几百个数据点的模型中在几秒钟内拟合超参数。
+在这个模型中，Hamilton Monte Carlo 抽样对于超参数推断是快速和有效的[@Neal:1997]。如果后验密度函数在超参数方面高度集中，则 Stan 实现将在几百个数据点的模型中在几秒钟内拟合超参数。
 
 #### Latent variable GP {-}
 
@@ -478,7 +477,7 @@ This will be useful for when the outcome is not normal. We'll need to add a
 small positive term, $\delta$ to the diagonal of the covariance matrix in order
 to ensure that our covariance matrix remains positive definite.
 
-我们也可以在Stan中明确编码GP的潜变量公式，这对于处理非正态数据时非常有用。我们需要在协方差矩阵的对角线上添加一个小的正数项$\delta$，以确保我们的协方差矩阵始终是正定的。
+我们也可以在 Stan 中明确编码 GP 的潜变量公式，这对于处理非正态数据时非常有用。我们需要在协方差矩阵的对角线上添加一个小的正数项 $\delta$，以确保我们的协方差矩阵始终是正定的。
 
 
 ```stan
@@ -532,7 +531,7 @@ terms as one $N$-dimensional multivariate normal with an identity covariance
 matrix multiplied by $\sigma^2$. However, it is more efficient to use the
 vectorized statement as shown above.
 
-潜变量GP和边际似然GP之间的两个差异值得注意。第一个是我们将参数块增加了一个长度为$N$的新参数向量`eta`。在模型块中，它用于生成对应于潜在GP的多元正态向量$f$。我们对`eta`使用$\textsf{normal}(0,1)$先验，就像在模拟部分中Cholesky参数化的GP中所做的那样。第二个区别是我们的似然现在是单变量的，虽然我们可以将$N$个似然项编码为一个具有恒等协方差矩阵乘以$\sigma^2$的$N$维多元正态分布。但是，使用像上面显示的向量化语句更有效率。
+潜变量 GP 和边际似然 GP 之间的两个差异值得注意。第一个是我们将参数块增加了一个长度为 $N$ 的新参数向量 `eta`。在模型块中，它用于生成对应于潜在 GP 的多元正态向量 $f$。我们对 `eta` 使用 $\textsf{normal}(0,1)$ 先验，就像在模拟部分中 Cholesky 参数化的 GP 中所做的那样。第二个区别是我们的似然现在是单变量的，虽然我们可以将 $N$ 个似然项编码为一个具有恒等协方差矩阵乘以 $\sigma^2$ 的 $N$ 维多元正态分布。但是，使用像上面显示的向量化语句更有效率。
 
 ### Discrete outcomes with Gaussian processes {-}
 
@@ -546,7 +545,7 @@ discrete data models.
 
 #### Poisson GP {-}
 
-#### 泊松分布GP {-}
+#### 泊松分布 GP {-}
 
 If we want to model count data, we can remove the $\sigma$ parameter, and use
 `poisson_log`, which implements a log link, for our likelihood rather
@@ -554,7 +553,7 @@ than `normal`. We can also add an overall mean parameter, $a$, which
 will account for the marginal expected value for $y$. We do this because we
 cannot center count data like we would for normally distributed data.
 
-如果我们想要建模计数数据，可以移除$\sigma$参数，并在似然函数中使用`poisson_log`，该函数实现了一个对数链接，而不是`normal`。我们还可以添加一个总体均值参数$a$，它将考虑到$y$的边际期望值。这是因为我们不能像对于正态分布数据一样居中处理计数数据。
+如果我们想要建模计数数据，可以移除 $\sigma$ 参数，并在似然函数中使用 `poisson_log`，该函数实现了一个对数链接，而不是 `normal`。我们还可以添加一个总体均值参数 $a$，它将考虑到 $y$ 的边际期望值。这是因为我们不能像对于正态分布数据一样居中处理计数数据。
 
 
 ```stan
@@ -590,7 +589,7 @@ For binary classification problems, the observed outputs $z_n \in
 \{ 0,1 \}$ are binary.  These outputs are modeled using a Gaussian
 process with (unobserved) outputs $y_n$ through the logistic link,
 
-对于二元分类问题，观测输出$z_n \in \{ 0,1 \}$是二进制的。通过逻辑链接，这些输出可以使用高斯过程进行建模，并且相应的未观测输出为$y_n$，具体如下所示：
+对于二元分类问题，观测输出 $z_n \in \{ 0,1 \}$ 是二进制的。通过逻辑链接，这些输出可以使用高斯过程进行建模，并且相应的未观测输出为 $y_n$，具体如下所示：
 
 $$
 z_n \sim \textsf{Bernoulli}(\operatorname{logit}^{-1}(y_n)),
@@ -607,7 +606,7 @@ We can extend our latent variable GP Stan program to deal with classification
 problems. Below `a` is the bias term, which can help account for imbalanced
 classes in the training data:
 
-我们可以扩展我们的潜变量GP Stan程序以处理分类问题。下面的`a`是偏置项，它可以帮助解决训练数据中类别不平衡的问题：
+我们可以扩展我们的潜变量 GP Stan 程序以处理分类问题。下面的 `a` 是偏置项，它可以帮助解决训练数据中类别不平衡的问题：
 
 ```stan
 data {
@@ -631,7 +630,7 @@ If we have multivariate inputs $x \in \mathbb{R}^D$, the squared exponential
 covariance function can be further generalized by fitting a scale
 parameter $\rho_d$ for each dimension $d$,
 
-如果我们有多元输入$x \in \mathbb{R}^D$，则可以通过为每个维度$d$拟合一个尺度参数$\rho_d$来进一步推广平方指数协方差函数，
+如果我们有多元输入 $x \in \mathbb{R}^D$，则可以通过为每个维度 $d$ 拟合一个尺度参数 $\rho_d$ 来进一步推广平方指数协方差函数，
 
 $$
   k(x \mid \alpha, \vec{\rho}, \sigma)_{i, j} = \alpha^2 \exp
@@ -647,7 +646,7 @@ along dimension $d$. Moreover, the scale of the parameters $\rho_d$ measures
 non-linearity along the $d$-th dimension, rather than "relevance"
 [@PiironenVehtari:2016].
 
-Neal (1996)将$\rho$的估计称为“自动相关性确定”，但这是令人误解的，因为每个$\rho_d$的后验分布的尺度大小取决于输入数据沿$d$维度的缩放比例。此外，参数$\rho_d$的尺度测量的是第$d$维度上的非线性程度，而不是“相关性”[@PiironenVehtari:2016]。
+Neal (1996) 将 $\rho$ 的估计称为“自动相关性确定”，但这是令人误解的，因为每个 $\rho_d$ 的后验分布的尺度大小取决于输入数据沿 $d$ 维度的缩放比例。此外，参数 $\rho_d$ 的尺度测量的是第 $d$ 维度上的非线性程度，而不是“相关性”[@PiironenVehtari:2016]。
 
 A priori, the closer $\rho_d$ is to zero, the more nonlinear the
 conditional mean in dimension $d$ is.  A posteriori, the actual dependencies
@@ -658,14 +657,14 @@ of $x_1$ is higher [@RasmussenWilliams:2006, page 80].
 The collection of $\rho_d$ (or $1/\rho_d$) parameters can also be
 modeled hierarchically.
 
-从先验上讲，$\rho_d$越接近于零，第$d$维条件均值的非线性程度就越高。从后验上看，实际上$x$和$y$之间的依赖关系也起到了作用。如果一个协变量$x_1$具有线性效应，而另一个协变量$x_2$具有非线性效应，则即使$x_1$的预测相关性更高，也可能出现$\rho_1 > \rho_2$的情况[@RasmussenWilliams:2006，第80页]。$\rho_d$（或$1/\rho_d$）参数的集合也可以按分层方式进行建模。
+从先验上讲，$\rho_d$ 越接近于零，第 $d$ 维条件均值的非线性程度就越高。从后验上看，实际上 $x$ 和 $y$ 之间的依赖关系也起到了作用。如果一个协变量 $x_1$ 具有线性效应，而另一个协变量 $x_2$ 具有非线性效应，则即使 $x_1$ 的预测相关性更高，也可能出现 $\rho_1 > \rho_2$ 的情况[@RasmussenWilliams:2006，第80页]。$\rho_d$（或$1/\rho_d$）参数的集合也可以按分层方式进行建模。
 
 The implementation of automatic relevance determination in Stan is
 straightforward, though it currently requires the user to directly code the
 covariance matrix. We'll write a function to generate the Cholesky of the
 covariance matrix called `L_cov_exp_quad_ARD`.
 
-在Stan中实现自动相关性确定是很简单的，虽然目前需要用户直接编写协方差矩阵的代码。我们将编写一个名为`L_cov_exp_quad_ARD`的函数来生成协方差矩阵的Cholesky分解。
+在 Stan 中实现自动相关性确定是很简单的，虽然目前需要用户直接编写协方差矩阵的代码。我们将编写一个名为 `L_cov_exp_quad_ARD` 的函数来生成协方差矩阵的 Cholesky 分解。
 
 
 ```stan
@@ -728,7 +727,7 @@ Formulating priors for GP hyperparameters requires the analyst to consider the
 inherent statistical properties of a GP, the GP's purpose in the model, and the
 numerical issues that may arise in Stan when estimating a GP.
 
-对高斯过程的超参数进行建模时需要研究者考虑该过程中的内生统计性质，该过程的设计目的以及在Stan计算时可能遇到的数值问题。
+对高斯过程的超参数进行建模时需要研究者考虑该过程中的内生统计性质，该过程的设计目的以及在 Stan 计算时可能遇到的数值问题。
 
 Perhaps most importantly, the parameters $\rho$ and $\alpha$ are weakly
 identified [@zhang-gp:2004]. The ratio of the two
@@ -736,7 +735,7 @@ parameters is well-identified, but in practice we put independent priors on the
 two hyperparameters because these two quantities are more interpretable than
 their ratio.
 
-重要的是，参数$\rho$以及$\alpha$是弱可识别的[@zhang-gp:2004]，而它们的比值却可以很好的识别。但是在实践中，由于上述两个参数的解释性优于它们的比值，因此我们常常为这两个参数设计独立的先验。
+重要的是，参数 $\rho$ 以及 $\alpha$ 是弱可识别的[@zhang-gp:2004]，而它们的比值却可以很好的识别。但是在实践中，由于上述两个参数的解释性优于它们的比值，因此我们常常为这两个参数设计独立的先验。
 
 #### Priors for length-scale {-}
 
@@ -782,7 +781,7 @@ for length-scale will be pushed away from zero. An inverse gamma
 distribution is one of many zero-avoiding or boundary-avoiding
 distributions.^[A boundary-avoiding prior is just one where the limit of the density is zero at the boundary, the result of which is estimates that are pushed away from the boundary.].
 
-我们可能不需要超出惩罚小长度尺度的约束。我们希望允许高斯过程先验表示高频和低频函数，因此我们的先验应该在两组函数上都放置非零质量。在这种情况下，逆伽马分布（Stan语言中的`inv_gamma_lpdf`）会展示其优良的特性，因为它具有一个尖锐的左尾，将微小的长度尺度上的质量降至可以忽略不计，但是具有较厚的右尾，允许较大的长度尺度。逆伽马先验将避免微小的长度尺度，因为在零点时密度为零，因此长度尺度的后验将被推离零点。逆伽马分布是许多避免零点或边界的分布之一。^[避免边界的先验仅是指在边界处密度的极限为零，其结果是估计值被推离边界。]。
+我们可能不需要超出惩罚小长度尺度的约束。我们希望允许高斯过程先验表示高频和低频函数，因此我们的先验应该在两组函数上都放置非零质量。在这种情况下，逆伽马分布（Stan 语言中的`inv_gamma_lpdf`）会展示其优良的特性，因为它具有一个尖锐的左尾，将微小的长度尺度上的质量降至可以忽略不计，但是具有较厚的右尾，允许较大的长度尺度。逆伽马先验将避免微小的长度尺度，因为在零点时密度为零，因此长度尺度的后验将被推离零点。逆伽马分布是许多避免零点或边界的分布之一。^[避免边界的先验仅是指在边界处密度的极限为零，其结果是估计值被推离边界。]。
 
 If we're using the GP as a component in a larger model that includes an overall
 mean and fixed effects for the same variables we're using as the domain for the
@@ -821,7 +820,7 @@ which has an inverse gamma left tail if $p \leq 0$ and an inverse Gaussian
 right tail.  This has not yet been implemented in Stan's math library, but it
 is possible to implement as a user defined function:
 
-在$p \leq 0$的情况下其具有逆伽马分布的左尾，且有逆高斯分布的右尾。目前Stan的数学库还未实现该分布，但是我们可以使用用户自定义函数去实现它：
+在 $p \leq 0$ 的情况下其具有逆伽马分布的左尾，且有逆高斯分布的右尾。目前 Stan 的数学库还未实现该分布，但是我们可以使用用户自定义函数去实现它：
 
 ```stan
 functions {
@@ -852,7 +851,7 @@ our prior on length-scale in the presence of high-frequency covariates.
 However, this statistic is only valid for one-dimensional inputs.
 
 如果我们的固定效应中具有高频的协变量，我们可能希望进一步将高斯过程正则化使其与从高频函数脱离出来，这意味着我们需要惩罚更小的长度尺度。幸运的是，我们有一种有用的方法来思考长度尺度如何影响高斯过程支撑函数的频率。
-假设我们从零均值的高斯过程中重复抽样，其长度尺度参数$\rho$具有固定支撑集$[0,T]$，我们可以得到一个样本穿过零轴次数的分布。该随机变量的期望是$T / \pi\rho$。我们可以看到，随着$\rho$减小，穿越零轴的次数不断增加，而这是因为高斯过程表征了一个高频的函数。因此，在存在高频率协变量的情况下，设置长度尺度先验下限时，这是一个良好的统计量。但是，此统计量仅对一维输入有效。
+假设我们从零均值的高斯过程中重复抽样，其长度尺度参数 $\rho$ 具有固定支撑集 $[0,T]$，我们可以得到一个样本穿过零轴次数的分布。该随机变量的期望是 $T / \pi\rho$。我们可以看到，随着 $\rho$ 减小，穿越零轴的次数不断增加，而这是因为高斯过程表征了一个高频的函数。因此，在存在高频率协变量的情况下，设置长度尺度先验下限时，这是一个良好的统计量。但是，此统计量仅对一维输入有效。
 
 #### Priors for marginal standard deviation {-}
 
@@ -863,13 +862,13 @@ explained by the regression function and has a similar role to the
 prior variance for linear model weights.  This means the prior can be
 the same as used in linear models, such as a half-$t$ prior on $\alpha$.
 
-参数 $\alpha$对应于回归函数解释变异程度的程度，并且在线性模型权重的先验方差中具有类似的作用。这意味着先验可以与线性模型中使用的先验相同，例如半t先验关于$\alpha$。
+参数 $\alpha$ 对应于回归函数解释变异程度的程度，并且在线性模型权重的先验方差中具有类似的作用。这意味着先验可以与线性模型中使用的先验相同，例如半 t 先验关于 $\alpha$。
 
 A half-$t$ or half-Gaussian prior on alpha also has the benefit of putting
 nontrivial prior mass around zero. This allows the GP support the zero
 functions and allows the possibility that the GP won't contribute to the conditional mean of the total output.
 
-半t先验或半高斯先验也具有将非平凡的先验质量分布在零附近的好处。这使得高斯过程支持零函数，并允许高斯过程不对总输出的条件均值做出贡献的可能性。
+半 t 先验或半高斯先验也具有将非平凡的先验质量分布在零附近的好处。这使得高斯过程支持零函数，并允许高斯过程不对总输出的条件均值做出贡献的可能性。
 
 ### Predictive inference with a Gaussian process {-}
 
@@ -956,7 +955,7 @@ observed output vector `y1`.  The unknown output vector `y2`, which
 corresponds to input vector `x2`, is declared in the generated quantities
 block and will be sampled when the model is executed.
 
-输入向量 `x1` 和 `x2` 被声明为数据，观察输出向量`y1` 也同样是数据。未知的输出向量 `y2`，对应于输入向量 `x2`，被声明在生成量（generated quantities）块中，并且在模型执行时会被采样。
+输入向量 `x1` 和 `x2` 被声明为数据，观察输出向量 `y1` 也同样是数据。未知的输出向量 `y2`，对应于输入向量 `x2`，被声明在生成量（generated quantities）块中，并且在模型执行时会被采样。
 
 A transformed data block is used to combine the input vectors
 `x1` and `x2` into a single vector `x`.
@@ -1079,9 +1078,8 @@ is the matrix of covariances between inputs $x$ and $\tilde{x}$, which
 in the case of the exponentiated quadratic covariance function
 would be
 
-其中 $\Sigma = K(x \mid \alpha, \rho, \sigma)$ 是将协方差函数作用在输入 $x$上取得的结果，该输入对应了已观测到的输出值 $y$, $\Omega =
-K(\tilde{x} \mid \alpha, \rho)$ 是协方差函数作用在需要进行预测推断的输入{x}$ 所得结果, $K$
-是输入变量$x$ 和$\tilde{x}$的范数差值形成的协方差矩阵, 若考虑指数二次协方差函数，那么其具体形式可以写作：
+其中 $\Sigma = K(x \mid \alpha, \rho, \sigma)$ 是将协方差函数作用在输入 $x$ 上取得的结果，该输入对应了已观测到的输出值 $y$, $\Omega =
+K(\tilde{x} \mid \alpha, \rho)$ 是协方差函数作用在需要进行预测推断的输入 $\tilde{x}$ 所得结果, $K$ 是输入变量 $x$ 和 $\tilde{x}$ 的范数差值形成的协方差矩阵, 若考虑指数二次协方差函数，那么其具体形式可以写作：
 
 $$
 K(x \mid \alpha, \rho)_{i, j} = \eta^2 \exp\left(-\dfrac{1}{2 \rho^2}
@@ -1091,7 +1089,7 @@ $$
 There is no noise term including $\sigma^2$ because the indexes of
 elements in $x$ and $\tilde{x}$ are never the same.
 
-值得一提的是此处没有噪声项以及 $\sigma^2$ ，这是因为 $x$ 和 $\tilde{x}$中的元素索引不尽相同。
+值得一提的是此处没有噪声项以及 $\sigma^2$ ，这是因为 $x$ 和 $\tilde{x}$ 中的元素索引不尽相同。
 
 This Stan code below uses the analytic form of the posterior and provides
 sampling of the resulting multivariate normal through the Cholesky
@@ -1102,7 +1100,7 @@ generate a draw from the posterior predictive mean conditioned on observed data
 to cut down on the number of matrix-matrix multiplications when computing
 the conditional mean and the conditional covariance of $p(\tilde{y})$.
 
-下面展示了一段Stan代码，其给出了后验分布的解析形式，同时使用Cholesky分解提供了对目标多元正态分布进行抽样的方法。`data`块的声明与我们之前的隐变量的例子相同。我们定义了一个 `gp_pred_rng`函数，它可以基于观测数据$y1$，生成后验预测均值的样本。此代码在三角求解中使用 Cholesky 分解，以减少在计算条件均值和条件协方差$p(\tilde{y})$时所需的矩阵乘法的数量。 
+下面展示了一段 Stan 代码，其给出了后验分布的解析形式，同时使用 Cholesky 分解提供了对目标多元正态分布进行抽样的方法。`data` 块的声明与我们之前的隐变量的例子相同。我们定义了一个 `gp_pred_rng` 函数，它可以基于观测数据 $y1$，生成后验预测均值的样本。此代码在三角求解中使用 Cholesky 分解，以减少在计算条件均值和条件协方差 $p(\tilde{y})$ 时所需的矩阵乘法的数量。 
 
 ```stan
 functions {
@@ -1199,7 +1197,7 @@ Suppose we have observations $y_i \in \mathbb{R}^M$ observed at
 $x_i \in \mathbb{R}^K$. One can model the data like so:
 
 假设我们有观测 $y_i \in \mathbb{R}^M$ 其与
-$x_i \in \mathbb{R}^K$对应。 我们可以如下进行建模:
+$x_i \in \mathbb{R}^K$ 对应。 我们可以如下进行建模:
 \begin{align*}
 y_i  &\sim \textsf{multivariate normal}\left(f(x_i), \textbf{I}_M \sigma^2\right) \\
 f(x) &\sim \textsf{GP}\big(m(x), K(x \mid \theta, \phi)\big) \\
@@ -1212,9 +1210,9 @@ covariance between $f_m(x)$ and $f_{m^\prime}(x^\prime)(x)$. This construction
 of Gaussian processes allows us to learn the covariance between the output
 dimensions of $f(x)$. If we parameterize our kernel $K$:
 
-其中 $K(x, x^\prime \mid \theta, \phi)_{[m, m^\prime]}$ 的元素定义了 $f_m(x)$ 与 $f_{m^\prime}(x^\prime)$之间的协方差。
+其中 $K(x, x^\prime \mid \theta, \phi)_{[m, m^\prime]}$ 的元素定义了 $f_m(x)$ 与 $f_{m^\prime}(x^\prime)$ 之间的协方差。
 这种高斯过程的结构为我们研究输出值不同维度之间的协方差提供了可能。
-我们对核函数 $K$进行如下参数化:
+我们对核函数 $K$ 进行如下参数化:
 $$
 K(x, x^\prime \mid \theta, \phi)_{[m, m^\prime]} = k\left(x, x^\prime \mid
 \theta\right) k\left(m, m^\prime \mid \phi\right)
@@ -1239,10 +1237,10 @@ The matrix normal distribution has two covariance matrices: $K(x \mid
 covariance. The salient features of the matrix normal are that the rows
 of the matrix $f$ are distributed:
 
-其中 $K(x \mid \alpha, \rho)$ 是指数二次核函数，$C(\phi)$是被$\phi$参数化的一个正定矩阵。
+其中 $K(x \mid \alpha, \rho)$ 是指数二次核函数，$C(\phi)$ 是被 $\phi$ 参数化的一个正定矩阵。
 
 矩阵正态分布具有两个协方差矩阵： $K(x \mid
-\alpha, \rho)$ 编码了列间协方差，  $C(\phi)$ 编码了行间协方差。 矩阵正态最重要的特性如下：
+\alpha, \rho)$ 编码了列间协方差，$C(\phi)$ 编码了行间协方差。 矩阵正态最重要的特性如下：
 $f$ 的行向量如下分布：
 $$
 f_{[n,]} \sim \textsf{multivariate normal}\big(m(x)_{[n,]}, K(x \mid \alpha,
@@ -1264,19 +1262,19 @@ is $\operatorname{trace}(C) \times K(x \mid \alpha, \rho)$. We can derive this u
 properties of expectation and the matrix normal density.
 
 这意味着 $\mathbb{E}\left[f^T f\right]=\operatorname{trace}\!\big(K(x \mid \alpha, \rho)\big) \times C$, 同时 $\mathbb{E}\left[ff^T\right]$
-等于 $\operatorname{trace}(C) \times K(x \mid \alpha, \rho)$我们可以通过期望的性质和矩阵正态密度的性质得到上述结果。
+等于 $\operatorname{trace}(C) \times K(x \mid \alpha, \rho)$ 我们可以通过期望的性质和矩阵正态密度的性质得到上述结果。
 
 We should set $\alpha$ to $1.0$ because the parameter is not identified unless
 we constrain $\operatorname{trace}(C) = 1$. Otherwise, we can multiply $\alpha$ by a scalar $d$ and
 $C$ by $1/d$ and our likelihood will not change.
 
-我们应该将 $\alpha$ 设为 $1.0$ ，因为只有约束 $\operatorname{trace}(C) = 1$ 该参数才可识别。否则，我们对$\alpha$ 乘常数$d$同时对
+我们应该将 $\alpha$ 设为 $1.0$ ，因为只有约束 $\operatorname{trace}(C) = 1$ 该参数才可识别。否则，我们对 $\alpha$ 乘常数 $d$ 同时对
 $C$ 乘 $1/d$，我们的似然函数不会改变。
 
 We can generate a random variable $f$ from a matrix normal density in
 $\mathbb{R}^{N \times M}$ using the following algorithm:
 
-我们可以用如下的算法从矩阵正态中生成随机变量$f$ ：
+我们可以用如下的算法从矩阵正态中生成随机变量 $f$：
 \begin{align*}
 \eta_{i,j} &\sim \textsf{normal}(0, 1) \, \forall i,j \\
 f          &= L_{K(x \mid 1.0, \rho)} \, \eta \, L_C(\phi)^T \\
@@ -1289,7 +1287,7 @@ L_{K(x \mid 1.0, \rho)} &= \texttt{cholesky}\mathtt{\_}\texttt{decompose}\big(K(
 This can be implemented in Stan using a latent-variable GP formulation. We've used
 $\textsf{LKJCorr}$ for $C(\phi)$, but any positive-definite matrix will do.
 
-我们可以使用Stan中的隐变量高斯过程中的模型来实现上述过程。我们用
+我们可以使用 Stan 中的隐变量高斯过程中的模型来实现上述过程。我们用
 $\textsf{LKJCorr}$ 来处理 $C(\phi)$，事实上任何正定矩阵均可。
 
 

@@ -14,9 +14,9 @@ need normalized to perform variational inference or do optimizations. The advant
 of working with unnormalized distributions is they can make computation quite a
 bit cheaper.
 
-在MCMC、变分推理或优化问题的对数密度计算中，需要评估似然或先验的一部分，
+在 MCMC、变分推理或优化问题的对数密度计算中，需要评估似然或先验的一部分，
 通常只需要计算到成常数比例的函数(或者类似地计算到相差常数的对数密度).
-在MCMC中，这是因为被采样的分布不需要归一化(因此忽略的是归一化常数).
+在 MCMC 中，这是因为被采样的分布不需要归一化(因此忽略的是归一化常数).
 类似地，当进行变分推理或优化时，所需要的分布也不需要归一化.
 而使用非归一化分布的好处是，它们可以使计算成本大大降低.
 
@@ -25,7 +25,7 @@ to select between them is by determining if the proportionality constants are
 necessary. If performance is not a problem, it is always safe to use the normalized
 densities.
 
-在Stan中的发行版有中有三种不同的语法.
+在 Stan 中的发行版有中有三种不同的语法.
 我们可以根据问题是否需要比例常数，来选择不同的语法.
 如果性能不是问题，使用归一化密度总是谨慎的.
 
@@ -50,7 +50,7 @@ target += normal_lpdf(x | 0, 1);
 For discrete distributions, the `target +=` syntax is `_lupmf` and `_lpmf`
 instead:
 
-对于离散分布，`target +=`语法应为`_lupmf`与`_lpmf`:
+对于离散分布，`target +=` 语法应为 `_lupmf` 与 `_lpmf`:
 
 ```stan
 y ~ bernoulli(0.5);
@@ -67,24 +67,24 @@ the factors that are a not a function of $\theta$ and $g(\theta)$ are all the
 terms that are a function of $\theta$, then it is said that $g(\theta)$
 is proportional to $p(\theta)$ up to a constant.
 
-如果一个密度$p(\theta)$可以分解成$K g(\theta)$，
-其中$K$是一个不含$\theta$的常数，
-而$g(\theta)$是$\theta$所有函数关系的项，
-那么可以说$g(\theta)$与$p(\theta)$成正比，相差一个常数.
+如果一个密度 $p(\theta)$ 可以分解成 $K g(\theta)$，
+其中 $K$ 是一个不含 $\theta$ 的常数，
+而 $g(\theta)$ 是 $\theta$ 所有函数关系的项，
+那么可以说 $g(\theta)$ 与 $p(\theta)$ 成正比，相差一个常数.
 
 The advantage of all this is that sometimes $K$ is expensive to compute and if
 it is not a function of the distribution that is to be sampled (or optimized or
 approximated with variational inference), there is no need to compute it
 because it will not affect the results.
 
-所有这一切的优点是，有时$K$的计算成本很高，
-如果它不是要采样的分布的函数(或用变分推理优化或近似)，
+所有这一切的优点是，有时 $K$ 的计算成本很高，
+如果它不是要采样的分布的函数（或用变分推理优化或近似），
 则不需要计算它，因为它不会影响结果.
 
 Stan takes advantage of the proportionality constant fact with the `~` syntax.
 Take for instance the normal likelihood:
 
-Stan正是通过`~`语法利用了比例常数的不影响结果的事实.
+Stan 正是通过 `~` 语法利用了比例常数的不影响结果的事实.
 以正态似然为例:
 
 ```stan
@@ -103,8 +103,8 @@ model {
 Syntactically, this is just shorthand for the equivalent model that replaces the
 `~` syntax with a `target +=` statement and a `normal_lupdf` function call:
 
-在语法上，通过带有`target += `语句
-和` normal_lupdf `函数调用的` ~ `语法达成替换的等价模型的简写:
+在语法上，通过带有 `target +=` 语句
+和 `normal_lupdf` 函数调用的 `~` 语法达成替换的等价模型的简写:
 
 ```stan
 data {
@@ -138,8 +138,8 @@ Now because the density here is only a function of $x$, the additive terms in
 the log density that are not a function of $x$ can be dropped. In this case it
 is enough to know only the quadratic term:
 
-因为这里的密度只是$x$的函数，
-所以对数密度中与$x$无关的附加项可以去掉.
+因为这里的密度只是 $x$ 的函数，
+所以对数密度中与 $x$ 无关的附加项可以去掉.
 在这种情况下，只知道二次项就足够了:
 
 $$
@@ -158,9 +158,9 @@ always be safe to include it. Only use the `~` or `target += normal_lupdf`
 syntaxes if it is absolutely clear that the proportionality constants are not
 necessary.
 
-在正态对数密度需要比例常数的情况下，可以使用函数`normal_lpdf`.
+在正态对数密度需要比例常数的情况下，可以使用函数 `normal_lpdf`.
 为了清楚起见，如果在某种情况下不清楚是否有必要进行归一化，那么将其包含进来应该总是谨慎的.
-只有在绝对清楚不需要比例常数的情况下才使用`~`或`target += normal_lupdf`语法.
+只有在绝对清楚不需要比例常数的情况下才使用 `~` 或 `target += normal_lupdf` 语法.
 
 ## User-defined Distributions 
 
@@ -172,8 +172,8 @@ It is only possible to define custom distributions in the normalized
 form in Stan. Any attempt to define an unnormalized distribution directly will
 result in an error.
 
-当定义自定义`_lpdf`或`_lpmf`函数时，编译器将自动提供该函数的`_lupdf`或`_lupmf`版本。
-在Stan中只能以归一化的形式定义自定义分布.
+当定义自定义 `_lpdf` 或 `_lpmf` 函数时，编译器将自动提供该函数的 `_lupdf` 或 `_lupmf` 版本。
+在 Stan 中只能以归一化的形式定义自定义分布.
 任何直接定义非归一化分布的尝试都会导致错误.
 
 The difference in the normalized and unnormalized versions of custom probability
@@ -213,12 +213,12 @@ model {
 
 ## Limitations on Using `_lupdf` and `_lupmf` Functions 
 
-## 使用`_lupdf`和`_lupmf`函数的限制
+## 使用 `_lupdf` 和 `_lupmf` 函数的限制
 
 To avoid ambiguities in how the normalization constants work, functions ending
 in `_lupdf` and `_lupmf` can only be used in the model block or user-defined
 probability functions (functions ending in `_lpdf` or `_lpmf`).
 
 为了避免规范化常量如何工作的歧义，
-以`_lupdf`和`_lupmf`结尾的函数只能在模型块或用户定义的概率函数(以`_lpdf`或`_lpmf`结尾的函数)中使用.
+以 `_lupdf` 和 `_lupmf` 结尾的函数只能在模型块或用户定义的概率函数(以 `_lpdf` 或 `_lpmf` 结尾的函数)中使用.
 

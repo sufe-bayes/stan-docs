@@ -10,7 +10,7 @@ estimate the model and the test data is used for evaluation.  Held-out
 evaluation is commonly used to declare winners in predictive modeling
 competitions such as those run by [Kaggle](https://kaggle.com).
 
-Held-out评估包括将数据集分成两部分，
+Held-out 评估包括将数据集分成两部分，
 其中一个训练数据集和另一个测试数据集.
 训练数据集用于估计模型，而测试数据集用于对模型进行评价.
 在[Kaggle](https://kaggle.com)举办的预测建模竞赛中，
@@ -23,7 +23,7 @@ partitioning the data set into several equally-sized subsets and then
 using each subset in turn as the test data with the other folds as
 training data.
 
-交叉验证涉及通过以不同方式划分单个数据集来执行重复的Held-out评估.
+交叉验证涉及通过以不同方式划分单个数据集来执行重复的 Held-out 评估.
 训练/测试分割可以通过随机选择测试集来完成，
 也可以通过将数据集划分为几个大小相等的子集，
 然后依次使用每个子集作为测试数据，其他轮流作为训练数据.
@@ -33,7 +33,7 @@ of predictive statistics, with common choices being the predictive log
 density on test data, squared error of parameter estimates, or accuracy
 in a classification task.
 
-Held -out评估和交叉验证可能涉及任何类型的预测统计量，
+Held-out 评估和交叉验证可能涉及任何类型的预测统计量，
 常见的选择是测试数据的预测对数密度、参数估计的均方误差或分类任务的准确性.
 
 ## Evaluating posterior predictive densities  {#evaluating-posterior-predictive.section}
@@ -44,8 +44,8 @@ Given training data $(x, y)$ consisting of parallel sequences of
 predictors and observations and test data $(\tilde{x}, \tilde{y})$ of
 the same structure, the posterior predictive density is
 
-假设训练数据$(x, y)$由预测因子和观测值的平行序列组成，
-测试数据$(\tilde{x}， \tilde{y})$具有相同的结构，则后验预测密度为
+假设训练数据 $(x, y)$ 由预测因子和观测值的平行序列组成，
+测试数据 $(\tilde{x}， \tilde{y})$ 具有相同的结构，则后验预测密度为
 
 $$
 p(\tilde{y} \mid \tilde{x}, x, y)
@@ -60,8 +60,8 @@ where $\theta$ is the vector of model parameters.  This predictive
 density is the density of the test observations, conditioned on both
 the test predictors $\tilde{x}$ and the training data $(x, y)$.
 
-其中$\theta$为模型的参数向量.
-该预测密度是测试观测值的密度，给定测试预测因子$\tilde{x}$和训练数据$(x, y)$的条件密度.
+其中 $\theta$ 为模型的参数向量.
+该预测密度是测试观测值的密度，给定测试预测因子 $\tilde{x}$ 和训练数据 $(x, y)$ 的条件密度.
 
 This integral may be calculated with Monte Carlo methods as usual,
 
@@ -75,7 +75,7 @@ $$
 where the $\theta^{(m)} \sim p(\theta \mid x, y)$ are draws from the
 posterior given only the training data $(x, y).$
 
-其中$\theta^{(m)} \sim p(\theta \mid x, y)$是从只给出训练数据$(x, y)$的后验中得出的.
+其中 $\theta^{(m)} \sim p(\theta \mid x, y)$ 是从只给出训练数据 $(x, y)$ 的后验中得出的.
 
 To avoid underflow in calculations, it will be more stable
 to compute densities on the log scale.  Taking the logarithm and
@@ -119,11 +119,11 @@ subtracting the maximum, the terms $\mu_m - \textrm{max}(\mu) \leq 0$,
 and thus will not overflow.
 
 将最大值取出保留了所有的精度.
-通过减去最大值，项$\mu_m - \textrm{max}(\mu) \leq 0$，因此不会溢出.
+通过减去最大值，项 $\mu_m - \textrm{max}(\mu) \leq 0$，因此不会溢出.
 
 ### Stan program  
 
-### Stan程序  
+### Stan 程序  
 
 To evaluate the log predictive density of a model, it suffices to
 implement the log predictive density of the test data in the generated quantities
@@ -133,15 +133,13 @@ outside of Stan using the posterior draws of $\log p(\tilde{y} \mid \tilde{x},
 
 要评估模型的对数预测密度，
 只需在生成量块中实现测试数据的对数预测密度即可.
-指数对数和计算完成的必须在Stan的外部使用 
-$\log p(\tilde{y} \mid \tilde{x},\theta^{(m)})$后验绘图.
+指数对数和计算完成的必须在 Stan 的外部使用 $\log p(\tilde{y} \mid \tilde{x},\theta^{(m)})$ 后验绘图.
 
 Here is the code for evaluating the log posterior predictive density
 in a simple linear regression of the test data $\tilde{y}$ given
 predictors $\tilde{x}$ and training data $(x, y).$
 
-以下是在给定预测因子$\tilde{x}$和训练数据$(x, y)$
-的简单线性回归中评估测试数据$\tilde{y}$的对数后验预测密度的代码
+以下是在给定预测因子 $\tilde{x}$ 和训练数据 $(x, y)$ 的简单线性回归中评估测试数据 $\tilde{y}$ 的对数后验预测密度的代码
 
 ```stan
 data {
@@ -172,20 +170,19 @@ the test data during training.  Although this model does not do so,
 it would be fair to use `x_tilde` in the model block---only the
 test observations `y_tilde` are unknown before they are predicted.
 
-模型块中只使用训练数据`x`和`y`.
-测试数据`y_tilde`和测试预测器`x_tilde`只出现在生成的数量块中.
+模型块中只使用训练数据 `x` 和 `y`.
+测试数据 `y_tilde` 和测试预测器 `x_tilde` 只出现在生成的数量块中.
 因此，该程序不会在训练期间使用测试数据进行作弊.
-虽然这个模型没有这样做，但在模型块中使用`x_tilde`是公平的
-——只有测试观察`y_tilde`在预测之前是未知的.
+虽然这个模型没有这样做，但在模型块中使用 `x_tilde` 是公平的
+——只有测试观察 `y_tilde` 在预测之前是未知的.
 
 Given $M$ posterior draws from Stan, the sequence `log_p[1:M]` will be
 available, so that the log posterior predictive density of the test
 data given training data and predictors is just `log_sum_exp(log_p) -
 log(M)`.
 
-给定来自Stan的$M$后验绘图，序列`log_p[1:M]`将可用，
-因此给定训练数据和预测器的测试数据的对数后验预测密度只是
-`log_sum_exp(log_p) - log(M)`.
+给定来自 Stan 的 $M$ 后验绘图，序列 `log_p[1:M]` 将可用，
+因此给定训练数据和预测器的测试数据的对数后验预测密度只是 `log_sum_exp(log_p) - log(M)`.
 
 ## Estimation error  
 
@@ -203,7 +200,7 @@ difference between the prediction and the true value,
 
 通常考虑对未知参数的估计.
 如果估计参数的数据来自模拟数据，则可以知道参数的真实值.
-如果$\theta$是真实值，$\hat{\theta}$是估计值，那么误差就是预测值和真实值之间的差值，
+如果 $\theta$ 是真实值，$\hat{\theta}$ 是估计值，那么误差就是预测值和真实值之间的差值，
 
 $$
 \textrm{err} = \hat{\theta} - \theta.
@@ -244,7 +241,7 @@ these properties.
 
 贝叶斯后验意味着最小化期望平方误差，
 而后验中位数最小化期望绝对误差.
-基于众数而不是概率的估计，例如(惩罚的)最大似然估计或最大后验估计，则不具有这些属性.
+基于众数而不是概率的估计，例如（惩罚的）最大似然估计或最大后验估计，则不具有这些属性.
 
 ### Predictive estimates 
 
@@ -260,7 +257,7 @@ error* (MSE),
 除了参数之外，还可以估计其他未知量，
 例如足球比赛的比分或对受试者进行医疗治疗的效果.
 在这些情况下，平方误差以相同的方式定义.
-如果估计有多个可交换结果，$z_1， \ldots, z_N$，那么通常会报告*均方误差* (MSE)，
+如果估计有多个可交换结果，$z_1， \ldots, z_N$，那么通常会报告*均方误差* （MSE），
 $$
 \textrm{mse}
 = \frac{1}{N} \sum_{n = 1}^N \left( \hat{z}_n - z_n\right)^2.
@@ -276,16 +273,16 @@ $$
 
 ### Predictive estimates in Stan 
 
-### Stan中的预测估计 
+### Stan 中的预测估计 
 
 Consider a simple linear regression model, parameters for the
 intercept $\alpha$ and slope $\beta$, along with predictors
 $\tilde{x}_n$.  The standard Bayesian estimate is the expected value
 of $\tilde{y}$ given the predictors and training data,
 
-考虑一个简单的线性回归模型，截距$\alpha$和斜率$\beta$的参数，以及预测因子
+考虑一个简单的线性回归模型，截距 $\alpha$ 和斜率 $\beta$ 的参数，以及预测因子
 $\tilde{x}_n$.
-标准贝叶斯估计是给定预测因子和训练数据的$\tilde{y}$的期望值，
+标准贝叶斯估计是给定预测因子和训练数据的 $\tilde{y}$ 的期望值，
 \begin{eqnarray*}
 \hat{\tilde{y}}_n
 & = & \mathbb{E}[\tilde{y}_n \mid \tilde{x}_n, x, y]
@@ -294,14 +291,14 @@ $\tilde{x}_n$.
 \end{eqnarray*}
 where $\tilde{y}_n^{(m)}$ is drawn from the sampling distribution
 
-其中$\tilde{y}_n^{(m)}$是从抽样分布中抽取的
+其中 $\tilde{y}_n^{(m)}$ 是从抽样分布中抽取的
 $$
 \tilde{y}_n^{(m)}
 \sim p(\tilde{y}_n \mid \tilde{x}_n, \alpha^{(m)}, \beta^{(m)}),
 $$
 for parameters $\alpha^{(m)}$ and $\beta^{(m)}$ drawn from the posterior,
 
-对于取自后验的参数$\alpha^{(m)}$和$\beta^{(m)}$，
+对于取自后验的参数 $\alpha^{(m)}$和$\beta^{(m)}$，
 $$
 (\alpha^{(m)}, \beta^{(m)}) \sim p(\alpha, \beta \mid x, y).
 $$
@@ -312,7 +309,7 @@ estimator. First, rather than averaging samples $\tilde{y}_n^{(m)}$,
 the same result is obtained by averaging linear predictions,
 
 在线性回归的情况下，可以进行两个阶段的简化，第一个阶段有助于减少估计量的方差.
-首先，不是平均样本$\tilde{y}_n^{(m)}$，而是通过平均线性预测获得相同的结果，
+首先，不是平均样本 $\tilde{y}_n^{(m)}$，而是通过平均线性预测获得相同的结果，
 \begin{eqnarray*}
 \hat{\tilde{y}}_n
 & = & \mathbb{E}\left[
@@ -337,9 +334,9 @@ $\tilde{y}_n^{(m)}$ is the same as $\alpha^{(m)} + \beta^{(m)} \cdot
 its expectation is a general variance reduction technique for Monte
 Carlo estimates known as *Rao-Blackwellization* [@Rao:1945; @Blackwell:1947].
 
-正态分布的误差是对称的，因此$\tilde{y}_n^{(m)}$的期望
-和$\alpha^{(m)} + \beta^{(m)} \cdot \tilde{x}_n$是一样的.
-用期望代替采样量$\tilde{y}_n^{(m)}$是蒙特卡罗估计的一般方差减少技术，
+正态分布的误差是对称的，因此 $\tilde{y}_n^{(m)}$ 的期望
+和 $\alpha^{(m)} + \beta^{(m)} \cdot \tilde{x}_n$ 是一样的.
+用期望代替采样量 $\tilde{y}_n^{(m)}$ 是蒙特卡罗估计的一般方差减少技术，
 称为*Rao-Blackwellization* [@Rao:1945; @Blackwell:1947].
 
 In the linear case, because the predictor is linear in the
@@ -366,7 +363,7 @@ In Stan, only the first of the two steps (the important variance
 reduction step) can be coded in the object model.  The linear
 predictor is defined in the generated quantities block.
 
-在Stan中，只有两个步骤中的第一步(重要的方差缩减步骤)可以在对象模型中编码.
+在 Stan 中，只有两个步骤中的第一步（重要的方差缩减步骤）可以在对象模型中编码.
 线性预测器在生成数量块中定义.
 ```stan
 data {
@@ -384,7 +381,7 @@ estimate $\hat{\tilde{y}}.$  The posterior median may also be
 calculated and used as an estimate, though square error and the
 posterior mean are more commonly reported.
 
-Stan计算的`tilde_y`的后验均值是贝叶斯估计$\hat{\tilde{y}}.$
+Stan 计算的 `tilde_y` 的后验均值是贝叶斯估计 $\hat{\tilde{y}}.$
 后验中位数也可以被计算并用作估计，尽管平方误差和后验均值更常被报告.
 
 
@@ -405,7 +402,7 @@ leave-one-out (LOO) cross-validation [@VehtariEtAl:2017].
 这可以通过划分数据并依次使用每个子集作为测试集，
 其余子集作为训练数据来实现.
 通常将分区分成十个子集以减少计算成本.
-在极限情况下，当测试集只有一个项目时，结果被称为留一(LOO)交叉验证[@VehtariEtAl:2017].
+在极限情况下，当测试集只有一个项目时，结果被称为留一（LOO）交叉验证[@VehtariEtAl:2017].
 
 Partitioning the data and reusing the partitions is very fiddly in the
 indexes and may not lead to even divisions of the data. It's far
@@ -417,18 +414,18 @@ with a balanced block partition.
 对数据进行分区和重用分区在索引中非常繁琐，
 可能不会导致数据的均匀划分.
 使用随机分区要容易得多，它支持任意大小的测试/训练分割，
-并且可以很容易地在Stan中实现.缺点是结果估计的方差比使用平衡块分区的方差要大.
+并且可以很容易地在 Stan 中实现.缺点是结果估计的方差比使用平衡块分区的方差要大.
 
 ### Stan implementation with random folds
 
-### 用随机折叠的Stan实现
+### 用随机折叠的 Stan 实现
 
 For the simple linear regression model, randomized cross-validation
 can be implemented in a single model.  To randomly permute a vector in
 Stan, the simplest approach is the following.
 
 对于简单的线性回归模型，可以在单个模型中实现随机交叉验证.
-在Stan中随机排列一个向量，最简单的方法如下
+在 Stan 中随机排列一个向量，最简单的方法如下
 ```stan
 functions {
   array[] int permutation_rng(int N) {
@@ -454,18 +451,17 @@ through an array of integers exchanging each item with another randomly chosen
 item, resulting in a uniformly drawn permutation of the integers
 `1:N`.^[The traditional approach is to walk through a vector and replace each item with a random element from the remaining elements, which is guaranteed to only move each item once. This was not done here as it'd require new categorical `theta` because Stan does not have a uniform discrete RNG built in.]
 
-函数名必须以`_rng`结尾，因为它在内部使用其他随机函数.
+函数名必须以 `_rng` 结尾，因为它在内部使用其他随机函数.
 这将限制其用于转换数据和生成数量块.
-该代码遍历一个整数数组，将每个项与另一个随机选择的项交换，从而得到整数的统一排列
-`1:N`.^[传统的方法是遍历一个向量，并用剩余元素中的随机元素替换每一项，
-这样可以保证每一项只移动一次.这里没有这样做，因为它需要新的分类`theta`，
-因为Stan没有统一的离散RNG内置.]
+该代码遍历一个整数数组，将每个项与另一个随机选择的项交换，从而得到整数的统一排列 `1:N`.^[传统的方法是遍历一个向量，并用剩余元素中的随机元素替换每一项，
+这样可以保证每一项只移动一次.这里没有这样做，因为它需要新的分类 `theta`，
+因为 Stan 没有统一的离散 RNG 内置.]
 
 The transformed data block uses the permutation RNG to generate
 training data and test data by taking prefixes and suffixes of the
 permuted data.
 
-转换后的数据块使用置换RNG通过获取置换数据的前缀和后缀来生成训练数据和测试数据.
+转换后的数据块使用置换 RNG 通过获取置换数据的前缀和后缀来生成训练数据和测试数据.
 ```stan
 data {
   int<lower=0> N;
@@ -486,9 +482,8 @@ Recall that in Stan, `permutation[1:N_train]` is an array of integers,
 so that `x[permutation[1 : N_train]]` is a vector defined for `i in 1:N_train`
 by
 
-回想一下，在Stan中，
-`permutation[1:N_train]`是一个整数数组，
-因此`x[permutation[1 : N_train]]`是由`i in 1:N_train`定义的向量
+回想一下，在 Stan 中，`permutation[1:N_train]` 是一个整数数组，
+因此 `x[permutation[1 : N_train]]` 是由 `i in 1:N_train` 定义的向量
 ```stan
 x[permutation[1 : N_train]][i] = x[permutation[1:N_train][i]]
                                = x[permutation[i]]
@@ -515,7 +510,7 @@ The prediction `y_test_hat` is defined in the generated quantities
 block using the general form involving all uncertainty.  The posterior
 of this quantity corresponds to using a posterior mean estimator,
 
-预测`y_test_hat`在生成的数量块中使用涉及所有不确定性的一般形式定义.
+预测 `y_test_hat` 在生成的数量块中使用涉及所有不确定性的一般形式定义.
 这个量的后验值对应于使用后验均值估计量，
 
 \begin{eqnarray*}
@@ -530,7 +525,7 @@ linear, the posterior mean of `err` as defined in the Stan program
 will be the error of the posterior mean estimate,
 
 因为测试集是常数，期望算子是线性的，
-所以Stan程序中定义的`err`的后验均值将是后验均值估计的误差，
+所以 Stan 程序中定义的 `err` 的后验均值将是后验均值估计的误差，
 
 \begin{eqnarray*}
   \hat{y}^{\textrm{test}} - y^{\textrm{test}}
@@ -563,7 +558,7 @@ program because neither is a linear function and the result of
 averaging squares is not the same as squaring an average in general.
 
 这只是计算误差;取绝对值或平方将计算绝对误差和均方误差.
-请注意，绝对值和平方操作*不*应该在Stan程序中完成，
+请注意，绝对值和平方操作*不*应该在 Stan 程序中完成，
 因为两者都不是线性函数，并且平均平方的结果与一般平均的平方不一样.
 
 Because the test set size is chosen for convenience in
@@ -584,7 +579,7 @@ data block instead of the transformed data block and read it in as
 data.  This allows an external program to control the blocking,
 allowing non-random partitions to be evaluated.
 
-在数据块中声明变量`permutation`而不是转换后的数据块
+在数据块中声明变量 `permutation` 而不是转换后的数据块
 并将其作为数据读入是很简单的.
 这允许外部程序控制分组，允许评估非随机划分.
 
@@ -652,4 +647,4 @@ documented and implemented in the R package loo [@GabryEtAl:2019].
 @VehtariEtAl:2017 引入一种方法，
 该方法仅使用来自单个模型拟合的数据点日志似然，
 以较低的成本逼近留一交叉验证的评估.
-该方法在R包 loo 中有文档记录和实现[@GabryEtAl:2019].
+该方法在 R 包 loo 中有文档记录和实现[@GabryEtAl:2019].
