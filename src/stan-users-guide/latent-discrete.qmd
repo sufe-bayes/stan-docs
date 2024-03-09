@@ -210,6 +210,7 @@ described in the text.
 
 单变点模型，其中灾害率`D[t]`在变点之前为一个速率`e`，在变点之后为一个不同的速率`l`。变点本身`s`被边际化处理，如文中所述。
 
+
 Although the change-point model is coded directly, the doubly nested
 loop used for `s` and `t` is quadratic in `T`.  Luke Wiklendt pointed
 out that a linear alternative can be achieved by the use of dynamic
@@ -1128,6 +1129,7 @@ The model is based on three parameters, the first of which is discrete:
 * $z_i$：取值为 $\{1, \dotsc, K\}$ 的变量，表示项目 $i$ 的真实类别，
 * $\pi$：$K$-simplex，表示人群中 $K$ 个类别的流行度分布，
 * $\theta_{j,k}$：$K$-simplex，表示评级者 $j$ 对真实类别为 $k$ 的项目的反应。
+
 
 ### Noisy measurement model {-}
 

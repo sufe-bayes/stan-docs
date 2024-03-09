@@ -512,6 +512,7 @@ That's why so much attention must be devoted to indexing and binning.
 
 通常，在处理可视化离散数据时必须格外小心，因为由于默认情况下计算边界的方式，很容易在边缘引入逐个错误和伪影。这就是为什么必须对索引和分箱投入如此多的关注。
 
+
 ## Examples of simulation-based calibration
 
 ## 基于模拟的校准示例

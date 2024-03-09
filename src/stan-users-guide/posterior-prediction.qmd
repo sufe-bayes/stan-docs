@@ -412,7 +412,7 @@ Event probabilities involving either parameters or predictions or both
 may be coded in the generated quantities block.  For example, to
 evaluate $\Pr[\lambda > 5 \mid y]$ in the simple Poisson
 example with only a rate parameter $\lambda$, it suffices to define a
-generated quantity  
+generated quantity
 
 涉及参数或预测的事件概率可以在生成的量块中进行编码。例如，在只有速率参数 $\lambda$ 的简单泊松模型中评估 $\textrm{Pr}[\lambda > 5 \mid y]$，只需要定义一个生成的量：
 

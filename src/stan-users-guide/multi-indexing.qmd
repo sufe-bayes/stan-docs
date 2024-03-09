@@ -270,6 +270,7 @@ at element 5 of `a` and includes a total of 3 elements.
 将设置 b 等于 { a[5], a[6], a[7] }，因此它从a的第5个元素开始，包括了总共3个元素。
 
 
+
 ## Multiple indexing on the left of assignments
 
 Multiple expressions may be used on the left-hand side of an

@@ -322,6 +322,7 @@ informative prior that scales with the outcome will do.
 然而，如在[QR 重参数化章节](#QR-reparameterization.section)所述，如果你对回归系数的*位置*参数先验信息不足，那么最好对模型进行重参数化，使得回归系数成为输出量。在这种情况下，通常对重参数化后的回归系数使用何种先验并不重要，几乎任何随着结果变化的弱信息先验都可以使用。
 
 
+
 ## Robust noise models
 
 ## 鲁棒噪声模型
@@ -479,7 +480,7 @@ y[n] ~ bernoulli(Phi_approx(alpha + beta * x[n]));
 
 Multiple outcome forms of logistic regression can be coded directly in
 Stan.  For instance, suppose there are $K$ possible outcomes for each
-output variable $y_n$.  Also suppose that there is a $D$ -dimensional
+output variable $y_n$.  Also suppose that there is a $D$-dimensional
 vector $x_n$ of predictors for $y_n$.  The multi-logit model with
 $\textsf{normal}(0,5)$ priors on the coefficients is coded as follows.
 
@@ -541,6 +542,8 @@ used above is equivalent to writing
 ```stan
 y[n] ~ categorical(softmax(x[n] * beta));
 ```
+
+
 
 #### Constraints on data declarations {-}
 
@@ -1188,6 +1191,7 @@ parameter (1P) for questions and uses the logistic link function (L).
 
 The 1PL item-response model（一参数 logistic 模型，也称为 Rasch 模型）是一种经典的项目反应理论模型，该模型假设每个问题只有一个参数，且使用了 logistic 链接函数（L）。
 
+
 The model parameters are declared as follows.
 
 模型参数的声明如下：
@@ -1400,6 +1404,7 @@ and the scale variables are constrained to $(0,\infty)$ by their
 declarations.
 
 截距项 `mu_beta` 本身不能被分层建模，因此它被赋予了一个弱信息先验 $\textsf{Cauchy}(0,5)$。类似地，尺度项 `sigma_beta` 和 `sigma_gamma` 被赋予半柯西先验。如上所述，为了确保可识别性，`alpha` 的尺度和位置是固定的。半柯西先验的截断是隐式的；不需要显式截断，因为对数概率只需计算比例，并且尺度变量的声明将其约束在 $(0,\infty)$ 范围内。
+
 
 ## Priors for identifiability {#priors-for-identification.section}
 

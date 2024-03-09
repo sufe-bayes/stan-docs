@@ -530,7 +530,7 @@ raggedly.
 
 虽然函数 `f` 通常返回大小为1的向量，但内置的灵活性允许映射一般的多元函数，甚至可以是不规则的。
 
-### Map function semantics {-}
+#### Map function semantics {-}
 
 #### 映射函数定义 {-}
 
@@ -565,7 +565,7 @@ into Stan to provide a map-reduce implementation.
 
 下面示例将有助于理解映射操作的用法，以及如何将其与 Stan 中内置的归约结合起来，提供一个映射-归约实现。
 
-### Unmapped logistic regression 
+#### Unmapped logistic regression {-}
 
 #### 未映射的逻辑回归 {-}
 
@@ -600,7 +600,7 @@ inverse logit function to map the argument to a probability.
 
 这个程序的特别之处在于：(a) 硬编码了数据的大小，这对于映射函数来说并不是必需的，只是为了简单起见；(b) 将预测变量表示为实值数组，即使它需要被用作向量；(c) 将回归系数（截距和斜率）表示为向量，尽管它们是分别使用的。使用 bernoulli_logit 分布是因为参数在 logit 尺度上，它隐式地应用了逆 logit 函数将参数映射为概率。
 
-### Mapped logistic regression {-}
+#### Mapped logistic regression {-}
 
 #### 例子：映射的逻辑回归 {-}
 
@@ -878,6 +878,7 @@ model {
                          
 }
 ```
+
 
 The model as written here computes the priors for each group's
 parameters along with the likelihood contribution for the group.  An

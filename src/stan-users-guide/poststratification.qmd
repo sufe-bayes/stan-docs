@@ -104,13 +104,14 @@ $$
 Plugging in our estimates and population counts yields
 
 将我们的估计和人口数量代入公式，我们得到结果：
-$$
+
+\begin{eqnarray*}
 \phi*
 & = & \frac{0.25 \cdot 20\,000 + 0.4 \cdot 5\,000 + 0.8 \cdot 2\,000}
            {20\,000 + 5\,000 + 2\,000}
 \\[4pt] & = & \frac{8\,600}{27\,000}
 \\[4pt] & \approx & 0.32.
-$$
+\end{eqnarray*}
 
 ## Bayesian poststratification
 
@@ -170,7 +171,7 @@ histogram.
 
 后验抽样值 $\phi^{(m)}$ 描述了整个人口中对问题的预期支持。这些抽样值可用于估计预期支持（$\phi^{(m)}$ 的平均值）、后验间隔（$\phi^{(m)}$ 的分位数）或绘制直方图。
 
-## Poststratification in Stan 
+## Poststratification in Stan
 
 ## Stan中的事后分层
 
@@ -325,7 +326,8 @@ $$
 The other regression parameters can be given hierarchical priors,
 
 其他回归参数可以给定层次先验，
-$$
+
+\begin{eqnarray*}
 \beta_{1:4} & \sim & \textrm{normal}(0, \sigma^{\beta})
 \\[2pt]
 \gamma_{1:2} & \sim & \textrm{normal}(0, \sigma^{\gamma})
@@ -333,7 +335,9 @@ $$
 \delta_{1:5} & \sim & \textrm{normal}(0, \sigma^{\delta})
 \\[2pt]
 \epsilon_{1:50} & \sim & \textrm{normal}(0, \sigma^{\epsilon})
-$$
+\end{eqnarray*}
+
+
 The hyperparameters for scale of variation within a group can
 be given simple standard hyperpriors,
 

@@ -199,7 +199,7 @@ appropriately capturing the variance of the data.
 
 这次，原始数据与所有复制数据集形成鲜明对比，所有复制数据集都明显比原始数据更对称且方差更小。也就是说，该模型未能很好地捕获到数据的方差。
 
-## Posterior ''p-values''
+## Posterior ``p-values''
 
 ## 后验“p值”
 
@@ -219,8 +219,7 @@ $$
 \cdot p\left( y^{\textrm{rep}} \mid y \right)
 \, \textrm{d}{y^{\textrm{rep}}}.
 $$
-
-It is important to note that''p-values'' is in quotes because these
+It is important to note that``p-values'' is in quotes because these
 statistics are not classically calibrated, and thus will not in
 general have a uniform distribution even when the model is well
 specified [@BayarriBerger:2000].
@@ -686,7 +685,7 @@ are retained.
 ### 先验预测模型 {-}
 
 The prior predictive model simply drops the data component of the
-posterior predictive model. 
+posterior predictive model.
 
 先验预测模型只是简单地去掉了后验预测模型中的数据部分。
 

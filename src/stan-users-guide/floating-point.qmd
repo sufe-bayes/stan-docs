@@ -463,6 +463,7 @@ $$
 =
 \max(u, v) + \log\big( \exp(u - \max(u, v)) + \exp(v - \max(u, v)) \big).
 $$
+
 Because the terms inside the exponentiations are $u - \max(u, v)$ and
 $v - \max(u, v)$, one will be zero and the other will be negative.
 Because the operation is symmetric, it may be assumed without loss of

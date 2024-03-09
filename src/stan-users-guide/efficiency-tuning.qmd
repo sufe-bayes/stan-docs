@@ -1123,7 +1123,7 @@ model {
 ```
 
 
-## Vectorization 
+## Vectorization
 
 ## 向量化
 
@@ -1140,7 +1140,7 @@ parameters or transformed parameters.^[Stan uses its own arena-based allocation,
 
 Stan花费了大部分时间计算对数概率函数的梯度, 因此梯度是优化的明显目标。Stan使用算 法微分进行的梯度计算需要为涉及参数或转换参数的Stan程序的每个子表达式分配和构造一 个模板表达式。^[Stan使用自己的基于区域的分配，因此分配和解除分配比原始调用`new`更快。]本节定义了基于向量化这些子表达式以减少算法微分期间所做的工作量的优化策略。
 
-### Vectorizing summations  {-}
+### Vectorizing summations {-}
 
 ### 向量化求和 {-}
 
@@ -1336,7 +1336,7 @@ better to encapsulate it as a single matrix/vector multiplication.
 
 通常, 执行循环工作的封装单个操作在其封装形式中更有效。与执行一系列行向量/向量乘法 相比, 更好的方法是将其封装为单个矩阵/向量乘法。
 
-### Vectorized probability functions  {-}
+### Vectorized probability functions {-}
 
 ### 向量化的概率函数 {-}
 
@@ -1437,7 +1437,7 @@ should be faster.
 
 这种方式, `mu`和`sigma`参数都是共享的。哪种方式更有效取决于数据的形状; 如果规模较 小, 则简单的向量化可能更快, 但对于中等到大型, 完全展开应该更快。
 
-## Exploiting sufficient statistics 
+## Exploiting sufficient statistics
 
 ## 利用充分统计量
 
@@ -1513,7 +1513,7 @@ should be counted once in the transformed data block and stored.
 
 得到的程序看起来像是一个"加权"回归，但这里的权重`f[k]`是计数，因此是 PMF 的充分统计量，并仅相当于相同似然性的另一种更有效的编码。为了效率，应在转换数据块中计算一次频率 `f[k]` 并存储它们。
 
-## Aggregating common subexpressions 
+## Aggregating common subexpressions
 
 ## 聚合常见子表达式
 
@@ -1544,7 +1544,7 @@ Then the sum can be replaced with `a_b[ii[n], jj[n]]`.
 
 然后可以用`a_b[ii[n], jj[n]]`替换总和。
 
-## Exploiting conjugacy 
+## Exploiting conjugacy
 
 ## 利用共轭性
 
@@ -1563,7 +1563,7 @@ defined to be `sum(y)` could be used in the place of `sum(y)`.
 
 为了使模型更加高效，可以使用定义为 `sum(y)`的变换数据变量来代替 `sum(y)`。
 
-## Standardizing predictors and outputs 
+## Standardizing predictors and outputs
 
 ## 标准化预测变量和输出变量
 
@@ -1834,7 +1834,9 @@ the transformed model, to
 y_std ~ normal(alpha_std + beta_std * x_std, sigma_std);
 ```
 
-### Standard normal distribution 标准正态分布 {-}
+### Standard normal distribution {-}
+
+### 标准正态分布 {-}
 
 For many applications on the standard scale, normal distributions with
 location zero and scale one will be used.  In these cases, it is more
@@ -1857,7 +1859,7 @@ cancel, as does subtracting the log of the scale.
 
 因为位置的减法和除以比例的方法 互相抵消，就像减去尺度的对数一样。
 
-## Using map-reduce 
+## Using map-reduce
 
 ## 使用map-reduce
 

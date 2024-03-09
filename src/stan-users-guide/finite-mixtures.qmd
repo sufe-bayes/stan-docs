@@ -19,9 +19,9 @@ be used as priors for other parameters.
 
 有限混合模型中,我们假设最终的结果是从几个不同的分布中抽取出来的,而从哪个具体的分布中抽取,是由一个分类的混合分布模型来决定的。混合模型通常具有多峰密度，其峰值接近混合成分的峰值。混合模型可以通过多种方式进行参数化，以下各节所述。混合模型可以用于直接建模具有多峰分布的数据，也可以用作其他参数的先验。
 
-## Relation to clustering
+## Relation to clustering {#clustering-mixture.section}
 
-## 与聚类的关系
+## 与聚类的关系 {#clustering-mixture.section--cn}
 
 Clustering models, as discussed in the [clustering
 chapter](clustering.qmd), are just a particular class of mixture
@@ -63,6 +63,7 @@ of the mixture component $z_n$,
 $$
 y_n \sim \textsf{normal}(\mu_{z[n]},\sigma_{z[n]}).
 $$
+
 This model is not directly supported by Stan because it involves
 discrete parameters $z_n$, but Stan can sample $\mu$ and $\sigma$
 by summing out the $z$ parameter as described in the next section.
@@ -101,6 +102,7 @@ log scale.  It is defined for two inputs by
 $$
 \texttt{log}\mathtt{\_}\texttt{sum}\mathtt{\_}\texttt{exp}(a, b) = \log \left(\exp(a) + \exp(b)\right).
 $$
+
 If $a$ and $b$ are probabilities on the log scale, then $\exp(a) +
 \exp(b)$ is their sum on the linear scale, and the outer log converts
 the result back to the log scale; to summarize, log_sum_exp does

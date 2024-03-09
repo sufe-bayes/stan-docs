@@ -2,7 +2,7 @@
 pagetitle: Held-Out Evaluation and Cross-Validation
 ---
 
-# Held-Out Evaluation and Cross-Validation 
+# Held-Out Evaluation and Cross-Validation
 
 # 自动评估与交叉验证
 
@@ -40,7 +40,7 @@ in a classification task.
 Held-out 评估和交叉验证可能涉及任何类型的预测统计量，
 常见的选择是测试数据的预测对数密度、参数估计的均方误差或分类任务的准确性.
 
-## Evaluating posterior predictive densities  {#evaluating-posterior-predictive.section}
+## Evaluating posterior predictive densities {#evaluating-posterior-predictive.section}
 
 ## 评估后验预测密度  {#evaluating-posterior-predictive.section--cn}
 
@@ -62,7 +62,7 @@ $$
 
 where $\theta$ is the vector of model parameters.  This predictive
 density is the density of the test observations, conditioned on both
-the test predictors $\tilde{x}$ and the training data $(x, y)$.
+the test predictors $\tilde{x}$ and the training data $(x, y).$
 
 其中 $\theta$ 为模型的参数向量.
 该预测密度是测试观测值的密度，给定测试预测因子 $\tilde{x}$ 和训练数据 $(x, y)$ 的条件密度.
@@ -188,7 +188,7 @@ log(M)`.
 给定来自 Stan 的 $M$ 后验绘图，序列 `log_p[1:M]` 将可用，
 因此给定训练数据和预测器的测试数据的对数后验预测密度只是 `log_sum_exp(log_p) - log(M)`.
 
-## Estimation error  
+## Estimation error
 
 ## 估计误差  
 
@@ -389,7 +389,7 @@ Stan 计算的 `tilde_y` 的后验均值是贝叶斯估计 $\hat{\tilde{y}}.$
 后验中位数也可以被计算并用作估计，尽管平方误差和后验均值更常被报告.
 
 
-## Cross-validation 
+## Cross-validation
 
 ## 交叉验证 
 

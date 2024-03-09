@@ -152,7 +152,8 @@ $K(x \mid \theta) = K(x + \epsilon \mid \theta)$.
 指数二次协方差函数中涉及输入 $x_i$ 和 $x_j$ 的唯一项是它们的向量差，即 $x_i - x_j$。这产生了一个具有平稳协方差的过程，也就是说，如果将输入向量 $x$ 沿着向量 $\epsilon$ 移动到 $x+\epsilon$，输出成对的任何协方差都不会改变，因为 $K(x \mid \theta) = K(x + \epsilon \mid \theta)$。
 
 The summation involved is just the squared Euclidean distance between
-$x_i$ and $x_j$ (i.e., the $L_2$ norm of their difference, $x_i -x_j$). This results in support for smooth functions in the process.
+$x_i$ and $x_j$ (i.e., the $L_2$ norm of their difference, $x_i -
+x_j$). This results in support for smooth functions in the process.
 The amount of variation in the function is controlled by the free
 hyperparameters $\alpha$, $\rho$, and $\sigma$.
 
@@ -723,6 +724,7 @@ model {
 }
 ```
 
+
 ### Priors for Gaussian process parameters {- #priors-gp.section}
 
 ### 高斯过程的先验参数 {- #priors-gp.section--cn}
@@ -840,6 +842,7 @@ data {
   // ...
 }
 ```
+
 If we have high-frequency covariates in our fixed effects, we may wish to
 further regularize the GP away from high-frequency functions, which means we'll
 need to penalize smaller length-scales. Luckily, we have a useful way of
@@ -870,7 +873,8 @@ the same as used in linear models, such as a half-$t$ prior on $\alpha$.
 
 A half-$t$ or half-Gaussian prior on alpha also has the benefit of putting
 nontrivial prior mass around zero. This allows the GP support the zero
-functions and allows the possibility that the GP won't contribute to the conditional mean of the total output.
+functions and allows the possibility that the GP won't contribute to the
+conditional mean of the total output.
 
 半 t 先验或半高斯先验也具有将非平凡的先验质量分布在零附近的好处。这使得高斯过程支持零函数，并允许高斯过程不对总输出的条件均值做出贡献的可能性。
 
@@ -953,6 +957,7 @@ generated quantities {
   }
 }
 ```
+
 
 The input vectors `x1` and `x2` are declared as data, as is the
 observed output vector `y1`.  The unknown output vector `y2`, which
@@ -1053,6 +1058,7 @@ generated quantities {
   }
 }
 ```
+
 
 #### Analytical form of joint predictive inference {-}
 

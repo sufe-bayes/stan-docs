@@ -95,6 +95,7 @@ elements and the right-hand side version pulls out the first $N-1$.
 
 左侧的切片操作取出向量后 $N-1$ 个元素，右侧的是取出向量前 $N-1$ 个元素。
 
+
 ### Extensions to the AR(1) model {-}
 
 ### AR(1) 模型拓展

@@ -164,6 +164,7 @@ option built into all of the Stan interfaces.
 
 上述从 $\mathbb{R}^n$ 到 $S^n$ 的映射在零点处无定义。虽然在抽样过程中这一点的测度为零，可以忽略不计，但它是默认的初始化点，因此单位向量参数不能在零点初始化。一个简单的解决方法是从零点周围的一个小区间进行初始化，这是 Stan 所有接口内置的一个选项。
 
+
 ## Unit vectors and rotations
 
 ## 单位向量和旋转

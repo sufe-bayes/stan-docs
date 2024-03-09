@@ -62,7 +62,7 @@ target += bernoulli_lupmf(y | 0.5);
 target += bernoulli_lpmf(y | 0.5);
 ```
 
-## Dropping Proportionality Constants 
+## Dropping Proportionality Constants
 
 ## 不考虑比例常数的情况
 
@@ -151,7 +151,7 @@ $$
 -\frac{1}{2} \left( \frac{x - \mu}{\sigma} \right)^2
 $$
 
-## Keeping Proportionality Constants 
+## Keeping Proportionality Constants
 
 ## 考虑比例常数的情况
 
@@ -166,7 +166,7 @@ necessary.
 为了清楚起见，如果在某种情况下不清楚是否有必要进行归一化，那么将其包含进来应该总是谨慎的.
 只有在绝对清楚不需要比例常数的情况下才使用 `~` 或 `target += normal_lupdf` 语法.
 
-## User-defined Distributions 
+## User-defined Distributions
 
 ## 用户定义的分布
 
@@ -215,7 +215,7 @@ model {
 }
 ```
 
-## Limitations on Using `_lupdf` and `_lupmf` Functions 
+## Limitations on Using `_lupdf` and `_lupmf` Functions
 
 ## 使用 `_lupdf` 和 `_lupmf` 函数的限制
 
