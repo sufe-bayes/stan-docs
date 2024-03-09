@@ -7,7 +7,7 @@
 This chapter provides pointers as to how to choose among the various
 matrix, vector, and array data structures provided by Stan.
 
-本章节说明了如何选择Stan支持的数据结构，包括各类矩阵、向量和数组等。
+本章节说明了如何选择 Stan 支持的数据结构，包括各类矩阵、向量和数组等。
 
 ## Basic motivation
 
@@ -19,7 +19,7 @@ and `matrix`.  Then Stan allows arrays to be of any dimension and
 contain any type of element (though that type must be declared and
 must be the same for all elements).
 
-Stan提供两种基本的标量类型：整数`int`和实数`real`，以及三种基本的线性代数类型：列向量`vector`、行向量`row_vector`和矩阵`matrix`。Stan中数组可以是任意维度的，且能包含任何类型的元素(但必须事先声明类型，并且所有元素都为该类型)。
+Stan 提供两种基本的标量类型：整数 `int` 和实数 `real`，以及三种基本的线性代数类型：列向量 `vector`、行向量 `row_vector` 和矩阵 `matrix`。Stan 中数组可以是任意维度的，且能包含任何类型的元素（但必须事先声明类型，并且所有元素都为该类型）。
 
 This leaves us in the awkward situation of having three
 one-dimensional containers, as exemplified by the following
@@ -46,7 +46,7 @@ produces a matrix.
 The following code fragment shows all four ways to declare a
 two-dimensional container of size $M \times N$.
 
-下面的代码片段展示了声明大小为$M \times N$的二维变量的所有方法。
+下面的代码片段展示了声明大小为 $M \times N$ 的二维变量的所有方法。
 
 ```stan
 array[M, N] real b;          // b[m] : array[] real     (efficient)
@@ -62,13 +62,13 @@ efficiently iterate over row vectors is to use the third declaration,
 but if you need linear algebra on matrices, but the only way to use
 matrix operations is to use the fourth declaration.
 
-这些选择的主要区别在于各种方法的效率和`b[m]`的类型，声明右侧的注释中有说明。可见有效遍历行向量的唯一方法是第三种声明；如果需要矩阵类型以进行线性代数运算，那么唯一方法是使用第四个声明。
+这些选择的主要区别在于各种方法的效率和 `b[m]` 的类型，声明右侧的注释中有说明。可见有效遍历行向量的唯一方法是第三种声明；如果需要矩阵类型以进行线性代数运算，那么唯一方法是使用第四个声明。
 
 The inefficiencies due to any manual reshaping of containers is
 usually slight compared to what else is going on in a Stan program
 (typically a lot of gradient calculations).
 
-但与Stan程序中进行的其他操作（通常是大量的梯度计算）相比，任何手动重塑多维变量所导致的低效通常是可以忽略不计的。
+但与 Stan 程序中进行的其他操作（通常是大量的梯度计算）相比，任何手动重塑多维变量所导致的低效通常是可以忽略不计的。
 
 
 ## Fixed sizes and indexing out of bounds
@@ -82,14 +82,14 @@ and the container is instantiated.  Also, declarations may be inside
 loops and thus may change over the course of running a program, but
 each time a declaration is visited, it declares a fixed size object.
 
-Stan的矩阵、向量和数组变量需要在声明时确定维数，不能动态调整。函数参数不指定维数，但是这些维数大小在调用函数和实例化变量时被固定。此外，声明可能在循环中，因此可能在程序运行过程中发生变化，但是每次访问声明时，得到一个固定大小的对象。
+Stan 的矩阵、向量和数组变量需要在声明时确定维数，不能动态调整。函数参数不指定维数，但是这些维数大小在调用函数和实例化变量时被固定。此外，声明可能在循环中，因此可能在程序运行过程中发生变化，但是每次访问声明时，得到一个固定大小的对象。
 
 When an index is provided that is out of bounds, Stan throws a
 rejection error and computation on the current log density and
 gradient evaluation is halted and the algorithm is left to clean up
 the error.  All of Stan's containers check the sizes of all indexes.
 
-当索引超出边界时，Stan抛出拒绝错误，停止当前对数密度和梯度的计算，并启用算法来清除错误。Stan会检查所有变量的索引的大小。
+当索引超出边界时，Stan 抛出拒绝错误，停止当前对数密度和梯度的计算，并启用算法来清除错误。Stan 会检查所有变量的索引的大小。
 
 
 ## Data type and indexing efficiency {#indexing-efficiency.section}
@@ -101,7 +101,7 @@ terms of data types from the Eigen C++ library.  By having vectors
 and matrices as basic types, no conversion is necessary when invoking
 matrix operations or calling linear algebra functions.
 
-底层的矩阵和线性代数运算是根据Eigen、c++库的数据类型实现的。将向量和矩阵作为基本类型，在调用矩阵操作或线性代数函数时不需要进行数据类型的转换。
+底层的矩阵和线性代数运算是根据 Eigen、c++ 库的数据类型实现的。将向量和矩阵作为基本类型，在调用矩阵操作或线性代数函数时不需要进行数据类型的转换。
 
 Arrays, on the other hand, are implemented as instances of the C++ \
 `std::vector` class (not to be confused with Eigen's
@@ -109,7 +109,7 @@ Arrays, on the other hand, are implemented as instances of the C++ \
 this way, indexing is  efficient because values can be returned by
 reference rather than copied by value.
 
-另一方面，数组是通过C++`std::vector`类的实例实现的（不要与Eigen的`Eigen:: vector`类或Stan的向量混淆）。通过这种方式实现数组，索引是有效的，因为值可以通过引用返回，而不是值复制。
+另一方面，数组是通过 C++ `std::vector` 类的实例实现的（不要与 Eigen 的 `Eigen:: vector` 类或 Stan 的向量混淆）。通过这种方式实现数组，索引是有效的，因为值可以通过引用返回，而不是值复制。
 
 ### Matrices vs.\ two-dimensional arrays {-}
 
@@ -119,7 +119,7 @@ In Stan models, there are a few minor efficiency considerations in
 deciding between a two-dimensional array and a matrix, which may seem
 interchangeable at first glance.
 
-在Stan模型中，乍一看二维数组和矩阵似乎可以互换，但在选择二维数组或矩阵时有一些有关效率的细节。
+在 Stan 模型中，乍一看二维数组和矩阵似乎可以互换，但在选择二维数组或矩阵时有一些有关效率的细节。
 
 First, matrices use a bit less memory than two-dimensional arrays.
 This is because they don't store a sequence of arrays, but just the
@@ -136,7 +136,7 @@ hand, only guarantee that the values of primitive types are contiguous
 in memory; otherwise, they hold copies of their values (which are
 returned by reference wherever possible).
 
-其次，矩阵以列为主顺序存储数据，且矩阵中数据在内存中保存位置连续，对于优化代码来说这是一个重要的考虑因素，因为将数据从内存读入缓存比使用CPU执行算术运算时间成本要昂贵得多。另一方面，数组只保证基本类型的值在内存中是连续的；否则，它们保存其值的副本（在可能的情况下通过引用返回）。
+其次，矩阵以列为主顺序存储数据，且矩阵中数据在内存中保存位置连续，对于优化代码来说这是一个重要的考虑因素，因为将数据从内存读入缓存比使用 CPU 执行算术运算时间成本要昂贵得多。另一方面，数组只保证基本类型的值在内存中是连续的；否则，它们保存其值的副本（在可能的情况下通过引用返回）。
 
 Third, both data structures are best traversed in the order in which
 they are stored.  This also helps with memory locality.  This is
@@ -172,7 +172,7 @@ for (m in 1:M) {
 The first use of `a[m ,n]` should bring `a[m]` into memory.
 Overall, traversing matrices is more efficient than traversing arrays.
 
-第一次使用`a[m,n]`会将`a[m]`调用进内存。总的来说，遍历矩阵比遍历数组更有效。
+第一次使用 `a[m,n]` 会将 `a[m]` 调用进内存。总的来说，遍历矩阵比遍历数组更有效。
 
 This is true even for arrays of matrices.  For example, the ideal
 order in which to traverse a two-dimensional array of matrices is
@@ -198,7 +198,7 @@ If `a` is a matrix, the notation `a[m]` picks out row
 matrices.  If indexing of vectors is needed, it is much better to
 declare an array of vectors.  That is, this
 
-如果`a`是一个矩阵，符号`a[m]`表示矩阵的第`m`行。对于矩阵来说，这是一个非常低效的操作。如果需要索引向量，最好声明一个向量数组，也就是：
+如果 `a` 是一个矩阵，符号 `a[m]` 表示矩阵的第 `m` 行。对于矩阵来说，这是一个非常低效的操作。如果需要索引向量，最好声明一个向量数组，也就是：
 
 ```stan
 array[M] row_vector[N] b;
@@ -223,7 +223,7 @@ for (m in 1:M) {
 Similarly, indexing an array of column vectors is more efficient than
 using the `col` function to pick out a column of a matrix.
 
-类似地，选取矩阵列时，索引列向量数组比使用`col`函数更有效。
+类似地，选取矩阵列时，索引列向量数组比使用 `col` 函数更有效。
 
 In contrast, whatever can be done as pure matrix algebra will be the
 fastest.  So if I want to create a row of predictor-coefficient
@@ -270,7 +270,7 @@ vectors, row vectors and one-dimensional arrays.  The
 containers of `double` values (the type `real` in Stan).
 Only arrays in Stan are allowed to store integer values.
 
-只需要高维变量时，列向量、行向量和一维数组都可以使用。`Eigen::Vector`模板特化和`std:: Vector`模板类的实现类似于`double`值的多维变量(Stan中的`real`类型)。Stan中只有数组才允许存储整数值。
+只需要高维变量时，列向量、行向量和一维数组都可以使用。`Eigen::Vector` 模板特化和 `std:: Vector` 模板类的实现类似于 `double` 值的多维变量(Stan 中的 `real` 类型)。Stan 中只有数组才允许存储整数值。
 
 
 ## Memory locality
@@ -293,7 +293,7 @@ operations.  The only way to make container operations fast is to
 respect memory locality and access elements that are close together in
 memory sequentially in the program.
 
-计算机CPU通过缓存层以块的形式将数据读入内存。从内存中读取数据比运算要慢*得多*。使多维变量操作加快的唯一方法是遵循内存局部性，让程序依次访问内存中邻近的元素。
+计算机 CPU 通过缓存层以块的形式将数据读入内存。从内存中读取数据比运算要慢*得多*。使多维变量操作加快的唯一方法是遵循内存局部性，让程序依次访问内存中邻近的元素。
 
 ### Matrices {-}
 
@@ -301,7 +301,7 @@ memory sequentially in the program.
 
 Matrices are stored internally in column-major order.  That is, an $M
 \times N$ matrix stores its elements in the order
-矩阵存储时以列为主顺序。也就是说，一个$M \times N$维的矩阵存储元素的顺序是
+矩阵存储时以列为主顺序。也就是说，一个 $M \times N$ 维的矩阵存储元素的顺序是
 $$
 (1,1), (2, 1), \dotsc, (M, 1), (1, 2), \dotsc, (M, 2), \dotsc, (1, N),
 \dotsc, (M, N).
@@ -342,7 +342,7 @@ for (m in 1:M) {
 Even if what is done involves a function call, the row vector
 `a[m]` will not have to be copied.
 
-即使操作涉及函数调用，行向量`a[m]`也无需复制。
+即使操作涉及函数调用，行向量 `a[m]` 也无需复制。
 
 ### Arrays {-}
 
@@ -367,7 +367,7 @@ dimensional array are not necessarily adjacent in memory, so there are
 no guarantees on iterating over all the elements in a two-dimensional
 array will provide memory locality across the "rows."
 
-数组与矩阵的不同之处在于，二维数组中的条目`a[m]`在内存中不一定相邻，因此不能保证遍历二维数组中的所有元素能够提供“行”间的内存局部性。
+数组与矩阵的不同之处在于，二维数组中的条目 `a[m]` 在内存中不一定相邻，因此不能保证遍历二维数组中的所有元素能够提供“行”间的内存局部性。
 
 ## Converting among matrix, vector, and array types
 
@@ -382,27 +382,27 @@ reference manual for a complete list of conversion operators and the
 [multi-indexing chapter](#multi-indexing.chapter) for some reshaping
 operations involving multiple indexing and range indexing.
 
-Stan没有矩阵、向量和数组之间的自动转换。但是有很多转换函数可以将矩阵转换为向量、将多维数组转换为一维数组、或将向量转换为数组。有关转换操作符的完整列表，请参阅函数参考手册中的混合矩阵和数组操作一节；有关涉及多个索引和范围索引的一些重塑操作，请参阅[多索引章节](#multi-indexing.chapter)。
+Stan 没有矩阵、向量和数组之间的自动转换。但是有很多转换函数可以将矩阵转换为向量、将多维数组转换为一维数组、或将向量转换为数组。有关转换操作符的完整列表，请参阅函数参考手册中的混合矩阵和数组操作一节；有关涉及多个索引和范围索引的一些重塑操作，请参阅[多索引章节](#multi-indexing.chapter)。
 
 
 ## Aliasing in Stan containers
 
-## Stan中多维变量的混叠
+## Stan 中多维变量的混叠
 
 Stan expressions are all evaluated before assignment happens, so there
 is no danger of so-called aliasing in array, vector, or matrix
 operations.  Contrast the behavior of the assignments to `u` and
 `x`, which start with the same values.
 
-Stan表达式都在赋值之前求值，因此不存在数组、向量或矩阵操作混叠的危险。对比对`u`和`x`赋值的操作，二者有相同初值。
+Stan 表达式都在赋值之前求值，因此不存在数组、向量或矩阵操作混叠的危险。对比对 `u` 和 `x` 赋值的操作，二者有相同初值。
 
 The loop assigning to `u` and the compound slicing assigning to `x`.
 
-对`u`进行循环赋值，对`x`进行复合切片赋值。
+对 `u` 进行循环赋值，对 `x` 进行复合切片赋值。
 
  the following trivial Stan program.
 
-以下是个简单的Stan程序。
+以下是个简单的 Stan 程序。
 
 ```stan
 transformed data {
@@ -434,4 +434,4 @@ define subsequent values;  in the sliced expression assigning to
 `x`, the entire right-hand side is evaluated before assigning to
 the left-hand side.
 
-结果不同是由于：在赋值给`u`的循环中，值在用于定义后续值之前被更新；在对`x`赋值的切片表达式中，在对左侧赋值之前，对整个右侧进行求值。
+结果不同是由于：在赋值给 `u` 的循环中，值在用于定义后续值之前被更新；在对 `x` 赋值的切片表达式中，在对左侧赋值之前，对整个右侧进行求值。
