@@ -7,8 +7,8 @@
 Stan supports a direct encoding of reparameterizations.
 Stan also supports changes of variables by directly incrementing the
 log probability accumulator with the log Jacobian of the transform.
-Stan支持直接对重参数化进行编码。
-Stan还支持通过直接增加变换的对数Jacobian到对数概率累加器来进行变量转换。
+Stan 支持直接对重参数化进行编码。
+Stan 还支持通过直接增加变换的对数 Jacobian 到对数概率累加器来进行变量转换。
 
 ## Theoretical and practical background
 
@@ -25,7 +25,7 @@ function in $\mathbb{R}^N \rightarrow \mathbb{R}^{+}$.  In practice, this
 means a given model can be represented different ways in Stan, and
 different representations have different computational performances.
 
-然而，Stan的建模语言定义了一个概率*密度*，它是一个非唯一的、与参数化相关的函数，定义在$\mathbb{R}^N \rightarrow \mathbb{R}^{+}$上。实际上，这意味着同一个模型可以在Stan中以不同的方式表示，而不同的表示方式具有不同的计算性能。
+然而，Stan 的建模语言定义了一个概率*密度*，它是一个非唯一的、与参数化相关的函数，定义在 $\mathbb{R}^N \rightarrow \mathbb{R}^{+}$ 上。实际上，这意味着同一个模型可以在 Stan 中以不同的方式表示，而不同的表示方式具有不同的计算性能。
 
 As pointed out by @Gelman:2004 in a paper discussing the
 relation between parameterizations and Bayesian modeling, a change of
@@ -51,16 +51,16 @@ parameters block or just in the model block.
 
 ### Beta and Dirichlet priors {-}
 
-### Beta和Dirichlet先验分布 {-}
+### Beta 和 Dirichlet 先验分布 {-}
 
 The beta and Dirichlet distributions may both be reparameterized from
 a vector of counts to use a mean and total count.
 
-我们可以对Beta分布和Dirichlet分布进行重参数化，将其从计数向量转化为使用均值和总计数的形式。
+我们可以对 Beta 分布和 Dirichlet 分布进行重参数化，将其从计数向量转化为使用均值和总计数的形式。
 
 #### Beta distribution {-}
 
-#### Beta分布 {-}
+#### Beta 分布 {-}
 
 For example, the Beta distribution is parameterized by two positive
 count parameters $\alpha, \beta > 0$.  The following example
@@ -68,7 +68,7 @@ illustrates a hierarchical Stan model with a vector of parameters
 `theta` are drawn i.i.d.\ for a Beta distribution whose
 parameters are themselves drawn from a hyperprior distribution.
 
-例如，Beta分布由两个正计数参数$\alpha,\beta>0$参数化。以下示例说明了一个分层Stan模型，其中参数向量`theta`从超先验分布中绘制出Beta分布，其参数本身也是从超超先验分布中绘制出来的。
+例如，Beta 分布由两个正计数参数 $\alpha,\beta>0$ 参数化。以下示例说明了一个分层 Stan 模型，其中参数向量 `theta` 从超先验分布中绘制出 Beta 分布，其参数本身也是从超超先验分布中绘制出来的。
 
 ```stan
 parameters {
@@ -91,7 +91,7 @@ It is often more natural to specify hyperpriors in terms of
 transformed parameters.  In the case of the Beta, the obvious choice
 for reparameterization is in terms of a mean parameter
 
-更自然的做法是使用转换后的参数来指定超先验。对于Beta分布，显然的重参数化选择是使用均值参数
+更自然的做法是使用转换后的参数来指定超先验。对于 Beta 分布，显然的重参数化选择是使用均值参数
 
 $$
 \phi = \alpha / (\alpha + \beta)
@@ -107,7 +107,7 @@ Following @[GelmanEtAl:2013, Chapter 5] the mean
 gets a uniform prior and the count parameter a Pareto prior with
 $p(\lambda) \propto \lambda^{-2.5}$.
 
-根据@[GelmanEtAl:2013, Chapter 5]的建议，我们对均值参数给出均匀先验分布，对计数参数给出Pareto先验分布$p(\lambda) \propto \lambda^{-2.5}$。
+根据@[GelmanEtAl:2013, Chapter 5]的建议，我们对均值参数给出均匀先验分布，对计数参数给出 Pareto 先验分布 $p(\lambda) \propto \lambda^{-2.5}$。
 
 
 ```stan
@@ -138,7 +138,7 @@ transformed parameters block.  And If their values are not of interest,
 they could instead be defined as local variables in the model as
 follows.
 
-新参数`phi`和`lambda`在参数块中声明，Beta分布的参数`alpha`和`beta`在转换后的参数块中声明和定义。如果它们的值没有太大的意义，也可以直接在模型中定义为本地变量，如下所示。
+新参数 `phi` 和 `lambda` 在参数块中声明，Beta 分布的参数 `alpha` 和 `beta` 在转换后的参数块中声明和定义。如果它们的值没有太大的意义，也可以直接在模型中定义为本地变量，如下所示。
 
 ```stan
 model {
@@ -168,30 +168,30 @@ If the variables `alpha` and `beta` are of interest, they
 can be defined in the transformed parameter block and then used in the
 model.
 
-如果需要使用`alpha`和`beta`这两个变量，可以在`transformed parameter block`中定义，然后在模型中使用。
+如果需要使用 `alpha` 和 `beta` 这两个变量，可以在 `transformed parameter block` 中定义，然后在模型中使用。
 
 
 #### Jacobians not necessary {-}
 
-#### 无需使用Jacobian矩阵{-}
+#### 无需使用 Jacobian 矩阵{-}
 
 Because the transformed parameters are being used, rather than given a
 distribution, there is no need to apply a Jacobian adjustment for the
 transform.  For example, in the beta distribution example,
 `alpha` and `beta` have the correct posterior distribution.
 
-由于使用了转换参数而不是给定分布，因此无需对转换进行Jacobian矩阵调整。例如，在Beta分布示例中，`alpha`和`beta`已经具有正确的后验分布。
+由于使用了转换参数而不是给定分布，因此无需对转换进行 Jacobian 矩阵调整。例如，在 Beta 分布示例中，`alpha` 和 `beta` 已经具有正确的后验分布。
 
 #### Dirichlet priors {-}
 
-#### Dirichlet先验分布{-}
+#### Dirichlet 先验分布{-}
 
 The same thing can be done with a Dirichlet, replacing the mean for
 the Beta, which is a probability value, with a simplex.  Assume there
 are $K > 0$ dimensions being considered ($K=1$ is trivial and $K=2$
 reduces to the beta distribution case).  The traditional prior is
 
-使用Dirichlet分布也可以进行类似的操作，用一个simplex替代Beta分布中的概率值。假设有$K>0$个维度被考虑（$K=1$是微不足道的，$K=2$则简化为Beta分布的情况）。传统的先验分布如下：
+使用 Dirichlet 分布也可以进行类似的操作，用一个 simplex 替代 Beta 分布中的概率值。假设有 $K>0$ 个维度被考虑（$K=1$ 是微不足道的，$K=2$ 则简化为 Beta 分布的情况）。传统的先验分布如下：
 
 ```stan
 parameters {
@@ -211,12 +211,12 @@ This provides essentially $K$ degrees of freedom, one for each
 dimension of `alpha`, and it is not obvious how to specify a
 reasonable prior for `alpha`.
 
-这种方法基本上提供了$K$个自由度，对应于`alpha`的每个维度，而且不太明显如何为`alpha`指定合理的先验分布。
+这种方法基本上提供了 $K$ 个自由度，对应于 `alpha` 的每个维度，而且不太明显如何为 `alpha` 指定合理的先验分布。
 
 An alternative coding is to use the mean, which is a simplex, and a
 total count.
 
-另一种编码方法是使用均值作为狄利克雷分布的参数，而均值本身是一个simplex，还需要指定total count。
+另一种编码方法是使用均值作为狄利克雷分布的参数，而均值本身是一个 simplex，还需要指定 total count。
 
 ```stan
 parameters {
@@ -243,11 +243,11 @@ Now it is much easier to formulate priors, because `phi` is the
 expected value of `theta` and `kappa` (minus `K`) is
 the strength of the prior mean measured in number of prior observations.
 
-现在，因为`phi`是`theta`的期望值，而`kappa`（减去`K`）是先验均值的强度，用起来比较容易。 
+现在，因为 `phi` 是 `theta` 的期望值，而 `kappa`（减去 `K`）是先验均值的强度，用起来比较容易。 
 
 ### Transforming unconstrained priors: probit and logit {-}
 
-###转换无约束先验分布：probit和logit {-}
+###转换无约束先验分布：probit 和 logit {-}
 
 If the variable $u$ has a $\textsf{uniform}(0, 1)$ distribution, then
 $\operatorname{logit}(u)$ is distributed as $\textsf{logistic}(0, 1)$.  This
@@ -256,7 +256,7 @@ for the logistic distribution, so that the logit function itself is
 the inverse CDF and thus maps a uniform draw in $(0, 1)$ to a
 logistically-distributed quantity.
 
-如果变量$u$服从$\textsf{uniform}(0,1)$分布，则$\operatorname{logit}(u)$服从$\textsf{logistic}(0,1)$分布。这是因为逆logit是logistic分布的累积分布函数（CDF），因此logit函数本身是逆CDF，因此将$(0,1)$中的均匀抽样映射到具有logistic分布的量。
+如果变量 $u$ 服从 $\textsf{uniform}(0,1)$ 分布，则 $\operatorname{logit}(u)$ 服从 $\textsf{logistic}(0,1)$ 分布。这是因为逆 logit 是 logistic 分布的累积分布函数（CDF），因此 logit 函数本身是逆 CDF，因此将 $(0,1)$ 中的均匀抽样映射到具有 logistic 分布的量。
 
 Things work the same way for the probit case: if $u$ has a
 $\textsf{uniform}(0, 1)$ distribution, then $\Phi^{-1}(u)$ has a
@@ -264,7 +264,7 @@ $\textsf{normal}(0, 1)$ distribution.  The other way around, if $v$
 has a $\textsf{normal}(0, 1)$ distribution, then $\Phi(v)$ has a
 $\textsf{uniform}(0, 1)$ distribution.
 
-对于probit的情况，情况也是如此：如果$u$服从$\textsf{uniform}(0,1)$分布，则$\Phi^{-1}(u)$服从$\textsf{normal}(0,1)$分布。反之，如果$v$服从$\textsf{normal}(0,1)$分布，则$\Phi(v)$服从$\textsf{uniform}(0,1)$分布。
+对于 probit 的情况，情况也是如此：如果 $u$ 服从 $\textsf{uniform}(0,1)$ 分布，则 $\Phi^{-1}(u)$ 服从 $\textsf{normal}(0,1)$ 分布。反之，如果 $v$ 服从$\textsf{normal}(0,1)$ 分布，则 $\Phi(v)$ 服从 $\textsf{uniform}(0,1)$ 分布。
 
 In order to use the probit and logistic as priors on variables
 constrained to $(0, 1)$, create an unconstrained variable and
@@ -273,7 +273,7 @@ program fragment declares a $(0, 1)$-constrained parameter
 `theta` and gives it a beta prior, then uses it as a parameter in
 a distribution (here using `foo` as a placeholder).
 
-为了将probit和logistic用作约束在$(0,1)$范围内的变量的先验分布，需要创建一个无约束变量并适当地进行转换。以下是一个Stan程序片段，声明了一个$(0,1)$-约束的参数`theta`并赋予其Beta先验分布，然后将其用作分布中的参数（这里使用`foo`作为占位符）。
+为了将 probit 和 logistic 用作约束在 $(0,1)$ 范围内的变量的先验分布，需要创建一个无约束变量并适当地进行转换。以下是一个 Stan 程序片段，声明了一个 $(0,1)$-约束的参数 `theta` 并赋予其 Beta 先验分布，然后将其用作分布中的参数（这里使用 `foo` 作为占位符）。
 
 
 ```stan
@@ -295,12 +295,12 @@ both less than one, then the density on `theta` has a U shape,
 whereas if they are both greater than one, the density of `theta`
 has an inverted-U or more bell-like shape.
 
-如果变量`a`和`b`都是1，则强制`theta`服从均匀分布。如果`a`和`b`都小于1，则`theta`的密度呈U形状，而如果它们都大于1，则`theta`的密度呈倒U形状或更接近钟形。
+如果变量 `a` 和 `b` 都是1，则强制 `theta` 服从均匀分布。如果 `a` 和 `b` 都小于1，则 `theta` 的密度呈 U 形状，而如果它们都大于1，则 `theta` 的密度呈倒 U 形状或更接近钟形。
 
 Roughly the same result can be achieved with unbounded parameters that
 are probit or inverse-logit-transformed.  For example,
 
-使用probit或inverse-logit变换的无界参数也可以实现大致相同的结果。例如，
+使用 probit 或 inverse-logit 变换的无界参数也可以实现大致相同的结果。例如，
 
 ```stan
 parameters {
@@ -328,14 +328,14 @@ flat if `sigma` is one and `mu` is zero, and will be
 U-shaped if `sigma` is larger than one and bell shaped if
 `sigma` is less than one.
 
-在这个模型中，一个无约束的参数`theta_raw`获得一个logistic先验分布，然后定义变换后的参数`theta`为`theta_raw`的inverse logit。在这个参数化中，`inv_logit(mu)`是`theta`的隐含先验分布的均值。如果`sigma`为1且`mu`为0，则`theta`的先验分布将是平坦的，如果`sigma`大于1，则先验分布将呈U形状，如果`sigma`小于1，则呈钟形。
+在这个模型中，一个无约束的参数 `theta_raw` 获得一个 logistic 先验分布，然后定义变换后的参数 `theta` 为 `theta_raw` 的 inverse logit。在这个参数化中，`inv_logit(mu)` 是 `theta` 的隐含先验分布的均值。如果 `sigma` 为1且 `mu` 为0，则 `theta` 的先验分布将是平坦的，如果 `sigma` 大于1，则先验分布将呈 U 形状，如果 `sigma` 小于1，则呈钟形。
 
 When moving from a variable in $(0, 1)$ to a simplex, the same trick
 may be performed using the softmax function, which is a multinomial
 generalization of the inverse logit function.  First, consider a
 simplex parameter with a Dirichlet prior.
 
-当从$(0,1)$的变量转移到simplex时，可以使用softmax函数执行相同的技巧，softmax函数是inverse logit函数的多项式推广。首先，考虑具有Dirichlet先验分布的simplex参数。
+当从 $(0,1)$ 的变量转移到 simplex 时，可以使用 softmax 函数执行相同的技巧，softmax 函数是 inverse logit 函数的多项式推广。首先，考虑具有 Dirichlet 先验分布的 simplex 参数。
 
 ```stan
 parameters {
@@ -355,7 +355,7 @@ distribution is just the distribution of the first component of a
 Dirichlet with parameter vector $[a b]^{\top}$.  To formulate an
 unconstrained prior, the exact same strategy works as for the beta.
 
-现在`a`是一个`K`行的向量，但它具有与beta分布中的`a`和`b`相同的形状特性；beta分布只是具有参数向量$[a b]^{\top}$ 的Dirichlet分布的第一分量的分布。为了制定无限制的先验分布，与beta分布完全相同的策略也适用。
+现在 `a` 是一个 `K` 行的向量，但它具有与 beta 分布中的 `a` 和 `b` 相同的形状特性；beta 分布只是具有参数向量 $[a b]^{\top}$ 的 Dirichlet 分布的第一分量的分布。为了制定无限制的先验分布，与 beta 分布完全相同的策略也适用。
 
 ```stan
 parameters {
@@ -379,7 +379,7 @@ parameters in the prior rather than order $K$.  If no covariance is
 desired, the number of parameters can be reduced back to $K$ using a
 vectorized normal distribution as follows.
 
-为了更方便和更效率，使用多元正态分布及其Cholesky因子参数化。现在通过`softmax(mu)`控制平均值，但我们还可以通过`L_Sigma`控制协方差，代价是先验中的参数数量大约为$K^2$，而不是$K$。如果不需要协方差，可以使用向量化的正态分布将参数数量减少到$K$，具体如下。
+为了更方便和更效率，使用多元正态分布及其 Cholesky 因子参数化。现在通过 `softmax(mu)` 控制平均值，但我们还可以通过 `L_Sigma` 控制协方差，代价是先验中的参数数量大约为 $K^2$，而不是 $K$。如果不需要协方差，可以使用向量化的正态分布将参数数量减少到 $K$，具体如下。
 
 ```stan
 theta_raw ~ normal(mu, sigma);
@@ -387,7 +387,7 @@ theta_raw ~ normal(mu, sigma);
 
 where either or both of `mu` and `sigma` can be vectors.
 
-在这里，`mu`和/或`sigma`可以是向量。
+在这里，`mu` 和/或 `sigma` 可以是向量。
 
 ## Changes of variables
 
@@ -399,7 +399,7 @@ example is the lognormal distribution, which is the distribution of a
 variable $y > 0$ whose logarithm $\log y$ has a normal distribution.
 The distribution is being assigned to $\log y$.
 
-当参数的变换由分布来描述时，需要应用变量变换（changes of variables）。标准教科书例子是对数正态分布，它是一个变量$y>0$的分布，其对数$\log y$具有正态分布。分布被分配给$\log y$。
+当参数的变换由分布来描述时，需要应用变量变换（changes of variables）。标准教科书例子是对数正态分布，它是一个变量 $y>0$ 的分布，其对数 $\log y$ 具有正态分布。分布被分配给 $\log y$。
 
 The change of variables requires an adjustment to the probability to
 account for the distortion caused by the transform. For this to work,
@@ -408,7 +408,7 @@ everywhere in their support. Multivariate changes of variables must
 be injective and differentiable everywhere in their support, and they
 must map $\mathbb{R}^N \rightarrow \mathbb{R}^N$.
 
-变量变换需要对概率进行调整，以考虑变换引起的扭曲。为了使其有效，单变量的变换必须在其支持的每个位置都是单调且可微的。多元变量的变换必须是单射的，并且在其支持的每个位置都是可微的，并且它们必须映射$\mathbb{R}^N \rightarrow \mathbb{R}^N$。
+变量变换需要对概率进行调整，以考虑变换引起的扭曲。为了使其有效，单变量的变换必须在其支持的每个位置都是单调且可微的。多元变量的变换必须是单射的，并且在其支持的每个位置都是可微的，并且它们必须映射 $\mathbb{R}^N \rightarrow \mathbb{R}^N$。
 
 The probability must be scaled by a *Jacobian adjustment* equal to
 the absolute determinant of the Jacobian of the transform. In the
@@ -420,7 +420,7 @@ derivative of the transform.
 In the case of log normals, if $y$'s logarithm is normal with mean
 $\mu$ and deviation $\sigma$, then the distribution of $y$ is given by
 
-在对数正态分布的情况下，如果$y$的对数具有均值为$\mu$和标准差为$\sigma$的正态分布，则$y$的分布由以下公式给出：
+在对数正态分布的情况下，如果 $y$ 的对数具有均值为 $\mu$ 和标准差为 $\sigma$ 的正态分布，则 $y$ 的分布由以下公式给出：
 
 $$
 p(y)
@@ -429,7 +429,7 @@ p(y)
 $$
 Stan works on the log scale to prevent underflow, where
 
-Stan在对数尺度上工作，以防止下溢，其中
+Stan 在对数尺度上工作，以防止下溢，其中
 
 $$
 \log p(y)
@@ -443,7 +443,7 @@ accumulator is incremented with the log absolute derivative of the
 transform.  The lognormal distribution can thus be implemented
 directly in Stan as follows.^[This example is for illustrative purposes only; the recommended way to implement the lognormal distribution in Stan is with the built-in `lognormal` probability function; see the functions reference manual for details.]
 
-在Stan中，可以在抽样语句中应用变量变换。为了调整曲率，对数概率累加器将增加变换的对数绝对导数。因此，可以直接在Stan中实现对数正态分布，如下所示。^[此示例仅用于说明目的；在Stan中实现对数正态分布的推荐方法是使用内置的`lognormal`概率函数；有关详细信息，请参见函数参考手册。]
+在 Stan 中，可以在抽样语句中应用变量变换。为了调整曲率，对数概率累加器将增加变换的对数绝对导数。因此，可以直接在 Stan 中实现对数正态分布，如下所示。^[此示例仅用于说明目的；在 Stan 中实现对数正态分布的推荐方法是使用内置的 `lognormal` 概率函数；有关详细信息，请参见函数参考手册。]
 
 ```stan
 parameters {
@@ -460,7 +460,7 @@ model {
 It is important, as always, to declare appropriate constraints on
 parameters;  here `y` is constrained to be positive.
 
-像往常一样，声明参数的适当约束非常重要；在这里，变量`y`被限制为正数。
+像往常一样，声明参数的适当约束非常重要；在这里，变量 `y` 被限制为正数。
 
 It would be slightly more efficient to define a local variable for the
 logarithm, as follows.
@@ -482,7 +482,7 @@ If `y` were declared as data instead of as a parameter, then the
 adjustment can be ignored because the data will be constant and Stan
 only requires the log probability up to a constant.
 
-如果将`y`声明为数据而不是参数，则可以忽略调整，因为数据将保持不变，Stan仅要求对数概率常数。
+如果将 `y` 声明为数据而不是参数，则可以忽略调整，因为数据将保持不变，Stan 仅要求对数概率常数。
 
 ### Change of variables vs. transformations {-}
 
@@ -494,7 +494,7 @@ parameter, then transforms it, whereas a change of variables
 transforms a parameter, then samples it.  Only the latter requires a
 Jacobian adjustment.
 
-本节说明了变量变换和简单变量转换之间的区别。变量转换采样参数，然后进行转换，而变量变换则是先对参数进行变换，再进行采样。只有后者需要进行Jacobian调整。
+本节说明了变量变换和简单变量转换之间的区别。变量转换采样参数，然后进行转换，而变量变换则是先对参数进行变换，再进行采样。只有后者需要进行 Jacobian 调整。
 
 It does not matter whether the probability function is
 expressed using a sampling statement, such as
@@ -527,7 +527,7 @@ of variables.
 The transform based approach to sampling `y_inv` with an inverse
 gamma distribution can be coded as follows.
 
-基于变换的方法，使用逆伽马分布对`y_inv`进行采样，可以编写如下代码。
+基于变换的方法，使用逆伽马分布对 `y_inv` 进行采样，可以编写如下代码。
 
 ```stan
 parameters {
@@ -562,7 +562,7 @@ model {
 The Jacobian adjustment is the log of the absolute derivative of the
 transform, which in this case is
 
-使用变量变换的方法，使用逆伽马分布对`y_inv`进行采样，可以编写如下代码。
+使用变量变换的方法，使用逆伽马分布对 `y_inv` 进行采样，可以编写如下代码。
 
 $$
 \log \left| \frac{d}{du} \left( \frac{1}{u} \right) \right|
@@ -581,7 +581,7 @@ determinant of the Jacobian of the transform must be added to the
 log probability accumulator.  In Stan, this can be coded as
 follows in the general case where the Jacobian is not a full matrix.
 
-在多元变换的情况下，必须将变换的雅可比矩阵的绝对值的对数加到对数概率累加器中。在Stan中，这可以在雅可比矩阵不是满秩矩阵的一般情况下编码如下。
+在多元变换的情况下，必须将变换的雅可比矩阵的绝对值的对数加到对数概率累加器中。在 Stan 中，这可以在雅可比矩阵不是满秩矩阵的一般情况下编码如下。
 
 ```stan
 parameters {
@@ -618,7 +618,7 @@ triangular matrices, the determinant is the product of the diagonal
 elements, so the transformed parameters block of the above model can
 be simplified and made more efficient by recoding as follows.
 
-在许多情况下，雅可比矩阵将是三角形的，因此只需要对角线元素即可计算行列式。当变换的参数向量的每个元素`v[k]`仅取决于参数向量的元素`u[1]`，&hellip;，`u[k]`时，就会出现三角形雅可比矩阵。对于三角形矩阵，行列式是对角线元素的乘积，因此可以通过重新编码来简化上述模型的转换参数块并使其更有效。
+在许多情况下，雅可比矩阵将是三角形的，因此只需要对角线元素即可计算行列式。当变换的参数向量的每个元素 `v[k]` 仅取决于参数向量的元素 `u[1]`，&hellip;，`u[k]` 时，就会出现三角形雅可比矩阵。对于三角形矩阵，行列式是对角线元素的乘积，因此可以通过重新编码来简化上述模型的转换参数块并使其更有效。
 
 ```stan
 transformed parameters {
@@ -642,7 +642,7 @@ calculated and their log Jacobians added to the log density accumulator;
 the Jacobian calculations are described in detail in the reference
 manual chapter on constrained parameter transforms.
 
-Stan允许在容器数据类型的约束条件中声明标量和非标量的上下边界。对于这些边界进行变换并将它们的对数雅可比添加到对数密度累加器中；雅可比计算在受约束参数变换的参考手册章节中有详细描述。
+Stan 允许在容器数据类型的约束条件中声明标量和非标量的上下边界。对于这些边界进行变换并将它们的对数雅可比添加到对数密度累加器中；雅可比计算在受约束参数变换的参考手册章节中有详细描述。
 
 ### Varying lower bounds {-}
 
@@ -652,7 +652,7 @@ For example, suppose there is a vector parameter $\alpha$ with a
 vector $L$ of lower bounds.  The simplest way to deal with this if $L$
 is a constant is to shift a lower-bounded parameter.
 
-例如，假设有一个带有下边界向量$L$的向量参数$\alpha$。如果$L$是一个常数，则处理这个问题的最简单方法是通过移动一个下边界参数来实现。
+例如，假设有一个带有下边界向量 $L$ 的向量参数 $\alpha$。如果 $L$ 是一个常数，则处理这个问题的最简单方法是通过移动一个下边界参数来实现。
 
 ```stan
 data {
@@ -697,7 +697,7 @@ Jacobian required, because the transform from $(L, \alpha_{\textrm{raw}})$
 to $(L + \alpha_{\textrm{raw}}, \alpha_{\textrm{raw}})$ produces
 a Jacobian derivative matrix with a unit determinant.
 
-即使下边界是参数而不是数据，也不需要雅可比矩阵，因为从$(L,\alpha_{\textrm{raw}})$到$(L+\alpha_{\textrm{raw}},\alpha_{\textrm{raw}})$的变换产生的雅可比导数矩阵的行列式是1。
+即使下边界是参数而不是数据，也不需要雅可比矩阵，因为从 $(L,\alpha_{\textrm{raw}})$ 到 $(L+\alpha_{\textrm{raw}},\alpha_{\textrm{raw}})$ 的变换产生的雅可比导数矩阵的行列式是1。
 
 It's also possible to implement the transform using an array or vector
 of parameters as bounds (with the requirement that the type of the
@@ -753,7 +753,7 @@ $\alpha_{\textrm{raw}}$; if the bounds do depend on
 $\alpha_{\textrm{raw}}$ then a revised Jacobian needs to be calculated
 taking into account the dependencies.
 
-调整变换的对数雅可比行列式将$\alpha_{\textrm{raw}}$映射到$\alpha=L+\exp(\alpha_{\textrm{raw}})$。在这种情况下，细节很简单，因为雅可比矩阵是对角的；有关详细信息，请参阅约束参数变换的参考手册章节。在这种情况下，$L$甚至可以是包含不依赖于$\alpha_{\textrm{raw}}$的参数的向量；如果边界确实依赖于$\alpha_{\textrm{raw}}$，则需要计算修订后的雅可比矩阵，考虑到这些依赖项。
+调整变换的对数雅可比行列式将 $\alpha_{\textrm{raw}}$ 映射到 $\alpha=L+\exp(\alpha_{\textrm{raw}})$。在这种情况下，细节很简单，因为雅可比矩阵是对角的；有关详细信息，请参阅约束参数变换的参考手册章节。在这种情况下，$L$ 甚至可以是包含不依赖于 $\alpha_{\textrm{raw}}$ 的参数的向量；如果边界确实依赖于 $\alpha_{\textrm{raw}}$，则需要计算修订后的雅可比矩阵，考虑到这些依赖项。
 
 ### Varying upper and lower bounds {-}
 
@@ -763,7 +763,7 @@ Suppose there are lower and upper bounds that vary by parameter.
 These can be applied to shift and rescale a parameter constrained to
 $(0, 1)$. This is easily accomplished as the following.
 
-假设有根据参数变化的上下边界。这些可以应用于将约束为$(0,1)$的参数进行移位和重新缩放。这可以轻松完成，如下所示。
+假设有根据参数变化的上下边界。这些可以应用于将约束为 $(0,1)$ 的参数进行移位和重新缩放。这可以轻松完成，如下所示。
 
 ```stan
 data {
@@ -803,9 +803,9 @@ The expression `U - L` is multiplied by `alpha_raw`
 elementwise to produce a vector of variables in $(0, U-L)$, then
 adding $L$ results in a variable ranging between $(L, U)$.
 
-表达式`U-L`与`alpha_raw`按元素相乘，产生一个在$(0,U-L)$范围内的变量向量，然后加上$L$，结果为一个范围在$(L,U)$之间的变量。
+表达式 `U-L` 与 `alpha_raw` 按元素相乘，产生一个在 $(0,U-L)$ 范围内的变量向量，然后加上 $L$，结果为一个范围在 $(L,U)$ 之间的变量。
 
 In this case, it is important that $L$ and $U$ are constants,
 otherwise a Jacobian would be required when multiplying by $U - L$.
 
-在这种情况下，重要的是$L$和$U$是常数，否则在乘以$U-L$时会需要雅可比矩阵。
+在这种情况下，重要的是 $L$ 和 $U$ 是常数，否则在乘以 $U-L$ 时会需要雅可比矩阵。

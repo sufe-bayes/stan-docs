@@ -1,5 +1,9 @@
 # Directions, Rotations, and Hyperspheres
 
+# 方向、旋转和超球面
+
+本节译者：张梓源
+
 Directional statistics involve data and/or parameters that are
 constrained to be directions.  The set of directions forms a sphere,
 the geometry of which is not smoothly mappable to that of a Euclidean
@@ -13,13 +17,23 @@ around a circle, you wind up back where you started.  In other words,
 out the same point, and the distance between 359 degrees and 2 degrees
 is the same as the distance between 137 and 140 degrees.
 
+方向统计涉及的数据和参数被限制为方向。这些方向的集合形成了一个球体，这个球体的几何结构无法平滑地映射到欧几里得空间。这是因为在球面上不断移动可以返回到起点。因此，想要在一张平面纸上制作一个球体的地图，使球体上彼此接近的点在平面地图上也彼此接近，是行不通的。这个基本问题在二维空间中很容易可视化。想象你沿着一个圆周移动，最终会回到起点。换句话说，0度和360度（等同于弧度值中的0和 $2 \pi$ 
+弧度）指的是同一个点，359度和2度之间的距离与137度和140度之间的距离是一样的。
+
 Stan supports directional statistics by providing a unit-vector data
 type, the values of which determine points on a hypersphere (circle in
 two dimensions, sphere in three dimensions).
 
+Stan 通过提供一种单位向量的数据类型来支持对方向数据的统计分析，这种数据类型的值确定超球面上的点（在二维空间里是圆周上的点，在三维空间里则是球面上的点）。
+
 ## Unit vectors
 
+## 单位向量
+
 The length of a vector $x \in \mathbb{R}^K$ is given by
+
+向量 $x \in \mathbb{R}^K$ 的长度，可通过以下公式获得
+
 $$
 \Vert x \Vert
 = \sqrt{x^{\top}\,x}
@@ -28,7 +42,11 @@ $$
 Unit vectors are defined to be vectors of unit length (i.e., length
 one).
 
+单位向量是具有单位长度的向量（即长度为一）。
+
 With a variable declaration such as
+
+变量声明如下
 
 ```stan
 unit_vector[K] x;
@@ -37,6 +55,8 @@ unit_vector[K] x;
 the value of `x` will be constrained to be a vector of size
 `K` with unit length;  the reference manual chapter on
 constrained parameter transforms provides precise definitions.
+
+变量 `x` 是一个长度为1，维度为 `K` 的向量。具体的定义可在参考手册的受限参数变换章节中找到。
 
 *Warning:* An extra term gets added to the log density to ensure
 the distribution on unit vectors is proper.  This is not a problem in
@@ -57,12 +77,19 @@ drawn standard normal, then they are together projected down to the
 hypersphere to produce a unit vector.  The result is a proper uniform
 distribution over the hypersphere.
 
+*注意：* 为确保单位向量的分布是正确的，会在对数密度中添加一个额外的项。这在实践中通常可行，但这可能导致目标对数密度输出（某些接口中为 `lp__`）出错。问题的根源在于，一个维度为 $K$ 的单位向量实际上只有 $K - 1$ 个自由度，但是没有办法将这 $K - 1$ 个自由度连续地映射到欧几里得空间 $\mathbb{R}^N$ 中。例如，圆不能连续地映射到直线上同时保证极限可求，球体也不能映射到平面上。这就需要一种变通的解决方案。Stan 的单位向量转换使用了 $K$ 个无约束变量，然后将其投影到单位超球面上。即便超球面本身是一个紧致（完整且有限）的形状，通过这样的变换得到的结果仍然是一个不正确的概率分布。为确保单位向量分布的正确性，对每个无约束变量都做了一个等同于独立标准正态分布的“雅可比”调整。实际上，每个维度都是按照标准正态分布抽样，然后将每个维度上抽取到的标准正态分布的值投影到超球面上，从而得到一个单位向量。最后可以在超球面上得到正确的均匀分布。
 
 
 ## Circles, spheres, and hyperspheres
 
+## 圆、球体和超球体
+
 An $n$-sphere, written $S^{n}$, is defined as the set of $(n +
 1)$-dimensional unit vectors,
+
+记 $n$ 维球体为 $S^{n}$ ，它是一组 $(n +
+1)$ 维的单位向量的集合
+
 $$
 S^{n} = \left\{ x \in \mathbb{R}^{n+1} \: : \: \Vert x \Vert = 1 \right\}.
 $$
@@ -80,21 +107,31 @@ the geodesics on the sphere ($S^2$) are called "great circles," and
 why we need to use some clever representations to do circular or
 spherical statistics.
 
+尽管 $S^n$ 由 $(n+1)$ 维的点组成，它仍然只是一个 $n$ 维流形。例如，$S^2$ 被定义为 $\mathbb{R}^3$ 中的一组点，但是每个这样的点都可以通过一个纬度和一个经度唯一地表示。从几何学角度，$\mathbb{R}^3$ 中由 $S^2$ 定义的表面在局部表现类似于平面，即 $\mathbb{R}^2$。然而，$S^2$ 的整体形状与平面不同，它是紧致的（即点与点之间存在着最大距离）。如果沿着球体表面的“直线”（即测地线）出发，最终会回到起点。这就是为什么在球面（$S^2$）上的测地线被称为“大圆”。因此我们需要使用一些巧妙的表示方法来进行圆形或球形统计。
+
 Even though $S^{n-1}$ behaves locally like $\mathbb{R}^{n-1}$, there is no
 way to smoothly map between them. For example, because
 latitude and longitude work on a modular basis (wrapping at $2\pi$
 radians in natural units), they do not produce a smooth map.
 
+尽管 $S^{n-1}$ 与 $\mathbb{R}^{n-1}$ 局部类似，但它们之间却无法进行平滑映射。例如，经度和纬度基于模运算（在自然单位中以 $2\pi$ 弧度为周期），因此它们之间无法进行平滑映射。
+
 Like a bounded interval $(a, b)$, in geometric terms, a sphere is
 compact in that the distance between any two points is bounded.
 
+就像一个有界区间 $(a, b)$ ，在几何学上，一个球体是紧致的，因为任意两点之间的距离是有界的。
 
 ## Transforming to unconstrained parameters
+
+## 无约束参数变换
 
 Stan (inverse) transforms arbitrary points in $\mathbb{R}^{K+1}$ to points
 in $S^K$ using the auxiliary variable approach of
 @Muller:1959.  A point $y \in \mathbb{R}^K$ is transformed to a
 point $x \in S^{K-1}$ by
+
+Stan 使用 @Muller:1959 提出的辅助变量法，将 $\mathbb{R}^{K+1}$ 中的任意点（逆）转换为 $S^K$ 中的点。通过以下方式，点 $y \in \mathbb{R}^K$ 转换为点 $x \in S^{K-1}$
+
 $$
 x = \frac{y}{\sqrt{y^{\top} y}}.
 $$
@@ -107,8 +144,12 @@ desired properties of uniformity; the reference manual contains the
 precise definitions used in the chapter on constrained parameter
 transforms.
 
+这种映射的问题在于它是多对一的。任何从原点出发的向量上的点，都会被投影到球面上的同一点。 @Muller:1959 对这一映射引入了辅助变量解释，它提供了期望具有的均匀性特性，参考手册的受限参数变换章节中有精确的定义。
+
 
 #### Warning: undefined at zero! {-}
+
+#### 在零点处无定义！ {-}
 
 The above mapping from $\mathbb{R}^n$ to $S^n$ is not defined at zero.
 While this point outcome has measure zero during sampling, and may
@@ -117,9 +158,11 @@ vector parameters cannot be initialized at zero.  A simple workaround
 is to initialize from a  small interval around zero, which is an
 option built into all of the Stan interfaces.
 
-
+上述从 $\mathbb{R}^n$ 到 $S^n$ 的映射在零点处无定义。虽然在抽样过程中这一点的测度为零，可以忽略不计，但它是默认的初始化点，因此单位向量参数不能在零点初始化。一个简单的解决方法是从零点周围的一个小区间进行初始化，这是 Stan 所有接口内置的一个选项。
 
 ## Unit vectors and rotations
+
+## 单位向量和旋转
 
 Unit vectors correspond directly to angles and thus to rotations.
 This is easy to see in two dimensions, where a point on a circle
@@ -128,6 +171,9 @@ Given an angle $\theta$, a matrix can be defined, the
 pre-multiplication by which rotates a point by an angle of $\theta$.
 For angle $\theta$ (in two dimensions), the $2 \times 2$ rotation
 matrix is defined by
+
+单位向量直接与角度相对应，因此也对应旋转。这在二维空间中很容易理解，圆上的一个点对应罗盘上的一个方向（或等价于一个角度 $\theta$）。给定一个角度 $\theta$，可定义一个矩阵，通过该矩阵的左乘（前乘），可以将一个点旋转 $\theta$ 角度。二维情况下，角度 $\theta$ 的 $2 \times 2$ 旋转矩阵定义如下：
+
 $$
 R_{\theta}
 =
@@ -139,12 +185,18 @@ $$
 Given a two-dimensional vector $x$, $R_{\theta} \, x$ is the rotation
 of $x$ (around the origin) by $\theta$ degrees.
 
+给定一个二维向量 $x$，$R_{\theta} \, x$ 表示将 $x$（绕原点）旋转 $\theta$ 度后的结果。
+
 ### Angles from unit vectors {-}
+
+### 根据单位向量计算角度 {-}
 
 Angles can be calculated from unit vectors.  For example, a random
 variable `theta` representing an angle in $(-\pi, \pi)$ radians
 can be declared as a two-dimensional unit vector then transformed to
 an angle.
+
+可以通过单位向量计算得出角度。例如，可以声明一个表示 $(-\pi, \pi)$ 弧度范围内角度的随机变量 `theta` 为一个二维单位向量，然后将其转换为一个角度。
 
 ```stan
 parameters {
@@ -158,6 +210,9 @@ transformed parameters {
 If the distribution of $(x, y)$ is uniform over a circle, then the
 distribution of $\arctan \frac{y}{x}$ is uniform over $(-\pi, \pi)$.
 
+如果 $(x, y)$ 在圆上是均匀分布的，那么 $\arctan \frac{y}{x}$ 在 $(-\pi, \pi)$ 上也是均匀分布的。
+
+
 It might be tempting to try to just declare `theta` directly as a
 parameter with the lower and upper bound constraint as given above.
 The drawback to this approach is that the values $-\pi$ and $\pi$ are
@@ -165,11 +220,16 @@ at $-\infty$ and $\infty$ on the unconstrained scale, which can
 produce multimodal posterior distributions when the true distribution
 on the circle is unimodal.
 
+直接将 `theta` 作为参数声明，并给它设置上述的上下界限制，这样做看似很诱人。但是它的缺点是，$-\pi$ 和 $\pi$ 的值在无约束尺度上分别为 $-\infty$ 和 $\infty$，当圆上的真实分布是单峰分布时，可能会产生多峰后验分布。
+
 With a little additional work on the trigonometric front, the same
 conversion back to angles may be accomplished in more dimensions.
 
+再通过一些三角函数的处理，就可以在更高维度上完成同样的角度转换。
 
 ## Circular representations of days and years
+
+## 日与年的循环表示法
 
 A 24-hour clock naturally represents the progression of time through
 the day, moving from midnight to noon and back again in one rotation.
@@ -177,7 +237,11 @@ A point on a circle divided into 24 hours is thus a natural
 representation for the time of day.  Similarly, years cycle through
 the seasons and return to the season from which they started.
 
+24小时制时钟自然地表示了一天中时间的流逝，从午夜到正午，再从正午到午夜。因此，被划分为24小时的圆上的某个点，自然而然地可以代表一天中某个时间。同样地，年份通过季节循环，最终又回到它们开始的季节。
+
 In human affairs, temporal effects often arise by convention.  These
 can be modeled directly with ad-hoc predictors for holidays and
 weekends, or with data normalization back to natural scales for
 daylight savings time.
+
+在人类社会中，时间规律往往是约定俗成的。这些可以通过为假期和周末设置特设的预测因子直接建模，或者为了适应夏令时制，对数据进行标准化调整，使其回归到正常的时间标准。
