@@ -1,0 +1,1172 @@
+---
+pagetitle: Time-Series Models
+---
+
+# Time-Series Models  {#time-series.chapter}
+
+# 时间序列模型 {#time-series.chapter--cn}
+
+本节译者：林余昌 洪世哲
+
+Times series data come arranged in temporal order.  This chapter
+presents two kinds of time series models, regression-like models such
+as autoregressive and moving average models, and hidden Markov models.
+
+时间序列数据以时间顺序排列。本章介绍了两种时间序列模型，第一种是基于回归的模型，例如自回归模型和移动平均模型；另外一种是隐马尔科夫模型。
+
+The [Gaussian processes chapter](gaussian-processes.qmd) presents
+Gaussian processes, which may also be used for time-series (and
+spatial) data.
+
+[高斯过程章节](gaussian-processes.qmd)介绍了高斯过程，高斯过程也可以用于时间序列（和空间）数据分析。
+
+## Autoregressive models {#autoregressive.section}
+
+## 自回归模型 {#autoregressive.section--cn}
+
+A first-order autoregressive model (AR(1)) with normal noise takes
+each point $y_n$ in a sequence $y$ to be generated according to
+
+带有正态噪声的一阶自回归模型（AR(1)）将序列 $y$ 中的每一个点 $y_n$ 按照以下规则生成：
+$$
+y_n \sim \textsf{normal}(\alpha + \beta y_{n-1}, \sigma).
+$$
+
+That is, the expected value of $y_n$ is $\alpha + \beta y_{n-1}$, with
+noise scaled as $\sigma$.
+
+也就是说，$y_n$ 的期望值是 $\alpha + \beta y_{n-1}$，噪声尺度为 $\sigma$。
+
+### AR(1) models {-}
+
+### AR(1) 模型
+
+With improper flat priors on the regression coefficients $\alpha$ and
+$\beta$ and on the positively-constrained noise scale ($\sigma$), the
+Stan program for the AR(1) model is as follows.^[The intercept in this model is $\alpha / (1 - \beta)$.  An alternative parameterization in terms of an intercept $\gamma$ suggested Mark Scheuerell on GitHub is $y_n \sim \textsf{normal}\left(\gamma + \beta \cdot (y_{n-1} - \gamma), \sigma\right)$.]
+
+对于回归系数 $\alpha$ 和 $\beta$ 以及噪声尺度 $\sigma$（$\sigma$>0），给予不当（improper）扁平先验，AR(1) 模型的 Stan 程序如下。^[这个模型中的截距是 $\alpha / (1 - \beta)$。Mark Scheuerell 在 GitHub 上建议用截距 $\gamma$ 表示的另一种参数化方式是 $y_n \sim \textsf{normal}\left(\gamma + \beta \cdot (y_{n-1} - \gamma), \sigma\right)$。]
+
+```stan
+data {
+  int<lower=0> N;
+  vector[N] y;
+}
+parameters {
+  real alpha;
+  real beta;
+  real<lower=0> sigma;
+}
+model {
+  for (n in 2:N) {
+    y[n] ~ normal(alpha + beta * y[n-1], sigma);
+  }
+}
+```
+
+The first observed data point, `y[1]`, is not modeled here
+because there is nothing to condition on; instead, it acts to
+condition `y[2]`.  This model also uses an improper prior for
+`sigma`, but there is no obstacle to adding an informative prior
+if information is available on the scale of the changes in `y`
+over time, or a weakly informative prior to help guide inference if
+rough knowledge of the scale of `y` is available.
+
+这里没有对第一个观察到的数据点`y[1]`进行建模，因为没有观测到`y[1]`之前的数据；相反，它作为条件作用于`y[2]`。这个模型还使用了一个对于`sigma`的非合理先验，但如果有关于`y`随时间变化的尺度的信息可用，那么添加一个含信息的先验是可行的，或者如果有关于`y`尺度的粗略知识可用，可以添加一个弱信息性的先验来帮助指导推断。
+
+#### Slicing for efficiency {-}
+
+#### 提高效率之切片处理
+
+Although perhaps a bit more difficult to read, a much more efficient
+way to write the above model is by slicing the vectors, with the model
+above being replaced with the one-liner
+
+一个更高效的模型的表达方式是通过向量的切片，但这可能会造成理解上的困难。对于上述的代码可以改写为如下一行代码来表示：
+
+```stan
+model {
+  y[2:N] ~ normal(alpha + beta * y[1:(N - 1)], sigma);
+}
+```
+
+The left-hand side slicing operation pulls out the last $N-1$
+elements and the right-hand side version pulls out the first $N-1$.
+
+左侧的切片操作取出向量后 $N-1$ 个元素，右侧的是取出向量前 $N-1$ 个元素。
+
+### Extensions to the AR(1) model {-}
+
+### AR(1) 模型拓展
+
+Proper priors of a range of different families may be added for the
+regression coefficients and noise scale.  The normal noise model can
+be changed to a Student-$t$ distribution or any other distribution
+with unbounded support.  The model could also be made hierarchical if
+multiple series of observations are available.
+
+可以为回归系数和噪声的尺度参数添加各种不同分布族的合理先验。噪声的正态分布可以改为 Student-$t$ 分布或任何其他支撑无界的分布。如果有多个观察序列可用，该模型也可以被构造为层次化的。
+
+To enforce the estimation of a stationary AR(1) process, the slope
+coefficient `beta` may be constrained with bounds as follows.
+
+为了保证估计得到一个平稳的 AR(1) 过程，斜率系数 `beta` 可能会受到以下约束。
+
+```stan
+real<lower=-1, upper=1> beta;
+```
+
+In practice, such a constraint is not recommended.  If the data are not well fit by a
+stationary model it is best to know this.
+Stationary parameter estimates can be encouraged with a prior favoring
+values of `beta` near zero.
+
+在实践中，这样的约束不建议使用。当不能通过一个平稳的 AR 模型来很好地拟合数据的时候，我们最好能知道这一点。不过在实践中可以通过设置 `beta` 先验质量集中在零的分布来鼓励稳定参数的估计。
+
+### AR(2) models {-}
+
+### AR(2) 模型
+
+Extending the order of the model is also straightforward.  For
+example, an AR(2) model could be coded with the second-order
+coefficient `gamma` and the following model statement.
+
+将 AR 模型的拓展到多阶滞后的方式也很直接。例如，一个 AR(2) 模型可以用二阶 AR 系数 `gamma` 和以下的模型语句进行表示。
+
+```stan
+for (n in 3:N) {
+  y[n] ~ normal(alpha + beta*y[n-1] + gamma*y[n-2], sigma);
+}
+```
+
+
+### AR($K$) models {-}
+
+### AR($K$) 模型
+
+A general model where the order is itself given as data can be coded
+by putting the coefficients in an array and computing the linear
+predictor in a loop.
+
+一个通用 AR 模型表示方式，其中阶数作为数据给出，通过将系数放在数组中并在循环中计算线性预测器来表示。
+
+```stan
+data {
+  int<lower=0> K;
+  int<lower=0> N;
+  array[N] real y;
+}
+parameters {
+  real alpha;
+  array[K] real beta;
+  real sigma;
+}
+model {
+  for (n in (K+1):N) {
+    real mu = alpha;
+    for (k in 1:K) {
+      mu += beta[k] * y[n-k];
+    }
+    y[n] ~ normal(mu, sigma);
+  }
+}
+```
+
+### ARCH(1) models {-}
+
+### ARCH(1) 模型
+
+Econometric and financial time-series models usually assume
+heteroscedasticity: they allow the scale of the noise terms
+defining the series to vary over time.
+The simplest such model is the autoregressive conditional
+heteroscedasticity (ARCH) model [@Engle:1982].  Unlike the
+autoregressive model AR(1), which modeled the mean of the series as
+varying over time but left the noise term fixed, the ARCH(1) model
+takes the scale of the noise terms to vary over time but leaves the
+mean term fixed.  Models could be defined where both the
+mean and scale vary over time; the econometrics literature presents a
+wide range of time-series modeling choices.
+
+计量经济学和金融时间序列模型通常假设存在异方差性：它们允许定义序列的噪声项的尺度随时间变化。最简单的这种模型是自回归条件异方差（ARCH）模型 [@Engle:1982]。AR(1) 模型在噪声项尺度参数固定不随时间变化的假设下，刻画了序列条件均值随时间变化。ARCH(1) 模型放宽了噪声项尺度参数固定不变的假设，使得它能随时间变化，但条件均值部分不随着时间变化。当然我们可以定义条件均值和尺度都随时间变化的模型；计量经济学文献提出了一系列广泛的时间序列建模选择。
+
+The ARCH(1) model is typically presented as the following sequence of
+equations, where $r_t$ is the observed return at time point $t$
+and $\mu$, $\alpha_0$, and $\alpha_1$ are unknown regression coefficient parameters.
+
+ARCH(1) 模型通常有用以下几个方程的形式呈现，其中 $r_t$ 是在时间点 $t$ 的观测值，而 $\mu$、$\alpha_0$ 和 $\alpha_1$ 是未知的回归系数参数。
+
+\begin{align*}
+r_t        &=  \mu + a_t \\
+a_t        &=  \sigma_t \epsilon_t \\
+\epsilon_t &\sim \textsf{normal}(0,1) \\
+\sigma^2_t &=  \alpha_0 + \alpha_1 a_{t-1}^2
+\end{align*}
+
+In order to ensure the noise terms $\sigma^2_t$ are positive, the
+scale coefficients are constrained to be positive, $\alpha_0, \alpha_1
+> 0$.  To ensure stationarity of the time series, the slope is
+constrained to be less than one, i.e., $\alpha_1 < 1$.^[In practice, it can be useful to remove the constraint to test whether a non-stationary set of coefficients provides a better fit to the data.  It can also be useful to add a trend term to the model, because an unfitted trend will manifest as non-stationarity.]
+
+为了确保噪声项 $\sigma^2_t$ 大于零，尺度系数被约束为正，即 $\alpha_0, \alpha_1 > 0$。为了确保时间序列的平稳性，斜率被约束为小于1，即 $\alpha_1 < 1$。^[在实践中，移除约束以测试非稳定系数是否能更好地拟合数据可能是有用的。添加趋势项到模型也可能是有用的，因为一个未拟合的趋势会表现为非稳定性。]
+
+The ARCH(1) model may be coded directly in Stan as follows.
+
+ARCH(1) 模型可以直接在 Stan 中编码如下。
+
+```stan
+data {
+  int<lower=0> T;                // number of time points
+  array[T] real r;               // return at time t
+}
+parameters {
+  real mu;                       // average return
+  real<lower=0> alpha0;          // noise intercept
+  real<lower=0, upper=1> alpha1; // noise slope
+}
+model {
+  for (t in 2:T) {
+    r[t] ~ normal(mu, sqrt(alpha0 + alpha1
+                                    * pow(r[t - 1] - mu,2)));
+  }
+}
+```
+
+The loop in the model is defined so that the return at time $t=1$ is
+not modeled; the model in the next section shows how to model the
+return at $t=1$.  The model can be vectorized to be more efficient;
+the model in the next section provides an example.
+
+模型中的循环定义为在时间 $t=1$ 时的观测值不被建模；下一节的模型展示了如何建模在 $t=1$ 时的回报。模型可以向量化表示以提高效率；下一节的模型提供了一个例子。
+
+## Modeling temporal heteroscedasticity
+
+## 对序列异方差性质建模
+
+A set of variables is homoscedastic if their variances are all the
+same; the variables are heteroscedastic if they do not all have the
+same variance.  Heteroscedastic time-series models allow the noise
+term to vary over time.
+
+如果一组变量的方差都相同，则称这组变量为同方差；如果它们的方差不都相同，则称为异方差。异方差时间序列模型允许噪声项随时间变化。
+
+### GARCH(1,1) models {-}
+
+### GARCH(1,1)模型
+
+The basic generalized autoregressive conditional heteroscedasticity
+(GARCH) model, GARCH(1,1), extends the ARCH(1) model by including the
+squared previous difference in return from the mean at time $t-1$ as a
+predictor of volatility at time $t$, defining
+
+广义自回归条件异方差（GARCH）模型，GARCH(1,1)，通过包括在时间 $t-1$ 的平均回报的平方前差作为时间 $t$ 的波动性的预测因子，扩展了 ARCH(1) 模型，定义如下：
+$$
+\sigma^2_t = \alpha_0 + \alpha_1 a^2_{t-1} + \beta_1 \sigma^2_{t-1}.
+$$
+
+To ensure the scale term is positive and the resulting time series
+stationary, the coefficients must all satisfy $\alpha_0, \alpha_1,
+\beta_1 > 0$ and the slopes $\alpha_1 + \beta_1 < 1$.
+
+为了确保尺度项是正的，并且时间序列模型是平稳的，所有的系数必须满足 $\alpha_0, \alpha_1,\beta_1 > 0$ 并且斜率 $\alpha_1 + \beta_1 < 1$。
+
+```stan
+data {
+  int<lower=0> T;
+  array[T] real r;
+  real<lower=0> sigma1;
+}
+parameters {
+  real mu;
+  real<lower=0> alpha0;
+  real<lower=0, upper=1> alpha1;
+  real<lower=0, upper=(1-alpha1)> beta1;
+}
+transformed parameters {
+  array[T] real<lower=0> sigma;
+  sigma[1] = sigma1;
+  for (t in 2:T) {
+    sigma[t] = sqrt(alpha0
+                     + alpha1 * pow(r[t - 1] - mu, 2)
+                     + beta1 * pow(sigma[t - 1], 2));
+  }
+}
+model {
+  r ~ normal(mu, sigma);
+}
+```
+
+To get the recursive definition of the volatility regression off the
+ground, the data declaration includes a non-negative value
+`sigma1` for the scale of the noise at $t = 1$.
+
+为了开启波动率回归的递归表示，数据声明包括一个非负值 `sigma1` 作为 $t = 1$ 时噪声的规模。
+
+The constraints are coded directly on the parameter declarations.
+This declaration is order-specific in that the constraint on `beta1`
+depends on the value of `alpha1`.
+
+直接在参数声明上添加约束。这个声明是按顺序指定的，因为 `beta1` 的约束依赖于 `alpha1` 的值。
+
+A transformed parameter array of non-negative values `sigma` is
+used to store the scale values at each time point.  The definition of
+these values in the transformed parameters block is where the
+regression is now defined.  There is an intercept `alpha0`, a
+slope `alpha1` for the squared difference in return from the mean
+at the previous time, and a slope `beta1` for the previous noise
+scale squared.  Finally, the whole regression is inside the
+`sqrt` function because Stan requires scale (deviation) parameters (not
+variance parameters) for the normal distribution.
+
+一个非负值的转换参数数组 `sigma` 被用来存储每个时间点的尺度值。这些值在转换参数块中的定义是现在定义回归的地方。有一个截距 `alpha0`，一个对前一时间的观测值与均值的平方差的斜率`alpha1`，和一个对前一个噪声规模平方的斜率 `beta1`。最后，整个回归在 `sqrt` 函数内部，因为 Stan 需要正态分布的规模（偏差）参数（不是方差参数）。
+
+With the regression in the transformed parameters block, the model
+reduces a single vectorized sampling statement.  Because `r` and
+`sigma` are of length `T`, all of the data are modeled
+directly.
+
+有了转换参数块中的回归，模型就简化为一个单一的向量化采样语句。因为 `r` 和 `sigma` 的长度是 `T` ，所有的数据都被直接建模。
+
+## Moving average models
+
+## 移动平均模型
+
+A moving average model uses previous errors as predictors for future
+outcomes.  For a moving average model of order $Q$, $\mbox{MA}(Q)$,
+there is an overall mean parameter $\mu$ and regression coefficients
+$\theta_q$ for previous error terms.  With $\epsilon_t$ being the
+noise at time $t$, the model for outcome $y_t$ is defined by
+
+一个移动平均模型使用先前的误差作为未来结果的自变量。对于阶数为 $Q$ 的移动平均模型，$\mbox{MA}(Q)$，有一个均值参数 $\mu$ 和对先前误差项的回归系数 $\theta_q$。用 $\epsilon_t$ 表示时间 $t$ 的噪声，结果 $y_t$ 的模型由以下定义：
+$$
+y_t = \mu + \theta_1 \epsilon_{t-1} + \dotsb + \theta_Q \epsilon_{t-Q}
++ \epsilon_t,
+$$
+with the noise term $\epsilon_t$ for outcome $y_t$ modeled as
+normal,
+
+其中，结果 $y_t$ 的噪声项 $\epsilon_t$ 建模为正态分布，
+$$
+\epsilon_t \sim \textsf{normal}(0,\sigma).
+$$
+In a proper Bayesian model, the parameters $\mu$, $\theta$, and
+$\sigma$ must all be given priors.
+
+在一个合理的贝叶斯模型中，参数 $\mu$、$\theta$ 和 $\sigma$ 都必须给定先验分布。
+
+### MA(2) example {-}
+
+### MA(2)示例
+
+An $\mbox{MA}(2)$ model can be coded in Stan as follows.
+
+在 Stan 中，$\mbox{MA}(2)$ 模型可以表示如下。
+
+```stan
+data {
+  int<lower=3> T;          // number of observations
+  vector[T] y;             // observation at time T
+}
+parameters {
+  real mu;                 // mean
+  real<lower=0> sigma;     // error scale
+  vector[2] theta;         // lag coefficients
+}
+transformed parameters {
+  vector[T] epsilon;       // error terms
+  epsilon[1] = y[1] - mu;
+  epsilon[2] = y[2] - mu - theta[1] * epsilon[1];
+  for (t in 3:T) {
+    epsilon[t] = ( y[t] - mu
+                    - theta[1] * epsilon[t - 1]
+                    - theta[2] * epsilon[t - 2] );
+  }
+}
+model {
+  mu ~ cauchy(0, 2.5);
+  theta ~ cauchy(0, 2.5);
+  sigma ~ cauchy(0, 2.5);
+  for (t in 3:T) {
+    y[t] ~ normal(mu
+                  + theta[1] * epsilon[t - 1]
+                  + theta[2] * epsilon[t - 2],
+                  sigma);
+  }
+}
+```
+
+The error terms $\epsilon_t$ are defined as transformed parameters in
+terms of the observations and parameters.  The definition of the
+sampling statement (defining the likelihood) follows the definition,
+which can only be applied to $y_n$ for $n > Q$.  In this example, the
+parameters are all given Cauchy (half-Cauchy for $\sigma$) priors,
+although other priors can be used just as easily.
+
+误差项 $\epsilon_t$ 被定义为观察值和参数的转换参数。采样语句的定义（定义似然）跟随定义，它只能应用于 $y_n$，其中 $n > Q$。在这个例子中，所有的参数都给定了 Cauchy（对于 $\sigma$ 是半 Cauchy）先验，虽然其他的先验可以同样容易地使用。
+
+This model could be improved in terms of speed by vectorizing the
+sampling statement in the model block.  Vectorizing the calculation of
+the $\epsilon_t$ could also be sped up by using a dot product instead
+of a loop.
+
+这个模型可以在运行速度上进行改进，通过向量化模型块中的采样语句。通过使用点积而不是循环，可以加速 $\epsilon_t$ 的计算。
+
+### Vectorized MA(Q) model {-}
+
+### 向量 MA(Q) 模型
+
+A general $\mbox{MA}(Q)$ model with a vectorized sampling probability
+may be defined as follows.
+
+可以如下定义一个带有向量化采样概率的一般 $\mbox{MA}(Q)$ 模型。
+
+```stan
+data {
+  int<lower=0> Q;       // num previous noise terms
+  int<lower=3> T;       // num observations
+  vector[T] y;          // observation at time t
+}
+parameters {
+  real mu;              // mean
+  real<lower=0> sigma;  // error scale
+  vector[Q] theta;      // error coeff, lag -t
+}
+transformed parameters {
+  vector[T] epsilon;    // error term at time t
+  for (t in 1:T) {
+    epsilon[t] = y[t] - mu;
+    for (q in 1:min(t - 1, Q)) {
+      epsilon[t] = epsilon[t] - theta[q] * epsilon[t - q];
+    }
+  }
+}
+model {
+  vector[T] eta;
+  mu ~ cauchy(0, 2.5);
+  theta ~ cauchy(0, 2.5);
+  sigma ~ cauchy(0, 2.5);
+  for (t in 1:T) {
+    eta[t] = mu;
+    for (q in 1:min(t - 1, Q)) {
+      eta[t] = eta[t] + theta[q] * epsilon[t - q];
+    }
+  }
+  y ~ normal(eta, sigma);
+}
+```
+
+Here all of the data are modeled, with missing terms just dropped from
+the regressions as in the calculation of the error terms.  Both models
+converge  quickly and mix  well at convergence, with the
+vectorized model being faster (per iteration, not to
+converge---they compute the same model).
+
+在这里，所有的数据都被建模，缺失的项在计算误差项时就被从回归中删除了。两种模型都快速收敛并在收敛时混合得很好，其中向量化模型更快（每次迭代并不收敛——它们计算的是同一模型）。
+
+## Autoregressive moving average models
+
+## 自回归滑动平均模型
+
+Autoregressive moving-average models (ARMA), combine the predictors
+of the autoregressive model and the moving average model.  An
+ARMA(1,1) model, with a single state of history, can be encoded in
+Stan as follows.
+
+自回归移动平均模型（ARMA）结合了自回归模型和移动平均模型的预测器。ARMA(1,1) 模型，具有单一的历史状态，可以如下在 Stan 中进行编码。
+
+```stan
+data {
+  int<lower=1> T;            // num observations
+  array[T] real y;                 // observed outputs
+}
+parameters {
+  real mu;                   // mean coeff
+  real phi;                  // autoregression coeff
+  real theta;                // moving avg coeff
+  real<lower=0> sigma;       // noise scale
+}
+model {
+  vector[T] nu;              // prediction for time t
+  vector[T] err;             // error for time t
+  nu[1] = mu + phi * mu;     // assume err[0] == 0
+  err[1] = y[1] - nu[1];
+  for (t in 2:T) {
+    nu[t] = mu + phi * y[t - 1] + theta * err[t - 1];
+    err[t] = y[t] - nu[t];
+  }
+  mu ~ normal(0, 10);        // priors
+  phi ~ normal(0, 2);
+  theta ~ normal(0, 2);
+  sigma ~ cauchy(0, 5);
+  err ~ normal(0, sigma);    // likelihood
+}
+```
+
+The data are declared in the same way as the other time-series
+regressions and the parameters are documented in the code.
+
+数据的声明方式与其他时间序列回归相同，参数在代码中有说明。
+
+In the model block, the local vector `nu` stores the predictions
+and `err` the errors.  These are computed similarly to the
+errors in the moving average models described in the previous section.
+
+在模型块中，局部向量 `nu` 存储预测，`err` 存储误差。这些计算方式与上一节描述的移动平均模型中的误差类似。
+
+The priors are weakly informative for stationary processes.  The
+likelihood only involves the error term, which is efficiently
+vectorized here.
+
+先验对于平稳过程来说是弱信息的。似然只涉及误差项，这里高效地进行了向量化。
+
+Often in models such as these, it is desirable to inspect the
+calculated error terms.  This could easily be accomplished in Stan by
+declaring `err` as a transformed parameter, then defining it the
+same way as in the model above.  The vector `nu` could still be a
+local variable, only now it will be in the transformed parameter block.
+
+在这样的模型中，通常希望检查计算出的误差项。在 Stan 中，可以通过将 `err` 声明为一个转换参数，然后按照上述模型中的方式定义它来轻松实现。向量 `nu` 仍然可以作为一个局部变量，只是现在它将在转换参数块中。
+
+Wayne Folta suggested encoding the model without local vector
+variables as follows.
+
+Wayne Folta 建议将模型编码为没有局部向量变量，如下所示。
+
+```stan
+model {
+  real err;
+  mu ~ normal(0, 10);
+  phi ~ normal(0, 2);
+  theta ~ normal(0, 2);
+  sigma ~ cauchy(0, 5);
+  err = y[1] - (mu + phi * mu);
+  err ~ normal(0, sigma);
+  for (t in 2:T) {
+    err = y[t] - (mu + phi * y[t - 1] + theta * err);
+    err ~ normal(0, sigma);
+  }
+}
+```
+
+This approach to ARMA models illustrates how local
+variables, such as `err` in this case, can be reused in Stan.
+Folta's approach could be extended to higher order moving-average
+models by storing more than one error term as a local variable and
+reassigning them in the loop.
+
+这种对 ARMA 模型的方法说明了在 Stan 中如何重复使用局部变量，例如在这种情况下的 `err`。Folta 的方法可以通过存储多个误差项作为局部变量，并在循环中重新赋值来扩展到高阶移动平均模型。
+
+Both encodings are  fast.  The original encoding has the advantage
+of vectorizing the normal distribution, but it uses a bit more memory.
+A halfway point would be to vectorize just `err`.
+
+两种编码都很快。原始编码的优点是向量化了正态分布，但是它使用了更多的内存。一个折中的方法是仅对 `err` 进行向量化。
+
+### Identifiability and stationarity {-}
+
+### 可识别性和平稳性
+
+MA and ARMA models are not identifiable if the roots of the
+characteristic polynomial for the MA part lie inside the unit circle,
+so it's necessary to add the following constraint^[This subsection is a lightly edited comment of Jonathan Gilligan's on GitHub; see \url{https://github.com/stan-dev/stan/issues/1617\#issuecomment-160249142}]
+
+如果 MA 部分的特征多项式的根位于单位圆内，则 MA 和 ARMA 模型是不可识别的，因此需要添加以下约束^[这一小节是 Jonathan Gilligan 在 GitHub 上的评论; 见 \url{https://github.com/stan-dev/stan/issues/1617#issuecomment-160249142}]
+
+```stan
+real<lower=-1, upper=1> theta;
+```
+
+When the model is run without the constraint, using synthetic data
+generated from the model, the simulation can sometimes find modes for
+(`theta`, `phi`) outside the $[-1,1]$ interval, which
+creates a multiple mode problem in the posterior and also causes the
+NUTS tree depth to get  large (often above 10). Adding the
+constraint both improves the accuracy of the posterior and
+dramatically reduces the tree depth, which speeds up the simulation
+considerably (typically by much more than an order of magnitude).
+
+从该模型中产生多组的数据进行模拟实验，当在没有约束情况下进行估计时，模拟有时会出现(`theta`, `phi`)在 $[-1,1]$ 区间之外的情况，这在后验中创建了一个多模式问题，并且导致 NUTS 树深度变大（通常超过10）。添加约束既提高了后验的准确性，也显著减少了树的深度，这大大加速了模拟（通常超过一个数量级）。
+
+Further, unless one thinks that the process is really non-stationary,
+it's worth adding the following constraint to ensure stationarity.
+
+此外，除非你认为这个过程真的是非平稳的，否则值得添加以下约束来确保平稳性。
+
+```stan
+real<lower=-1, upper=1> phi;
+```
+
+
+
+## Stochastic volatility models
+
+## 随机波动率模型
+
+Stochastic volatility models treat the volatility (i.e., variance) of
+a return on an asset, such as an option to buy a security, as
+following a latent stochastic process in discrete time
+[@KimShephardChib:1998].  The data consist of mean corrected
+(i.e., centered) returns $y_t$ on an underlying asset at $T$ equally
+spaced time points.  Kim et al.\ formulate a typical stochastic
+volatility model using the following regression-like equations, with a
+latent parameter $h_t$ for the log volatility, along with parameters
+$\mu$ for the mean log volatility, and $\phi$ for the persistence of
+the volatility term.  The variable $\epsilon_t$ represents the
+white-noise shock (i.e., multiplicative error) on the asset return at
+time $t$, whereas $\delta_t$ represents the shock on volatility at
+time $t$.
+
+随机波动率模型将资产（如购买证券的期权）的回报的波动性（即方差）视为在离散时间下遵循潜在的随机过程[@KimShephardChib:1998]。数据由在 $T$ 个等间隔时间点上的底层资产的均值校正（即，中心化）回报 $y_t$ 组成。Kim 等人用以下的类回归方程来构建典型的随机波动性模型，其中有一个潜在参数 $h_t$ 用于表示对数波动性，以及参数 $\mu$ 表示平均对数波动性，$\phi$ 表示波动性项的持续性。变量 $\epsilon_t$ 表示在时间 $t$ 处的资产回报的白噪声冲击（即乘法误差），而 $\delta_t$ 表示在时间 $t$ 的波动性冲击。
+\begin{align*}
+y_t        &=    \epsilon_t \exp(h_t / 2) \\
+h_{t+1}    &=    \mu + \phi (h_t - \mu) + \delta_t \sigma \\
+h_1        &\sim \textsf{normal}\left( \mu, \frac{\sigma}{\sqrt{1 - \phi^2}} \right) \\
+\epsilon_t &\sim \textsf{normal}(0,1) \\
+\delta_t   &\sim \textsf{normal}(0,1)
+\end{align*}
+
+Rearranging the first line, $\epsilon_t = y_t \exp(-h_t / 2)$,
+allowing the sampling distribution for $y_t$ to be written as
+
+将第一行重新排列，$\epsilon_t = y_t \exp(-h_t / 2)$，允许为 $y_t$ 编写采样分布
+$$
+y_t \sim \textsf{normal}(0,\exp(h_t/2)).
+$$
+The recurrence equation for $h_{t+1}$ may be combined with the
+scaling and sampling of $\delta_t$ to yield the sampling distribution
+
+$h_{t+1}$ 的递归方程可以与 $\delta_t$ 的缩放和采样结合，得到采样分布
+$$
+h_t \sim \mathsf{normal}(\mu + \phi(h_{t-1} - \mu), \sigma).
+$$
+This formulation can be directly encoded, as shown in the following
+Stan model.
+
+这种表述可以直接编码，如下面的 Stan 模型所示。
+
+```stan
+data {
+  int<lower=0> T;   // # time points (equally spaced)
+  vector[T] y;      // mean corrected return at time t
+}
+parameters {
+  real mu;                     // mean log volatility
+  real<lower=-1, upper=1> phi; // persistence of volatility
+  real<lower=0> sigma;         // white noise shock scale
+  vector[T] h;                 // log volatility at time t
+}
+model {
+  phi ~ uniform(-1, 1);
+  sigma ~ cauchy(0, 5);
+  mu ~ cauchy(0, 10);
+  h[1] ~ normal(mu, sigma / sqrt(1 - phi * phi));
+  for (t in 2:T) {
+    h[t] ~ normal(mu + phi * (h[t - 1] -  mu), sigma);
+  }
+  for (t in 1:T) {
+    y[t] ~ normal(0, exp(h[t] / 2));
+  }
+}
+```
+
+Compared to the Kim et al.\ formulation, the Stan model adds priors
+for the parameters $\phi$, $\sigma$, and $\mu$.  The shock
+terms $\epsilon_t$ and $\delta_t$ do not appear explicitly in the
+model, although they could be calculated efficiently in a generated
+quantities block.
+
+与 Kim 等人的表述相比，Stan 模型在参数 $\phi$、$\sigma$ 和 $\mu$ 上添加了先验。冲击项 $\epsilon_t$ 和 $\delta_t$ 在模型中没有明确出现，尽管它们可以在生成的数量块中有效地计算。
+
+The posterior of a stochastic volatility model such as this one
+typically has high posterior variance.  For example, simulating 500
+data points from the above model with $\mu = -1.02$, $\phi = 0.95$,
+and $\sigma = 0.25$ leads to 95% posterior intervals for $\mu$ of
+$(-1.23, -0.54)$, for $\phi$ of $(0.82, 0.98)$, and for $\sigma$ of
+$(0.16, 0.38)$.
+
+这样的随机波动性模型的后验通常具有很大的后验方差。例如，用 $\mu = -1.02$、$\phi = 0.95$  和$\sigma = 0.25$ 模拟500个数据点，得到 $\mu$ 的95%后验区间为 $(-1.23, -0.54)$，$\phi$ 的为 $(0.82, 0.98)$，$\sigma$ 的 为$(0.16, 0.38)$。
+
+The samples using NUTS show a high degree of autocorrelation among the
+samples, both for this model and the stochastic volatility model
+evaluated in [@Hoffman-Gelman:2014].
+Using a non-diagonal mass
+matrix provides faster convergence and more effective samples than a
+diagonal mass matrix, but will not scale to large values of $T$.
+
+使用 NUTS 的样本显示样本之间存在高度的自相关，这对于这个模型和在[@Hoffman-Gelman:2014]中评估的随机波动性模型都是如此。
+使用非对角质量矩阵比使用对角质量矩阵提供更快的收敛和更有效的样本，但不会扩大到 $T$ 的大值。
+
+It is relatively straightforward to speed up the effective samples per
+second generated by this model by one or more orders of magnitude.
+First, the sampling statements for return $y$ is easily vectorized to
+
+通过一个或多个数量级加速此模型生成的有效样本数是相对直接的。首先，可以轻松地将返回 $y$ 的采样语句向量化为
+
+```stan
+y ~ normal(0, exp(h / 2));
+```
+
+This speeds up the iterations, but does not change the effective
+sample size because the underlying parameterization and log
+probability function have not changed.  Mixing is improved by
+reparameterizing in terms of a standardized volatility, then
+rescaling.  This requires a standardized parameter `h_std` to be
+declared instead of `h`.
+
+这加快了迭代速度，但并未改变有效样本大小，因为潜在的参数化和对数概率函数并未改变。通过将标准化波动性重新参数化，然后重新缩放，可以改善混合效果。这需要声明一个标准化参数 `h_std` 而不是 `h`。
+```stan
+parameters {
+  // ...
+  vector[T] h_std;  // std log volatility time t
+}
+```
+
+The original value of `h` is then defined in a transformed
+parameter block.
+
+原始值 `h` 在转换参数块中定义。
+
+```stan
+transformed parameters {
+  vector[T] h = h_std * sigma;  // now h ~ normal(0, sigma)
+  h[1] /= sqrt(1 - phi * phi);  // rescale h[1]
+  h += mu;
+  for (t in 2:T) {
+    h[t] += phi * (h[t - 1] - mu);
+  }
+}
+```
+
+The first assignment rescales `h_std` to have a
+$\textsf{normal}(0,\sigma)$ distribution and temporarily assigns it to
+`h`.  The second assignment rescales `h[1]` so that its
+prior differs from that of `h[2]` through `h[T]`.  The next
+assignment supplies a `mu` offset, so that `h[2]` through
+`h[T]` are now distributed $\textsf{normal}(\mu,\sigma)$; note
+that this shift must be done after the rescaling of `h[1]`.  The
+final loop adds in the moving average so that `h[2]` through
+`h[T]` are appropriately modeled relative to `phi` and
+`mu`.
+
+首个赋值操作将 `h_std` 重新缩放为具有 $\textsf{normal}(0,\sigma)$ 分布并临时赋值给 h。 第二个赋值操作重新缩放 h[1]，使得其先验与 h[2] 到 h[T] 的先验不同。接下来的赋值操作提供了一个 mu 偏移量，因此 h[2] 到 h[T] 现在分布为 $\textsf{normal}(\mu,\sigma)$；请注意，这个偏移必须在重新缩放 h[1] 之后进行。最后的循环添加了移动平均数，因此 h[2] 到 h[T] 都根据 phi 和 mu 进行了适当的建模。
+
+As a final improvement, the sampling statement for `h[1]` and
+loop for sampling `h[2]` to `h[T]` are replaced with a
+single vectorized standard normal sampling statement.
+
+作为最后的改进，`h[1]` 的采样语句和对 `h[2]` 到 `h[T]` 的采样循环被替换为单个向量化的标准正态采样语句。
+
+```stan
+model {
+  // ...
+  h_std ~ std_normal();
+}
+```
+
+Although the original model can take hundreds and sometimes thousands
+of iterations to converge, the reparameterized model reliably
+converges in tens of iterations.  Mixing is also dramatically
+improved, which results in higher effective sample sizes per
+iteration.  Finally, each iteration runs in roughly a quarter of the
+time of the original iterations.
+
+尽管原始模型可能需要数百甚至数千次迭代才能收敛，但重新参数化的模型能够在数十次迭代内可靠地收敛。混合性也得到了显著改善，这导致了每次迭代的有效样本大小更大。最后，每次迭代的运行时间大约是原始迭代时间的四分之一。
+
+## Hidden Markov models {#hmms.section}
+
+## 隐马尔可夫模型 {#hmms.section--cn}
+
+A hidden Markov model (HMM) generates a sequence of $T$ output
+variables $y_t$ conditioned on a parallel sequence of latent
+categorical state variables $z_t \in \{1,\ldots, K\}$.  These
+"hidden" state variables are assumed to form a Markov chain so that
+$z_t$ is conditionally independent of other variables given $z_{t-1}$.
+This Markov chain is parameterized by a transition matrix $\theta$
+where $\theta_k$ is a $K$-simplex for $k \in \{ 1, \dotsc, K \}$.  The
+probability of transitioning to state $z_t$ from state $z_{t-1}$ is
+
+隐马尔可夫模型（HMM）在给定一系列潜在分类状态变量 $z_t \in \{1,\ldots, K\}$ 的条件下生成一系列 $T$ 个变量 $y_t$。这些“隐藏”的状态变量被假设构成一个马尔可夫链，即在给定 $z_{t-1}$ 的情况下，$z_t$ 与其他变量是条件独立的。这个马尔可夫链由转移矩阵 $\theta$ 参数化，其中 $\theta_k$ 是一个 $K$ -单纯形，$k \in \{ 1, \dotsc, K \}$。从状态 $z_{t-1}$ 转移到 $z_t$ 的概率为
+$$
+z_t \sim \textsf{categorical}(\theta_{z[t-1]}).
+$$
+The output $y_t$ at time $t$ is generated conditionally independently
+based on the latent state $z_t$.
+
+在时刻 $t$ 的输出 $y_t$ 是根据潜在状态 $z_t$ 条件独立生成的。
+
+
+This section describes HMMs with a simple categorical model for
+outputs $y_t \in \{ 1, \dotsc, V \}$.  The categorical distribution for
+latent state $k$ is parameterized by a $V$-simplex $\phi_k$.  The
+observed output $y_t$ at time $t$ is generated based on the hidden
+state indicator $z_t$ at time $t$,
+
+本节描述了具有简单的分类模型用于输出 $y_t \in \{ 1, \dotsc, V \}$ 的 HMM。潜在状态 $k$ 的分类分布由一个 $V$ -单纯形 $\phi_k$ 参数化。在 $t$ 时刻的观察输出 $y_t$ 是基于时刻 $t$ 的隐藏状态指示器 $z_t$ 生成的，
+$$
+y_t \sim \textsf{categorical}(\phi_{z[t]}).
+$$
+In short, HMMs form a discrete mixture model where the mixture
+component indicators form a latent Markov chain.
+
+简而言之，HMMs 构成了一个离散混合模型，其中混合成分的指示器构成了一个潜在的马尔可夫链。
+
+
+### Supervised parameter estimation {-}
+
+### 监督参数估计
+
+In the situation where the hidden states are known, the following
+naive model can be used to fit the parameters $\theta$ and $\phi$.
+
+在隐藏状态已知的情况下，可以使用以下的简单模型来拟合参数 $\theta$ 和 $\phi$。
+
+
+```stan
+data {
+  int<lower=1> K;             // num categories
+  int<lower=1> V;             // num words
+  int<lower=0> T;             // num instances
+  array[T] int<lower=1, upper=V> w;  // words
+  array[T] int<lower=1, upper=K> z;  // categories
+  vector<lower=0>[K] alpha;   // transit prior
+  vector<lower=0>[V] beta;    // emit prior
+}
+parameters {
+  array[K] simplex[K] theta;        // transit probs
+  array[K] simplex[V] phi;          // emit probs
+}
+model {
+  for (k in 1:K) {
+    theta[k] ~ dirichlet(alpha);
+  }
+  for (k in 1:K) {
+    phi[k] ~ dirichlet(beta);
+  }
+  for (t in 1:T) {
+    w[t] ~ categorical(phi[z[t]]);
+  }
+  for (t in 2:T) {
+    z[t] ~ categorical(theta[z[t - 1]]);
+  }
+}
+```
+
+Explicit Dirichlet priors have been provided for $\theta_k$ and
+$\phi_k$; dropping these two statements would implicitly take the
+prior to be uniform over all valid simplexes.
+
+上述语句为 $\theta_k$ 和 $\phi_k$ 提供显式的 Dirichlet 先验分布，如果删除对应的两个语句，将暗示先验分布在所有有效的 simplex 上均匀分布。
+
+### Start-state and end-state probabilities {-}
+
+### 起始状态概率和结束状态概率
+
+Although workable, the above description of HMMs is incomplete because
+the start state $z_1$ is not modeled (the index runs from 2 to $T$).
+If the data are conceived as a subsequence of a long-running process,
+the probability of $z_1$ should be set to the stationary state
+probabilities in the Markov chain.  In this case, there is no distinct
+end to the data, so there is no need to model the probability that the
+sequence ends at $z_T$.
+
+尽管以上对于隐马尔可夫模型（HMMs）的描述是可行的，但它是不完整的，因为起始状态 $z_1$ 没有被建模（索引从2到 $T$）。如果数据被看作是一个长期运行的过程的子序列，那么 $z_1$ 的概率应该被设定为马尔可夫链中的平稳状态概率。在这种情况下，数据没有明确的结束点，因此没有必要建模序列在 $z_T$ 处结束的概率。
+
+An alternative conception of HMMs is as models of finite-length
+sequences.  For example, human language sentences have distinct
+starting distributions (usually a capital letter) and ending
+distributions (usually some kind of punctuation).  The simplest way to
+model the sequence boundaries is to add a new latent state $K+1$,
+generate the first state from a categorical distribution with
+parameter vector $\theta_{K+1}$, and restrict the transitions so that
+a transition to state $K+1$ is forced to occur at the end of the
+sentence and is prohibited elsewhere.
+
+隐马尔可夫模型（HMMs）的另一种理解是将其视为有限长度序列的模型。例如，人类语言的句子具有不同的起始分布（通常是一个大写字母）和结束分布（通常是某种标点符号）。对于序列边界建模的最简单方法是添加一个新的潜在状态 $K+1$，从参数向量 $\theta_{K+1}$ 的分类分布中生成第一个状态，并限制转移，使得转移到 $K+1$ 状态只能在句子结尾处发生，并且在其他地方禁止出现该状态。
+
+### Calculating sufficient statistics {-}
+
+### 计算充分统计量
+
+The naive HMM estimation model presented above can be sped up
+dramatically by replacing the loops over categorical distributions
+with a single multinomial distribution.
+
+上述展示的简单 HMM 估计模型可以通过用单个多项分布代替对分类分布的循环来大大加快速度。
+
+The data are declared as before.  The transformed data block
+computes the sufficient statistics for estimating the transition and
+emission matrices.
+
+数据的声明与之前相同。转换后的数据块计算用于估计转移矩阵和发射矩阵的充分统计量。
+
+```stan
+transformed data {
+  array[K, K] int<lower=0> trans;
+  array[K, V] int<lower=0> emit;
+  for (k1 in 1:K) {
+    for (k2 in 1:K) {
+      trans[k1, k2] = 0;
+    }
+  }
+  for (t in 2:T) {
+    trans[z[t - 1], z[t]] += 1;
+  }
+  for (k in 1:K) {
+    for (v in 1:V) {
+      emit[k, v] = 0;
+    }
+  }
+  for (t in 1:T) {
+    emit[z[t], w[t]] += 1;
+  }
+}
+```
+
+The likelihood component of the model based on looping over the input
+is replaced with multinomials as follows.
+
+基于循环输入的模型中的似然成分被替换为如下的多项分布形式。
+
+```stan
+model {
+  // ...
+  for (k in 1:K) {
+    trans[k] ~ multinomial(theta[k]);
+  }
+  for (k in 1:K) {
+    emit[k] ~ multinomial(phi[k]);
+  }
+}
+```
+
+In a continuous HMM with normal emission probabilities could be sped
+up in the same way by computing sufficient statistics.
+
+具有正态发射概率的连续隐马尔可夫模型可以通过相同的计算充分统计量的方式来加快计算速度。
+
+### Analytic posterior {-}
+
+### 解析后验
+
+With the Dirichlet-multinomial HMM, the posterior can be computed analytically because the Dirichlet is the conjugate prior to the multinomial.  The following example illustrates how a Stan model can define the posterior analytically.  This is possible in the Stan language because the model only needs to define the conditional probability of the parameters given the data up to a proportion, which can be done by defining the (unnormalized) joint probability or the (unnormalized) conditional posterior, or anything in between.
+
+通过使用狄利克雷-多项分布隐马尔可夫模型，可以对后验概率进行解析计算，因为狄利克雷分布是多项分布的共轭先验。以下示例说明了 Stan 模型如何解析地定义后验概率。在 Stan 语言中，这是可能的，因为模型只需要定义给定数据的参数的条件概率，可以通过定义（非标准化的）联合概率或（非标准化的）条件后验概率或介于两者之间来实现。
+
+The model has the same data and parameters as the previous models, but
+now computes the posterior Dirichlet parameters in the transformed
+data block.
+
+该模型与之前的模型具有相同的数据和参数，但现在是在变换数据块中计算后验狄利克雷参数。
+
+```stan
+transformed data {
+  vector<lower=0>[K] alpha_post[K];
+  vector<lower=0>[V] beta_post[K];
+  for (k in 1:K) {
+    alpha_post[k] = alpha;
+  }
+  for (t in 2:T) {
+    alpha_post[z[t - 1], z[t]] += 1;
+  }
+  for (k in 1:K) {
+    beta_post[k] = beta;
+  }
+  for (t in 1:T) {
+    beta_post[z[t], w[t]] += 1;
+  }
+}
+```
+
+The posterior can now be written analytically as follows.
+
+现在可以将后验概率解析地写为以下形式。
+
+```stan
+model {
+  for (k in 1:K) {
+    theta[k] ~ dirichlet(alpha_post[k]);
+  }
+  for (k in 1:K) {
+    phi[k] ~ dirichlet(beta_post[k]);
+  }
+}
+```
+
+
+### Semisupervised estimation {-}
+
+### 半监督估计
+
+HMMs can be estimated in a fully unsupervised fashion without any data
+for which latent states are known.  The resulting posteriors are
+typically extremely multimodal.  An intermediate solution is to use
+semisupervised estimation, which is based on a combination of
+supervised and unsupervised data.  Implementing this estimation
+strategy in Stan requires calculating the probability of an output
+sequence with an unknown state sequence.  This is a marginalization
+problem, and for HMMs, it is computed with the so-called forward
+algorithm.
+
+HMM 可以以完全无监督的方式进行估计，无需任何已知潜在状态的数据。得到的后验概率通常具有极高的多峰性。一种中间解决方案是使用半监督估计，该方法是基于监督和无监督数据的组合。在 Stan 中实现这种估计策略需要计算具有未知状态序列的输出序列的概率。这是一个边缘化问题，对于 HMM，可以使用所谓的前向算法进行计算。
+
+In Stan, the forward algorithm is coded as follows.  First, two additional data variable are declared for the unsupervised data.
+
+在 Stan 中，前向算法的编码如下。首先，为无监督数据声明两个额外的数据变量。
+
+```stan
+data {
+  // ...
+  int<lower=1> T_unsup;             // num unsupervised items
+  array[T_unsup] int<lower=1, upper=V> u;  // unsup words
+  // ...
+}
+```
+
+The model for the supervised data does not change; the unsupervised
+data are handled with the following Stan implementation of the forward
+algorithm.
+
+有监督数据的模型不会改变；无监督数据则通过以下 Stan 实现的前向算法处理。
+
+```stan
+model {
+  // ...
+  array[K] real acc;
+  array[T_unsup, K] real gamma;
+  for (k in 1:K) {
+    gamma[1, k] = log(phi[k, u[1]]);
+  }
+  for (t in 2:T_unsup) {
+    for (k in 1:K) {
+      for (j in 1:K) {
+        acc[j] = gamma[t - 1, j] + log(theta[j, k])
+                 + log(phi[k, u[t]]);
+      }
+      gamma[t, k] = log_sum_exp(acc);
+    }
+  }
+  target += log_sum_exp(gamma[T_unsup]);
+}
+```
+
+The forward values `gamma[t, k]` are defined to be the log
+marginal probability of the inputs `u[1],...,u[t]` up to time
+`t` and the latent state being equal to `k` at time
+`t`; the previous latent states are marginalized out.  The first
+row of `gamma` is initialized by setting `gamma[1, k]` equal
+to the log probability of latent state `k` generating the first
+output `u[1]`; as before, the probability of the first latent
+state is not itself modeled.  For each subsequent time `t` and
+output `j`, the value `acc[j]` is set to the probability of
+the latent state at time `t-1` being `j`, plus the log
+transition probability from state `j` at time `t-1` to state
+`k` at time `t`, plus the log probability of the output
+`u[t]` being generated by state `k`.  The
+`log_sum_exp` operation just multiplies the probabilities for
+each prior state `j` on the log scale in an arithmetically stable
+way.
+
+前向值 `gamma[t, k]` 的定义是输入 `u[1],...,u[t]` 在时间 `t` 的边际概率，并且潜在状态在时间 `t` 时等于 `k`；之前的潜在状态已经被边缘化。`gamma` 的第一行通过将 `gamma[1, k]` 设置为潜在状态 `k` 生成第一个输出 `u[1]` 的对数概率来进行初始化；与之前一样，第一个潜在状态的概率没有被建模。对于每个后续的时间 `t` 和输出 `j`，将 `acc[j]` 设置为时间 `t-1` 的潜在状态为 `j` 的概率加上从时间 `t-1` 的状态 `j` 到时间 `t` 的状态 `k` 的对数转移概率，再加上输出 `u[t]` 由状态 `k` 生成的对数概率。`log_sum_exp` 操作在对数尺度上以数值稳定的方式将每个先前状态 `j` 的概率相乘。
+
+The brackets provide the scope for the local variables `acc` and
+`gamma`; these could have been declared earlier, but it is
+clearer to keep their declaration near their use.
+
+括号提供了局部变量 `acc` 和 `gamma` 的作用域；它们可以在之前声明，但将其声明保持在使用附近更清晰一些。
+
+
+### Predictive inference {-}
+
+### 预测性推断
+
+Given the transition and emission parameters, $\theta_{k, k'}$ and
+$\phi_{k,v}$ and an observation sequence $u_1, \dotsc, u_T \in \{
+1, \dotsc, V \}$, the Viterbi (dynamic programming) algorithm
+computes the state sequence which is most likely to have generated the
+observed output $u$.
+
+给定转移概率和发射概率参数 $\theta_{k, k'}$ 和 $\phi_{k,v}$，以及观测序列 $u_1, \dotsc, u_T \in \{
+1, \dotsc, V \}$，Viterbi（动态规划）算法可以计算出最有可能生成观测输出 $u$ 的状态序列。
+
+The Viterbi algorithm can be coded in Stan in the generated quantities
+block as follows.  The predictions here is the most likely state
+sequence `y_star[1], ..., y_star[T_unsup]` underlying the
+array of observations `u[1], ..., u[T_unsup]`.  Because this
+sequence is determined from the transition probabilities
+`theta` and emission probabilities `phi`, it may be
+different from sample to sample in the posterior.
+
+在 Stan 中，可以在 generated quantities 的块中编写 Viterbi 算法，如下所示。这里的预测是最有可能的状态序列 `y_star[1], ..., y_star[T_unsup]`，它是观测数组 `u[1], ..., u[T_unsup]` 的基础。由于这个序列是根据转移概率 `theta` 和发射概率 `phi` 确定的，所以在后验样本中从样本到样本的结果可能会有所不同。
+
+```stan
+generated quantities {
+  array[T_unsup] int<lower=1, upper=K> y_star;
+  real log_p_y_star;
+  {
+    array[T_unsup, K] int back_ptr;
+    array[T_unsup, K] real best_logp;
+    real best_total_logp;
+    for (k in 1:K) {
+      best_logp[1, k] = log(phi[k, u[1]]);
+    }
+    for (t in 2:T_unsup) {
+      for (k in 1:K) {
+        best_logp[t, k] = negative_infinity();
+        for (j in 1:K) {
+          real logp;
+          logp = best_logp[t - 1, j]
+                  + log(theta[j, k]) + log(phi[k, u[t]]);
+          if (logp > best_logp[t, k]) {
+            back_ptr[t, k] = j;
+            best_logp[t, k] = logp;
+          }
+        }
+      }
+    }
+    log_p_y_star = max(best_logp[T_unsup]);
+    for (k in 1:K) {
+      if (best_logp[T_unsup, k] == log_p_y_star) {
+        y_star[T_unsup] = k;
+      }
+    }
+    for (t in 1:(T_unsup - 1)) {
+      y_star[T_unsup - t] = back_ptr[T_unsup - t + 1,
+                                      y_star[T_unsup - t + 1]];
+    }
+  }
+}
+```
+
+The bracketed block is used to make the three variables
+`back_ptr`, `best_logp`, and `best_total_logp`
+local so they will not be output.  The variable `y_star` will
+hold the label sequence with the highest probability given the input
+sequence `u`.  Unlike the forward algorithm, where the
+intermediate quantities were total probability, here they consist of
+the maximum probability `best_logp[t, k]` for the sequence up to
+time `t` with final output category `k` for time `t`,
+along with a backpointer to the source of the link.  Following the
+backpointers from the best final log probability for the final time
+`t` yields the optimal state sequence.
+
+使用括号块是为了使变量 `back_ptr`，`best_logp` 和 `best_total_logp` 成为局部变量，这样它们就不会被输出。变量 `y_star` 将保存在给定输入序列 `u` 的情况下具有最高概率的标签序列中。这与前向算法不同，在前向算法中，中间量是总概率，而在这里它们由截止到时间 `t` 的序列中具有最大概率 `best_logp[t, k]`，以及指向该链接源的后指针组成，其中 `t` 为时间，`k` 为最终输出类别。沿着最终时间 `t` 的最佳最终对数概率的后指针，可以得到最优状态序列。
+
+This inference can be run for the same unsupervised outputs `u`
+as are used to fit the semisupervised model.  The above code can be
+found in the same model file as the unsupervised fit.  This is the
+Bayesian approach to inference, where the data being reasoned about is
+used in a semisupervised way to train the model.  It is not
+"cheating" because the underlying states for `u` are never
+observed --- they are just estimated along with all of the other
+parameters.
+
+这种推断可以对与用于拟合半监督模型的无监督输出 `u` 运行。上述代码可以在与无监督拟合相同的模型文件中找到。这是贝叶斯推断方法，其数据以半监督的方式用于训练模型。这并不是“作弊”，因为 `u` 的底层状态从未被观察到---它们只是与所有其他参数一起估计出来。
+
+If the outputs `u` are not used for semisupervised estimation but
+simply as the basis for prediction, the result is equivalent to what
+is represented in the BUGS modeling language via the cut operation.
+That is, the model is fit independently of `u`, then those
+parameters used to find the most likely state to have generated
+`u`.
+
+如果输出 `u` 不被用于半监督估计，而只是作为预测的基础，那么结果等同于通过 cut 操作在 BUGS 建模语言中表示的结果。也就是说，模型是独立于 `u` 进行拟合的，然后使用这些参数来找到最有可能生成 `u` 的状态。

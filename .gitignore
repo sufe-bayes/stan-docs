@@ -12,6 +12,19 @@ _book
 _bookdown_files
 *.log
 
+# quarto build output
+src/_website
+*._pdf
+
+
+src/**/*.html
+src/**/*.tex
+!header.tex
+!json.html
+
 # eBook build output
 *.epub
 *.mobi
+
+# For the Mac (Finder metatdata files)
+*.DS_Store

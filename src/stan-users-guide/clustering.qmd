@@ -1,0 +1,880 @@
+---
+pagetitle: Clustering Models
+---
+
+# Clustering Models  {#clustering.chapter}
+
+# 聚类模型 {#clustering.chapter--cn}
+
+本节译者：王钦怡
+
+Unsupervised methods for organizing data into groups are collectively
+referred to as clustering.  This chapter describes the implementation
+in Stan of two widely used statistical clustering models, soft
+$K$-means and latent Dirichlet allocation (LDA).  In addition, this
+chapter includes naive Bayesian classification, which can be viewed as
+a form of clustering which may be supervised.  These models are
+typically expressed using discrete parameters for cluster assignments.
+Nevertheless, they can be implemented in Stan like any other mixture
+model by marginalizing out the discrete parameters (see
+the [mixture modeling chapter](finite-mixtures.qmd)).
+
+聚类是一种将数据组织成组的无监督方法。本章介绍了在Stan中实现的两种广泛使用的统计聚类模型：soft
+$K$-means和潜在狄利克雷分配（latent Dirichlet
+allocation，LDA）。此外，本章还包括朴素贝叶斯分类，它可以看作是一种可能受监督的聚类形式。这些模型通常使用离散参数表示聚类。尽管如此，它们可以像任何其他混合模型一样通过边缘化离散参数在Stan中实现（参见[混合模型](#mixture-modeling.chapter)）。
+
+
+## Relation to finite mixture models
+
+## 与有限混合模型的关系
+
+As mentioned in the [clustering section](finite-mixtures.qmd#clustering-mixture.section),
+clustering models and finite mixture models are really just two sides
+of the same coin.  The "soft" $K$-means model described in the next
+section is a normal mixture model (with varying assumptions about
+covariance in higher dimensions leading to variants of $K$-means).
+Latent Dirichlet allocation is a mixed-membership multinomial mixture.
+
+正如在[聚类混合章节](finite-mixtures.qmd#clustering-mixture.section)中提到的那样，聚类模型和有限混合模型实际上只是同一枚硬币的两个面。接下来将介绍的“soft” $K$-means模型是一个正态混合模型（$K$-means的不同变体是由于在更高维度中对协方差的不同假设）。潜在狄利克雷分配是一个成员混合的多项式混合模型。
+
+## Soft *K*-means
+
+$K$-means clustering is a method of clustering data represented as
+$D$-dimensional vectors.  Specifically, there will be $N$ items to be
+clustered, each represented as a vector $y_n \in \mathbb{R}^D$.  In the
+"soft" version of $K$-means, the assignments to clusters will be
+probabilistic.
+
+
+$K$-means聚类是一种对表示为$D$维向量的数据进行聚类的方法。具体来说，将有$N$个要聚类的项，每个项表示为向量$y_n \in \mathbb{R}^D$。在
+soft $K$-means中，对每一簇（cluster）的分配是概率性的。
+### Geometric hard *K*-means clustering {-}
+
+
+### 几何 hard *K*-means 聚类 {-}
+
+$K$-means clustering is typically described geometrically in terms of
+the following algorithm, which assumes the number of clusters $K$ and
+data vectors $y$ as input.
+
+$K$-means聚类通常用以下算法进行几何描述，假设簇的数量$K$和数据向量$y$作为输入。
+
+1. For each $n$ in $\{1,\dotsc,N\}$, randomly assign vector $y_n$ to a cluster in $\{1,\dotsc,K\}$;
+1. Repeat
+    1. For each cluster $k$ in $\{1,\dotsc,K\}$, compute the cluster centroid $\mu_k$  by averaging the vectors assigned to that cluster;
+    1. For each $n$ in $\{1,\dotsc,N\}$, reassign $y_n$ to the cluster $k$ for which the (Euclidean) distance from $y_n$ to $\mu_k$ is smallest;
+    1. If no vectors changed cluster, return the cluster assignments.
+
+1. 对于${1,\dotsc,N}$中的每个$n$，将向量$y_n$随机分配到${1,\dotsc,K}$中的一个簇中;
+1. 重复
+    1. 对于${1,\dotsc,K}$中的每个簇$k$，通过对分配给该簇的向量进行平均来计算簇中心$\mu_k$;
+    1. 对于${1,\dotsc,N}$中的每个$n$，重新将$y_n$分配给欧几里得距离$\mu_k$最小的簇$k$;
+    1. 如果没有向量更改簇，则返回簇的分配结果。
+
+This algorithm is guaranteed to terminate.
+
+
+该算法可保证终止。
+
+### Soft *K*-means clustering {-}
+
+
+### Soft *K*-means 聚类 {-}
+
+Soft $K$-means clustering treats the cluster assignments as
+probability distributions over the clusters.  Because of the
+connection between Euclidean distance and multivariate normal models
+with a fixed covariance, soft $K$-means can be expressed (and coded in
+Stan) as a multivariate normal mixture model.
+
+在soft $K$-means
+聚类中，将聚类分配视为对聚类的概率分布。由于欧几里得距离与多元正态模型的协方差之间的联系，因此可以将soft
+$K$-means 表示为多元正态混合模型，并在 Stan 中编码。
+
+In the full generative model, each data point $n$ in $\{1,\dotsc,N\}$ is assigned
+a cluster $z_n \in \{1,\dotsc,K\}$ with symmetric uniform probability,
+
+在完整的生成模型中，将每个数据点 $n$ 分配到聚类$z_n \in \{1,\dotsc,K\}$中，每个聚类都服从均匀分布，
+$$
+z_n \sim \textsf{categorical}(1/K),
+$$
+where $1$ is the unit vector of $K$ dimensions, so that $1/K$
+is the symmetric $K$-simplex.  Thus the model assumes that
+each data point is drawn from a hard decision about cluster
+membership.  The softness arises only from the uncertainty about which
+cluster generated a data point.
+
+其中 $1$ 是 $K$ 维的单位向量，因此 $1/K$ 是对称的
+$K$-单纯形。因此，该模型假设每个数据点都是从对聚类成员身份的硬决策（hard
+decision）中得到的，软性（softness）是由于不确定哪个聚类生成了数据点。
+
+The data points themselves are generated from a multivariate normal
+distribution whose parameters are determined by the cluster assignment
+$z_n$,
+
+数据点本身是从多元正态分布中生成的，其参数由聚类分配$z_n$决定，
+
+$$
+y_n \sim  \textsf{normal}(\mu_{z[n]},\Sigma_{z[n]})
+$$
+
+The sample implementation in this section assumes a fixed unit
+covariance matrix shared by all clusters $k$,
+
+本节假定对于所有簇均具有固定的单位协方差矩阵，
+
+$$
+\Sigma_k = \mathrm{diag\_matrix}({\bf 1}),
+$$
+so that the log multivariate normal can be implemented directly up to a proportion
+by
+
+从而对数多元正态分布具有以下比例关系
+
+$$
+\mathrm{normal}\left( y_n \mid \mu_k, \mathrm{diag\_matrix}({\bf 1}) \right)
+\propto \exp \left (- \frac{1}{2} \sum_{d=1}^D \left( \mu_{k,d} - y_{n,d}
+  \right)^2 \right).
+$$
+The spatial perspective on $K$-means arises by noting that the inner
+term is just half the negative Euclidean distance from the cluster
+mean $\mu_k$ to the data point $y_n$.
+
+$K$-means方法的空间视角可以通过注意到指数项只是聚类中心$\mu_k$到数据点$y_n$的欧氏距离的一半来得到。
+
+### Stan implementation of soft *K*-means {-}
+
+### 用Stan实现 soft *K*-means {-}
+
+Consider the following Stan program for implementing $K$-means
+clustering.
+
+以下为实现 $K$-means 聚类的Stan程序。
+
+```stan
+data {
+  int<lower=0> N;        // number of data points
+  int<lower=1> D;        // number of dimensions
+  int<lower=1> K;        // number of clusters
+  array[N] vector[D] y;  // observations
+}
+transformed data {
+  real<upper=0> neg_log_K;
+  neg_log_K = -log(K);
+}
+parameters {
+  array[K] vector[D] mu; // cluster means
+}
+transformed parameters {
+  array[N, K] real<upper=0> soft_z; // log unnormalized clusters
+  for (n in 1:N) {
+    for (k in 1:K) {
+      soft_z[n, k] = neg_log_K
+                     - 0.5 * dot_self(mu[k] - y[n]);
+    }
+  }
+}
+model {
+  // prior
+  for (k in 1:K) {
+    mu[k] ~ std_normal();
+  }
+
+  // likelihood
+  for (n in 1:N) {
+    target += log_sum_exp(soft_z[n]);
+  }
+}
+```
+
+There is an independent standard normal prior on the centroid parameters;
+this prior could be swapped with other priors, or even a hierarchical
+model to fit an overall problem scale and location.
+
+聚类中心参数具有独立的标准正态分布先验，这个先验可以被其他先验所代替，或者使用分层模型来拟合尺度参数和位置参数。
+
+The only parameter is `mu`, where `mu[k]` is the centroid for cluster
+$k$.  The transformed parameters `soft_z[n]` contain the log of the
+unnormalized cluster assignment probabilities.  The vector `soft_z[n]`
+can be converted back to a normalized simplex using the softmax
+function (see the functions reference manual), either externally or
+within the model's generated quantities block.
+
+这个模型只有一个参数 `mu`，其中 `mu[k]` 是第 $k$
+个簇的中心。变换后的参数 `soft_z[n]`
+包含了未归一化的簇分配概率的对数。向量 `soft_z[n]` 可以使用 softmax
+函数（请参见the functions reference
+manual）进行归一化，可以在模型的generated quantities
+block内部或外部进行。
+
+### Generalizing soft *K*-means {-}
+
+### 推广 soft *K*-means {-}
+
+The multivariate normal distribution with unit covariance matrix
+produces a log probability density proportional to Euclidean distance
+(i.e., $L_2$ distance).  Other distributions relate to other
+geometries.  For instance, replacing the normal distribution with the
+double exponential (Laplace) distribution produces a clustering model
+based on $L_1$ distance (i.e., Manhattan or taxicab
+distance).
+
+具有单位协方差矩阵的多元正态分布产生的对数概率密度与欧几里得距离成比例（即$L_2$距离）。其他分布也与其他几何关系有关。例如，用双指数（Laplace）分布替换正态分布会产生基于$L_1$距离（即Manhattan距离）的聚类模型。
+
+Within the multivariate normal version of $K$-means, replacing the
+unit covariance matrix with a shared covariance matrix amounts to
+working with distances defined in a space transformed by the inverse
+covariance matrix.
+
+在$K$-means的多元正态版本中，用共享协方差矩阵代替单位协方差矩阵相当于使用由逆协方差矩阵变换的空间中定义的距离。
+
+Although there is no global spatial analog, it is common to see soft
+$K$-means specified with a per-cluster covariance matrix. In this
+situation, a hierarchical prior may be used for the covariance matrices.
+
+虽然没有全局空间模拟，但通常会使用每个聚类的协方差矩阵指定 soft
+$K$-means。在这种情况下，可以将层次先验用于协方差矩阵。
+
+
+## The difficulty of Bayesian inference for clustering
+
+## 聚类中贝叶斯推断的困难
+
+Two problems make it pretty much impossible to perform full Bayesian
+inference for clustering models, the lack of parameter identifiability
+and the extreme multimodality of the posteriors.  There is additional
+discussion related to the non-identifiability due to label switching
+in the [label switching
+section](problematic-posteriors.qmd#label-switching-problematic.section).
+
+缺乏参数可识别性和后验的极端多模态的问题使得聚类模型进行完整的贝叶斯推理几乎不可能。在[标签交换](#label-switching-problematic.section)中，还有关于标签交换导致的不可识别性的其他讨论。
+
+### Non-identifiability {-}
+
+### 不可识别性{-}
+
+Cluster assignments are not identified---permuting the cluster mean
+vectors `mu` leads to a model with identical likelihoods.  For
+instance, permuting the first two indexes in `mu` and the first
+two indexes in each `soft_z[n]` leads to an identical likelihood
+(and prior).
+
+聚类分配未识别代表排列聚类中心向量`mu`会导致具有相同似然的模型。例如，排列
+`mu`中的前两个索引和每个 `soft_z[n]`
+中的前两个索引会导致相同的似然（和先验）。
+
+The lack of identifiability means that the cluster parameters
+cannot be compared across multiple Markov chains.  In fact, the only
+parameter in soft $K$-means is not identified, leading to problems in
+monitoring convergence.  Clusters can even fail to be identified
+within a single chain, with indices swapping if the chain is long
+enough or the data are not cleanly separated.
+
+缺乏可识别性意味着无法通过多个马尔可夫链比较聚类参数。事实上，soft
+$K$-means中的唯一参数没有被识别，导致监测收敛性出现问题。集群甚至无法在单个链中被识别，如果链足够长或数据没有完全分离，索引会交换。
+
+### Multimodality {-}
+
+### 多模态性 {-}
+
+The other problem with clustering models is that their posteriors are
+highly multimodal.  One form of multimodality is the
+non-identifiability leading to index swapping.  But even without
+the index problems the posteriors are highly multimodal.
+
+聚类模型的另一个问题是它们的后验分布通常具有高度的多模态性。多模态性的一种形式是由于不可识别性导致的索引交换问题。但即使没有索引问题，后验分布也具有高度的多模态性。
+
+Bayesian inference fails in cases of high multimodality because there
+is no way to visit all of the modes in the posterior in appropriate
+proportions and thus no way to evaluate integrals involved in
+posterior predictive inference.
+
+在高度多模态的情况下，贝叶斯推断失败的原因是无法以适当的比例访问后验分布中的所有模式，因此无法评估涉及后验预测推断的积分。
+
+In light of these two problems, the advice often given in fitting
+clustering models is to try many different initializations and select
+the sample with the highest overall probability.  It is also popular
+to use optimization-based point estimators such as expectation
+maximization or variational Bayes, which can be much more efficient
+than sampling-based approaches.
+
+鉴于这两个问题，在拟合聚类模型时通常建议尝试多种不同的初始化并选择具有最高总概率的样本。使用基于优化的点估计器（如EM或变分贝叶斯）也很流行，这可以比基于采样的方法更高效。
+
+
+## Naive Bayes classification and clustering
+
+## 朴素贝叶斯分类和聚类
+
+Naive Bayes is a kind of mixture model that can be used for
+classification or for clustering (or a mix of both), depending on
+which labels for items are observed.^[For clustering, the non-identifiability problems for all mixture models present a problem, whereas there is no such problem for classification.  Despite the difficulties with full Bayesian inference for clustering, researchers continue to use it, often in an exploratory data analysis setting rather than for predictive modeling.]
+
+朴素贝叶斯是一种混合模型，可用于分类或聚类（或两者的混合），具体取决于观测到的标签。^[对于聚类，所有混合模型的不可识别性问题都是一个问题，而分类则没有这样的问题。尽管在聚类中采用完整的贝叶斯推断存在困难，但通常还会在探索性数据分析环境中继续使用，而不是用于预测建模。]
+
+Multinomial mixture models are referred to as "naive Bayes" because
+they are often applied to classification problems where the
+multinomial independence assumptions are clearly false.
+
+多项式混合模型是指"朴素贝叶斯"，因为它们经常被应用于分类问题，而其中的多项式独立性假设是明显不成立的。
+
+Naive Bayes classification and clustering can be applied to any data
+with multinomial structure.  A typical example of this is natural
+language text classification and clustering, which is used an example
+in what follows.
+
+朴素贝叶斯分类和聚类可应用于具有多项式结构的任何数据。一个典型的例子是自然语言文本分类和聚类，在接下来的例子中将会用到。
+
+The observed data consists of a sequence of $M$ documents made up of
+bags of words drawn from a vocabulary of $V$ distinct words.  A
+document $m$ has $N_m$ words, which are indexed as $w_{m,1}, \dotsc,
+w_{m,N[m]} \in \{1,\dotsc,V\}$.  Despite the ordered indexing of words in a
+document, this order is not part of the model, which is clearly
+defective for natural human language data.  A number of topics (or
+categories) $K$ is fixed.
+
+观测数据由$M$个文本序列组成，这些文本由从$V$个不同词语中抽取的词包组成。文本$m$有$N_m$个词语，这些词语被索引为$w_{m,1}, \dotsc, w_{m,N[m]} \in \{1,\dotsc,V\}$。尽管文本中的词语按顺序编索引，但这个顺序并不是模型的一部分，对于自然语言数据来说是不合理的。主题（或类别）的数量$K$是固定的。
+
+The multinomial mixture model generates a single category $z_m \in
+\{1,\dotsc,K\}$ for each document $m \in \{1,\dotsc,M\}$ according to a categorical
+distribution,
+
+多项式混合模型根据分类分布为每个文本
+$m \in \{1，\dotsc，M\}$生成单个类别 $z_m \in \{1，\dotsc，K\}$，
+
+$$
+z_m \sim \textsf{categorical}(\theta).
+$$
+The $K$-simplex parameter $\theta$ represents the prevalence of each
+category in the data.
+
+$K$-单纯形参数 $\theta$ 表示数据中每个类别的流行程度。
+
+Next, the words in each document are generated conditionally
+independently of each other and the words in other documents based on
+the category of the document, with word $n$ of document $m$ being
+generated as
+
+接下来，每个文本中的词语相互条件独立地生成，其他文本中的词语根据文本的类别生成，文本$m$
+的词语 $n$ 生成为 
+
+$$
+w_{m,n} \sim \textsf{categorical}(\phi_{z[m]}).
+$$
+The parameter $\phi_{z[m]}$ is a $V$-simplex representing the
+probability of each word in the vocabulary in documents of category
+$z_m$.
+
+参数 $\phi_{z[m]}$ 是一个 $V$-单纯形，表示类别为 $z_m$
+的文本中词汇表中每个词语的概率。
+
+The parameters $\theta$ and $\phi$ are typically given symmetric
+Dirichlet priors.  The prevalence $\theta$ is sometimes fixed to
+produce equal probabilities for each category $k \in \{1,\dotsc,K\}$.
+
+参数 $\theta$ 和 $\phi$ 通常被赋予对称狄利克雷先验。$\theta$
+为每个类别$k \in \{1，\dotsc，K\}$产生相等的概率时是固定的。
+
+### Coding ragged arrays {-}
+
+### 编码不规则数组 {-}
+
+The specification for naive Bayes in the previous sections have used a ragged
+array notation for the words $w$.  Because Stan does not support
+ragged arrays, the models are coded using an alternative strategy that
+provides an index for each word in a global list of words.   The data
+is organized as follows, with the word arrays laid out in a column and each
+assigned to its document in a second column.
+
+在前面的部分中，朴素贝叶斯使用了针对词语 $w$ 的不规则数组标记。由于 Stan 不支持不规则数组，因此使用一种替代的编码模型，该策略为全局词语列表中的每个词语提供一个索引。数据如表格所示，词语数组按列排列，并分配给其文本的第二列。
+
+$$
+\begin{array}{lll}
+\hline
+\mathrm{n} \qquad\qquad\qquad\qquad & \mathrm{w[n]} \qquad & \mathrm{doc[n]} \\
+\hline
+ 1         & w_{1,1}    & 1 \\
+ 2         & w_{1,2}    & 1 \\
+ \vdots & \vdots    & \vdots \\
+ N_1     & w_{1,N[1]} & 1 \\
+ N_1 + 1 & w_{2,1}    & 2 \\
+ N_1 + 2 & w_{2,2}    & 2 \\
+ \vdots & \vdots    & \vdots \\
+ N_1 + N_2     & w_{2,N[2]} & 2 \\
+ N_1 + N_2 + 1 & w_{3,1}    & 3 \\
+ \vdots       & \vdots    & \vdots \\
+ N = \sum_{m=1}^M N_m & w_{M,N[M]} & M \\
+\hline
+\end{array}
+$$
+
+The relevant variables for the program are `N`, the total number
+of words in all the documents, the word array `w`, and the
+document identity array `doc`.
+
+这个程序中的相关变量是`N`，表示所有文本中词语的总数，`w`为词语数组，`doc`为文本标识符数组。
+
+### Estimation with category-labeled training data {-}
+
+### 使用类别标签的训练数据进行标记 {-}
+
+A naive Bayes model for estimating the simplex parameters given
+training data with documents of known categories can be coded in Stan
+as follows
+
+用于估计给定具有已知类别文本的训练数据的单纯形参数的朴素贝叶斯模型，可以在
+Stan 中实现
+
+```stan
+data {
+  // training data
+  int<lower=1> K;               // num topics
+  int<lower=1> V;               // num words
+  int<lower=0> M;               // num docs
+  int<lower=0> N;               // total word instances
+  array[M] int<lower=1, upper=K> z;    // topic for doc m
+  array[N] int<lower=1, upper=V> w;    // word n
+  array[N] int<lower=1, upper=M> doc;  // doc ID for word n
+  // hyperparameters
+  vector<lower=0>[K] alpha;     // topic prior
+  vector<lower=0>[V] beta;      // word prior
+}
+parameters {
+  simplex[K] theta;             // topic prevalence
+  array[K] simplex[V] phi;      // word dist for topic k
+}
+model {
+  theta ~ dirichlet(alpha);
+  for (k in 1:K) {
+    phi[k] ~ dirichlet(beta);
+  }
+  for (m in 1:M) {
+    z[m] ~ categorical(theta);
+  }
+  for (n in 1:N) {
+    w[n] ~ categorical(phi[z[doc[n]]]);
+  }
+}
+```
+
+The topic identifiers $z_m$ are declared as data and the
+latent category assignments are included as part of the likelihood
+function.
+
+主题标签 $z_m$ 为数据，潜在类别作为似然函数的一部分包含在内。
+
+### Estimation without category-labeled training data {-}
+
+### 使用没有类别标签的训练数据进行标记 {-}
+
+Naive Bayes models can be used in an unsupervised fashion to cluster
+multinomial-structured data into a fixed number $K$ of categories.
+The data declaration includes the same variables as the model in the
+previous section excluding the topic labels `z`.   Because
+`z` is discrete, it needs to be summed out of the model
+calculation.  This is done for naive Bayes as for other mixture
+models.  The parameters are the same up to the priors, but the
+likelihood is now computed as the marginal document probability
+
+朴素贝叶斯模型可以以无监督的方式用于将具有多项式结构的数据聚类到固定数量$K$的类别中。数据包括与前一节中的模型相同的变量，不包括主题标签`z`。由于`z`是离散的，因此需要从模型计算中进行求和。对于朴素贝叶斯和其他混合模型的处理类似，参数与先前相同，但现在似然被计算为边际概率。
+
+
+\begin{align*}
+\log\, &p(w_{m,1},\dotsc,w_{m,N_m} \mid \theta,\phi) \\
+ &= \log \sum_{k=1}^K
+    \left( \textsf{categorical}(k \mid \theta)
+           \times \prod_{n=1}^{N_m} \textsf{categorical}(w_{m,n} \mid \phi_k)
+    \right) \\
+ &= \log \sum_{k=1}^K \exp \left(
+    \log \textsf{categorical}(k \mid \theta)
+     + \sum_{n=1}^{N_m} \log \textsf{categorical}(w_{m,n} \mid \phi_k)
+    \right).
+\end{align*}
+
+The last step shows how the `log_sum_exp` function can be used
+to stabilize the numerical calculation and return a result on the log
+scale.
+
+最后一步显示了如何使用`log_sum_exp`函数来防止数值计算的下溢或上溢问题并在对数刻度上返回结果。
+
+```stan
+model {
+  array[M, K] real gamma;
+  theta ~ dirichlet(alpha);
+  for (k in 1:K) {
+    phi[k] ~ dirichlet(beta);
+  }
+  for (m in 1:M) {
+    for (k in 1:K) {
+      gamma[m, k] = categorical_lpmf(k | theta);
+    }
+  }
+  for (n in 1:N) {
+    for (k in 1:K) {
+      gamma[doc[n], k] = gamma[doc[n], k]
+                         + categorical_lpmf(w[n] | phi[k]);
+    }
+  }
+  for (m in 1:M) {
+    target += log_sum_exp(gamma[m]);
+  }
+}
+```
+
+The local variable `gamma[m, k]` represents the value
+
+局部变量`gamma[m, k]`代表
+
+$$
+\gamma_{m,k} = \log \textsf{categorical}(k \mid \theta)
++ \sum_{n=1}^{N_m} \log \textsf{categorical}(w_{m,n} \mid \phi_k).
+$$
+
+Given $\gamma$, the posterior probability that document
+$m$ is assigned category $k$ is
+
+给定 $\gamma$，文本 $m$ 被分配类别 $k$ 的后验概率为
+
+$$
+\Pr[z_m = k \mid w,\alpha,\beta]
+=
+\exp \left(
+\gamma_{m,k}
+- \log \sum_{k=1}^K \exp \left( \gamma_{m,k} \right)
+\right).
+$$
+
+If the variable `gamma` were declared and defined in the
+transformed parameter block, its sampled values would be saved by
+Stan.  The normalized posterior probabilities could also be defined as
+generated quantities.
+
+如果在转换后的参数块中定义变量`gamma`，则其采样值将由 Stan
+保存。归一化后验概率也可以定义为生成量。
+
+### Full Bayesian inference for naive Bayes {-}
+
+### 朴素贝叶斯的全贝叶斯推断 {-}
+
+Full Bayesian posterior predictive inference for the naive Bayes model
+can be implemented in Stan by combining the models for labeled and
+unlabeled data.  The estimands include both the model parameters and
+the posterior distribution over categories for the unlabeled data.  The
+model is essentially a missing data model assuming the unknown
+category labels are missing completely at random; see
+@GelmanEtAl:2013 and @GelmanHill:2007 for more
+information on missing data imputation.  The model is also an instance
+of semisupervised learning because the unlabeled data contributes to
+the parameter estimations.
+
+在Stan中，可以通过将有标签和无标签数据的模型结合起来，实现朴素贝叶斯模型的全贝叶斯后验推断。推断的目标包括模型参数和无标签数据的类别的后验分布。该模型实际上是一个缺失数据模型，假设未知的类别标签完全随机缺失。有关缺失数据处理的更多信息，@GelmanEtAl:2013 和 @GelmanHill:2007。该模型也是半监督学习的一个实例，因为未标记的数据有助于参数估计。
+
+To specify a Stan model for performing full Bayesian inference, the
+model for labeled data is combined with the model for unlabeled data.
+A second document collection is declared as data, but without the
+category labels, leading to new variables `M2` `N2`,
+`w2`, and `doc2`.  The number of categories and number of
+words, as well as the hyperparameters are shared and only declared
+once.  Similarly, there is only one set of parameters.  Then the model
+contains a single set of statements for the prior, a set of statements
+for the labeled data, and a set of statements for the unlabeled data.
+
+为了在Stan中利用全贝叶斯推断的模型，有标签数据的模型与无标签数据的模型结合。第二个文本集合为数据，但不包括类别标签，导致出现新变量`M2`，`N2`，`w2`和`doc2`。类别数和词语数以及超参数是共享的，只有一个参数集合。模型包含一组语句来定义先验概率、一组语句来定义有标签数据和一组语句来定义无标签数据。
+
+### Prediction without model updates {-}
+
+### 无需更新的预测 {-}
+
+An alternative to full Bayesian inference involves estimating a model
+using labeled data, then applying it to unlabeled data without
+updating the parameter estimates based on the unlabeled data.  This
+behavior can be implemented by moving the definition of `gamma`
+for the unlabeled documents to the generated quantities block.
+Because the variables no longer contribute to the log probability,
+they no longer jointly contribute to the estimation of the model
+parameters.
+
+一种替代全贝叶斯推断的方法是使用有标记的数据来估计模型，然后将其应用于未标记的数据，不是基于未标记的数据更新参数估计，可以通过将对未标记文本的`gamma`的定义移动到生成的量块中来实现。因为这些变量不再对对数概率产生贡献，它们也不再共同对模型参数的估计产生贡献。
+
+## Latent Dirichlet allocation
+
+## 潜在狄利克雷分配
+
+Latent Dirichlet allocation (LDA) is a mixed-membership multinomial
+clustering model [@BleiNgJordan:2003] that generalizes naive
+Bayes.  Using the topic and document terminology common in discussions of
+LDA, each document is modeled as having a mixture of topics, with each
+word drawn from a topic based on the mixing proportions.
+
+潜在狄利克雷分配 （LDA） 是一种混合成员多项式聚类模型
+[@BleiNgJordan:2003]，是朴素贝叶斯的推广。使用LDA讨论中常见的主题和文本，每个文本都被建模为具有混合主题，每个词语都基于混合比例从主题中提取。
+
+### The LDA Model {-}
+
+### LDA模型 {-}
+
+The basic model assumes each document is generated independently based
+on fixed hyperparameters. For document $m$, the first step is to draw a topic
+distribution simplex $\theta_m$ over the $K$ topics,
+
+每个文本的基本模型假设都是根据固定的超参数独立生成的。对于文本
+$m$，第一步是得到包含 $K$ 个主题分布的单纯形 $\theta_m$，
+
+$$
+\theta_m \sim \textsf{Dirichlet}(\alpha).
+$$
+
+The prior hyperparameter $\alpha$ is fixed to a $K$-vector of positive
+values.  Each word in the document is generated independently
+conditional on the distribution $\theta_m$.  First, a topic
+$z_{m,n} \in \{1,\dotsc,K\}$ is drawn for the word based on the
+document-specific topic-distribution,
+
+前面的超参数 $\alpha$ 固定为正值的 $K$-向量。文本中的每个词语都是以分布
+$\theta_m$ 为条件独立生成的。首先，根据文本特定的主题分布为词语得到主题
+$z_{m，n} \in \{1，\dotsc，K\}$ ，
+
+$$
+z_{m,n} \sim \textsf{categorical}(\theta_m).
+$$
+
+Finally, the word $w_{m,n}$ is drawn according to the word distribution
+for topic $z_{m,n}$,
+
+最后，根据主题 $z_{m，n}$ 的词语分布得到词语 $w_{m，n}$，
+
+$$
+w_{m,n} \sim \textsf{categorical}(\phi_{z[m,n]}).
+$$
+The distributions $\phi_k$ over words for topic $k$ are also given a
+Dirichlet prior,
+
+主题 $k$ 中词语的分布 $\phi_k$ 也服从狄利克雷先验，
+
+$$
+\phi_k \sim \textsf{Dirichlet}(\beta)
+$$
+
+where $\beta$ is a fixed $V$-vector of positive values.
+
+其中 $\beta$ 是固定的具有正值的 $V$-向量。
+
+### Summing out the discrete parameters {-}
+
+### 离散数据求和 {-}
+
+Although Stan does not (yet) support discrete sampling, it is possible
+to calculate the marginal distribution over the continuous parameters
+by summing out the discrete parameters as in other mixture models.
+The marginal posterior of the topic and word variables is
+
+在Stan中，虽然目前还不支持离散采样，但是可以通过对离散变量的求和来计算连续参数的边缘分布，就像其他混合模型一样。主题和词语变量的边缘后验分布是：
+
+\begin{align*}
+p(\theta,\phi \mid w,\alpha,\beta)
+ &\propto p(\theta \mid \alpha) \, p(\phi \mid \beta) \, p(w \mid \theta,\phi) \\
+ &= \prod_{m=1}^M p(\theta_m \mid \alpha)
+    \times \prod_{k=1}^K p(\phi_k \mid \beta)
+    \times \prod_{m=1}^M \prod_{n=1}^{M[n]} p(w_{m,n} \mid \theta_m,\phi).
+\end{align*}
+
+The inner word-probability term is defined by summing out the
+topic assignments,
+
+其中的词语概率项是通过主题分配的求和定义的，
+
+\begin{align*}
+p(w_{m,n} \mid \theta_m,\phi)
+ &= \sum_{z=1}^K p(z,w_{m,n} \mid \theta_m,\phi) \\
+ &= \sum_{z=1}^K p(z \mid \theta_m) \, p(w_{m,n} \mid \phi_z).
+\end{align*}
+
+Plugging the distributions in and converting to the log scale provides a
+formula that can be implemented directly in Stan,
+
+将分布代入并转换为对数刻度，提供了一个可以直接在Stan中实现的公式，
+
+\begin{align*}
+\log\, &p(\theta,\phi \mid w,\alpha,\beta) \\
+ &= \sum_{m=1}^M \log \textsf{Dirichlet}(\theta_m \mid \alpha)
+    + \sum_{k=1}^K \log \textsf{Dirichlet}(\phi_k \mid \beta) \\
+ &\qquad + \sum_{m=1}^M \sum_{n=1}^{N[m]} \log \left(
+    \sum_{z=1}^K \textsf{categorical}(z \mid \theta_m)
+    \times \textsf{categorical}(w_{m,n} \mid \phi_z)
+  \right)
+\end{align*}
+
+### Implementation of LDA {-}
+
+### LDA的实现 {-}
+
+Applying the marginal derived in the last section to the data
+structure described in this section leads to the following Stan
+program for LDA.
+
+将上一节推导出的边缘分布应用于本节所描述的数据结构，将得到以下用于LDA的Stan程序。
+
+```stan
+data {
+  int<lower=2> K;               // num topics
+  int<lower=2> V;               // num words
+  int<lower=1> M;               // num docs
+  int<lower=1> N;               // total word instances
+  array[N] int<lower=1, upper=V> w;    // word n
+  array[N] int<lower=1, upper=M> doc;  // doc ID for word n
+  vector<lower=0>[K] alpha;     // topic prior
+  vector<lower=0>[V] beta;      // word prior
+}
+parameters {
+  array[M] simplex[K] theta;    // topic dist for doc m
+  array[K] simplex[V] phi;      // word dist for topic k
+}
+model {
+  for (m in 1:M) {
+    theta[m] ~ dirichlet(alpha);  // prior
+  }
+  for (k in 1:K) {
+    phi[k] ~ dirichlet(beta);     // prior
+  }
+  for (n in 1:N) {
+    array[K] real gamma;
+    for (k in 1:K) {
+      gamma[k] = log(theta[doc[n], k]) + log(phi[k, w[n]]);
+    }
+    target += log_sum_exp(gamma);  // likelihood;
+  }
+}
+```
+
+As in the other mixture models, the log-sum-of-exponents function is
+used to stabilize the numerical arithmetic.
+
+和其它混合模型一样，对数和的指数函数用于稳定数值计算。
+
+### Correlated topic model {-}
+
+### 相关主题模型 {-}
+
+To account for correlations in the distribution of topics for
+documents, @BleiLafferty:2007 introduced a variant of LDA in
+which the Dirichlet prior on the per-document topic distribution is
+replaced with a multivariate logistic normal distribution.
+
+为了考虑文本主题分布的相关性，@BleiLafferty:2007
+引入了LDA的一种变体，其中每个文本的主题分布上的Dirichlet先验被替换为多元逻辑正态分布。
+
+The authors treat the prior as a fixed hyperparameter.  They use an
+$L_1$-regularized estimate of covariance, which is equivalent to the
+maximum a posteriori estimate given a double-exponential prior.  Stan
+does not (yet) support maximum a posteriori estimation, so the mean and
+covariance of the multivariate logistic normal must be specified as
+data.
+
+作者将先验视为固定的超参数。他们使用带$L_1$正则化的协方差估计，这相当于在给定双指数先验的情况下的最大后验估计。Stan目前还不支持最大后验估计，因此必须将多元逻辑正态的均值和协方差在Stan的数据声明中指定。
+
+#### Fixed hyperparameter correlated topic model {-}
+
+#### 固定超参数的相关主题模型 {-}
+
+The Stan model in the previous section can be modified to implement
+the correlated topic model by replacing the Dirichlet topic prior
+`alpha` in the data declaration with the mean and covariance of
+the multivariate logistic normal prior.
+
+前一节中的Stan模型可以通过将数据声明中的Dirichlet主题先验`alpha`替换为多元逻辑正态先验的均值和协方差，从而实现相关主题模型。
+
+```stan
+data {
+  // ... data as before without alpha ...
+  vector[K] mu;          // topic mean
+  cov_matrix[K] Sigma;   // topic covariance
+}
+```
+
+Rather than drawing the simplex parameter `theta` from a
+Dirichlet, a parameter `eta` is drawn from a multivariate normal
+distribution and then transformed using softmax into a simplex.
+
+不是从狄利克雷得到单纯形参数 `theta`，而是从多元正态分布中得到参数
+`eta`，然后使用 softmax 转换为单纯形。
+
+```stan
+parameters {
+  array[K] simplex[V] phi;     // word dist for topic k
+  array[M] vector[K] eta;      // topic dist for doc m
+}
+transformed parameters {
+  array[M] simplex[K] theta;
+  for (m in 1:M) {
+    theta[m] = softmax(eta[m]);
+  }
+}
+model {
+  for (m in 1:M) {
+    eta[m] ~ multi_normal(mu, Sigma);
+  }
+  // ... model as before w/o prior for theta ...
+}
+```
+
+#### Full Bayes correlated topic model {-}
+
+#### 全贝叶斯相关主题模型 {-}
+
+By adding a prior for the mean and covariance, Stan supports full
+Bayesian inference for the correlated topic model.  This requires
+moving the declarations of topic mean `mu` and covariance `Sigma`
+from the data block to the parameters block and providing them with
+priors in the model.  A relatively efficient and interpretable prior
+for the covariance matrix `Sigma` may be encoded as follows.
+
+通过为均值和协方差添加先验，Stan支持相关主题模型的全贝叶斯推理。这需要将主题均值`mu`和协方差`Sigma`的声明从数据块移动到参数块，并在模型中为它们提供先验。协方差矩阵`Sigma`的相对有效和可解释的先验可以编码如下。
+
+```stan
+// ... data block as before, but without alpha ...
+parameters {
+  vector[K] mu;              // topic mean
+  corr_matrix[K] Omega;      // correlation matrix
+  vector<lower=0>[K] sigma;  // scales
+  array[M] vector[K] eta;    // logit topic dist for doc m
+  array[K] simplex[V] phi;   // word dist for topic k
+}
+transformed parameters {
+  // ... eta as above ...
+  cov_matrix[K] Sigma;       // covariance matrix
+  for (m in 1:K) {
+    Sigma[m, m] = sigma[m] * sigma[m] * Omega[m, m];
+  }
+  for (m in 1:(K-1)) {
+    for (n in (m+1):K) {
+      Sigma[m, n] = sigma[m] * sigma[n] * Omega[m, n];
+      Sigma[n, m] = Sigma[m, n];
+    }
+  }
+}
+model {
+  mu ~ normal(0, 5);      // vectorized, diffuse
+  Omega ~ lkj_corr(2.0);  // regularize to unit correlation
+  sigma ~ cauchy(0, 5);   // half-Cauchy due to constraint
+  // ... words sampled as above ...
+}
+```
+
+The $\textsf{LKJCorr}$ distribution with shape $\alpha > 0$ has support
+on correlation matrices (i.e., symmetric positive definite with unit
+diagonal).  Its density is defined by
+
+具有形状参数 $\alpha>0$ 的 $\textsf{LKJCorr}$
+分布在相关矩阵上具有支持（即对角线元素为1的对称正定矩阵）。其密度由以下公式定义
+
+$$
+\mathsf{LkjCorr}(\Omega\mid\alpha) \propto \mathrm{det}(\Omega)^{\alpha - 1}
+$$
+With a scale of $\alpha = 2$, the weakly informative prior favors a
+unit correlation matrix.  Thus the compound effect of this prior on
+the covariance matrix $\Sigma$ for the multivariate logistic normal is
+a slight concentration around diagonal covariance matrices with scales
+determined by the prior on `sigma`.
+
+在 $\alpha=2$ 的下，弱信息先验偏好于单位相关矩阵。因此，对于多元 logistic 正态分布的协方差矩阵
+$\Sigma$，这种先验的复合效应是在对角线协方差矩阵周围集中，其尺度由 `sigma` 先验确定。
+

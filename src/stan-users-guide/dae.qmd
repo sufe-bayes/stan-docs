@@ -1,0 +1,303 @@
+---
+pagetitle: Differential-Algebraic Equations
+---
+
+# Differential-Algebraic Equations  {#dae-solver.chapter}
+
+# 微分代数方程 {#dae-solver.chapter--cn}
+
+本节译者：于娇
+
+Stan support solving systems of differential-algebraic equations
+(DAEs) of index 1 [@serban_user:2021]. The solver adaptively
+refines the solutions in order to satisfy given tolerances.
+
+Stan 支持求解指数（index）为1的微分代数方程组（DAEs）[@serban_user:2021]。解算器会自适应地细化解，以满足给定的公差。 
+
+One can think a differential-algebraic system of equations
+as ODEs with additional algebraic constraints applied to some
+of the variables. In such a system, the variable derivatives may not be
+expressed explicitly with a right-hand-side as in ODEs, but implicitly
+constrained.
+
+我们可以把微分代数方程组看作是对一些变量施加了额外的代数约束条件的常微分方程组（ODEs）。在这样的系统中，变量的导数可能无法像 ODEs 中那样通过右侧的显式表达式来表示，而是被隐式地限制。
+
+Similar to ODE solvers, the DAE
+solvers must not only provide the solution to the DAE itself, but also
+the gradient of the DAE solution with respect to parameters (the
+sensitivities). Stan's DAE solver uses
+the *forward sensitivity* calculation to expand the base DAE system
+with additional DAE equations for the gradients of the solution.
+For each parameter, an additional full set of $N$
+sensitivity states are added meaning that the full DAE solved has
+$N \, + N \cdot M$ states.
+
+类似于 ODE 求解器，DAE 求解器不仅必须提供 DAE 本身的解，还必须提供解关于参数的梯度（灵敏度）。Stan 的 DAE 求解器使用*向前灵敏度*计算，将基本 DAE 系统扩展为梯度解的附加 DAE 方程组。对于每个参数，都会添加一组额外的完整 $N$ 个灵敏度状态，这意味着要解决的完整 DAE 具有 $N \, + N \cdot M$ 个状态。
+
+Two interfaces are provided for the forward sensitivity solver: one
+with default tolerances and default max number of steps, and one
+that allows these controls to be modified. Choosing tolerances is
+important for making any of the solvers work well -- the defaults
+will not work everywhere. The tolerances should be chosen primarily
+with consideration to the scales of the solutions, the accuracy
+needed for the solutions, and how the solutions are used in the
+model. The same principles in the [control parameters
+section](odes.qmd#control-ode.section) apply here.
+
+前向灵敏度求解器提供两个接口：一个使用默认的公差和默认的最大步数，另一个允许修改这些控制参数。选择公差对于使任何求解器良好工作非常重要——默认值无法在所有情况下起作用。应根据解的比例、所需解的精度以及解在模型中的使用方式等因素来选择公差。[control parameters
+section](#control-ode.section)中的相同原则也适用于此处。
+
+Internally Stan's DAE solver uses a variable-step, variable-order,
+backward-differentiation formula implementation
+[@CohenHindmarsh:1996; @SerbanHindmarsh:2005].
+
+在内部，Stan 的 DAE 求解器使用变步长、变阶数、向后差分公式实现[@CohenHindmarsh:1996; @SerbanHindmarsh:2005]。
+
+## Notation
+
+## 符号
+
+A DAE is defined by a set of expressions for the *residuals* of differential equations and algebraic equations
+$r(y', y, t, \theta)$, and *consistent* initial conditions
+$y(t_0, \theta) = y_0, y'(t_0, \theta)=y'_0$. The DAE is define by
+residual function as $r(y', y, t, \theta)=0$.
+The $\theta$ dependence is included in the notation to highlight that
+the solution $y(t)$ is
+a function of any parameters used in the computation.
+
+DAE 由对应微分方程和代数方程的*残差*表达式 $r(y', y, t, \theta)$ 以及一组*一致的*初始条件 $y(t_0, \theta) = y_0$，$y'(t_0, \theta)=y'_0$
+所定义。令残差函数 $r(y', y, t, \theta)=0$ 可以用来定义 DAE。符号中包含 $\theta$ 的原因是为了强调解 $y(t)$ 是与计算中使用的任何参数有关的函数。
+
+ 
+## Example: chemical kinetics
+
+## 示例：化学动力学
+
+As an example of a system of DAEs, consider following chemical
+kinetics problem[@robertson_solution:1966]. The nondimensionalized DAE consists of two differential equations
+and one algebraic constraint. The differential equations describe the
+reactions from reactants $y_1$ and $y_2$ to the product $y_3$, and the
+algebraic equation describes the mass conservation.
+[@serban_example:2021].
+
+作为 DAEs 系统的一个例子，考虑以下化学动力学问题[@robertson_solution:1966]。无量纲 DAE 由两个微分方程和一个代数约束组成。微分方程描述了从反应物 $y_1$ 和 $y_2$ 到产物 $y_3$ 的反应，代数方程描述了质量守恒[@serban_example:2021]。 
+
+\begin{align*}
+\frac{dy_1}{dt} + \alpha y_1 - \beta y_2 y_3 = 0 \\
+\frac{dy_2}{dt} - \alpha y_1 + \beta y_2 y_3 + \gamma y_2^2 = 0 \\
+y_1 + y_2 + y_3 - 1.0 = 0
+\end{align*}
+
+The state equations implicitly defines the state $(y_1(t), y_2(t), y_3(t))$ at future times
+as a function of an initial state and the system parameters, in this
+example the reaction rate coefficients $(\alpha, \beta, \gamma)$.
+
+状态方程隐含地定义了未来时刻的状态 $(y_1(t), y_2(t), y_3(t))$ 作为初始状态和系统参数的函数，例如在本例中是反应速率系数 $(\alpha, \beta, \gamma)$。
+
+Unlike solving ODEs, solving DAEs requires a *consistent* initial
+condition. That is, one must specify both $y(t_0)$
+and $y'(t_0)$ so that residual function becomes zero at initial time $t_0$
+
+与求解 ODE 不同，求解 DAE 需要一个*一致*的初始条件。也就是说，必须同时指定 $y(t_0)$ 和 $y'(t_0)$，以使残差函数在初始时刻 $t_0$ 为零
+
+\begin{equation*}
+r(y'(t_0), y(t_0), t_0) = 0
+\end{equation*}
+
+
+## Index of DAEs
+
+## DAEs 的指数
+
+The index along a DAE solution $y(t)$ is the minimum number of
+differentiations of some of the components of the system required to
+solve for $y'$ uniquely in terms of $y$ and $t$, so that the DAE is
+converted into an ODE for $y$. Thus an ODE system is of index 0. The
+above chemical kinetics DAE is of index 1, as we can perform
+differentiation of the third equation followed by introducing the
+first two equations in order to obtain the ODE for $y_3$.
+
+在 DAE 解 $y(t)$ 中，指数是一些系统组分所需的最小微分次数，以唯一地解出关于 $y$ 和 $t$ 的 $y'$，使得 DAE 可以转化为关于 $y$ 的 ODE。因此，ODE 系统的指数为0。上述化学动力学 DAE 的指数为1，因为我们可以对第三个方程进行微分，然后引入前两个方程，以获得 $y_3$ 的 ODE。
+
+Most DAE solvers, including the one in Stan, support only index-1
+DAEs. For a high index DAE problem the user must first convert it to a
+lower index system. This often can be done by carrying out
+differentiations analytically [@ascher_computer:1998].
+
+大多数 DAE 求解器（包括 Stan 中的求解器）仅支持指数为1的 DAEs。对于高指数 DAE 问题，用户必须首先将其转换为较低指数系统，这通常可以通过进行解析微分来完成[@ascher_computer:1998]。
+
+## Coding the DAE system function
+
+## DAE 系统功能的编码
+
+The first step in coding an DAE system in Stan is defining the DAE residual
+function. The system functions require a specific signature so that the solvers
+know how to use them properly.
+
+在 Stan 中编写 DAE 系统的第一步是定义 DAE 残差函数。系统函数需要特定的签名，使得求解器知道如何正确使用它们。
+
+The first argument to the residual function is time, passed as a `real`;
+the second argument to the residual function is the system state $y$,
+passed as a `vector`, the third argument to the residual function is
+the state derivative $y'$, also passed as a `vector`. The residual
+function's return value is a `vector` of the same size as state and
+state derivatives. Additional arguments
+can be included in the residual function to pass other information
+into the solve (these will be passed through the function that starts the DAE
+solution). These argument can be parameters (in our example, the
+reaction rate coefficient $\alpha$, $\beta$, and $\gamma$), data, or any quantities that are needed to define the
+DAE.
+
+残差函数的第一个参数是时间，以 `real` 类型传递；第二个参数是系统状态 $y$，以 `vector` 类型传递；残差函数的第三个参数是状态导数 $y'$，也以 `vector` 类型传递。残差函数的返回值是与状态和状态导数大小相同的 `vector`。可以在残差函数中添加其他参数，将其他信息传递到求解器中（这些将通过启动 DAE 求解的函数传递）。这些参数可以是参数（在我们的示例中是反应速率系数 $\alpha$，$\beta$ 和 $\gamma$），数据或需要定义 DAE 的任何量。
+
+The above reaction be coded using the following function
+in Stan (see the [user-defined functions chapter](user-functions.qmd) for
+more information on coding user-defined functions).
+
+以上反应可以使用以下函数在 Stan 中编写（请参见[user-defined functions chapter](#functions-programming.chapter)了解有关编写用户定义函数的更多信息）。
+
+```stan
+ vector chem(real t, vector yy, vector yp,
+                 real alpha, real beta, real gamma) {
+    vector[3] res;
+    res[1] = yp[1] + alpha * yy[1] - beta * yy[2] * yy[3];
+    res[2] = yp[2] - alpha * yy[1] + beta * yy[2] * yy[3] + gamma * yy[2] * yy[2];
+    res[3] = yy[1] + yy[2] + yy[3] - 1.0;
+    return res;
+  }
+}
+```
+
+The function takes in a time `t` (a `real`), the system state
+`yy` (a `vector`), state derivative `yp` (a `vector`), as well as parameter
+`alpha` (a `real`),  `beta` (a `real`), and  `gamma` (a `real`). The function returns a
+`vector` of the residuals at time `t`. The DAE coded here does not
+explicitly depend on `t`, however one still needs to specify `t` as
+an argument.
+
+该函数以时间 `t`（`real` 类型），系统状态 `yy`（`vector` 类型），状态导数 `yp`（`vector` 类型）以及参数 `alpha`（`real` 类型），`beta`（`real` 类型）和 `gamma`（`real` 类型）作为输入。函数会返回在时间 `t` 上的残差（`vector` 类型）。这里编写的 DAE 并不明确依赖于 `t`，但是仍然需要将 `t` 指定为参数。
+
+### Strict signature {-}
+
+### 严格的签名 {-}
+
+The types in the DAE residual function are strict. The first argument is the time
+passed as a `real`, the second argument is the state passed as a `vector`,
+the third argument is the state derivative passed as a `vector`,
+and the return type is a `vector`. A model that does not have this signature will
+fail to compile. The fourth argument onwards can be any type, granted all
+the argument types match the types of the respective arguments in the solver
+call.
+
+DAE 残差函数中的类型是严格的。第一个参数是以 `real` 类型传递的时间，第二个参数是以 `vector` 类型传递的状态，第三个参数是通过 `vector` 类型传递的状态导数，返回类型是 `vector`。没有这个签名的模型将无法编译。从第四个参数开始可以是任何类型，只要所有参数类型与求解器调用中相应参数的类型匹配即可。
+
+All of these are possible DAE signatures:
+
+以下是可能的 DAE 签名：
+
+```stan
+vector my_dae1(real t, vector y, vector yp, real a0);
+vector my_dae2(real t, vector y, vector yp, array[] int a0, vector a1);
+vector my_dae3(real t, vector y, vector yp, matrix a0, array[] real a1, row_vector a2);
+```
+
+but these are not allowed:
+
+但这些是不允许的：
+
+```stan
+vector my_dae1(real t, array[] real y, vector yp);
+// Second argument is not a vector
+// 第二个参数不是一个 `vector`
+array[] real my_dae2(real t, vector y, vector yp);
+// Return type is not a vector
+// 返回类型不是 `vector`
+vector my_dae3(real t, vector y);
+// First argument is not a real and missing the third argument
+// 第一个参数不是 `real`，并且缺少第三个参数
+```
+
+## Solving DAEs
+
+## 求解 DAEs
+
+Stan provides a `dae` function for solving DAEs, so that the above chemical reaction
+equation can be solved in the following code.
+
+Stan 提供了一个用于求解 DAEs 的 `dae` 函数，从而可以在以下代码中求解上述化学反应方程。 
+
+```stan
+data {
+  int N;
+  vector[3] yy0;
+  vector[3] yp0;
+  real t0;
+  real alpha;
+  real beta;
+  array[N] real ts;
+  array[N] vector[3] y;
+}
+parameters {
+  real gamma;
+}
+transformed parameters {
+  vector[3] y_hat[N] = dae(chem, yy0, yp0, t0, ts, alpha, beta, gamma);
+}
+```
+
+Since `gamma` is a parameter, the DAE solver is called in the transformed parameters block.
+
+由于 `gamma` 是一个参数，DAE 求解器在转换参数块中被调用。
+
+## Control parameters for DAE solving {#control-dae.section}
+
+## 用于 DAE 求解的控制参数 {#control-dae.section--cn}
+
+Using `dae_tol` one can specify the `relative_tolerance`, `absolute_tolerance`, and
+`max_num_steps` parameters in order to control the DAE solution.
+
+使用 `dae_tol` 可以指定 `relative_tolerance`，`absolute_tolerance` 和 `max_num_steps` 参数以控制DAE的解。
+
+```stan
+vector[3] y_hat[N] = dae_tol(chem, yy0, yp0, t0, ts,
+                             relative_tolerance,
+                             absolute_tolerance,
+                             max_num_steps,
+                             alpha, beta, gamma);
+```
+
+`relative_tolerance` and `absolute_tolerance` control accuracy the solver tries to achieve, and
+`max_num_steps` specifies the maximum number of steps the solver will
+take between output time points before throwing an error.
+
+`relative_tolerance`和`absolute_tolerance`控制求解器尝试实现的精度，而`max_num_steps`
+指定解算器在抛出错误之前在输出时间点之间采取的最大步数。
+
+The control parameters must be data variables -- they cannot be
+parameters or expressions that depend on parameters, including local
+variables in any block other than transformed data and generated
+quantities. User-defined function arguments may be qualified as only
+allowing data arguments using the `data` qualifier.
+
+控制参数必须是数据变量——它们不能是参数或依赖于参数的表达式，包括除变换数据和生成量以外的任何块中的局部变量。用户定义的函数参数可以限定为仅允许使用 `data` 限定符的数据参数。
+
+The default value of relative and absolute
+tolerances are $10^{-10}$ and the maximum number of steps between outputs is
+one hundred million. We suggest the user choose the control parameters according
+to the problem in hand, and resort to the defaults only when no
+knowledge of the DAE system or the physics it models is available.
+
+默认的相对和绝对公差为 $10^{-10}$，在输出间隔时间内的最大步数为一亿。我们建议用户根据手头的问题选择控制参数，并且仅在没有关于 DAE 系统或其模拟的物理知识时才使用默认值。
+
+### Maximum number of steps {-}
+
+### 最大步数 {-}
+
+The maximum number of steps can be used to stop a runaway simulation.
+This can arise in when MCMC moves to a part of parameter space very far from
+where a differential equation would typically be solved. In particular this
+can happen during warmup.  With the non-stiff solver, this may happen when
+the sampler moves to stiff regions of parameter space, which will requires small
+step sizes.
+
+最大步数可以用来停止运行失控的模拟。这可能会在 MCMC 移动到参数空间中与通常求解微分方程的区域非常远的地方时出现，特别是在预热期间可能会发生这种情况。对于非刚性求解器，当采样器移动到参数空间的刚性区域时，这种情况可能会发生，并且这将需要更小的步长。

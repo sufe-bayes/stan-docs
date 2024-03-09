@@ -1,0 +1,56 @@
+---
+format:
+    html:
+        title: Stan User's Guide
+        subtitle: "Version {{< env STAN_DOCS_VERSION >}}"
+        toc: false
+---
+
+::: {.content-visible when-format="pdf"}
+# *Overview* {-}
+
+# *概览* {-}
+:::
+
+::: {.content-visible when-format="html"}
+![](img/logo_tm.png "Stan Logo"){width=225 .column-margin .d-none .d-md-block}
+:::
+
+
+This is the official user's guide for Stan.  It provides example
+models and programming techniques for coding statistical models in Stan.
+
+本书是 Stan 的官方用户指南，它通过一系列的示例模型和编程技巧来介绍如何在 Stan 中对统计模型进行编程。
+
+- Part 1 gives Stan code and discussions for several important classes
+of models.
+
+- 第一部分给出了一些重要模型的 Stan 代码及相关的讨论。
+
+- Part 2 discusses various general Stan programming techniques that are
+not tied to any particular model.
+
+- 第二部分讨论了各种通用的 Stan 编程技巧，它们并不只针对特定的模型。
+
+- Part 3 introduces algorithms for calibration and model checking that
+require multiple runs of Stan.
+
+- 第三部分介绍了模型校准和检验的各种方法，这些方法往往需要对 Stan 程序进行多次运行。
+
+- The appendices provide an introduction to the stanc3 compiler used in the
+  various interfaces to Stan, a style guide, and advice for users of BUGS and
+  JAGS.
+
+- 附录介绍了用在各个 Stan 接口中的 stanc3 编译器，一份编程风格指南，以及对 BUGS 和 JAGS 用户的建议。
+
+We recommend working through this guide using the textbooks _Bayesian
+Data Analysis_ and _Statistical Rethinking: A Bayesian Course with
+Examples in R and Stan_ as references on the concepts, and using the
+[*Stan Reference Manual*](https://mc-stan.org/docs/reference-manual/index.html)
+when necessary to clarify programming issues.
+
+我们建议在阅读本指南的过程中，同时参考 _Bayesian
+Data Analysis_ 和 _Statistical Rethinking: A Bayesian Course with
+Examples in R and Stan_ 这两本教科书来对相关概念进行学习，并在必要时使用 [*Stan 参考手册*](https://mc-stan.org/docs/reference-manual/index.html)来解决编程相关的问题。
+
+{{< include ../copyright_licensing.qmd >}}
