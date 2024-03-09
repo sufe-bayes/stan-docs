@@ -181,7 +181,7 @@ In this case, each integral is separately integrated to the given
 
 ### Avoiding precision loss near limits of integration in definite integrals {#integral-precision}
 
-### 避免定积分中积分极限附近的精度损失{#integral-precision}
+### 避免定积分中积分极限附近的精度损失{#integral-precision--cn}
 
 If care is not taken, the quadrature can suffer from numerical loss of
 precision near the endpoints of definite integrals.
