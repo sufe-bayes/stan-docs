@@ -7,6 +7,7 @@ pagetitle: Regression Models
 # 回归模型
 
 本节译者：于曙光、王才兴、王超
+本章校审：张梓源
 
 Stan supports regression models from simple linear regressions to
 multilevel generalized linear models.

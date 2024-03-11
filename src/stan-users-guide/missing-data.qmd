@@ -7,6 +7,7 @@ pagetitle: Missing Data and Partially Known Parameters
 # 缺失数据和部分已知参数
 
 本节译者：于娇
+本章校审：张梓源
 
 Bayesian inference supports a  general approach to missing data in
 which any missing data item is represented as a parameter that is
