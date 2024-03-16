@@ -53,4 +53,11 @@ when necessary to clarify programming issues.
 Data Analysis_ 和 _Statistical Rethinking: A Bayesian Course with
 Examples in R and Stan_ 这两本教科书来对相关概念进行学习，并在必要时使用 [*Stan 参考手册*](https://mc-stan.org/docs/reference-manual/index.html)来解决编程相关的问题。
 
+::: {.content-visible when-format="html"}
+[Download the pdf version of this manual](../stan-users-guide{{< env STAN_DOCS_VERSION_PDF >}}).
+
+[下载本指南的 PDF 版本](../stan-users-guide{{< env STAN_DOCS_VERSION_PDF >}})。
+:::
+
+
 {{< include ../copyright_licensing.qmd >}}
