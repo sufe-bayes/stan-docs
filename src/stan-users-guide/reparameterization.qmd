@@ -7,6 +7,7 @@ pagetitle: Reparameterization and Change of Variables
 # 重参数化和变量转换 {#change-of-variables.chapter--cn}
 
 本节译者：杨智
+本节校审：李君竹
 
 Stan supports a direct encoding of reparameterizations.
 Stan also supports changes of variables by directly incrementing the
@@ -111,7 +112,7 @@ Following @[GelmanEtAl:2013, Chapter 5] the mean
 gets a uniform prior and the count parameter a Pareto prior with
 $p(\lambda) \propto \lambda^{-2.5}$.
 
-根据@[GelmanEtAl:2013, Chapter 5]的建议，我们对均值参数给出均匀先验分布，对计数参数给出 Pareto 先验分布 $p(\lambda) \propto \lambda^{-2.5}$。
+根据 @[GelmanEtAl:2013, Chapter 5] 的建议，我们对均值参数给出均匀先验分布，对计数参数给出 Pareto 先验分布 $p(\lambda) \propto \lambda^{-2.5}$。
 
 
 ```stan

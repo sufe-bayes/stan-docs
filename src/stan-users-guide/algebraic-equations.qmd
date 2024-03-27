@@ -6,6 +6,7 @@ pagetitle: Solving Algebraic Equations
 # 解代数方程  {#algebra-solver.chapter--cn}
 
 本节译者：段园家
+本节校审：李君竹
 
 Stan provides a built-in mechanism for specifying systems of algebraic equations.
 These systems can be solved either with the Newton method,
@@ -131,7 +132,7 @@ steps.  Their behavior is explained in
 the section about [algebraic solvers with control
 parameters](algebraic-equations.qmd#algebra-control.section).
 
-求解器有三个调整参数来确定收敛性：相对容忍度、函数容忍度和最大步数。 它们的行为在关于[带控制参数的代数求解器](#algebra-control.section)一节中进行了解释。
+求解器有三个调整参数来确定收敛性：相对容忍度、函数容忍度和最大步数。 它们的行为在关于[带控制参数的代数求解器](#algebra-control.section) 一节中进行了解释。
 
 The following code returns the solution to our nonlinear algebraic system:
 

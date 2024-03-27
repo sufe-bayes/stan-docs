@@ -7,6 +7,7 @@ pagetitle: Matrices, Vectors, Arrays, and Tuples
 # 矩阵、向量和数组
 
 本节译者：程书宁
+本节校审：李君竹
 
 This chapter provides pointers as to how to choose among the various
 container types (matrix, vector, array, and tuple) provided by Stan.

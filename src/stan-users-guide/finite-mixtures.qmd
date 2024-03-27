@@ -7,6 +7,7 @@ pagetitle: Finite Mixtures
 # 有限混合模型  {#mixture-modeling.chapter--cn}
 
 本节译者：胡向宇、张梓源
+本节校审：张梓源
 
 Finite mixture models of an outcome assume that the outcome is drawn
 from one of several distributions, the identity of which is controlled
@@ -122,7 +123,7 @@ possibility of overflow or underflow in the leading term while
 extracting the most arithmetic precision possible by pulling the
 $\max(a, b)$ out of the log-exp round trip.
 
-其中$c = \max(a, b)$。在这个计算中，$a - c$ 和 $b - c$ 中一个是零，另一个是负数，这样就在主要项中消除了溢出或下溢的可能性，同时通过提取 $\max(a, b)$ 来避免对数-指数转换，从而获得尽可能高的算术精度。
+其中 $c = \max(a, b)$。在这个计算中，$a - c$ 和 $b - c$ 中一个是零，另一个是负数，这样就在主要项中消除了溢出或下溢的可能性，同时通过提取 $\max(a, b)$ 来避免对数-指数转换，从而获得尽可能高的算术精度。
 
 For example, the mixture of $\textsf{normal}(-1, 2)$ with
 $\textsf{normal}(3, 1)$, with mixing proportion $\lambda =
@@ -343,8 +344,8 @@ we assume that `lambda`, `y[n]`, `mu[1], mu[2]`, and
 `sigma[1], sigma[2]` are all scalars and `lambda` is between
 0 and 1.
 
-目前在Stan中没有一种在观察级别上向量化混合模型的方法。本节旨在警告用户不要尝试进行简单的向量化，因为它会导致不同的模型。我们在观察级别上定义了适当的混合模型，如下所示，其中我们假设`lambda`, `y[n]`, `mu[1], mu[2]`, and
-`sigma[1], sigma[2]`都是标量，而且`lambda`在0和1之间。
+目前在 Stan 中没有一种在观察级别上向量化混合模型的方法。本节旨在警告用户不要尝试进行简单的向量化，因为它会导致不同的模型。我们在观察级别上定义了适当的混合模型，如下所示，其中我们假设 `lambda`, `y[n]`, `mu[1], mu[2]`, and
+`sigma[1], sigma[2]` 都是标量，而且 `lambda` 在0和1之间。
 
 ```stan
 for (n in 1:N) {
@@ -369,7 +370,7 @@ for (n in 1:N) {
 This definition assumes that each observation $y_n$ may have arisen
 from either of the mixture components. The density is
 
-这个定义假设每个观察值$y_n$可能来自混合成分中的任何一个。密度函数为
+这个定义假设每个观察值 $y_n$ 可能来自混合成分中的任何一个。密度函数为
 $$
 p\left(y \mid \lambda, \mu, \sigma\right)
 = \prod_{n=1}^N \big(\lambda \times \textsf{normal}\left(y_n \mid \mu_1, \sigma_1 \right)
@@ -402,7 +403,7 @@ This second definition implies that the entire sequence $y_1, \dotsc, y_n$ of
 observations comes form one component or the other, defining a
 different density,
 
-这个第二个定义意味着整个序列$y_1, \dotsc, y_n$的观察值来自一个成分或另一个成分，分别定义了不同的密度，
+这个第二个定义意味着整个序列 $y_1, \dotsc, y_n$ 的观察值来自一个成分或另一个成分，分别定义了不同的密度，
 
 $$
 p\left(y \mid \lambda, \mu, \sigma \right)
@@ -466,7 +467,7 @@ the joint distribution $p(y, \mu, \sigma, \lambda)$ is exchangeable
 in the parameters $(\mu_1, \sigma_1)$ and $(\mu_2, \sigma_2)$ with
 $\lambda$ flipping to $1 - \lambda$.^[Imposing a constraint such as $\theta < 0.5$ will resolve the symmetry, but fundamentally changes the model and its posterior inferences.]
 
-在参数$(\mu_1, \sigma_1)$ 和 $(\mu_2, \sigma_2)$中，联合分布 $p(y, \mu, \sigma, \lambda)$ 是可交换的，其中 $\lambda$ 翻转为 $1 - \lambda$。^[施加诸如 $\theta < 0.5$的约束将解决对称性，但从根本上改变了模型及其后验推断。]
+在参数 $(\mu_1, \sigma_1)$ 和 $(\mu_2, \sigma_2)$中，联合分布 $p(y, \mu, \sigma, \lambda)$ 是可交换的，其中 $\lambda$ 翻转为 $1 - \lambda$。^[施加诸如 $\theta < 0.5$ 的约束将解决对称性，但从根本上改变了模型及其后验推断。]
 
 ### Inference under label switching {-}
 
@@ -506,7 +507,7 @@ approaches can be coded directly in the generated quantities block of
 the program.  Here's an example of the direct (non-sampling) approach.
 
 前一节中的正态混合模型，其中 $\theta =
-(\mu, \sigma, \lambda)$，表明似然函数在标签交换下返回相同的密度，因此预测推断是可靠的。在 Stan 中，可以通过计算 $p(\tilde{y} \mid y)$（在有效样本量方面更加高效）或$\tilde{y}$ 的抽样来进行预测推断，后者更容易插入其他推断。这两种方法都可以直接编写在程序的generated quantities块中。这里是直接（非采样）方法的一个例子。
+(\mu, \sigma, \lambda)$，表明似然函数在标签交换下返回相同的密度，因此预测推断是可靠的。在 Stan 中，可以通过计算 $p(\tilde{y} \mid y)$（在有效样本量方面更加高效）或 $\tilde{y}$ 的抽样来进行预测推断，后者更容易插入其他推断。这两种方法都可以直接编写在程序的 generated quantities 块中。这里是直接（非采样）方法的一个例子。
 
 ```stan
 data {
@@ -543,7 +544,7 @@ take $z_i$ and $z_j$ to be the component responsibility discrete
 variables, then the quantity of interest is $z_i = z_j$, which can be
 summarized as an event probability
 
-通常，混合模型将应用于聚类问题，可能存在两个数据项$y_i$ 和 $y_j$，我们对于这两个数据项，是否来自同一混合成分存在疑问。如果我们将 $z_i$ 和$z_j$ 视为表示成分的离散变量，则感兴趣的是$z_i = z_j$，它可以总结为事件概率。
+通常，混合模型将应用于聚类问题，可能存在两个数据项 $y_i$ 和 $y_j$，我们对于这两个数据项，是否来自同一混合成分存在疑问。如果我们将 $z_i$ 和 $z_j$ 视为表示成分的离散变量，则感兴趣的是 $z_i = z_j$，它可以总结为事件概率。
 
 $$
 \Pr[z_i = z_j \mid y]
@@ -564,7 +565,7 @@ term inside the integral as a generated quantity.  As with predictive
 likelihood, working in expectation is more statistically efficient than
 sampling.
 
-与其他事件概率一样，这可以在generated quantities块中通过对 $z_i$ 和 $z_j$ 进行抽样并使用让它们相等的示性函数，或者通过计算积分内的项作为generated quantities来计算。与预测似然一样，计算期望比采样更具统计效率。
+与其他事件概率一样，这可以在 generated quantities 块中通过对 $z_i$ 和 $z_j$ 进行抽样并使用让它们相等的示性函数，或者通过计算积分内的项作为 generated quantities 来计算。与预测似然一样，计算期望比采样更具统计效率。
 
 ## Zero-inflated and hurdle models {#zero-inflated.section}
 
@@ -599,7 +600,7 @@ used for mixing proportions because $\lambda$ is the traditional
 notation for a Poisson mean parameter). Given the probability $\theta$
 and the intensity $\lambda$, the distribution for $y_n$ can be written as
 
-考虑以下关于零膨胀 Poisson 分布的例子。有一个概率$\theta$观察到一个零，并且有一个概率 $1 - \theta$观察到一个$\textsf{Poisson}(\lambda)$ 分布的计数（现在$\theta$被用于混合比例，因为$\lambda$是 Poisson 均值参数的传统符号）。给定概率$\theta$和强度$\lambda$，$y_n$的分布可以写成
+考虑以下关于零膨胀 Poisson 分布的例子。有一个概率 $\theta$ 观察到一个零，并且有一个概率 $1 - \theta$ 观察到一个 $\textsf{Poisson}(\lambda)$ 分布的计数（现在 $\theta$ 被用于混合比例，因为 $\lambda$ 是 Poisson 均值参数的传统符号）。给定概 率$\theta$ 和强度 $\lambda$，$y_n$ 的分布可以写成
 
 $$
 y_n \sim
@@ -651,7 +652,7 @@ The `log1m(theta)` computes `log(1-theta)`, but is more computationally stable.
 The `log_sum_exp(lp1,lp2)` function adds the log probabilities
 on the linear scale; it is defined to be equal to `log(exp(lp1) + exp(lp2))`, but is more computationally stable and faster.
 
-`log1m(theta)` 计算 `log(1-theta)`，但更具计算稳定性。`log_sum_exp(lp1,lp2)`函数在线性尺度上求和对数概率；它被定义为等于 `log(exp(lp1) + exp(lp2))`，但更具计算稳定性和速度。
+`log1m(theta)` 计算 `log(1-theta)`，但更具计算稳定性。`log_sum_exp(lp1,lp2)` 函数在线性尺度上求和对数概率；它被定义为等于 `log(exp(lp1) + exp(lp2))`，但更具计算稳定性和速度。
 
 #### Optimizing the zero-inflated Poisson model {-}
 
@@ -663,14 +664,14 @@ body executes.  The use of the redundant terms is conditioned on
 the transformed data block to be used to compute some more convenient
 terms for expressing the log density each iteration.
 
-上面给出的计算零膨胀 Poisson 分布的代码会冗余地计算所有 Bernoulli项，每次第一个条件体执行时也会计算 `poisson_lpmf(0 | lambda)`。冗余项的使用取决于已知数据读入时的`y`。这允许使用transformed data块来计算一些更方便的项，以在每次迭代中表达对数密度。
+上面给出的计算零膨胀 Poisson 分布的代码会冗余地计算所有 Bernoulli 项，每次第一个条件体执行时也会计算 `poisson_lpmf(0 | lambda)`。冗余项的使用取决于已知数据读入时的 `y`。这允许使用 transformed data 块来计算一些更方便的项，以在每次迭代中表达对数密度。
 
 The number of zero cases is computed and handled separately.
 Then the nonzero cases are collected into their own array for
 vectorization.  The number of zeros is required to declare
 `y_nonzero`, so it must be computed in a function.
 
-零值情况的数量是单独计算和处理的。然后将非零情况收集到自己的数组中进行矢量化。需要声明`y_nonzero`，因此必须计算零数。
+零值情况的数量是单独计算和处理的。然后将非零情况收集到自己的数组中进行矢量化。需要声明 `y_nonzero`，因此必须计算零数。
 
 ```stan
 functions {
@@ -712,7 +713,7 @@ appropriately;  in the vectorized case, if `y_nonzero` is empty,
 `N_nonzero` will be zero, and the last two target increment
 terms will add zeros.
 
-所有零和非零结果的边界条件都得到了适当处理；在矢量化情况下，如果 `y_nonzero` 为空，则 `N_nonzero` 将为零，代码最后两行target增量项将添加零。
+所有零和非零结果的边界条件都得到了适当处理；在矢量化情况下，如果 `y_nonzero` 为空，则 `N_nonzero` 将为零，代码最后两行 target 增量项将添加零。
 
 ### Hurdle models {-}
 
@@ -721,7 +722,7 @@ flexible in that the zero outcomes can be deflated as well as
 inflated. Given the probability $\theta$ and the intensity $\lambda$,
 the distribution for $y_n$ can be written as
 
-障碍模型类似于零膨胀模型，但更灵活，因为零结果可以被压缩和膨胀。给定概率$\theta$和强度$\lambda$，$y_n$的分布可以写成
+障碍模型类似于零膨胀模型，但更灵活，因为零结果可以被压缩和膨胀。给定概率$\theta$ 和强度 $\lambda$，$y_n$ 的分布可以写成
 $$
 y_n \sim
 \begin{cases}
@@ -731,7 +732,7 @@ y_n \sim
 $$
 Where $\textsf{Poisson}_{x\neq 0}$ is a truncated Poisson distribution, truncated at $0$.
 
-其中$\textsf{Poisson}_{x\neq 0}$是截断 Poisson 分布，截断在 0 处。
+其中 $\textsf{Poisson}_{x\neq 0}$ 是截断 Poisson 分布，截断在0处。
 
 The corresponding likelihood function for the hurdle model is
 defined by
@@ -751,7 +752,7 @@ $$
 where $\textsf{PoissonCDF}$ is the cumulative distribution function for
 the Poisson distribution and and $1 - \textsf{PoissonCDF}(0 \mid \lambda)$ is the relative normalization term for the truncated Poisson (truncated at $0$).
 
-其中 $\textsf{PoissonCDF}$ 是 Poisson 分布的累积分布函数，$1 - \textsf{PoissonCDF}(0 \mid \lambda)$ 是截断 Poisson（在 0 处截断）的相对归一化项。
+其中 $\textsf{PoissonCDF}$ 是 Poisson 分布的累积分布函数，$1 - \textsf{PoissonCDF}(0 \mid \lambda)$ 是截断 Poisson（在0处截断）的相对归一化项。
 
 The hurdle model is even more straightforward to
 program in Stan, as it does not require an explicit mixture.
@@ -794,7 +795,7 @@ For data size $N=200$ and parameters $\theta=0.3$ and $\lambda = 8$,
 the speedup is a factor of 10; it will be lower for smaller $N$ and
 greater for larger $N$; it will also be greater for larger $\theta$.
 
-这是一个例子，其中提前收集计数也可以大大加快执行速度，而不改变密度。对于数据大小 $N=200$ 和参数$\theta=0.3$ 和$\lambda = 8$，加速为10倍；对于较小的$N$ ，加速比将更低，对于较大的$N$ ，加速比将更高；对于较大的$\theta$，加速比也将更高。
+这是一个例子，其中提前收集计数也可以大大加快执行速度，而不改变密度。对于数据大小 $N=200$ 和参数 $\theta=0.3$ 和 $\lambda = 8$，加速为10倍；对于较小的 $N$ ，加速比将更低，对于较大的 $N$ ，加速比将更高；对于较大的 $\theta$，加速比也将更高。
 
 To achieve this speedup, it helps to have a function to count the
 number of non-zero entries in an array of integers,
@@ -818,7 +819,7 @@ functions {
 Then a transformed data block can be used to store the sufficient
 statistics,
 
-则transformed data块能用来储存充分统计量
+则 transformed data 块能用来储存充分统计量
 
 ```stan
 transformed data {
@@ -839,7 +840,7 @@ transformed data {
 
 The model block is then reduced to three statements.
 
-model块简化为三行代码
+model 块简化为三行代码
 
 ```stan
 model {
@@ -858,7 +859,7 @@ that the negation is applied to the constant `Ngt0`; whenever
 possible, leave subexpressions constant because then gradients need
 not be propagated until a non-constant term is encountered.
 
-第一条语句解释了 Bernoulli 对零和非零计数的贡献。第二行是来自非零计数的 Poisson 贡献，现在已经矢量化。最后，截断的归一化是单独的一行，因此对数CCDF在0的表达式不会重复。还要注意，常量 `Ngt0`取了相反数；尽可能保留子表达式常量，因为这样梯度就不必传播，直到遇到非常量项为止。
+第一条语句解释了 Bernoulli 对零和非零计数的贡献。第二行是来自非零计数的 Poisson 贡献，现在已经矢量化。最后，截断的归一化是单独的一行，因此对数 CCDF 在0的表达式不会重复。还要注意，常量 `Ngt0` 取了相反数；尽可能保留子表达式常量，因为这样梯度就不必传播，直到遇到非常量项为止。
 
 ## Priors and effective data size in mixture models
 
@@ -873,8 +874,8 @@ estimated with effective data sizes of $\theta \, N$ and $(1 - \theta)
 effective weighting size is determined by posterior responsibility,
 not simply by the mixing rate $\lambda$.
 
-假设我们有一个混合模型，其中混合率为 $\lambda \in (0, 1)$。由于混合成分的似然函数按混合权重成比例加权，因此用于估计每个混合组件的有效数据大小也将按整体数据大小的一部分加权。因此，尽管有$N$个观测值，但混合成分将使用$\theta \, N$和$(1 - \theta)
-\, N$的有效数据大小来进行估计，其中 $\theta \in (0, 1)$。有效加权大小由后验确定，而不仅仅是混合率$\lambda$。
+假设我们有一个混合模型，其中混合率为 $\lambda \in (0, 1)$。由于混合成分的似然函数按混合权重成比例加权，因此用于估计每个混合组件的有效数据大小也将按整体数据大小的一部分加权。因此，尽管有 $N$ 个观测值，但混合成分将使用 $\theta \, N$和$(1 - \theta)
+\, N$ 的有效数据大小来进行估计，其中 $\theta \in (0, 1)$。有效加权大小由后验确定，而不仅仅是混合率 $\lambda$。
 
 ### Comparison to model averaging {-}
 

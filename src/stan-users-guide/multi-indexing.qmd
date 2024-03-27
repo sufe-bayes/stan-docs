@@ -7,6 +7,7 @@ pagetitle: Multiple Indexing and Range Indexing
 # 多索引和范围索引 {#multi-indexing.chapter--cn}
 
 本节译者：王嘉宁
+本节校审：张梓源
 
 Stan allows multiple indexes to be provided for containers (i.e.,
 arrays, vectors, and matrices) in a single position, using either an
@@ -18,7 +19,7 @@ For instance, consider the likelihood for a varying-slope,
 varying-intercept hierarchical linear regression, which could be coded
 as
 
-Stan允许在单个位置使用整数索引数组或范围边界来提供容器（即数组、向量和矩阵）的多个索引。在许多情况下，有一些函数可以提供类似的行为。
+Stan 允许在单个位置使用整数索引数组或范围边界来提供容器（即数组、向量和矩阵）的多个索引。在许多情况下，有一些函数可以提供类似的行为。
 
 允许多个索引支持模型的内联矢量化。例如，考虑变斜率、变截距层次线性回归的似然函数，代码为：
 
@@ -212,7 +213,7 @@ bound.  Writing `c[3:]` is just shorthand for
 
 ### 上限或下限的索引
 
-Stan可以只提供下限或上限。写成 `c[3：]` 就是 `c[3：size(c)]` 的简写形式。写成 `c[:5]` 就是 `c[1:5]` 的简写形式。
+Stan 可以只提供下限或上限。写成 `c[3：]` 就是 `c[3：size(c)]` 的简写形式。写成 `c[:5]` 就是 `c[1:5]` 的简写形式。
 
 ### Full range indexes {-}
 
@@ -235,7 +236,7 @@ case, the return type is the same as the argument type.  For
 example,
 
 ### 索引函数
-Stan提供了`head`和`tail`函数，用于提取向量、行向量和一维数组的前缀或后缀。在每种情况下，返回类型与参数类型相同。例如，
+Stan 提供了 `head` 和 `tail` 函数，用于提取向量、行向量和一维数组的前缀或后缀。在每种情况下，返回类型与参数类型相同。例如，
 
 ```
 vector[M] a = ...;
@@ -257,7 +258,7 @@ Finally, there is a segment function, which specifies a first element
 and number of elements.  For example,
 
 
-最后，还有一个`segment`函数，它可以指定第一个元素和元素数量。例如，
+最后，还有一个 `segment` 函数，它可以指定第一个元素和元素数量。例如，
 
 ```
 array[15] a = ...;
@@ -267,7 +268,7 @@ array[3] b = segment(a, 5, 3);
 will set `b` to be equal to `{ a[5], a[6], a[7] }`, so that it starts
 at element 5 of `a` and includes a total of 3 elements.
 
-将设置 b 等于 { a[5], a[6], a[7] }，因此它从a的第5个元素开始，包括了总共3个元素。
+将设置 b 等于 { a[5], a[6], a[7] }，因此它从 a 的第5个元素开始，包括了总共3个元素。
 
 
 
@@ -336,7 +337,7 @@ structure on the right-hand and left-hand side of an assignment.  For
 example, consider the array `a` in the following code fragment.
 
 ### 赋值和别名
-当赋值语句的左侧和右侧引用相同的数据结构时，会出现别名问题。例如，请考虑以下代码片段中的数组`a`。
+当赋值语句的左侧和右侧引用相同的数据结构时，会出现别名问题。例如，请考虑以下代码片段中的数组 `a`。
 
 ```stan
 array[3] int a;
@@ -351,7 +352,7 @@ expression is evaluated to a fresh copy.   As another example,
 consider the following.
 
 
-将左右两边的赋值表达式引用相同的数据结构会导致别名问题。在Stan中，赋值语句右边的表达式会被当作是一个全新的副本进行计算，因此在对同一数据结构进行赋值操作时，可能会产生预期之外的结果。例如，在上述例子中，由于右边的表达式被计算成一个全新的副本，所以最终`a`的值为$(5,5,6)$而不是$(5,5,5)$。
+将左右两边的赋值表达式引用相同的数据结构会导致别名问题。在 Stan 中，赋值语句右边的表达式会被当作是一个全新的副本进行计算，因此在对同一数据结构进行赋值操作时，可能会产生预期之外的结果。例如，在上述例子中，由于右边的表达式被计算成一个全新的副本，所以最终 `a` 的值为 $(5,5,6)$ 而不是 $(5,5,5)$。
 
 ```stan
 array[3] int a;
@@ -366,9 +367,9 @@ before the assignment.
 It is tempting (but wrong) to think of the assignment `a[2:3] =
   a[1:2]` as executing the following assignments.
   
-  这种情况下，为什么在赋值之前需要复制右侧表达式是显而易见的。
+这种情况下，为什么在赋值之前需要复制右侧表达式是显而易见的。
 
-人们很容易（但是是错误的）认为赋值`a [2:3] = a [1:2]` 执行以下赋值。
+人们很容易（但是是错误的）认为赋值 `a [2:3] = a [1:2]` 执行以下赋值。
 
 ```stan
 // ... define: a = (5, 6, 7)
@@ -380,7 +381,7 @@ This produces a different result than executing the assignment because
 `a[2]`'s value changes before it is used.
 
 
-这将产生与执行赋值不同的结果，因为在使用`a[2]`的值之前，它的值已经发生了变化。
+这将产生与执行赋值不同的结果，因为在使用 `a[2]` 的值之前，它的值已经发生了变化。
 
 ## Multiple indexes with vectors and matrices
 
@@ -523,7 +524,7 @@ Continuing further, consider continuing with the following.
 
 这里，两个数组维度和矩阵的列维度都被减少了，只留下了行维度索引，因此结果是一个向量。在这种情况下，`b[j] == a[1, 3, 1 + j, 2]`。
 
-这个最后的例子阐明了一个重要的点：如果有一个下限索引，比如 `2:3`，其下限为 2，则在索引中加上下限减一，如上面的 `1 + j` 表达式所示。
+这个最后的例子阐明了一个重要的点：如果有一个下限索引，比如 `2:3`，其下限为2，则在索引中加上下限减一，如上面的 `1 + j` 表达式所示。
 
 继续考虑以下内容。
 
@@ -539,7 +540,7 @@ vector.  For indexing, the values are given by
 `c[i, j] == a[i + 3, 3, 1, j + 1]`
 
 
-这里，第一个数组维度被缩减，留下一个单独的数组维度，矩阵的行索引被缩减，留下一行向量。在索引中，值由`c[i, j] == a[i + 3, 3, 1, j + 1]`给出。 
+这里，第一个数组维度被缩减，留下一个单独的数组维度，矩阵的行索引被缩减，留下一行向量。在索引中，值由 `c[i, j] == a[i + 3, 3, 1, j + 1]` 给出。 
 
 ### Block, row, and column extraction for matrices {-}
 
@@ -547,7 +548,7 @@ Matrix slicing can also be performed using the `block` function.  For
 example, 
 
 ### 矩阵的块，行，列提取
-我们可以使用`block`函数来对矩阵进行切片，例如：
+我们可以使用 `block` 函数来对矩阵进行切片，例如：
 
 ```
 matrix[20, 20] a = ...;
@@ -562,7 +563,7 @@ The `sub_col` function extracts a slice of a column of a matrix as a
 vector.  For example,
 
 
-此处将设置 `b` 等于从索引 [5, 9] 开始并延伸 3 行 2 列的矩阵子矩阵。因此 `block(a, 5, 9, 3, 2)` 相当于 `a[5:7, 9:10]`。
+此处将设置 `b` 等于从索引 [5, 9] 开始并延伸3行2列的矩阵子矩阵。因此 `block(a, 5, 9, 3, 2)` 相当于 `a[5:7, 9:10]`。
 
 `sub_col` 函数将矩阵的某一列切片提取为向量。例如，
 
@@ -578,7 +579,7 @@ as a row vector.  For example, `sub_row(a, 2, 3, 5)` is equal to
 the row vector `a[2, 3:7]`, which also starts at position [2, 3] then
 extends for a total of 5 columns.
 
-将'b'设置为与向量`a[2:6, 3]`相等，取元素起始位置为[2,3]，然后扩展5行。 函数`sub_row`也可以用于提取行的子序列作为行向量。例如，`sub_row(a,2,3,5)`等于行向量`a[2,3:7]`，它也从位置[2,3]开始，然后扩展了5列。
+将 `b` 设置为与向量 `a[2:6, 3]` 相等，取元素起始位置为 [2,3]，然后扩展5行。 函数 `sub_row` 也可以用于提取行的子序列作为行向量。例如，`sub_row(a,2,3,5)` 等于行向量 `a[2,3:7]`，它也从位置 [2,3] 开始，然后扩展了5列。
 
 
 ## Matrices with parameters and constants
@@ -620,7 +621,7 @@ parameters {
 Then the full matrix `A` is constructed in the model block as a
 local variable.
 
-此时我们可以在`model`结构中将矩阵`A`构建为一个局部变量。
+此时我们可以在 `model` 结构中将矩阵 `A` 构建为一个局部变量。
 
 ```stan
 model {
@@ -640,4 +641,4 @@ be too large to code directly.  Similar techniques can be used to
 build up matrices with ad-hoc constraints, such as a handful of
 entries known to be positive.
 
-这在这种情况下可能看起来有些过度，但在更一般的情况下，矩阵大小、向量大小和“idxs”数组将太大而无法直接编码。类似的技术可以用于构建具有特定约束条件的矩阵，例如一些已知为正数的条目。
+这在这种情况下可能看起来有些过度，但在更一般的情况下，矩阵大小、向量大小和 `idxs` 数组将太大而无法直接编码。类似的技术可以用于构建具有特定约束条件的矩阵，例如一些已知为正数的条目。
