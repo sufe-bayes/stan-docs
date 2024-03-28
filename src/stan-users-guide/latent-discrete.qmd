@@ -9,6 +9,7 @@ pagetitle: Latent Discrete Parameters
 本节译者：方志清
 本节校审：张梓源
 
+
 Stan does not support sampling discrete parameters.  So it is not
 possible to directly translate BUGS or JAGS models with discrete
 parameters (i.e., discrete stochastic nodes).  Nevertheless, it is
