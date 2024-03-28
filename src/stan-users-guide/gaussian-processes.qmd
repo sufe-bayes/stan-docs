@@ -6,7 +6,8 @@ pagetitle: Gaussian Processes
 
 # 高斯过程 {#gaussian-processes.chapter--cn}
 
-本节译者：李巧玲，王嘉宁
+本节译者：李巧玲、王嘉宁
+本节校审：李君竹
 
 Gaussian processes are continuous stochastic processes and thus may be
 interpreted as providing a probability distribution over functions.  A

@@ -7,6 +7,7 @@ pagetitle: Missing Data and Partially Known Parameters
 # 缺失数据和部分已知参数
 
 本节译者：于娇
+本节校审：张梓源
 
 Bayesian inference supports a  general approach to missing data in
 which any missing data item is represented as a parameter that is
@@ -261,7 +262,7 @@ all convenient to place a prior on the full covariance matrix `L
   * L'`, because that would require a Jacobian adjustment; the exact
 adjustment is detailed in the reference manual.
 
-最简单的方式是直接在 `L_lower` 上放置先验。另一种选择是对完整的 Cholesky 因子 `L` 进行先验分布，因为从`L_lower`到`L`的变换只是一个恒等变换，因此不需要雅可比调整（尽管解析器发出了警告，但它不够智能到通过代码分析推断出这是个线性变换）。在完整的协方差矩阵 `L
+最简单的方式是直接在 `L_lower` 上放置先验。另一种选择是对完整的 Cholesky 因子 `L` 进行先验分布，因为从 `L_lower` 到 `L` 的变换只是一个恒等变换，因此不需要雅可比调整（尽管解析器发出了警告，但它不够智能到通过代码分析推断出这是个线性变换）。在完整的协方差矩阵 `L
   * L'` 上放置先验分布不是很方便，因为这需要雅可比调整；详细的调整在参考手册中有说明。
 
 ## Missing multivariate data

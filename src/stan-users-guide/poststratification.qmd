@@ -4,9 +4,10 @@ pagetitle: Poststratification
 
 # Poststratification
 
-### 事后分层
+# 事后分层
 
 本节译者：隋阳
+本节校审：张梓源
 
 Stratification is a technique developed for survey sampling in which a
 population is partitioned into subgroups (i.e., stratified) and each
@@ -54,7 +55,7 @@ the grid [@Paustian:1997].  Dynamic models can then be constructed by
 layering a time-series component, varying the poststratification
 predictors over time, or both [@Field:1998].  
 
-分层和事后分层可以应用到许多超越调查抽样的应用中 [Kennedy:2019]。例如，大规模的全球土壤碳模型是使用参数模型来拟合的，这些模型描述了土壤碳如何依赖于某个地区的特征，如土壤成分、植被、动物、温度、湿度等。给定一个模型，该模型预测了在这些特征下的土壤碳浓度，可以通过将地球划分为一个个网格，比如每个网格10公里x10公里的“正方形”（它们不能真正成为正方形，因为地球的表面在拓扑上是一个球体）来创建全球模型。每个网格区域都有一个预计的土壤类型、森林覆盖、气候等构成。然后使用事后分层通过简单地将每个网格中预计的土壤碳估计求和来估计全球土壤碳水平[Paustian:1997]。进一步，通过叠加时间序列组件，或随时间变化的后分层预测因子，或结合两者，来构建动态模型[Field:1998]。
+分层和事后分层可以应用到许多超越调查抽样的应用中 [Kennedy:2019]。例如，大规模的全球土壤碳模型是使用参数模型来拟合的，这些模型描述了土壤碳如何依赖于某个地区的特征，如土壤成分、植被、动物、温度、湿度等。给定一个模型，该模型预测了在这些特征下的土壤碳浓度，可以通过将地球划分为一个个网格，比如每个网格10公里 x 10公里的“正方形”（它们不能真正成为正方形，因为地球的表面在拓扑上是一个球体）来创建全球模型。每个网格区域都有一个预计的土壤类型、森林覆盖、气候等构成。然后使用事后分层通过简单地将每个网格中预计的土壤碳估计求和来估计全球土壤碳水平[Paustian:1997]。进一步，通过叠加时间序列组件，或随时间变化的后分层预测因子，或结合两者，来构建动态模型[Field:1998]。
 
 ### Polling {-}
 
@@ -79,7 +80,7 @@ provides a simple maximum likelihood estimate $\theta^* = (0.25, 0.5,
 0.8)$ of support in each group for a simple Bernoulli model where
 student $n$'s vote is modeled as
 
-对于每个群体中的学生在民意调查中的支持比例，为每个群体中的支持率提供了一个简单的最大似然估计 $\theta^* = (0.25, 0.5, 0.8)$. 对于一个简单的伯努利模型，其中学生$n$的投票被建模为
+对于每个群体中的学生在民意调查中的支持比例，为每个群体中的支持率提供了一个简单的最大似然估计 $\theta^* = (0.25, 0.5, 0.8)$. 对于一个简单的伯努利模型，其中学生 $n$ 的投票被建模为
 $$
 y_n \sim \textrm{bernoulli}(\theta_{jj[n]}),
 $$
@@ -95,7 +96,7 @@ $N = (20\,000,\, 5\,000,\, 2\,000)$ be the subgroup sizes, the
 poststratified estimate of support in the population $\phi^*$ is
 estimated by 
 
-通过简单地将每个群体中估计的支持率与每个群体的大小相乘，可以构造出学生中对问题支持的人口普遍率的估计。用$N = (20\,000,\, 5\,000,\, 2\,000)$ 表示子群体的大小，那么人口中支持率的后分层估计 $\phi^*$ 是通过以下方式估计的：
+通过简单地将每个群体中估计的支持率与每个群体的大小相乘，可以构造出学生中对问题支持的人口普遍率的估计。用 $N = (20\,000,\, 5\,000,\, 2\,000)$ 表示子群体的大小，那么人口中支持率的后分层估计 $\phi^*$ 是通过以下方式估计的：
 $$
 \phi^*
 = \frac{\displaystyle \sum_{j = 1}^3 \theta_j^* \cdot N_j}
@@ -123,7 +124,7 @@ support is pushed through predictive inference in order to get some
 idea of the uncertainty of estimated support.  Continuing the example
 of the previous section, the likelihood remains the same,
 
-在贝叶斯框架中考虑上一章节的同样的民调数据，子群体支持的估计中的不确定性会通过预测推理传递，以便得到对支持估计不确定性的一些理解。继续上一章节的例子，$y_n$的分布保持不变，
+在贝叶斯框架中考虑上一章节的同样的民调数据，子群体支持的估计中的不确定性会通过预测推理传递，以便得到对支持估计不确定性的一些理解。继续上一章节的例子，$y_n$ 的分布保持不变，
 $$
 y_n \sim \textrm{bernoulli}(\theta_{jj[n]}),
 $$
@@ -181,7 +182,7 @@ binomial, where $A_j$ is the number of voters from group $j$, $a_j$ is
 the number of positive responses from group $j$, and $N_j$ is the size
 of group $j$ in the population.
 
-极大似然估计和贝叶斯估计可以使用同一个Stan程序处理。单个投票的模型被压缩为二项分布，其中 $A_j$ 是来自群体 $j$ 的选民数量，$a_j$ 是来自群体 $j$ 的正反馈数量，$N_j$ 是人口中群体 $j$ 的大小。
+极大似然估计和贝叶斯估计可以使用同一个 Stan 程序处理。单个投票的模型被压缩为二项分布，其中 $A_j$ 是来自群体 $j$ 的选民数量，$a_j$ 是来自群体 $j$ 的正反馈数量，$N_j$ 是人口中群体 $j$ 的大小。
 
 ```stan
 data {
@@ -207,7 +208,7 @@ The summation is computed using a dot product and the sum function,
 which is why `N` was declared as a vector rather than as an array of
 integers.
 
-极大似然估计和贝叶斯估计可以使用同一个Stan程序处理。单个投票的模型被压缩为二项分布，其中 $A_j$ 是来自群体 $j$ 的选民数量，$a_j$ 是来自群体 $j$ 的正反馈数量，$N_j$ 是人口中群体 $j$ 的大小。
+极大似然估计和贝叶斯估计可以使用同一个 Stan 程序处理。单个投票的模型被压缩为二项分布，其中 $A_j$ 是来自群体 $j$ 的选民数量，$a_j$ 是来自群体 $j$ 的正反馈数量，$N_j$ 是人口中群体 $j$ 的大小。
 
 ## Regression and poststratification
 
@@ -303,7 +304,7 @@ pooling among the groups.  The only drawback is that if the number of
 groups is small, it can be hard to fit these models without strong
 hyperpriors.
 
-在具有大量人口特征的情况下，每个单元可能只有很少的项目来估计回归系数。例如，即使在全国范围内的 10,000 个受访者的民意测验中，如果他们被分为 50 个州，那么平均每个州只有 200 个回应者。当数据量较小时，可以通过提供层次性先验来稳定和提高参数估计的精度。通过层次性先验，数据决定了各组之间的部分池化程度。唯一的缺点是，如果组的数量较少，那么在没有强超参数的情况下很难拟合这些模型。
+在具有大量人口特征的情况下，每个单元可能只有很少的项目来估计回归系数。例如，即使在全国范围内的10,000个受访者的民意测验中，如果他们被分为50个州，那么平均每个州只有200个回应者。当数据量较小时，可以通过提供层次性先验来稳定和提高参数估计的精度。通过层次性先验，数据决定了各组之间的部分池化程度。唯一的缺点是，如果组的数量较少，那么在没有强超参数的情况下很难拟合这些模型。
 
 The model introduced in the previous section had likelihood
 
@@ -470,13 +471,13 @@ introducing a location parameters in the prior would introduce
 non-identifiability with the overall intercept.  The centered
 parameterization drops the `multiplier`.  
 
-多层回归和事后分层可以直接在Stan中编码。为了编码每个系数的非中心参数化，这将是采样效率所需的，`multiplier`变换在每个参数上都被使用。实现了`a`的非中心参数化的组合；中心参数化将舍弃`multiplier`规定。先验比例`s`在这里被居中。在多层回归中，先验位置固定为零，因为存在一个总体截距；在先验中引入位置参数会引入总体截距的不可识别性。中心参数化舍弃了`multiplier`。
+多层回归和事后分层可以直接在 Stan 中编码。为了编码每个系数的非中心参数化，这将是采样效率所需的，`multiplier` 变换在每个参数上都被使用。实现了 `a` 的非中心参数化的组合；中心参数化将舍弃 `multiplier` 规定。先验比例 `s` 在这里被居中。在多层回归中，先验位置固定为零，因为存在一个总体截距；在先验中引入位置参数会引入总体截距的不可识别性。中心参数化舍弃了 `multiplier`。
 
 Here is the full Stan model, which performs poststratification in the
 generated quantities using population sizes made available through
 data variable `P`.
 
-下面是完整的Stan模型，它在生成的数量中使用通过数据变量`P`提供的人口大小进行后分层。
+下面是完整的 Stan 模型，它在生成的数量中使用通过数据变量 `P` 提供的人口大小进行后分层。
 
 ```stan
 data {
@@ -529,7 +530,7 @@ work in expectation if possible (the Rao-Blackwell theorem says it's
 at least as efficient to work in expectation, but in practice, it can
 be much much more efficient, especially for discrete quantities).
 
-与针对不确定性的后验预测推断不同，我们无需将二项抽样不确定性引入到预期积极投票的估计中。相反，生成的数量被计算为期望。一般来说，用期望值来工作是更有效率的（Rao-Blackwell定理说明以期望值来工作至少是一样有效的，但在实践中，它可能会更有效率，特别是对于离散的数量）。
+与针对不确定性的后验预测推断不同，我们无需将二项抽样不确定性引入到预期积极投票的估计中。相反，生成的数量被计算为期望。一般来说，用期望值来工作是更有效率的（Rao-Blackwell 定理说明以期望值来工作至少是一样有效的，但在实践中，它可能会更有效率，特别是对于离散的数量）。
 
 ### Binomial coding {-}
 
@@ -540,7 +541,7 @@ group.  Suppose there are $4 \times 5 \times 2 \times 50 = 2000$
 groups.  The data can be broken down into a size-2000 array, with
 entries corresponding to total vote counts in that group
 
-在某些情况下，按组划分数据可能更有效率。假设有$4 \times 5 \times 2 \times 50 = 2000$个组。数据可以被划分为一个2000大小的数组，其中的条目对应于该组的总投票数。
+在某些情况下，按组划分数据可能更有效率。假设有 $4 \times 5 \times 2 \times 50 = 2000$ 个组。数据可以被划分为一个2000大小的数组，其中的条目对应于该组的总投票数。
 
 ```stan
 int<lower=0> G;
@@ -583,7 +584,7 @@ feasible to build a hierarchical model with only two cases.
 A sex predictor is straightforward to add to the data block; it takes
 on values 1 or 2 for each of the `N` data points.
 
-在这个第一个模型中，性别并未被包括作为一个预测因子。只有两种类别，它需要被单独建模，因为对于仅有两种情况来说，建立一个分层模型是不可行的。将性别预测因子加入到数据块中是很直接的；对于每一个`N`的数据点，它的取值为1或2。
+在这个第一个模型中，性别并未被包括作为一个预测因子。只有两种类别，它需要被单独建模，因为对于仅有两种情况来说，建立一个分层模型是不可行的。将性别预测因子加入到数据块中是很直接的；对于每一个 `N` 的数据点，它的取值为1或2。
 
 ```stan
   array[N] int<lower=1, upper=2> sex;
@@ -623,7 +624,7 @@ coefficients. The `'` at the end transposes `[epsilon, -epsilon][sex]`
 which is a `row_vector` into a `vector` that can be added to the other
 variables.
 
-对于数据点`n`，表达式`[epsilon, -epsilon][sex]`的值为`[epsilon, -epsilon][sex][n]`，利用Stan的多索引，它简化为`[epsilon, -epsilon][sex[n]]`。如果`sex[n]`为1，该项的值为`epsilon`；如果`sex[n]`为2，则值为`-epsilon`。结果实际上是两个性别系数的零和约束。末尾的`'`将`[epsilon, -epsilon][sex]`转置，它是一个`row_vector`，转置为可以加到其他变量的`vector`。
+对于数据点 `n`，表达式 `[epsilon, -epsilon][sex]` 的值为 `[epsilon, -epsilon][sex][n]`，利用 Stan 的多索引，它简化为 `[epsilon, -epsilon][sex[n]]`。如果 `sex[n]` 为1，该项的值为 `epsilon`；如果 `sex[n]` 为2，则值为 `-epsilon`。结果实际上是两个性别系数的零和约束。末尾的 `'` 将 `[epsilon, -epsilon][sex]` 转置，它是一个 `row_vector`，转置为可以加到其他变量的 `vector`。
 
 Finally, a prior is needed for the coefficient in the model block,
 
@@ -636,7 +637,7 @@ epsilon ~ normal(0, 2);
 As with other priors in multilevel models, the posterior for `epsilon`
 should be investigated to make sure it is not unrealistically wide.
 
-与多层模型中的其他先验一样，应检查`epsilon`的后验，以确保它的范围不是不切实际地宽。
+与多层模型中的其他先验一样，应检查 `epsilon` 的后验，以确保它的范围不是不切实际地宽。
 
 ## Adding group-level predictors
 
@@ -658,7 +659,7 @@ array[50] real<lower=0> income;
 then a regression coefficient `psi` can be added for the effect of
 average state income,
 
-然后，可以为平均州收入的影响添加一个回归系数`psi`，
+然后，可以为平均州收入的影响添加一个回归系数 `psi`，
 
 ```stan
 real psi;
@@ -675,7 +676,7 @@ psi ~ normal(0, 2);
 This prior assumes the `income` predictor has been standardized.
 Finally, a term is added to the regression for the fixed predictor,
 
-这个先验假设`income`预测器已经被标准化。最后，为固定预测器在回归中添加一项。
+这个先验假设 `income` 预测器已经被标准化。最后，为固定预测器在回归中添加一项。
 
 ```stan
 y ~ bernoulli_logit(alpha + beta[age] + ... + delta[state]
@@ -697,4 +698,4 @@ expect_pos
 Here `d` is the loop variable looping over states.  This ensures that
 the poststratification formula matches the likelihood formula.
 
-这里的`d`是循环变量，遍历各州。这确保了后分层公式与似然公式匹配。
+这里的 `d` 是循环变量，遍历各州。这确保了后分层公式与似然公式匹配。

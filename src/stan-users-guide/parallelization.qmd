@@ -7,6 +7,7 @@ pagetitle: Parallelization
 # 并行计算 {#parallelization.chapter--cn}
 
 本节译者：谭颂华、杨智
+本节校审：李君竹
 
 Stan has support for different types of parallelization: 
 multi-threading with Intel Threading Building Blocks (TBB),

@@ -6,7 +6,8 @@ pagetitle: Matrices, Vectors, Arrays, and Tuples
 
 # 矩阵、向量和数组
 
-本节译者：程书宁
+本节译者：程书宁、李君竹
+本节校审：李君竹
 
 This chapter provides pointers as to how to choose among the various
 container types (matrix, vector, array, and tuple) provided by Stan.
@@ -76,16 +77,22 @@ usually slight compared to what else is going on in a Stan program
 
 ## Tuple types
 
+## 元组类型
+
 Arrays may contain entries of any type, but the types must be the same
 for all entries.  Matrices and vectors contain either real numbers or
 complex numbers, but all the contained types are the same (e.g., if a
 vector has a single `complex` typed entry, all the entries are
 `complex`).
 
+数组可以包含任何类型的条目，但所有条目的类型必须相同。矩阵和矢量可以包含实数或复数，但所有包含的类型必须相同（例如，如果一个矢量有一个 `complex` 类型的条目，则所有条目都是 `complex`）。
+
 With arrays or vectors, we can represent pairs of real numbers or
 pairs of complex numbers.  For example, a `complex_vector[3]` holds
 exactly three complex numbers.  With arrays and vectors, there is no
 way to represent a pair consisting of an integer and a real number.
+
+通过数组或向量，我们可以表示成对的实数或成对的复数。例如，`complex_vector[3]` 正好表示三个复数。对于数组和向量，我们无法表示由整数和实数组成的数对。
 
 Tuples provide a way to represent a sequence of values of
 heterogeneous types.  For example, `tuple(int, real)` is the type of a
@@ -94,13 +101,21 @@ int, vector[6])` is the type of pairs where the first element is a
 five-element array of integers, the second entry is an integer, and
 the third is a six-element vector.
 
+元组提供了一种表示不同类型值序列的方法。
+不同类型的值序列。例如，`tuple(int, real)` 是由整数和实数组成的数对的类型，而 `tuple(array[5]
+int, vector[6])` 是第一个元素是五元素整数数组、第二个元素是整数、第三个元素是六元素向量的数对的类型。
+
 
 ### Tuple syntax {-}
+
+### 元组语法 {-}
 
 Tuples are declared using the keyword `tuple` followed by a sequence
 of type declarations in parentheses.  Tuples are constructed using
 only parentheses.  The following example illustrations both
 declaration and construction.
+
+使用关键字 `tuple`（元组）来声明元组，然后在括号中加上一系列类型声明。元组的构造只使用括号。下面的示例同时说明了声明和构造。
 
 ```stan
 tuple(int, vector[3]) ny = (5, [3, 2.9, 1.8]');
@@ -109,12 +124,16 @@ tuple(int, vector[3]) ny = (5, [3, 2.9, 1.8]');
 The elements of a tuple are accessed by position, starting from 1.
 For example, we can extract the elements of the tuple above using
 
+元组中的元素按位置访问，从 1 开始。 例如，我们可以使用以下方法提取上述元组中的元素
+
 ```stan
 int n = ny.1;
 vector[3] y = ny.2;
 ```
 
 We can also assign into the elements of a tuple.
+
+我们还可以赋值给元组中的元素。
 
 ```stan
 tuple(int, vector[3], complex) abc;
@@ -131,6 +150,8 @@ further index into it to create new lvalues (e.g., `abc.2[1]` pulls
 out the first element of the vector value of the second element of the
 tuple.)
 
+正如级联索引示例所示，`abc.1` 的结果是一个 l 值（即可以赋值的值），我们可以进一步对其进行索引，以创建新的 l 值（例如，`abc.2[1]` 可以取出元组第二个元素的向量值的第一个元素）。
+
 There are two efficiency considerations for tuples.  First, like the
 other container types, tuples are passed to functions by constant
 reference, which means only a pointer gets passed rather than copying
@@ -138,6 +159,8 @@ the data.  Second, like the array types, creating a tuple requires
 copying the data for all of its elements.  For example, in the
 following code, the matrix is copied, entailing 1000 copies of scalar
 values.
+
+元组有两个效率方面的考虑。首先，与其他容器类型一样，元组通过常量引用传递给函数，这意味着只传递指针而不是复制数据。其次，与数组类型一样，创建一个元组需要复制其所有元素的数据。例如，在下面的代码中，复制矩阵需要复制 1000 个标量值。
 
 ```stan
 int a = 5;
@@ -148,6 +171,8 @@ b[1,1] = 10.3;  // does NOT change ab
 
 ### Applications of tuples {-}
 
+### 元组的应用 {-}
+
 Tuples are primarily useful for two things.  First, they provide a way
 to encapsulate a group of heterogeneous items so that they may be
 passed as a group.  This lets us define arrays of structures as
@@ -156,6 +181,10 @@ vector[5])` is an array of tuples, each of which has an integer, real,
 and vector component.  Alternatively, we can represent the same
 information using a tuple of parallel arrays as `tuple(array[N] int,
 array[N] real, array[N] vector[5])`.
+
+元组主要有两个用途。首先，它们提供了一种封装一组异构项的方法，以便将它们作为一组进行传递。这样，我们就可以定义结构数组和数组结构。例如，`array[N] tuple(int, real,
+vector[5])` 是一个元组数组，每个元组都有整数、实数和向量成分。或者，我们也可以使用并行元组 `tuple(array[N] int,
+array[N] real, array[N] vector[5])`。
 
 The second use is for function return values.  Here, if a function
 computes two different things with different types, and the
@@ -167,6 +196,8 @@ different shapes.  Before introducing tuples in version 2.33, the QR
 decomposition of matrix $A = Q \cdot R$, where $Q$ is orthonormal and
 $R$ is upper triangular.  In the past, this required two function calls.
 
+第二个用途是函数返回值。在这里，如果一个函数计算两个不同类型的事物，并且计算工作是共享的，那么最好编写一个函数来返回这两个事物。例如，特征分解返回由特征值向量和特征向量矩阵组成的一对，而奇异值分解返回三个不同形状的矩阵。在 2.33 版引入元组之前，矩阵 $A = Q \cdot R$ 的 QR 分解，其中 $Q$ 是正交矩阵，$R$ 是上三角矩阵。过去，这需要调用两个函数。
+
 
 ```stan
 matrix[M, N] A = ...;
@@ -176,11 +207,15 @@ matrix[M, N] R = qr_R(A);
 
 With tuples, this can be simplified to the following,
 
+对于元组，这可以简化为以下内容
+
 ```stan
 tuple(matrix[M, M], matrix[M, N]) QR = qr(A);
 ```
 
 with `QR.1` being `Q` and `QR.2` giving `R`.
+
+ `QR.1` 为 `Q`， `QR.2` 为 `R`。
 
 ## Fixed sizes and indexing out of bounds
 

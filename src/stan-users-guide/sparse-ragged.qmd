@@ -7,6 +7,7 @@ pagetitle: Sparse and Ragged Data Structures
 # 稀疏与不规则数据结构 {#sparse-ragged.chapter--cn}
 
 本节译者：郭鑫
+本节校审：李君竹
 
 Stan does not directly support either sparse or ragged data
 structures, though both can be accommodated with some programming
@@ -29,7 +30,7 @@ There are $J$ students and $K$ questions, and if every student answers every
 question, then it is practical to declare the data as a $J \times K$
 array of answers.
 
-对稀疏数据结构进行编码就像从类似矩阵的数据结构移动到类似数据库的数据结构一样容易。例如，考虑[项目-响应模型](#item-response-models.section) 中讨论的IRT模型的稀疏数据编码。有 $J$ 个学生和 $K$ 个问题，如果每个学生都回答了每个问题，那么将数据声明为 $J\times K$ 的答案数组是可行的。 
+对稀疏数据结构进行编码就像从类似矩阵的数据结构移动到类似数据库的数据结构一样容易。例如，考虑[项目-响应模型](#item-response-models.section) 中讨论的 IRT 模型的稀疏数据编码。有 $J$ 个学生和 $K$ 个问题，如果每个学生都回答了每个问题，那么将数据声明为 $J\times K$ 的答案数组是可行的。 
 ```stan
 data {
   int<lower=1> J;
