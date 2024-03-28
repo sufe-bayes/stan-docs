@@ -1387,7 +1387,7 @@ This estimator is justified by the law of iterated expectation, the fact that
 
 这个估计量的合理性可以根据迭代期望法则得到证明。事实上，
 $$
-\mathbb{E}[h(\Theta)] = \mathbb{E}[\mathbb{E}[g(\Theta, Z] \mid \Theta)] = \mathbb{E}[g(\Theta, Z)] = \mu.
+\mathbb{E}[h(\Theta)] = \mathbb{E}[\mathbb{E}[g(\Theta, Z)] \mid \Theta] = \mathbb{E}[g(\Theta, Z)] = \mu.
 $$
 Using this marginalized estimator provides a way to estimate the expectation of any function $g(\cdot)$ for all combinations of discrete or continuous parameters in the model. However, it presents a possible new challenge: evaluating the conditional expectation $\mathbb{E}[g(\Theta, Z) \mid \Theta]$.
 

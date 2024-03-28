@@ -17,7 +17,7 @@ format:
 :::
 
 
-This is the official user's guide for Stan.  It provides example
+This is the official user's guide for [Stan](https://mc-stan.org/).  It provides example
 models and programming techniques for coding statistical models in Stan.
 
 本书是 Stan 的官方用户指南，它通过一系列的示例模型和编程技巧来介绍如何在 Stan 中对统计模型进行编程。
@@ -54,9 +54,9 @@ Data Analysis_ 和 _Statistical Rethinking: A Bayesian Course with
 Examples in R and Stan_ 这两本教科书来对相关概念进行学习，并在必要时使用 [*Stan 参考手册*](https://mc-stan.org/docs/reference-manual/index.html)来解决编程相关的问题。
 
 ::: {.content-visible when-format="html"}
-[Download the pdf version of this manual](../stan-users-guide{{< env STAN_DOCS_VERSION_PDF >}}).
+[Download the pdf version of this manual](https://mc-stan.org/docs/{{< env STAN_DOCS_VERSION_PATH >}}/stan-users-guide-{{< env STAN_DOCS_VERSION_PATH >}}.pdf).
 
-[下载本指南的 PDF 版本](../stan-users-guide{{< env STAN_DOCS_VERSION_PDF >}})。
+[下载本指南的 PDF 版本](https://mc-stan.org/docs/{{< env STAN_DOCS_VERSION_PATH >}}/stan-users-guide-{{< env STAN_DOCS_VERSION_PATH >}}.pdf)。
 :::
 
 
