@@ -4,19 +4,30 @@ pagetitle: Survival Models
 
 # Survival Models
 
+# 生存模型
+
+本节译者：李君竹
+
 Survival models apply to animals and plants as well as inanimate
 objects such as machine parts or electrical components.  Survival
 models arise when there is an event of interest for a group of
 subjects, machine component, or other item that is
 
+生存模型适用于动物和植物，也适用于无生命物体，如机器部件或电气元件。当一组研究对象、机器部件或其他物品发生利益相关事件时，就会出现生存模型。
+
 * certain to occur after some amount of time, 
 * but only measured for a fixed period of time, during which the event
 may not have occurred for all subjects. 
+
+* 必然在一段时间后发生、 
+* 但只在固定时间段内测量，在此期间，可能并非所有受试者都发生了该事件。
 
 For example, one might wish to estimate the the distribution of time
 to failure for solid state drives in a data center, but only measure
 drives for a two year period, after which some number will have failed
 and some will still be in service.
+
+例如，有人可能希望估算数据中心固态硬盘的故障时间分布，但只能测量两年内的硬盘，两年后，有些硬盘会出现故障，有些仍在使用。
 
 Survival models are often used comparatively, such as comparing time
 to death of patients diagnosed with stage one liver cancer under a new
@@ -24,11 +35,15 @@ treatment and a standard treatment (pure controls are not allowed when
 there is an effective existing treatment for a serious condition).
 During a two year trial, some patients will die and others will survive.
 
+生存模型通常用于比较，例如比较确诊为肝癌一期的患者在接受一种新疗法和一种标准疗法后的死亡时间（当一种严重疾病已有有效疗法时，不允许使用纯对照组）。在为期两年的试验中，一些患者会死亡，另一些患者会存活。
+
 Survival models may involve covariates, such as the factory at which a
 component is manufactured, the day on which it is manufactured, and
 the amount of usage it gets.  A clinical trial might be adjusted for
 the sex and age of a cancer patient or the hospital at which treatment
 is received.
+
+生存模型可能涉及协变量，如生产部件的工厂、生产日和使用量。临床试验可能会根据癌症患者的性别和年龄或接受治疗的医院进行调整。
 
 Survival models come in two main flavors, parametric and
 semi-parametric.  In a parametric model, the survival time of a
@@ -37,19 +52,29 @@ distribution.  There is a great deal of flexibility in how the
 parametric probability distribution is constructed.  The sections
 below consider exponential and Weibull distributed survival times.
 
+生存模型主要有两种，参数模型和半参数模型。
+半参数模型。在参数模型中，受试者的生存时间是通过参数概率分布明确建模的。参数概率分布的构建方式有很大的灵活性。下面的章节将讨论指数分布和 Weibull 分布的存活时间。
+
 Rather than explicitly modeling a parametric survival probability,
 semi-parametric survival models instead model the relative effect on
 survival of covariates.  The final sections of this chapter consider
 the proportional hazards survival model.
 
+半参数生存模型不是明确地模拟参数生存概率，而是模拟协变量对生存的相对影响。本章最后几节将讨论比例危险生存模型。
+
 
 ## Exponential survival model
+
+## 指数生存模型
 
 The exponential distribution is commonly used in survival models where
 there is a constant risk of failure that does not go up the longer a
 subject survives.  This is because the exponential distribution is
 memoryless in sense that if $T \sim \textrm{exponential}(\lambda)$ for
 some rate $\lambda > 0,$ then 
+
+指数分布常用于生存模型，在这种模型中，受试者的失败风险是恒定的，不会随着存活时间的延长而上升。这是因为指数分布是无记忆分布，即如果 $T \sim \textrm{exponential}(\lambda)$ 对于某个比率 $\lambda > 0,$ 那么
+
 \begin{equation*}
 \Pr[T > t] = \Pr[T > t + t' \mid T > t'].
 \end{equation*}
@@ -58,17 +83,24 @@ distribution of time to failure is the same no matter how long the
 item has already survived.  This can be a reasonable assumption for
 electronic components, but is not a reasonable model for animal survival.
 
+如果组件的存活时间呈指数分布，则意味着无论物品存活了多久，其失效时间的分布都是相同的。对于电子元件来说，这可能是一个合理的假设，但对于动物生存来说，这并不是一个合理的模型。
+
 The exponential survival model has a single parameter for the rate,
 which assumes all subjects have the same distribution of failure time
 (this assumption is relaxed in the next section by introducing
 per-subject covariates).  With the rate parameterization, the expected
 survival time for a component with survival time represented as the
 random variable $T$ is
+
+指数生存模型只有一个速率参数，假定所有受试者的失败时间分布相同（下一节通过引入受试者协变量放宽了这一假定）。利用率参数化，以随机变量 $T$ 表示存活时间的组件的预期存活时间为
+
 \begin{equation*}
 \mathbb{E}[T \mid \lambda] = \frac{1}{\lambda}.
 \end{equation*}
 The exponential distribution is sometimes parameterized in terms of a
 scale (i.e., inverse rate) $\beta = 1 / \lambda$.
+
+指数分布有时用标度（即反比率）$\beta = 1 / \lambda$ 来参数化。
 
 The data for a survival model consists of two components.  First,
 there is a vector $t \in (0, \infty)^N$ of $N$ observed failure times.
@@ -80,8 +112,14 @@ censored subjects, the only thing required in the model is their total
 count, $N^\textrm{cens}$ (their covariates are also required for
 models with covariates).
 
+生存模型的数据由两部分组成。首先，有一个向量 $t \in (0, \infty)^N$ 表示观察到的 $N$ 失败时间。其次，有一个删减时间 $t^{\textrm{cens}}$，大于 $t^{\textrm{cens}}$ 的失败时间不会被观察到。对于所有 $n \in 1{:}N$ 来说，剔除时间假设施加了一个约束条件，要求 $t_n < t^{\textrm{cens}}$ 。
+计数，即 $N^\textrm{cens}$（有协变量的模型还需要他们的协变量）。
+
 The model for the observed failure times is exponential, so that for
 $n \in 1{:}N,$
+
+观测到的故障时间模型是指数型的，因此对于 $n \in 1{:}N,$
+
 \begin{equation*}
 t_n \sim \textrm{exponential}(\lambda).
 \end{equation*}
@@ -90,6 +128,9 @@ The model for the censored failure times is also exponential.  All
 that is known of a censored item is that its failure time is greater
 than the censoring time, so each censored item contributes a factor to
 the likelihood of 
+
+删减故障时间的模型也是指数型的。我们只知道一个删减项目的失效时间大于删减时间，因此每个删减项目都会对以下可能性产生影响
+
 \begin{equation*}
 \Pr[T > t^{\textrm{cens}}] = 1 - F_T(t^{\textrm{cens}}),
 \end{equation*}
@@ -98,6 +139,9 @@ time $T$ ($F_X(x) = \Pr[X \leq x]$ is standard notation for the cdf of
 a random variable $X$).  The function $1 - F_T(t)$ is the
 complementary cumulative distribution function (ccdf), and it is used
 directly to define the likelihood
+
+其中 $F_T$ 是生存时间 $T$ 的累积分布函数（cdf）（$F_X(x) = \Pr[X \leq x]$ 是随机变量 $X$ 的 cdf 的标准符号）。函数 $1 - F_T(t)$ 是互补累积分布函数 (ccdf)，可直接用来定义似然值
+
 \begin{eqnarray*}
 p(t, t^{\textrm{cens}}, N^{\textrm{cens}} \mid \lambda)
 & = & 
@@ -113,6 +157,8 @@ p(t, t^{\textrm{cens}}, N^{\textrm{cens}} \mid \lambda)
 \end{eqnarray*}
 
 On the log scale, that's
+
+按对数计算，即
 \begin{eqnarray*}
 \log p(t, t^{\textrm{cens}}, N^{\textrm{cens}} \mid \lambda)
 & = &
@@ -123,6 +169,9 @@ On the log scale, that's
 
 The model can be completed with a standard lognormal prior on
 $\lambda,$ 
+
+该模型可以用 $\lambda$，的标准对数正态先验来完成。
+
 \begin{equation*}
 \lambda \sim \textrm{lognormal}(0, 1),
 \end{equation*}
@@ -132,11 +181,16 @@ a variable distributed $\textrm{lognormal}(0, 1)$.  In general, the
 range of the prior (and likelihood!) should be adjusted with prior knowledge of expected
 failure times.
 
+如果故障时间在 0.1 到 10 个时间单位之间，那么这个区间是合理的，因为对于分布为 $\textrm{lognormal}(0,1)$的变量来说，这个区间大致是 95% 的中心区间。一般来说，先验（和似然比！）的范围应根据预期故障时间的先验知识进行调整。
 
 ### Stan program {-}
 
+### Stan 程序 {-}
+
 The data for a simple survival analysis without covariates can be
 coded as follows.
+
+不含协变因素的简单生存分析数据可编码如下。
 
 ```stan
 data {
@@ -157,8 +211,13 @@ Right censoring means that if the time to failure is greater than
 needs the number of censored items because they all share the same
 censoring time.
 
+在该程序中，`N` 是未剪辑观测值的数量，`t` 包含未剪辑观测值的时间。
+包含未剪辑观测值的时间。还有 `N_cens` 个项目在时间 `t_cens` 时进行了右删减。右删减是指如果故障时间大于 `t_cens`，则只能观察到部件存活到时间 `t_cens`。在没有协变量的情况下，模型只需要剔除项的数量，因为它们都共享相同的剔除时间。
+
 There is a single rate parameter, the inverse of which is the expected
 time to failure.
+
+有一个单一的速率参数，它的倒数就是预期失败时间。
 
 ```stan
 parameters {
@@ -170,6 +229,8 @@ The exponential survival model and the prior are coded directly using
 vectorized sampling and ccdf statements.  This both simplifies the
 code and makes it more computationally efficient by sharing
 computation across instances.
+
+指数生存模型和先验值直接使用向量采样和 ccdf 语句进行编码。这既简化了代码，又通过在实例间共享计算提高了计算效率。
 
 ```stan
 model {
@@ -186,6 +247,8 @@ modeling each entry of the vector `t` as a having an exponential
 distribution with rate `lambda`. This likelihood could have been
 written as
 
+观察到的故障可能性只是比率为 `lambda` 的指数分布。Stan 代码是矢量化的，将矢量 `t` 的每个条目建模为具有率 `lambda` 的指数分布。这个可能性可以写成
+
 ```stan
 for (n in 1:N) {
   t[n] ~ exponential(lambda);
@@ -198,6 +261,8 @@ censoring time of the exponential distribution with rate
 `lambda`.  The log likelihoods for the censored events could have
 been added to the target log density one at a time,
 
+剔除项目的对数似然是剔除项目数乘以指数分布剔除时间的对数互补累积分布函数（ccdf），其比率为 `lambda`。剔除事件的对数似然值可以逐个添加到目标对数密度中、
+
 ```stan
 for (n in 1:N)
   target += exponential_lccdf(t_cens | lambda);
@@ -207,8 +272,11 @@ to define the same log density, but it is much more efficient
 computationally to multiply by a constant than do a handful of
 sequential additions.
 
+来定义相同的对数密度，但乘以一个常数要比做大量的连续加法计算效率高得多。
 
 ## Weibull survival model
+
+## Weibull 生存模型
 
 The Weibull distribution is a popular alternative to the exponential
 distribution in cases where there is a decreasing probability of
@@ -216,18 +284,27 @@ survival as a subject gets older.  The Weibull distribution models
 this by generalizing the exponential distribution to include a
 power-law trend.
 
+当受试者的存活概率随着年龄的增长而下降时，Weibull 分布是指数分布的常用替代方案。威布尔分布通过对指数分布进行概括以包含幂律趋势来模拟这种情况。
+
 The Weibull distribution is parameterized by a shape $\alpha > 0$ and
 scale $\sigma > 0.$ For an outcome $t \geq 0$, the Weibull
 distribution's probability density function is
+
+Weibull 分布被形状参数 $\alpha > 0$ 和尺度参数 $\sigma > 0$ 定义，对于结果 $t \geq 0$，Weibull 分布的概率密度函数为
+
 \begin{equation*}
 \textrm{Weibull}(t \mid \alpha, \sigma)
 = \frac{\alpha}{\sigma}
   \cdot \left( \frac{t}{\sigma} \right)^{\alpha - 1}
   \cdot \exp\left(-\left(\frac{t}{\sigma}\right)^{\alpha}\right).
 \end{equation*}
+
 In contrast, recall that the exponential distribution can be expressed
 using a rate (inverse scale) parameter $\beta > 0$ with probability
 density function 
+
+相比之下，回顾指数分布可以用一个速率（逆标度）参数 $\beta > 0$ 来表示，其概率密度函数为
+
 \begin{equation*}
 \textrm{exponential}(t \mid \beta) =
 \beta
@@ -244,39 +321,64 @@ distribution,
 In other words, the Weibull is a continuous expansion of the
 exponential distribution.
 
+换句话说，Weibull 是指数分布的连续扩展。
+
 If $T \sim \textrm{Weibull}(\alpha, \sigma),$ then the expected
 survival time is
+
+如果 $T \sim \textrm{Weibull}(\alpha, \sigma),$ 那么预期存活时间为
+
 \begin{equation*}
 \mathbb{E}[T] = \sigma \cdot \Gamma\!\left(1 + \frac{1}{\alpha}\right),
 \end{equation*}
+
 where the $\Gamma$ function is the continuous completion of the
 factorial function (i.e., $\Gamma(1 + n) = n!\ $ for $n \in
 \mathbb{N}$).  As $\alpha \rightarrow 0$ for a fixed $\sigma$ 
 or as $\sigma \rightarrow \infty$ for a fixed $\alpha$, the expected
 survival time goes to infinity.
 
+其中，$\Gamma$ 函数是阶乘函数的连续完成函数（即，i.e., $\Gamma(1 + n) = n!\ $ for $n \in
+\mathbb{N}$）。$\alpha \rightarrow 0$ for a fixed $\sigma$或as $\sigma \rightarrow \infty$ for a fixed $\alpha$ 时，预期存活时间将达到无穷大。
+
 There are three regimes of the Weibull distribution.
+
+Weibull 分布有三种情况。
 
 * $\alpha < 1.$  A subject is more likely to fail early.  When $\alpha
   < 1,$ the Weibull density approaches infinity as $t \rightarrow 0.$
+
+* $\alpha < 1.$  科目更有可能提前失败。当 $\alpha
+  < 1$ 时，Weibull 密度会随着 $t \rightarrow 0.$ 而接近无穷大。
 
 * $\alpha = 1.$  The Weibull distribution reduces to the exponential
   distribution, with a constant rate of failure over time. When
   $\alpha = 1,$ the Weibull distribution approaches $\sigma$ as $t
   \rightarrow 0.$ 
+  
+* $\alpha = 1.$  Weibull 分布简化为指数分布，随着时间的推移，故障率保持不变。 当 $\alpha = 1,$ 时，Weibull 分布接近 $\sigma$ 随着 $t
+  \rightarrow 0.$ 
 
 * $\alpha > 1.$  Subjects are less likely to fail early.  When $\alpha < 1,$
   the Weibull density approaches zero as $t \rightarrow 0.$ 
 
+* $\alpha > 1.$  受试者不容易提前失败。当 $\alpha < 1,$ 时，Weibull 密度随着 $t \rightarrow 0$ 接近0。
+
 With $\alpha \leq 1,$ the mode is zero ($t = 0$), whereas with $\alpha > 1,$
 the mode is nonzero ($t > 0$).
 
+当 $\alpha \leq 1$ 时，模式为零（$t = 0$），而当 $\alpha > 1$ 时，模式不为零（$t > 0$）。
+
 ### Stan program {-}
+
+### Stan 程序 {-}
 
 With Stan, one can just swap the exponential density for the Weibull
 density with the appropriate parameters and the model remains
 essentially the same.  Recall the exponential model's parameters and
 model block.
+
+有了 Stan，我们只需将指数密度换成 Weibull 密度，再加上适当的参数，模型就基本不变了。回顾指数模型的参数和模型块。
 
 ```stan
 parameters {
@@ -292,6 +394,8 @@ model {
 
 The Stan program for the Weibull model just swaps in the Weibull
 distribution with its shape (`alpha`) and scale (`sigma`) parameters.
+
+用于 Weibull 模型的 Stan 程序只是将 Weibull 分布与其形状（`alpha`）和尺度（`sigma`）参数互换。
 
 ```stan
 parameters {
@@ -310,9 +414,13 @@ model {
 As usual, if more is known about expected survival times, `alpha` and
 `sigma` should be given more informative priors.
 
+通常情况下，如果对预期存活时间有更多了解，就应该给 `alpha` 和 `sigma` 更多的先验信息。
+
 
 
 ## Survival with covariates
+
+## 带有协变量的生存率
 
 Suppose that for each of $n \in 1{:}N$ items observed, both censored
 and uncensored, there is a covariate (row) vector $x_n \in
@@ -322,18 +430,33 @@ electronic component might include a one-hot encoding of the factory
 at which it was manufactured and a covariate for the load under which
 it has been run.
 
+假设对于任何 $n \in 1{:}N$（包括有删失和无删失项目）都有一个协变量（行）向量 $x_n \in
+\mathbb{R}^K$。 例如，临床试验可能包括参与者的年龄（或年龄组的单次编码）和性别；电子元件可能包括制造工厂的单次编码和运行负载的协变量。
+
 Survival with covariates replaces what is essentially a simple
 regression with only an intercept $\lambda$ with a generalized linear
 model with a log link, where the rate for item $n$ is
+
+带有协变量的存活率将本质上只有截距 $\lambda$ 的简单
+仅有截距 $\lambda$ 的回归，改为具有对数联系的广义线性模型，其中项目 $n$ 的比率为
+
 \begin{equation*}
 \lambda_n = \exp(x_n \cdot \beta),
 \end{equation*}
+
 where $\beta \in \mathbb{R}^K$ is a $K$-vector of regression
 coefficients.  Thus
+
+其中 $\beta \in \mathbb{R}^K$ 是回归系数的 $K$ 向量。因此
+
 \begin{equation*}
 t_n \sim \textrm{exponential}(\lambda_n).
 \end{equation*}
+
 The censored items have probability
+
+剔除项目的概率为
+
 \begin{equation*}
 \Pr[n\textrm{-th censored}] =
 \textrm{exponentialCCDF}(t^{\textrm{cens}} \mid x^{\textrm{cens}}_n
@@ -344,8 +467,13 @@ The the covariates form an $N \times K$ data matrix, $x \in
 \mathbb{R}^{N \times K}$. An intercept can be introduced by adding a
 column of 1 values to $x$.
 
+协变量构成了一个 $N （乘以 K）的数据矩阵，$x （在
+\mathbb{R}^{N times K}$。可以通过在 $x$ 中添加一列 1 值来引入截距。
+
 A Stan program for the exponential survival model with covariates is
 as follows.  It relies on the fact that the order of failure times (`t` and `t_cens`) corresponds to the ordering of items in the covariate matrices (`x` and `x_cens`).
+
+带有协变量的指数生存模型的 Stan 程序如下。它所依赖的事实是，失败时间的顺序（`t` 和 `t_cens`）与协变量矩阵（`x` 和 `x_cens`）中项目的顺序相对应。
 
 ```stan
 data {
@@ -372,22 +500,37 @@ Both the censored and uncensored likelihoods are vectorized, one in
 terms of the log complementary cumulative distribution function and
 one in terms of the exponential distribution.
 
+有删减似然值和无删减似然值都是矢量化的，一个是对数互补累积分布函数，一个是指数分布。
+
 
 ## Hazard and survival functions
 
+## 危险和生存函数
+
 Suppose $T$ is a random variable representing a survival time, with a
 smooth cumulative distribution function
+
+假设 $T$ 是一个代表生存时间的随机变量，具有平稳的累积分布函数
+
 \begin{equation*}
 F_T(t) = \Pr[T \leq t],
 \end{equation*}
+
 so that its probability density function is
+
+因此其概率密度函数为
+
 \begin{equation*}
 p_T(t) = \frac{\textrm{d}}{\textrm{d}t} F_T(t).
 \end{equation*}
 
+
 The *survival function* $S(t)$ is the probability of surviving until
 at least time $t$, which is just the complementary cumulative
 distribution function (ccdf) of the survival random variable $T$,
+
+*生存函数* $S(t)$ 是至少存活到时间 $t$ 的概率，它只是存活随机变量 $T$ 的互补累积分布函数（ccdf）
+
 \begin{equation*}
 S(t) = 1 - F_T(t).
 \end{equation*}
@@ -396,20 +539,31 @@ section as the likelihood for items that did not fail during the
 period of the experiment (i.e., the censored failure times for the
 items that survived through the trial period).
 
+生存函数出现在上一节的 Stan 模型中，是指在试验期间没有失败的项目的可能性（即在试验期间存活下来的项目的删减失败时间）。
+
 The *hazard function* $h(t)$ is the instantaneous risk of not
 surviving past time $t$ assuming survival until time $t$, which is
 given by
+
+假设在时间 $t$ 前一直存活，则在时间 $t$ 后无法存活的瞬时风险为
+
 \begin{equation*}
 h(t) = \frac{p_T(t)}{S(t)} = \frac{p_T(t)}{1 - F_T(t)}.
 \end{equation*}
 The *cumulative hazard function* $H(t)$ is defined to be the accumulated
 hazard over time,
+
+累积危害函数* $H(t)$ 的定义是随着时间的推移而累积的危害、
+
 \begin{equation*}
 H(t) = \int_0^t h(u) \, \textrm{d}u.
 \end{equation*}
 
 The hazard function and survival function are related through the
 differential equation
+
+危害函数和生存函数通过微分方程相关联
+
 \begin{eqnarray*}
 h(t) & = & -\frac{\textrm{d}}{\textrm{d}t} \log S(t).
 \\[4pt]
@@ -426,6 +580,9 @@ h(t) & = & -\frac{\textrm{d}}{\textrm{d}t} \log S(t).
 
 If $T \sim \textrm{exponential}(\beta)$ has an exponential
 distribution, then its hazard function is constant,
+
+如果 $T \sim \textrm{exponential}(\beta)$ 是指数分布，那么它的危险函数就是常数、
+
 \begin{eqnarray*}
 h(t \mid \beta)
 & = & \frac{p_T(t \mid \beta)}{S(t \mid \beta)}
@@ -443,8 +600,13 @@ h(t \mid \beta)
 The exponential distribution is the only distribution of survival
 times with a constant hazard function.
 
+指数分布是唯一具有恒定危险函数的生存时间分布。
+
 If $T \sim \textrm{Weibull}(\alpha, \sigma),$ then its hazard function
 is
+
+如果 $T \sim \textrm{Weibull}(\alpha, \sigma), $ 那么它的危险函数是
+
 \begin{eqnarray*}
 h(t \mid \alpha, \sigma)
 & = & \frac{p_T(t \mid \alpha, \sigma)}{S(t \mid \alpha, \sigma)}
@@ -468,8 +630,12 @@ from the fact that the Weibull distribution reduces to the exponential
 distribution when $\alpha = 1$). When $\alpha > 1,$ the hazard grows as
 time passes, whereas when $\alpha < 1,$ it decreases as time passes.
 
+如果 $\alpha = 1$，危害随时间变化是恒定的（这也源于当 $\alpha = 1$时，Weibull 分布简化为指数分布的事实）。当 $\alpha > 1 时，$ 危险随着时间的推移而增大，而当 $\alpha < 1 时，$ 危险随着时间的推移而减小。
+
 
 ## Proportional hazards model
+
+## 比例危害模型
 
 The exponential model is parametric in that is specifies an explicit
 parametric form for the distribution of survival times.  @cox:1972
@@ -479,23 +645,34 @@ distribution over survival times.  Cox's model is semi-parametric in
 that it does not model the full hazard function, instead modeling only
 the proportional differences in hazards among subjects.
 
+指数模型是参数模型，因为它为生存时间的分布规定了明确的参数形式。考克斯：1972 引入了一个半参数生存模型，直接用危险函数 $h(t)$，而不是生存时间分布来表示。考克斯模型之所以是半参数模型，是因为它不对整个危险函数建模，而只对受试者之间的危险比例差异建模。
+
 Let $x_n \in \mathbb{R}^K$ be a (row) vector of covariates for subject
 $n$ so that the full covariate data matrix is $x \in \mathbb{R}^{N \times
 K}$.  In Cox's model, the hazard function for subject $n$ is defined
 conditionally in terms of their covariates $x_n$ and the parameter vector
 $\gamma \in \mathbb{R}^K$ as
+
+让 $x_n \in \mathbb{R}^K$ 是受试者 $n$ 的协变量（行）向量，这样完整的协变量数据矩阵就是 $x \in \mathbb{R}^{N \times K}$。在考克斯模型中，受试者 $n$ 的危险函数是根据其协变量 $x_n$ 和参数向量 $\gamma \in \mathbb{R}^K$ 定义的，即
+
 \begin{equation*}
 h(t \mid x_n, \beta) = h_0(t) \cdot \exp(x_n \cdot \gamma),
 \end{equation*}
+
 where $h_0(t)$ is a shared baseline hazard function and $x_n \cdot
 \gamma = \sum_{k=1}^K x_{n, k} \cdot \beta_k$ is a row vector-vector
 product. 
+
+其中，$h_0(t)$ 是共享基线危害函数，$x_n \cdot
+\gamma = \sum_{k=1}^K x_{n, k} \cdot \beta_k$ 是行向量-向量乘积。
 
 In the semi-parametric, proportional hazards model, the baseline
 hazard function $h_0(t)$ is not modeled.  This is why it is called
 "semi-parametric."  Only the factor $\exp(x_n \cdot \gamma),$ which
 determines how individual $n$ varies by a proportion from the baseline
 hazard, is modeled.  This is why it's called "proportional hazards."
+
+在半参数比例危险模型中，基线危险函数 $h_0(t)$ 没有被建模。这就是它被称为 "半参数 "的原因。只有系数 $\exp(x_n \cdot \gamma)$ 被建模，该系数决定了个体 $n$ 与基线危险的比例变化。这就是它被称为 "比例危险 "的原因。
 
 The proportional hazards model is not fully generative.  There is no
 way to generate the times of failure because the baseline hazard
@@ -504,8 +681,12 @@ failure times could be generated.  The proportional hazards model is
 generative for the ordering of failures conditional on a number of
 censored items.
 
+比例危险模型不是完全生成的。由于基线危害函数 $h_0(t)$ 没有建模，因此无法生成故障时间；如果知道基线危害，就可以生成故障时间。比例危害模型可以生成以若干删减项目为条件的故障排序。
+
 
 ### Partial likelihood function {-}
+
+### 局部似然函数 {-}
 
 The proportional specification of the hazard function is insufficient
 to generate random variates because the baseline hazard function
@@ -513,16 +694,24 @@ $h_0(t)$ is unknown.  On the other hand, the proportional
 specification is sufficient to generate a partial likelihood that
 accounts for the order of the survival times.
 
+由于基线危险函数 $h_0(t)$ 未知，因此危险函数的比例规范不足以生成随机变量。另一方面，比例规范足以生成考虑生存时间顺序的部分似然。
+
 The hazard function $h(t \mid x_n, \beta) = h_0(t) \cdot \exp(x_n
 \cdot \beta)$ for subject $n$ represents the instantaneous probability
 that subject $n$ fails at time $t$ given that it has survived until
 time $t.$ The probability that subject $n$ is the first to fail among
 $N$ subjects is thus proportional to subject $n$'s hazard function,
+
+受试者 $n$ 的危险函数 $h(t \mid x_n, \beta) = h_0(t) \cdot \exp(x_n
+\cdot \beta)$ 表示受试者 $n$ 生存到时间 $t$ 时在时间 $t$ 失败的瞬时概率、因此，受试者 $n$ 在 $N$ 受试者中第一个失败的概率与受试者 $n$ 的危险函数成正比、
+
 \begin{equation*}
 \Pr[n \textrm{ first to fail at time } t]
 \propto h(t \mid x_n, \beta).
 \end{equation*}
 Normalizing yields
+收益率正常化
+
 \begin{eqnarray*}
 \Pr[n \textrm{ first to fail at time } t]
 & = &  \frac{h(t \mid x_n, \beta)}
@@ -545,9 +734,15 @@ convenient indexing and does not cause any loss of
 generality---survival times can simply be sorted into the necessary
 order.
 
+假设有 $N$ 个受试者，其严格*有序*的存活时间为 $t_1 < t_2 < \cdots < t_N$，协变量（行）向量为 $x_1, \ldots, x_N$。
+让 $t^{textrm{cens}}$ 为（右侧）删减时间，让 $N^{\textrm{obs}}$ 为 $n$ 的最大值，使得 $t_n \leq t^{textrm{cens}}$。也就是说，$N^{textrm{obs}}$ 是观测到故障时间的受试者人数。排序是为了方便索引，并不会造成任何通用性的损失--存活时间只需按必要的顺序排序即可。
+
 With failure times sorted in decreasing order, the partial likelihood
 for each observed subject $n \in 1{:}N^{\textrm{obs}}$ can be
 expressed as
+
+失败时间按递减顺序排列后，每个观察对象 $n \in 1{:}N^{\textrm{obs}}$ 的部分可能性可表示为
+
 \begin{equation*}
 \Pr[n \textrm{ first to fail among } n, n + 1, \ldots N]
 = \frac{\exp(x_n \cdot \beta)}
@@ -556,9 +751,14 @@ expressed as
 The group of items for comparison and hence the summation is over all
 items, including those with observed and censored failure times.
 
+用于比较的项目组以及因此而得出的总和是所有项目的总和，包括那些具有观察到的失败时间和经过普查的失败时间的项目。
+
 The partial likelihood, defined in this form by @breslow:1975, is just
 the product of the partial likelihoods for the observed subjects
 (i.e., excluding subjects whose failure time is censored).
+
+部分似然（partial likelihood）是由 @breslow:1975 以这种形式定义的，它只是观测对象的部分似然（即排除失败时间被删减的观测对象）的乘积。
+
 \begin{equation*}
 \Pr[\textrm{observed failures ordered } 1, \ldots, N^{\textrm{obs}} |
 x, \beta]
@@ -567,6 +767,9 @@ x, \beta]
        {\sum_{n' = n}^N \exp(x_{n'} \cdot \beta)}.
 \end{equation*}
 On the log scale,
+
+按对数尺度计算、
+
 \begin{eqnarray*}
 \log \Pr[\textrm{obs.\ fail ordered } 1, \ldots, N^{\textrm{obs}} |
 x, \beta]
@@ -588,25 +791,38 @@ where
 \end{equation*}
 is implemented so as to preserve numerical precision.
 
+实现是为了保持数字的精确性。
+
 This likelihood follows the same approach to ranking as that developed
 by @plackett:1975 for estimating the probability of the order of the
 first few finishers in a horse race. 
 
+这种可能性采用的排序方法与 @plackett:1975 为估计赛马比赛中前几名选手顺序的概率而开发的排序方法相同。
+
 A simple normal prior on the components of $\beta$ completes the
 model,
+
+关于 $\beta$ 成分的简单正态先验完成了模型、
+
 \begin{equation*}
 \beta \sim \textrm{normal}(0, 2).
 \end{equation*}
 This should be scaled based on knowledge of the predictors.  
 
+应根据对预测因素的了解进行调整。
+
 
 ### Stan program {-}
+
+### Stan 程序 {-}
 
 To simplify the Stan program, the survival times for uncensored events
 are sorted into decreasing order (unlike in the mathematical
 presentation, where they were sorted into ascending order).  The
 covariates for censored and uncensored observations are separated into
 two matrices.
+
+为简化 Stan 程序，未删节事件的存活时间按递减顺序排列（与数学计算中的升序排序不同）。删失观测值和未删失观测值的协变量分为两个矩阵。
 
 ```stan
 data {
@@ -624,6 +840,8 @@ data {
 
 The parameters are just the coefficients.
 
+参数只是系数。
+
 ```stan
 parameters {
   vector[K] beta;          // slopes (no intercept)
@@ -632,6 +850,8 @@ parameters {
 
 The prior is a simple independent centered normal distribution on each
 element of the parameter vector, which is vectorized in the Stan code.
+
+先验值是参数向量每个元素上的简单独立居中正态分布，在 Stan 代码中已被矢量化。
 
 ```stan
 model {
@@ -644,6 +864,8 @@ The first order of business is to calculate the linear predictors,
 which is done separately for the subjects whose event time is observed
 and those for which the event time is censored.
 
+采用对数似然法是为了尽量减少重复工作。第一项工作是计算线性预测因子，这需要分别计算观察到事件发生时间的受试者和事件发生时间有删减的受试者的线性预测因子。
+
 ```stan
   vector[N] log_theta = x * beta;
   vector[N_c] log_theta_c = x_c * beta;
@@ -655,6 +877,8 @@ censored covariates times the coefficients is reused in the
 denominator of each factor, which on the log scale, starts with the
 log sum of exponentials of the censored items' linear predictors.
 
+这些向量是通过高效的矩阵-向量乘法计算得出的。每个因子的分母都重新使用了删减协变量的指数值乘以系数的对数。
+
 ```stan
   real log_denom = log_sum_exp(log_theta_c);
 ```
@@ -663,6 +887,8 @@ Then, for each observed survival time, going backwards from the latest
 to the earliest, the denominator can be incremented (which turns into
 a log sum of exponentials on the log scale), and then the target is
 updated with its likelihood contribution.
+
+然后，对于每一个观测到的存活时间，从最近的时间倒退到最早的时间，分母可以递增（变成对数标度上的对数指数和），然后用其贡献的可能性更新目标。
 
 ```stan
   for (n in 1:N) {
@@ -678,6 +904,8 @@ are sorted into decreasing order is not checked.  It could be checked
 very easily in the transformed data block by adding the following
 code.
 
+指数的运行对数和是列表按存活时间倒序迭代的原因。它允许对数分母一次累积一个项。没有检查生存时间按递减顺序排列的条件。只需在转换后的数据块中添加以下代码，就可以很容易地进行检查。
+
 ```stan
 transformed data {
   for (n in 2:N) {
@@ -690,6 +918,8 @@ transformed data {
 ```
 
 ### Stan model for tied survival times {-}
+
+### Stan 模型绑定存活时间 {-}
 
 Technically, for continuous survival times, the probability of two
 survival times being identical will be zero.  Nevertheless, real data
@@ -704,10 +934,14 @@ while not being quite as good as considering all permutations.
 Efron's model averages the contributions as if they truly did occur
 simultaneously.  
 
+从技术上讲，对于连续生存时间，两个生存时间相同的概率为零。然而，实际数据集通常会将生存时间四舍五入，例如在多年临床试验中将生存时间四舍五入到最接近的一天或一周。面对一个范围内的未知生存时间，技术上 "正确 "的做法是将其顺序视为未知并推断出来。但是，对于一组存活时间相等的 N 个受试者，考虑所有 N! 作为一种替代方案，@efron:1977 引入了一种近似的部分似然法，其特性优于随机排列，但不如考虑所有排列。埃夫隆的模型将各贡献值平均化，就好像它们确实是同时发生的一样。
+
 In the interest of completeness, here is the Stan code for an
 implementation of Efron's estimator.  It uses two user-defined
 functions.  The first calculates how many different survival times
 occur in the data.
+
+为完整起见，下面是实现埃夫隆估计器的 Stan 代码。它使用了两个用户自定义函数。第一个函数计算数据中有多少不同的生存时间。
 
 ```stan
 functions {
@@ -725,6 +959,8 @@ This is then used to compute the value `J` to send into the function
 that computes the position in the array of failure times where each
 new failure time starts, plus an end point that goes one past the
 target.  This is a standard way in Stan to code ragged arrays.
+
+然后用它来计算 `J` 值，并将其发送到函数中，该函数用于计算故障时间数组中每个新故障时间的起始位置，以及经过目标的终点。这是 Stan 对锯齿数组进行编码的标准方法。
 
 ```stan
   array[] int unique_starts(vector t, int J) {
@@ -749,6 +985,8 @@ section, but in this case, the transformed data block is used to
 cache some precomputations required for the model, namely the ragged
 array grouping elements that share the same survival time.
 
+数据格式与上一节中的模型完全相同，但在这种情况下，转换后的数据块用于缓存模型所需的一些预计算，即对具有相同生存时间的元素进行分组的锯齿数组。
+
 ```
 transformed data {
   int<lower=0> J = num_unique_starts(t);
@@ -761,12 +999,16 @@ indexed from `starts[j]` to `starts[j + 1] - 1` (inclusive) share the
 same survival time.  The number of elements with survival time `j` is thus
 `(starts[j + 1] - 1) - starts[j] + 1`, or just `starts[j + 1] - starts[j]`.
 
+对于每个唯一生存时间 `j` in `1:J`，从 `starts[j]` 到 `starts[j + 1] - 1`（含）的受试者共享相同的生存时间。因此，存活时间为 `j` 的元素数量为 `(starts[j + 1] - 1) - starts[j] + 1`，或简称为 `starts[j + 1] - starts[j]`。
+
 The parameters and prior are also the same---just a vector `beta` of
 coefficients with a centered normal prior.  Although it starts with
 the same caching of results for later, and uses the same accumulator
 for the denominator, the overall partial likelihood is
 much more involved, and depends on the user-defined functions defining
 the transformed data variables `J` and `starts`.
+
+参数和先验也是一样的--只是一个带有居中正态先验的系数向量 `beta`。虽然开始时同样为以后缓存结果，并为分母使用相同的累加器，但总体偏似然涉及的内容要多得多，而且取决于定义转换数据变量 `J` 和 `starts` 的用户自定义函数。
 
 ```stan
   vector[N] log_theta = x * beta;
@@ -792,6 +1034,8 @@ the transformed data variables `J` and `starts`.
 
 The special function `log_diff_exp` is defined as
 
+特殊函数 `log_diff_exp` 的定义为
+
 \begin{equation*}
 \textrm{logDiffExp}(u, v) = \log(\exp(u) - \exp(v)).
 \end{equation*}
@@ -799,7 +1043,7 @@ The special function `log_diff_exp` is defined as
 Because of how `J` and `starts` are constructed, the length `len` will
 always be strictly positive so that the log is well defined.
 
-
+由于 `J` 和 `starts` 的构造方式，长度 `len` 总是严格正数，因此对数定义良好。
 
 
 

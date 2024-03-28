@@ -7,6 +7,7 @@ pagetitle: Differential-Algebraic Equations
 # 微分代数方程 {#dae-solver.chapter--cn}
 
 本节译者：于娇
+本节校审：李君竹
 
 Stan support solving systems of differential-algebraic equations
 (DAEs) of index 1 [@serban_user:2021]. The solver adaptively

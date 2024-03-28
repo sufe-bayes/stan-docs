@@ -7,6 +7,7 @@ pagetitle: Measurement Error and Meta-Analysis
 # 测量误差和元分析
 
 本节译者：马桢
+本节校审：李君竹
 
 Most quantities used in statistical models arise from measurements.
 Most of these measurements are taken with some error.  When the
@@ -36,7 +37,7 @@ treating the true quantities being measured as missing data
 [@Clayton:1992; @RichardsonGilks:1993].  This requires a model of
 how the measurements are derived from the true values.
 
-测量误差的贝叶斯方法可以通过将被测量的真实量视为缺失数据来直接构建[@Clayton:1992; @RichardsonGilks:1993]。这需要一个关于如何从真实值中获取测量值的模型。
+测量误差的贝叶斯方法可以通过将被测量的真实量视为缺失数据来直接构建 [@Clayton:1992; @RichardsonGilks:1993]。这需要一个关于如何从真实值中获取测量值的模型。
 
 ### Regression with measurement error {-}
 
@@ -303,7 +304,7 @@ of ibuprofen [@WarnThompsonSpiegelhalter:2002] or mortality after
 myocardial infarction under a treatment of beta blockers
 [@GelmanEtAl:2013, Section 5.6].
 
-假设所涉及的数据来自总共 $M$ 项研究，这些研究提供了治疗组和对照组的配对二项数据。例如，这些数据可能是在应用布洛芬进行手术后疼痛减轻方面的数据[@WarnThompsonSpiegelhalter:2002]或在应用 beta 受体阻滞剂治疗心肌梗死后的死亡率数据[@GelmanEtAl:2013, Section 5.6]。
+假设所涉及的数据来自总共 $M$ 项研究，这些研究提供了治疗组和对照组的配对二项数据。例如，这些数据可能是在应用布洛芬进行手术后疼痛减轻方面的数据 [@WarnThompsonSpiegelhalter:2002] 或在应用 beta 受体阻滞剂治疗心肌梗死后的死亡率数据 [@GelmanEtAl:2013, Section 5.6]。
 
 #### Data {-}
 

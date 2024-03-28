@@ -173,6 +173,8 @@ If `integrate_1d` causes an exception in generated quantities block, the returne
 `integrate_1d` is NaN. In these cases, a bigger `relative_tolerance` value can be specified.
 
 可以在 `integrate_1d` 的最后一个实参中选择性指定 `relative_tolerance` 形参。默认情况下，integrate_1d 遵循 Boost 库的建议，将 relative_tolerance 设置为双精度浮点数的机械极小值的平方根（约 `1e-8`）。
+如果 Boost 积分器无法达到相对误差，就会出现异常，提示信息如下："Exception: integrate: error
+estimate of integral 4.25366e-13 exceeds the given relative tolerance times norm of integral"。如果 `integrate_1d` 在转换参数块或模型块中导致异常，其结果与分配 $-\infty$ 对数概率的效果相同，这会导致在 MCMC 采样器中拒绝当前提议，以及在优化中调整搜索参数。如果 `integrate_1d` 在生成的数量块中导致异常，则 `integrate_1d` 返回的输出为 NaN。在这种情况下，可以指定一个更大的 `relative_tolerance` 值。
 
 ### Zero-crossing integrals {- #zero-crossing}
 

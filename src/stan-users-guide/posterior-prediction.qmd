@@ -7,6 +7,7 @@ pagetitle: Posterior Predictive Sampling
 # 后验预测抽样 {#posterior-prediction.chapter--cn}
 
 本节译者：谭朕斯
+本节校审：张梓源
 
 The goal of inference is often posterior prediction, that is
 evaluating or sampling from the posterior predictive distribution
@@ -27,7 +28,7 @@ quantities block.  Further, a technique for fitting and performing
 inference in two stages is presented in a section on stand-alone
 generated quantities in Stan
 
-本节重点介绍了如何在Stan中从后验预测分布中进行抽样，它涵盖了后验预测模拟和计算事件发生概率的技术和相应的应用，所提供的示例和解释将帮助您理解如何在Stan中实现这些技术。
+本节重点介绍了如何在 Stan 中从后验预测分布中进行抽样，它涵盖了后验预测模拟和计算事件发生概率的技术和相应的应用，所提供的示例和解释将帮助您理解如何在 Stan 中实现这些技术。
 
 
 ## Posterior predictive distribution
@@ -103,8 +104,8 @@ $$
 is used to maintain arithmetic precision.  See the [section on log sum
 of exponentials](floating-point.qmd#log-sum-of-exponentials) for more details.
 
-用于保持算术精度。有关更多详细信息，请参阅对数指数和（[section on log sum
-of exponentials](#log-sum-of-exponentials) ）的部分。
+用于保持算术精度。有关更多详细信息，请参阅对数指数和 [section on log sum
+of exponentials](#log-sum-of-exponentials) 的部分。
 
 ## Sampling from the posterior predictive distribution
 ## 从后验预测分布中进行抽样
@@ -150,12 +151,12 @@ $$
 
 ## Posterior predictive simulation in Stan
 
-## 在Stan中进行后验预测模拟
+## 在 Stan 中进行后验预测模拟
 
 Posterior predictive quantities can be coded in Stan
 using the generated quantities block.
 
-在Stan中，可以使用 generated quantities 块来编写后验预测量。
+在 Stan 中，可以使用 generated quantities 块来编写后验预测量。
 
 ### Simple Poisson model {-}
 
@@ -180,13 +181,13 @@ $$
 
 ### Stan code {-}
 
-### Stan代码 {-}
+### Stan 代码 {-}
 
 The following Stan program defines a variable for $\tilde{y}$
 by random number generation in the generated quantities
 block.
 
-以下是一个Stan程序，其中在generated quantities块中通过随机数生成为 $\tilde{y}$ 定义了一个变量。
+以下是一个 Stan 程序，其中在 generated quantities 块中通过随机数生成为 $\tilde{y}$ 定义了一个变量。
 
 ```stan
 data {
@@ -213,7 +214,7 @@ uncertainty, generating a new $\tilde{y}^{(m)} \sim p(y \mid
 \lambda^{(m)})$ for each posterior draw $\lambda^{(m)} \sim p(\theta
 \mid y).$
 
-在Stan的generated quantities块中，使用Stan的泊松随机数生成器编码了对于 $\tilde{y}$ 的采样分布的随机抽样。这考虑了抽样的不确定性成分；而Stan的后验抽样器将考虑估计的不确定性，在每次后验抽样 $\lambda^{(m)} \sim p(\theta \mid y)$ 中生成一个新的 $\tilde{y}^{(m)} \sim p(y \mid \lambda^{(m)})$。
+在 Stan 的 generated quantities 块中，使用 Stan 的泊松随机数生成器编码了对于 $\tilde{y}$ 的采样分布的随机抽样。这考虑了抽样的不确定性成分；而 Stan 的后验抽样器将考虑估计的不确定性，在每次后验抽样 $\lambda^{(m)} \sim p(\theta \mid y)$ 中生成一个新的 $\tilde{y}^{(m)} \sim p(y \mid \lambda^{(m)})$。
 
 
 The posterior draws $\tilde{y}^{(m)}$ may be used to estimate the
@@ -233,7 +234,7 @@ which is just the posterior mean of $f(\tilde{y}, \theta).$  This
 quantity is computed by Stan if the value of $f(\tilde{y}, \theta)$ is assigned
 to a variable in the generated quantities block.  That is, if we have
 
-这个量就是 $f(\tilde{y}, \theta)$ 的后验均值。如果在`generated quantities`块中将 $f(\tilde{y}, \theta)$ 的值赋给一个变量，Stan会自动计算这个量。也就是说，如果我们有以下代码：
+这个量就是 $f(\tilde{y}, \theta)$ 的后验均值。如果在 `generated quantities` 块中将 $f(\tilde{y}, \theta)$ 的值赋给一个变量，Stan 会自动计算这个量。也就是说，如果我们有以下代码：
 
 ```stan
 generated quantities {
@@ -256,7 +257,7 @@ The gamma distribution is the conjugate prior distribution for the
 Poisson distribution, so the posterior density $p(\lambda \mid y)$
 will also follow a gamma distribution.
 
-Gamma分布是泊松分布的共轭先验分布，因此后验密度 $p(\lambda \mid y)$ 也将遵循Gamma分布。
+Gamma 分布是泊松分布的共轭先验分布，因此后验密度 $p(\lambda \mid y)$ 也将遵循 Gamma 分布。
 
 Because the posterior follows a gamma distribution and the sampling
 distribution is Poisson, the posterior predictive $p(\tilde{y} \mid
@@ -270,7 +271,7 @@ mass function, the rate $\lambda^{(m)} \sim p(\lambda \mid y)$ is
 sampled from the posterior and then used to generate a draw of
 $\tilde{y}^{(m)} \sim p(y \mid \lambda^{(m)}).$
 
-由于后验分布遵循Gamma分布，而采样分布是泊松分布，后验预测分布 $p(\tilde{y} \mid y)$ 将遵循负二项分布，因为负二项分布定义为Gamma-泊松的组合。也就是说，如果 $\lambda \sim \textrm{gamma}(\alpha, \beta)$ 且 $y \sim \textrm{poisson}(\lambda)$，则 $y \sim \textrm{negative-binomial}(\alpha, \beta)$。为了生成负二项分布的概率质量函数，通常会对速率参数 $\lambda$ 进行解析边际化。但是，在后验预测中，我们可以从后验中抽样得到 $\lambda^{(m)} \sim p(\lambda \mid y)$，然后使用该值生成 $\tilde{y}^{(m)} \sim p(y \mid \lambda^{(m)})$ 的样本。
+由于后验分布遵循 Gamma 分布，而采样分布是泊松分布，后验预测分布 $p(\tilde{y} \mid y)$ 将遵循负二项分布，因为负二项分布定义为 Gamma-泊松的组合。也就是说，如果 $\lambda \sim \textrm{gamma}(\alpha, \beta)$ 且 $y \sim \textrm{poisson}(\lambda)$，则 $y \sim \textrm{negative-binomial}(\alpha, \beta)$。为了生成负二项分布的概率质量函数，通常会对速率参数 $\lambda$ 进行解析边际化。但是，在后验预测中，我们可以从后验中抽样得到 $\lambda^{(m)} \sim p(\lambda \mid y)$，然后使用该值生成 $\tilde{y}^{(m)} \sim p(y \mid \lambda^{(m)})$ 的样本。
 
 ## Posterior prediction for regressions
 
@@ -340,7 +341,7 @@ block are coded using the log rate as a parameter (that's
 the parameter). The regression coefficients, an intercept `alpha` and
 slope `beta`, are given standard normal priors.
 
-在模型和generated quantities块中，泊松分布使用对数率作为参数进行编码（即 poisson_log 和 poisson，后缀定义了参数的尺度）。回归系数，即截距 alpha 和斜率 beta，具有标准正态分布的先验分布。
+在模型和 generated quantities 块中，泊松分布使用对数率作为参数进行编码（即 poisson_log 和 poisson，后缀定义了参数的尺度）。回归系数，即截距 alpha 和斜率 beta，具有标准正态分布的先验分布。
 
 In the model block, the log rate for the Poisson is a linear function of
 the training data $x$, whereas in the generated quantities block it is
@@ -349,13 +350,13 @@ quantities block does not affect the posterior draws, the model fits
 $\alpha$ and $\beta$ using only the training data, reserving
 $\tilde{x}$ to generate $\tilde{y}.$
 
-在模型块中，泊松分布的对数率是训练数据 $x$ 的线性函数，而在generated quantities块中，它是测试数据 $\tilde{x}$ 的函数。由于generated quantities块不影响后验抽样，模型仅使用训练数据拟合 $\alpha$ 和 $\beta$，将 $\tilde{x}$ 保留用于生成 $\tilde{y}$。
+在模型块中，泊松分布的对数率是训练数据 $x$ 的线性函数，而在 generated quantities 块中，它是测试数据 $\tilde{x}$ 的函数。由于 generated quantities 块不影响后验抽样，模型仅使用训练数据拟合 $\alpha$ 和 $\beta$，将 $\tilde{x}$ 保留用于生成 $\tilde{y}$。
 
 The result from running Stan is a predictive sample $\tilde{y}^{(1)},
 \ldots \tilde{y}^{(M)}$ where each $\tilde{y}^{(m)} \sim p(\tilde{y}
 \mid \tilde{x}, x, y).$
 
-在运行Stan后，得到的结果是预测样本 $\tilde{y}^{(1)}, \ldots, \tilde{y}^{(M)}$，其中每个 $\tilde{y}^{(m)} \sim p(\tilde{y} \mid \tilde{x}, x, y)$。
+在运行 Stan 后，得到的结果是预测样本 $\tilde{y}^{(1)}, \ldots, \tilde{y}^{(M)}$，其中每个 $\tilde{y}^{(m)} \sim p(\tilde{y} \mid \tilde{x}, x, y)$。
 
 The mean of the posterior predictive distribution is the expected value
 
@@ -387,12 +388,12 @@ $\Pr[\prod_{n =
 1}^{\tilde{N}}(\tilde{y_n}) > 1],$ as expectations of indicator
 functions.
 
-在这种情况下，$\tilde{y}^{(m)} \sim p(\tilde{y} \mid \tilde{x}, x, y)$ 是从后验预测分布中抽取的样本。因此，经过Stan运行后，y_tilde[n]的后验均值是在给定训练数据 $x, y$ 和预测变量 $\tilde{x}_n$ 的条件下 $\tilde{y}_n$ 的期望值。这是 $\tilde{y}$ 的贝叶斯估计，具有最小的期望平方误差。后验抽样还可以用于估计中位数和任何感兴趣的后验区间的分位数，以及 $\tilde{y_n}$ 的协方差。后验抽样 $\tilde{y}^{(m)}$ 还可以用于估计预测事件的概率，例如 $\mbox{Pr}[\tilde{y}1 > 0]$ 或 $\mbox{Pr}[\prod_{n =1}^{\tilde{N}}(\tilde{y_n}) > 1]$，这些可以看作是指示函数的期望。
+在这种情况下，$\tilde{y}^{(m)} \sim p(\tilde{y} \mid \tilde{x}, x, y)$ 是从后验预测分布中抽取的样本。因此，经过 Stan 运行后，y_tilde[n]的后验均值是在给定训练数据 $x, y$ 和预测变量 $\tilde{x}_n$ 的条件下 $\tilde{y}_n$ 的期望值。这是 $\tilde{y}$ 的贝叶斯估计，具有最小的期望平方误差。后验抽样还可以用于估计中位数和任何感兴趣的后验区间的分位数，以及 $\tilde{y_n}$ 的协方差。后验抽样 $\tilde{y}^{(m)}$ 还可以用于估计预测事件的概率，例如 $\mbox{Pr}[\tilde{y}1 > 0]$ 或 $\mbox{Pr}[\prod_{n =1}^{\tilde{N}}(\tilde{y_n}) > 1]$，这些可以看作是指示函数的期望。
 
 All of this can be carried out by running Stan only a single time to
 draw a single sample of $M$ draws,
 
-所有这些都可以通过仅运行一次Stan来进行，从而得到 $M$ 个后验抽样。这样可以实现对预测分布、期望值、分位数、协方差和事件概率等进行估计。
+所有这些都可以通过仅运行一次 Stan 来进行，从而得到 $M$ 个后验抽样。这样可以实现对预测分布、期望值、分位数、协方差和事件概率等进行估计。
 
 $$
 \tilde{y}^{(1)}, \ldots, \tilde{y}^{(M)} \sim p(\tilde{y} \mid
@@ -402,7 +403,7 @@ $$
 It's only when moving to cross-validation where multiple runs are
 required.
 
-只有在进行交叉验证时才需要多次运行。在交叉验证中，需要多次运行Stan来获得不同的训练和测试数据集，并进行模型的训练和评估。这样可以更准确地评估模型的性能和泛化能力。
+只有在进行交叉验证时才需要多次运行。在交叉验证中，需要多次运行 Stan 来获得不同的训练和测试数据集，并进行模型的训练和评估。这样可以更准确地评估模型的性能和泛化能力。
 
 ## Estimating event probabilities
 
@@ -443,7 +444,7 @@ where each $\lambda^{(m)} \sim p(\lambda \mid y)$ is distributed
 according to the posterior.  In Stan, this is recovered as
 the posterior mean of the parameter `lambda_gt_5`.
 
-其中每个 $\lambda^{(m)} \sim p(\lambda \mid y)$ 是根据后验分布进行抽样。在Stan中，这可以通过参数 lambda_gt_5 的后验均值来计算。
+其中每个 $\lambda^{(m)} \sim p(\lambda \mid y)$ 是根据后验分布进行抽样。在 Stan 中，这可以通过参数 lambda_gt_5 的后验均值来计算。
 
 In general, event probabilities may be expressed as expectations of
 indicator functions.  For example,
@@ -465,7 +466,7 @@ indicator functions.  For example,
 The last line above is the posterior mean of the indicator function
 as coded in Stan.
 
-以上最后一行是在Stan中编码的指示函数的后验均值。
+以上最后一行是在 Stan 中编码的指示函数的后验均值。
 
 Event probabilities involving posterior predictive quantities
 $\tilde{y}$ work exactly the same way as those for parameters.  For
@@ -506,7 +507,7 @@ $\theta^{(1)}, \ldots, \theta^{(M)}$ from the posterior.
 Posterior predictive draws $\tilde{y}^{(m)} \sim p(\tilde{y} \mid
 \tilde{x}, x, y)$ can be generated by drawing
 
-Stan的抽样算法使用表示后验分布$p(\theta \mid y, x)$的Stan程序，以及实际数据$x$和$y$，生成一组从后验分布中抽取的样本$\theta^{(1)}, \ldots, \theta^{(M)}$。可以通过抽取来生成后验预测样本$\tilde{y}^{(m)} \sim p(\tilde{y} \mid \tilde{x}, x, y)$。
+Stan 的抽样算法使用表示后验分布 $p(\theta \mid y, x)$ 的 Stan 程序，以及实际数据 $x$ 和 $y$，生成一组从后验分布中抽取的样本 $\theta^{(1)}, \ldots, \theta^{(M)}$。可以通过抽取来生成后验预测样本 $\tilde{y}^{(m)} \sim p(\tilde{y} \mid \tilde{x}, x, y)$。
 
 $$
 \tilde{y}^{(m)} \sim p(y \mid \tilde{x}, \theta^{(m)})
@@ -517,7 +518,7 @@ only depends on the new predictors $\tilde{x}$ and the posterior draws
 $\theta^{(m)}$.  Most importantly, neither the original data or the
 model density is required.
 
-从抽样分布中进行抽取。请注意，抽取$\tilde{y}^{(m)}$仅取决于新的预测变量$\tilde{x}$和后验样本$\theta^{(m)}$。最重要的是，不需要原始数据或模型密度。
+从抽样分布中进行抽取。请注意，抽取 $\tilde{y}^{(m)}$ 仅取决于新的预测变量 $\tilde{x}$ 和后验样本 $\theta^{(m)}$。最重要的是，不需要原始数据或模型密度。
 
 By saving the posterior draws, predictions for new data items
 $\tilde{x}$ may be generated whenever needed.  In Stan's interfaces,
@@ -526,7 +527,7 @@ program's parameters and the new predictors.  For example, for the
 linear regression case, the program to take posterior draws declares
 the data and parameters, and defines the model.
 
-通过保存后验样本，可以在需要时生成新数据$\tilde{x}$的预测值。在Stan的接口中，这可以通过编写第二个Stan程序来实现，该程序输入原始程序的参数和新的预测变量。例如，在线性回归的情况下，用于获取后验样本的程序会声明数据和参数，并定义模型。
+通过保存后验样本，可以在需要时生成新数据 $\tilde{x}$ 的预测值。在 Stan 的接口中，这可以通过编写第二个 Stan 程序来实现，该程序输入原始程序的参数和新的预测变量。例如，在线性回归的情况下，用于获取后验样本的程序会声明数据和参数，并定义模型。
 
 ```stan
 data {
@@ -582,7 +583,7 @@ are the original draws for the parameters and any predictors
 corresponding to new predictions, and the output will be draws for
 $\tilde{y}$ or derived quantities such as event probabilities.
 
-当运行独立的生成数量时，所需的输入包括原始参数的抽样结果以及与新预测对应的任何预测变量，而输出将是$\tilde{y}$或派生数量（如事件概率）的抽样结果。
+当运行独立的生成数量时，所需的输入包括原始参数的抽样结果以及与新预测对应的任何预测变量，而输出将是 $\tilde{y}$ 或派生数量（如事件概率）的抽样结果。
 
 Any posterior predictive quantities desired may be generated this way.
 For example, event probabilities are estimated in the usual way by

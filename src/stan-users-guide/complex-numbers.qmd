@@ -7,11 +7,12 @@ pagetitle: Complex Numbers
 # 复数
 
 本节译者：段园家
+本节校审：张梓源
 
 Stan supports complex scalars, matrices, and vectors as well as
 real-based ones.
 
-Stan在支持实数的标量、矩阵和向量的同时也支持复数的标量、矩阵和向量。
+Stan 在支持实数的标量、矩阵和向量的同时也支持复数的标量、矩阵和向量。
 
 
 ## Working with complex numbers
@@ -43,7 +44,7 @@ function may be used.  For example, the following code will work if
 `x` and `y` are parameters, transformed data, or local variables in a
 function or model block.
 
-生成复数 $-1.1 + 2.3i$。 这仅在实部和虚部是字面量时才有效。 要从任意实变量中构造一个复数，可以使用`to_complex()`函数。 例如，如果`x`和`y`是函数或模型块中的参数、转换数据或局部变量，则以下代码将起作用。
+生成复数 $-1.1 + 2.3i$。 这仅在实部和虚部是字面量时才有效。 要从任意实变量中构造一个复数，可以使用 `to_complex()` 函数。 例如，如 果`x` 和 `y` 是函数或模型块中的参数、转换数据或局部变量，则以下代码将起作用。
 
 ```stan
 real x = // ...
@@ -54,7 +55,7 @@ complex z = to_complex(x, y);
 The real and imaginary parts of the complex number can be accessed
 with getters as follows.
 
-复数的实部和虚部可以用`get_`进行访问，如下所示
+复数的实部和虚部可以用 `get_` 进行访问，如下所示
 
 ```stan
 real x = get_real(z);  // x = -1.1
@@ -66,7 +67,7 @@ not with greater than or less than operators.  For example, after
 running the code above, the following code snippet will print
 "hello".
 
-复数可以使用相等（或不相等）进行比较，但不能使用大于或小于运算符进行比较。 例如，运行上面的代码后，下面的代码片段将打印“hello”。
+复数可以使用相等（或不相等）进行比较，但不能使用大于或小于运算符进行比较。 例如，运行上面的代码后，下面的代码片段将打印 “hello”。
 
 ```stan
 complex a = 3.2 + 2i;
@@ -124,7 +125,7 @@ powers `pow(z1, z2)`, as well as all of the trig and hyperbolic
 trigonometric functions and their inverse, such as `sin(z)`,
 `acos(z)`, `tanh(z)` and `asinh(z)`.
 
-所有标准复函数都可用，包括自然对数 `log(z)`、自然指数 `exp(z)` 和幂函数`pow(z1,z2)`，以及所有三角函数和双曲三角函数及其逆函数，如`sin(z)`、`acos(z)`、`tanh(z)` 和 `asinh(z)`。
+所有标准复函数都可用，包括自然对数 `log(z)`、自然指数 `exp(z)` 和幂函数 `pow(z1,z2)`，以及所有三角函数和双曲三角函数及其逆函数，如 `sin(z)`、`acos(z)`、`tanh(z)` 和 `asinh(z)`。
 
 Promotion also works for complex-valued function arguments, which may
 be passed integer or real values, which will be promoted before the
@@ -143,7 +144,7 @@ complex times_i(complex z) {
 For instance, `times_i(1)` evaluates to the imaginary base $i$, as
 does `times_i(1.0)`.
 
-例如，`times_i（1）` 的计算结果为虚数$i$，`times_i（1.0）`也是如此。
+例如，`times_i（1）` 的计算结果为虚数 $i$，`times_i（1.0）` 也是如此。
 
 
 ## Complex random variables
@@ -210,7 +211,7 @@ arithmetic operation for matrices).  They also support transposition.
 Furthermore, it is possible to convert back and forth between arrays
 and matrices using the `to_array` functions.
 
-此外，可以使用`to_array`函数在数组和矩阵之间来回转换。
+此外，可以使用 `to_array` 函数在数组和矩阵之间来回转换。
 
 
 ## Complex linear regression
@@ -223,7 +224,7 @@ example, if we take `x` to be predictors, `y` to be an array of
 outcomes.  For example, consider the following complete Stan program
 for an intercept and slope.
 
-具有复预测变量和回归系数的复值线性回归看起来就像标准回归一样。例如，如果我们把`x`作为预测因子，`y`是结果的数组。例如，考虑以下用于截距和斜率的完整 Stan 程序。
+具有复预测变量和回归系数的复值线性回归看起来就像标准回归一样。例如，如果我们把 `x` 作为预测因子，`y` 是结果的数组。例如，考虑以下用于截距和斜率的完整 Stan 程序。
 
 ```stan
 data {
@@ -256,7 +257,7 @@ The simplest approach to error in complex regression is to give the
 real and imaginary parts of `eps_n` independent
 independent normal distributions, as follows.
 
-在复回归中最简单的误差设定是假设`eps_n`的实部和虚部服从独立的正态分布，如下所示。
+在复回归中最简单的误差设定是假设 `eps_n` 的实部和虚部服从独立的正态分布，如下所示。
 
 ```stan
 parameters {
@@ -275,7 +276,7 @@ model {
 A new error scale vector `sigma` is introduced, and it should itself
 get a prior based on the expected scale of error for the problem.
 
-引入了一个新的误差尺度向量`sigma`，它本身应该根据问题的预期误差尺度给出一个先验。
+引入了一个新的误差尺度向量 `sigma`，它本身应该根据问题的预期误差尺度给出一个先验。
 
 ### Dependent complex error {-}
 
@@ -317,4 +318,4 @@ covariance, and the prior on the scales is left open.  In order to
 vectorize the call to `multi_normal_cholesky`, the vector of complex
 numbers needs to be converted to an array of size 2 vectors.
 
-在这里，误差的实部和虚部是具有相关和独立尺度的联合分布。该误差服从均值为零的多元正态分布和一个Cholesky因子协方差表示，其由尺度向量`sigma`和Cholesky因子或相关矩阵`L_Omega`构成。相关性的先验松散地分布在对角协方差附近，尺度上的先验未被指定。为了对`multi_normal_cholesky`的调用进行矢量化操作，需要将复数向量转换为大小为 2 的向量数组。
+在这里，误差的实部和虚部是具有相关和独立尺度的联合分布。该误差服从均值为零的多元正态分布和一个 Cholesky 因子协方差表示，其由尺度向量 `sigma` 和 Cholesky 因子或相关矩阵 `L_Omega` 构成。相关性的先验松散地分布在对角协方差附近，尺度上的先验未被指定。为了对 `multi_normal_cholesky` 的调用进行矢量化操作，需要将复数向量转换为大小为2的向量数组。
