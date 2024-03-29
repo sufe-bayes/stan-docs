@@ -1,8 +1,5 @@
 ---
 pagetitle: Problematic Posteriors
-editor: 
-  markdown: 
-    wrap: 72
 ---
 
 # Problematic Posteriors {#problematic-posteriors.chapter}
