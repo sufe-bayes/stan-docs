@@ -6,8 +6,6 @@ pagetitle: Problematic Posteriors
 
 # 有问题的后验分布 {#problematic-posteriors.chapter--cn}
 
-（本章有两个翻译版本，需进行合并）
-
 本节译者：马汉腾、谈英文
 本节校审：张梓源
 
@@ -21,9 +19,8 @@ ill-behaved in practice.  This chapter discusses issues in models that
 create problematic posterior inferences, either in general for
 Bayesian inference or in practice for Stan.
 
-从数学角度来说，有了一个适当的后验分布，就可以进行贝叶斯推断，就这样。甚至不需要要求有有限的方差或有限的均值---只需要有一个有限的积分。然而，建模是一项棘手的任务，即使是经验丰富的模型构建者有时也会编写导致不恰当的先验分布的模型。此外，有些后验分布在数学上是合理的，但在实践中表现不佳。本章讨论了在贝叶斯推断中或在Stan中实践中创建有问题的后验推断的模型中存在的问题。
-
-从数学角度来说，只要有一个适当的后验分布，人们便可以进行贝叶斯推断。这甚至不需要要求方差或均值有限，只需要有一个有限的积分。然而，建模是一个棘手的事情，即使经验丰富的建模者有时也会编写导致不正确的先验分布的模型。此外，有些后验分布在数学上是合理的，但在实践中表现不佳。本章讨论了在模型中引发问题的后验推断，无论是对于贝叶斯推断的一般情况还是对于Stan的实践情况。
+从数学角度来说，只要有一个适当的后验分布，就可以进行贝叶斯推断。这甚至不要求方差或均值有限，只需要一个有限的积分。然而，建模是一项棘手的任务，即使是经验丰富的建模者，有时也会编写导致不合适先验分布的模型。此外,一些后验分布在数学上是合理的,但在实践中表现不佳。本章讨论了在模型中引发问题的后验推断，无论是对于贝叶斯推断的一般情况还是对于
+Stan 的实践情况。
 
 ## Collinearity of predictors in regressions {#collinearity.section}
 
@@ -33,9 +30,7 @@ This section discusses problems related to the classical notion of
 identifiability, which lead to ridges in the posterior density and
 wreak havoc with both sampling and inference.
 
-本节讨论与经典的可辨识性概念相关的问题，这会导致后验密度中的岭，并对采样和推断造成严重影响。
-
-本节讨论与经典可辨识性概念相关的问题，这些问题导致后验密度中出现岭，并对采样和推断产生严重影响。
+本节讨论与经典可辨识性概念相关的问题，这些问题会导致后验密度中出现岭(ridge)，给采样和推断带来严重问题。
 
 ### Examples of collinearity {-}
 
@@ -48,18 +43,17 @@ wreak havoc with both sampling and inference.
 The first example of collinearity is an artificial example involving
 redundant intercept parameters.^[This example was raised by Richard McElreath on the Stan users group in a query about the difference in behavior between Gibbs sampling as used in BUGS and JAGS and the Hamiltonian Monte Carlo (HMC) and no-U-turn samplers (NUTS) used by Stan.]
 
-第一个共线性的示例是一个涉及冗余截距参数的人为示例。^[这个例子是Richard McElreath在Stan用户组中提出的，他在关于BUGS和JAGS中使用的Gibbs采样与Stan中使用的Hamiltonian Monte Carlo（HMC）和no-U-turn samplers（NUTS）之间行为差异的查询中提出的。]
-
-第一个共线性的例子是一个涉及冗余截距参数的人造例子。^[这个例子是Richard McElreath在Stan用户组中提出的，他询问了BUGS和JAGS中使用的Gibbs采样与Stan使用的Hamiltonian Monte Carlo (HMC)和no-U-turn采样器 (NUTS)之间的行为差异。]
+共线性的第一个例子是一个涉及冗余截距参数的人造示例。\[这个例子是 Richard
+McElreath 在 Stan 用户组中提出的,他询问了 BUGS 和 JAGS 中使用的 Gibbs
+采样与 Stan 使用的 Hamiltonian Monte Carlo (HMC)和 no-U-turn 采样器
+(NUTS)之间的行为差异。\]
 
 Suppose there are observations $y_n$ for $n \in \{1,\dotsc,N\}$,
 two intercept parameters $\lambda_1$ and
 $\lambda_2$, a scale parameter $\sigma > 0$, and the sampling distribution
 
-假设有$n \in \{1,\dotsc,N\}$的观测值$y_n$，两个截距参数$\lambda_1$和$\lambda_2$，一个尺度参数$\sigma > 0$，以及采样分布
-
-假设有对于$n\in {1,\cdots,N}$的观测值$y_n$，两个截距参数$\lambda_1$
-和$\lambda_2$，一个尺度参数$\sigma > 0$\$，以及采样分布
+假设有对于 $n\in {1,\cdots,N}$ 的观测值 $y_n$，两个截距参数 $\lambda_1$
+和 $\lambda_2$，一个尺度参数 $\sigma > 0$\$，以及采样分布
 
 $$
 y_n \sim \textsf{normal}(\lambda_1 + \lambda_2, \sigma).
@@ -68,9 +62,8 @@ $$
 For any constant $q$, the sampling density for $y$ does not change if
 we add $q$ to $\lambda_1$ and subtract it from $\lambda_2$, i.e.,
 
-对于任意常数$q$，如果我们将$q$加到$\lambda_1$并从$\lambda_2$中减去它，即
-
-对于任意常数$q$，如果我们将$q$加到$\lambda_1$上并从$\lambda_2$中减去它，那么$y$的采样密度不会改变，即
+对于任意常数 $q$，如果我们将 $q$ 加到 $\lambda_1$ 上并从 $\lambda_2$
+中减去它，那么 $y$ 的采样密度不会改变，即
 
 $$
 p(y \mid \lambda_1, \lambda_2,\sigma)
@@ -87,32 +80,30 @@ and $\lambda_2=-1\,000\,000\,000$ as it does in the neighborhood of
 $\lambda_1=0$ and $\lambda_2=0$, and so on for ever more far-ranging
 values.
 
-这导致一个不正确的均匀先验 $p(\mu,\sigma) \propto 1$ 导致了一个不正确的后验分布。这种不正确性是因为无论 $q$ 是什么，$\lambda_1 + q, \lambda_2 - q$ 周围的邻域具有相同的质量。因此，采样器需要在 $\lambda_1=1\,000\,000\,000$ 和 $\lambda_2=-1\,000\,000\,000$ 的邻域中花费与在 $\lambda_1=0$ 和 $\lambda_2=0$ 的邻域中一样多的时间，以此类推，对于更远距离的值也是如此。
-
-结果是，一个不适当的均匀先验分布$p(\mu,\sigma) \propto 1$会导致一个不适当的后验分布。这种不适当性的产生是因为无论$q$的取值如何，$\lambda_1 + q, \lambda_2 - q$周围的邻域具有相同的质量。因此，采样器需要在$\lambda_1=1,000,000,000$和$\lambda_2=-1,000,000,000$的邻域中花费与在$\lambda_1=0$和$\lambda_2=0$的邻域中相同的时间，以此类推，对于更远的值也是如此。
+结果是，一个不合适的均匀先验分布 $p(\mu,\sigma) \propto 1$
+会导致一个不合适的后验分布。这种不适当性的产生是因为无论 $q$
+的取值如何，$\lambda_1 + q, \lambda_2 - q$
+周围的邻域具有相同的质量。因此，采样器需要在 $\lambda_1=1,000,000,000$
+和 $\lambda_2=-1,000,000,000$ 的邻域中花费与在 $\lambda_1=0$ 和
+$\lambda_2=0$ 的邻域中相同的时间，以此类推，对于更远距离的值也是如此。
 
 The marginal posterior $p(\lambda_1,\lambda_2 \mid y)$ for this model is
 thus improper.^[The marginal posterior $p(\sigma \mid y)$ for $\sigma$ is proper here as long as there are at least two distinct data points.]
 
-对于该模型，边缘后验分布 $p(\lambda_1,\lambda_2 \mid y)$ 是不正确的。^[在至少有两个不同数据点的情况下，$\sigma$ 的边缘后验分布 $p(\sigma \mid y)$ 是正确的。]
-
-因此，这个模型的边际后验分布$p(\lambda_1,\lambda_2 \mid y)$是不适当的。^[只要至少存在两个不同的数据点，这里的边缘后验分布 $p(\sigma \mid y)$ 对于 $\sigma$ 是合适的。]
+因此，这个模型的边际后验分布 $p(\lambda_1,\lambda_2 \mid y)$ 是不合适的。^[只要至少存在两个不同的数据点，那么这里的边际后验分布 $p(\sigma \mid y)$ 对于 $\sigma$ 是合适的。]
 
 The impropriety shows up visually as a ridge in the posterior density,
 as illustrated in the left-hand plot.  The ridge for this model is
 along the line where $\lambda_2 = \lambda_1 + c$ for some constant
 $c$.
 
-这种不正确性在后验密度中以岭的形式可视化，如左图所示。该模型的岭沿着 $\lambda_2 = \lambda_1 + c$ 的直线, 对于某个$c$。
-
-这种不适当性在后验密度中可视化为岭，如左侧图所示。对于这个模型，岭沿着$\lambda_2 = \lambda_1 + c$这条线，其中$c$是一个常数。
+这种不适当性在后验密度中可视化为岭，如左侧图所示。对于这个模型，岭沿着
+$\lambda_2 = \lambda_1 + c$ 这条直线，其中 $c$ 是一个常数。
 
 Contrast this model with a simple regression with a single intercept
 parameter $\mu$ and sampling distribution
 
-与只有一个截距参数 $\mu$ 和采样分布
-
-将这个模型与一个简单的回归模型进行对比，该模型只有一个截距参数$\mu$和采样分布
+将这个模型与一个简单的回归模型进行对比，后者只有一个截距参数 $\mu$ 和采样分布
 
 $$
 y_n \sim \textsf{normal}(\mu,\sigma).
@@ -120,14 +111,11 @@ $$
 Even with an improper prior, the posterior is proper as long as there
 are at least two data points $y_n$ with distinct values.
 
-的简单回归模型相比，即使具有不正确的先验，后验仍然是正确的，只要至少有两个具有不同值的数据点 $y_n$。
-
-即使存在不适当的先验分布，只要至少有两个具有不同值的数据点$y_n$，后验分布仍然是适当的。
-
+即使存在不适当的先验分布，只要至少有两个具有不同值的数据点 $y_n$，后验分布仍然是合适的。
 
 #### Ability and difficulty in IRT models {-}
 
-#### IRT模型中的能力和难度 {-}
+#### IRT 模型中的能力和难度 {-}
 
 Consider an item-response theory model for students $j \in 1{:}J$ with
 abilities $\alpha_j$ and test items $i \in 1{:}I$ with difficulties
@@ -136,9 +124,7 @@ $y_{i, j} \in \{ 0, 1 \}$ coded such that $y_{i, j} = 1$ indicates that
 student $j$ answered question $i$ correctly.  The sampling
 distribution for the data is
 
-考虑一个针对学生$j \in 1{:}J$的项目反应理论（IRT）模型，其中包括能力$\alpha_j$和测试项目$i \in 1{:}I$的难度$\beta_i$。观测数据是一个$I \times J$的数组，其中的元素$y_{i, j} \in \{ 0, 1 \}$表示学生$j$正确回答问题$i$。数据的抽样分布为
-
-考虑一个项目反应理论模型，针对能力为$\alpha_j$的学生$j \in 1{:}J$和难度为$\beta_i$的测试项目$i \in 1{:}I$。观测数据是一个$I \times J$的数组，其中的元素$y_{i, j} \in { 0, 1 }$，被编码为$y_{i, j} = 1$表示学生$j$正确回答问题$i$。数据的采样分布为：
+考虑一个项目反应理论（IRT）模型，针对能力为 $\alpha_j$ 的学生 $j \in 1{:}J$ 和难度为 $\beta_i$ 的测试项目 $i \in 1{:}I$。观测数据是一个 $I \times J$ 的数组，其中的元素 $y_{i, j} \in { 0, 1 }$，被编码为 $y_{i, j} = 1$ 表示学生 $j$ 正确回答问题 $i$。数据的采样分布为：
 
 $$
 y_{i, j} \sim \textsf{Bernoulli}(\operatorname{logit}^{-1}(\alpha_j - \beta_i)).
@@ -148,9 +134,7 @@ For any constant $c$, the probability of $y$ is unchanged by adding a
 constant $c$ to all the abilities and subtracting it from all the
 difficulties, i.e.,
 
-对于任意常数$c$，在所有能力上加$c$并从所有难度中减去它不会改变$y$的概率，即
-
-对于任意常数$c$，将$c$加到所有的能力上并从所有的难度中减去它，不会改变$y$的概率，即
+对于任意常数 $c$，将 $c$ 加到所有的能力上并从所有的难度中减去它，不会改变 $y$ 的概率，即
 
 $$
 p(y \mid \alpha, \beta)
@@ -161,9 +145,7 @@ $$
 This leads to a multivariate version of the ridge displayed by the
 regression with two intercepts discussed above.
 
-这导致了前面讨论的具有两个截距的回归模型所展示的岭的多变量版本。
-
-这导致了一个多元版本的回归问题中所展示的岭现象。在前面讨论的具有两个截距的回归模型中存在岭问题，类似地，在这个多元情况下也存在岭问题。
+这导致了一个类似于前面讨论的具有两个截距的回归模型所呈现的岭现象的多元版本。
 
 #### General collinear regression predictors {-}
 
@@ -173,9 +155,7 @@ The general form of the collinearity problem arises when predictors
 for a regression are collinear.  For example, consider a linear
 regression sampling distribution
 
-当回归模型的预测变量具有共线性时，就会出现共线性问题的一般形式。例如，考虑一个线性回归的抽样分布
-
-共线性问题的一般形式出现在回归中的预测因子存在共线性的情况下。例如，考虑一个线性回归的抽样分布。
+共线性问题的一般形式出现在回归中的预测因子存在共线性的情况下。比如，考虑一个线性回归的抽样分布。
 
 $$
 y_n \sim \textsf{normal}(x_n \beta, \sigma)
@@ -183,10 +163,7 @@ $$
 for an $N$-dimensional observation vector $y$, an $N \times K$ predictor
 matrix $x$, and a $K$-dimensional coefficient vector $\beta$.
 
-其中$y$是$N$维观测向量，$x$是$N \times K$的预测变量矩阵，$\beta$是$K$维系数向量。
-
-对于一个 $N$ 维观测向量 $y$，一个 $N \times K$ 的预测因子矩阵
-$x$，以及一个 $K$ 维系数向量 $\beta$。
+对于一个 $N$ 维观测向量 $y$，一个 $N \times K$ 的预测因子矩阵 $x$，以及一个 $K$ 维系数向量 $\beta$。
 
 Now suppose that column $k$ of the predictor matrix is a multiple of
 column $k'$, i.e., there is some constant $c$ such that $x_{n,k} = c
@@ -194,12 +171,7 @@ column $k'$, i.e., there is some constant $c$ such that $x_{n,k} = c
 and $\beta_{k'}$ can covary without changing the predictions, so that
 for any $d \neq 0$,
 
-现在假设预测变量矩阵的第$k$列是第$k'$列的倍数，即存在某个常数$c$使得对于所有$n$都有$x_{n,k} = c \, x_{n,k'}$。在这种情况下，系数$\beta_k$和$\beta_{k'}$可以共变而不改变预测结果，即对于任意$d \neq 0$，
-
-现在假设预测因子矩阵的第 $k$ 列是第 $k'$ 列的倍数，即存在某个常数
-$c$，使得对于所有 $n$，$x_{n,k} = c , x_{n,k'}$。在这种情况下，系数
-$\beta_k$ 和 $\beta_{k'}$ 可以共变而不改变预测结果，因此对于任意非零值
-$d$， 
+现在假设预测因子矩阵的第 $k$ 列是第 $k'$ 列的倍数，即存在某个常数 $c$，使得对于所有 $n$，$x_{n,k} = c , x_{n,k'}$。在这种情况下，系数 $\beta_k$ 和 $\beta_{k'}$ 可以共变而不改变预测结果，因此对于任意 $d \neq 0$，
 
 $$
 p(y \mid \ldots, \beta_k, \dotsc, \beta_{k'}, \dotsc, \sigma)
@@ -212,21 +184,16 @@ Even if columns of the predictor matrix are not exactly collinear as
 discussed above, they cause similar problems for inference if they are
 nearly collinear.
 
-即使预测变量矩阵的列不完全共线，如果它们几乎共线，也会导致类似的推断问题。
-
-即使预测矩阵的列不完全共线，如上所述，如果它们几乎共线性，它们也会对推断产生类似的问题。
+即使预测矩阵的列不像上面讨论的那样完全共线,如果它们几乎共线,也会给推断带来类似的问题。
 
 #### Multiplicative issues with discrimination in IRT {-}
 
-#### IRT中的歧视性乘法问题 {-}
+#### IRT 中关于区分度的乘法问题 {-}
 
 Consider adding a discrimination parameter $\delta_i$ for each
 question in an IRT model, with data sampling model
 
-考虑在IRT模型中为每个问题添加一个歧视性参数$\delta_i$，其数据抽样模型为
-
-在IRT模型中，考虑为每个问题添加一个区分参数
-$\delta_i$，并使用数据采样模型进行建模。 
+在 IRT 模型中，考虑为每个问题添加一个区分参数 $\delta_i$，并使用数据采样模型进行建模。
 
 $$
 y_{i, j} \sim \textsf{Bernoulli}(\operatorname{logit}^{-1}(\delta_i(\alpha_j - \beta_i))).
@@ -234,10 +201,8 @@ $$
 For any constant $c \neq 0$, multiplying $\delta$ by $c$ and dividing
 $\alpha$ and $\beta$ by $c$ produces the same likelihood,
 
-对于任意常数$c \neq 0$，将$\delta$乘以$c$并将$\alpha$和$\beta$除以$c$会产生相同的似然函数，
-
-对于任意非零常数 $c$，将 $\delta$ 乘以 $c$，将 $\alpha$ 和 $\beta$
-除以 $c$，会产生相同的似然度。
+对于任意非零常数 $c$，将 $\delta$ 乘以 $c$，将 $\alpha$ 和 $\beta$ 除以
+$c$，会产生相同的似然度。
 
 $$
 p(y \mid \delta,\alpha,\beta)
@@ -246,24 +211,18 @@ $$
 If $c < 0$, this switches the signs of every component in $\alpha$,
 $\beta$, and $\delta$ without changing the density.
 
-如果$c < 0$，则会改变$\alpha$、$\beta$和$\delta$的所有分量的符号，但不会改变密度。
-
-如果 $c < 0$，则会改变 $\alpha$、$\beta$ 和 $\delta$
-中每个分量的符号，但不会改变密度。
-
+如果 $c < 0$，则会改变 $\alpha$、$\beta$ 和 $\delta$中每个分量的符号，但不会改变密度。
 
 #### Softmax with $K$ vs. $K-1$ parameters {-}
 
-#### 使用$K$个参数与$K-1$个参数的Softmax {-}
+#### 使用$K$个参数与$K-1$个参数的 Softmax {-}
 
 In order to parameterize a $K$-simplex (i.e., a $K$-vector with
 non-negative values that sum to one), only $K - 1$ parameters are
 necessary because the $K$th is just one minus the sum of the first $K
 - 1$ parameters, so that if $\theta$ is a $K$-simplex,
 
-为了参数化一个$K$-simplex（即，一个非负值和为一的$K$维向量），只需要$K - 1$个参数，因为第$K$个参数可以通过将前$K - 1$个参数的和减一得到，因此如果$\theta$是一个$K$-simplex，则有
-
-为了对一个$K$-simplex（即一个$K$维向量，其非负值之和为1）进行参数化，只需要$K-1$个参数。这是因为第$K$个参数可以通过从1中减去前$K-1$个参数的和来得到。因此，如果$\theta$是一个$K$-simplex，
+为了参数化一个 $K$-simplex（即一个 $K$ 维向量，其非负值之和为1），只需要 $K - 1$ 个参数，这是因为第 $K$ 个参数可以通过从1中减去前 $K - 1$ 个参数的和来得到。因此，如果 $\theta$ 是一个 $K$-simplex，则有
 
 $$
 \theta_K = 1 - \sum_{k=1}^{K-1} \theta_k.
@@ -272,10 +231,7 @@ $$
 The `softmax` function maps a $K$-vector $\alpha$ of linear predictors
 to a $K$-simplex $\theta = \texttt{softmax}(\alpha)$ by defining
 
-`softmax`函数将线性预测器的$K$维向量$\alpha$映射到一个$K$-simplex$\theta = \texttt{softmax}(\alpha)$，其定义为
-
-`softmax`函数通过以下定义将一个$K$维线性预测向量$\alpha$映射到一个$K$-simplex
-$\theta = \texttt{softmax}(\alpha)$，即：
+`softmax`函数将线性预测器的 $K$ 维向量 $\alpha$ 映射到一个 $K$-simplex $\theta = \texttt{softmax}(\alpha)$，其定义为
 
 $$
 \theta_k = \frac{\exp(\alpha_k)}{\sum_{k'=1}^K \exp(\alpha_{k'})}.
@@ -286,11 +242,7 @@ identifiability of the unconstrained parameters $\alpha$.  In
 particular, adding or subtracting a constant from each $\alpha_k$
 produces the same simplex $\theta$.
 
-`softmax`函数是多对一的，这导致了无约束参数$\alpha$的不可辨识性。特别地，对每个$\alpha_k$加减一个常数会产生相同的simplex $\theta$。
-
-`softmax`函数是多对一的，这导致了无约束参数$\alpha$的可辨识性问题。特别地，对每个$\alpha_k$添加或减去一个常数会得到相同的$K$-simplex
-$\theta$。
-
+`softmax` 函数是多对一的，这导致了无约束参数 $\alpha$ 的不可辨识性。特别地，对每个 $\alpha_k$ 添加或减去一个常数会得到相同的 $K$-simplex $\theta$。
 
 ### Mitigating the invariances {-}
 
@@ -301,10 +253,7 @@ translation or scaling of parameters while leaving the data
 probability density invariant.  These problems can be mitigated in
 several ways.
 
-前面讨论的所有例子都允许参数的平移或缩放，同时保持数据概率密度不变。可以通过多种方式来缓解这些问题。
-
-在前面的部分中讨论的所有示例都允许参数的平移或缩放，同时保持数据概率密度不变。可以通过以下几种方式来减轻这些问题：
-
+在前面的部分中讨论的所有示例都允许参数的平移或缩放，同时保持数据概率密度不变。可以通过一些方式来减轻这些问题.
 
 #### Removing redundant parameters or predictors {-}
 
@@ -317,10 +266,7 @@ distribution $y_n \sim \textsf{normal}(\mu, \sigma)$.  The same
 solution works for solving the problem with collinearity---just remove
 one of the columns of the predictor matrix $x$.
 
-对于具有多个截距$\lambda_1$和$\lambda_2$的情况，最简单的解决方案是去除冗余的截距，得到一个只有一个截距参数$\mu$和抽样分布$y_n \sim \textsf{normal}(\mu, \sigma)$的模型。对于解决共线性问题，同样的解决方案也适用——只需去除预测变量矩阵$x$的其中一列即可。
-
-在多个截距（$\lambda_1$和$\lambda_2$）的情况下，最简单的解决方案是移除冗余的截距，从而得到一个只有单个截距参数$\mu$和采样分布$y_n \sim \textsf{normal}(\mu, \sigma)$的模型。对于解决共线性问题，同样的解决方案适用------只需移除预测矩阵$x$中的其中一列。
-
+在多个截距（$\lambda_1$ 和 $\lambda_2$）的情况下，最简单的解决方案是移除冗余的截距，从而得到一个只有单个截距参数 $\mu$ 和采样分布 $y_n \sim \textsf{normal}(\mu, \sigma)$ 的模型。对于解决共线性问题，同样的解决方案也适用————只需去除预测变量矩阵 $x$ 的其中一列即可。
 
 #### Pinning parameters {-}
 
@@ -333,9 +279,7 @@ all other student ability parameters can be interpreted as being
 relative to student 1.  Similarly, the difficulty parameters are
 interpretable relative to student 1's ability to answer them.
 
-没有区分参数的IRT模型可以通过将其中一个参数固定到一个固定值（通常为0）来修复。例如，可以将第一个学生的能力参数$\alpha_1$固定为0。现在，所有其他学生的能力参数可以解释为相对于学生1的能力。类似地，难度参数相对于学生1能够回答的难度进行解释。
-
-没有区分度参数的IRT模型可以通过将其中一个参数固定为一个固定值（通常为0）来进行修正。例如，可以将第一个学生能力参数$\alpha_1$固定为0。现在，所有其他学生能力参数可以解释为相对于学生1的能力水平。同样，难度参数可以相对于学生1的能力水平来解释其难度。
+没有区分度参数的 IRT 模型可以通过将其中一个参数固定为一个固定值（通常为0）来进行修正。例如，可以将第一个学生能力参数 $\alpha_1$ 固定为0。现在，所有其他学生能力参数可以解释为相对于学生1的能力水平。同样，难度参数可以相对于学生1的能力水平来解释其难度。
 
 This solution is not sufficient to deal with the multiplicative
 invariance introduced by the question discrimination parameters
@@ -346,9 +290,7 @@ to a non-zero value, with 1 being a convenient choice.  Now all of the
 discrimination parameters may be interpreted relative to item 1's
 discrimination.
 
-这种解决方案无法解决由问题区分参数$\delta_i$引入的乘法不变性问题。为了解决这个问题，必须对其中一个难度参数进行约束，比如将$\delta_1$约束为一个非零值，1是一个方便的选择。现在，所有的区分参数可以相对于第一个项目的区分进行解释。
-
-这个解决方案对于应对由题目区分度参数$\delta_i$引入的乘法不变性问题是不足够的。为了解决这个问题，还必须对其中一个难度参数进行约束，比如$\delta_1$。由于这是一种乘法而不是加法不变性，它必须被约束为一个非零值，选择1作为一个方便的选择。现在，所有的区分度参数可以相对于题目1的区分度来进行解释。
+这种解决方案无法解决由问题区分参数 $\delta_i$ 引入的乘法不变性问题。为了解决这个问题，必须对其中一个难度参数进行约束，比如将 $\delta_1$ 约束为一个非零值，1是一个方便的选择。现在，所有的区分参数都可以相对于项目1的区分度进行解释了。
 
 The many-to-one nature of $\texttt{softmax}(\alpha)$ is typically
 mitigated by pinning a component of $\alpha$, for instance fixing
@@ -359,9 +301,7 @@ manual chapter on constrained parameter transforms for a precise
 definition.  The Stan code for creating a simplex from a $K-1$-vector
 can be written as
 
-$\texttt{softmax}(\alpha)$的多对一特性通常通过固定$\alpha$的一个分量来缓解，例如将$\alpha_K$固定为0。得到的映射是从$K-1$个无约束参数到$K$-simplex的一对一映射。这大致是Stan中简单约束参数的定义方式；详细定义请参阅约束参数转换的参考手册章节。从$K-1$维向量创建一个simplex的Stan代码可以编写为：
-
-通常，通过固定$\alpha$的一个分量来减轻$\texttt{softmax}(\alpha)$的多对一特性，例如将$\alpha_K$固定为0。由此得到的映射是从$K-1$个无约束参数到一个$K$-simplex的一对一映射。这大致是Stan中定义simplex约束参数的方式；请参考有关约束参数变换的参考手册章节以获取精确定义。创建一个$K-1$-向量到simplex的Stan代码可以写成：
+$\texttt{softmax}(\alpha)$ 的多对一特性通常通过固定 $\alpha$ 的一个分量来缓解，例如将 $\alpha_K$ 固定为0。由此得到的映射是从 $K-1$ 个无约束参数到一个 $K$-simplex的一对一映射。这大致是 Stan 中定义 simplex 约束参数的方式；详细定义请参阅约束参数转换的参考手册章节。创建一个 $K-1$-向量到 simplex 的 Stan 代码可以写成：
 
 ```
 vector softmax_id(vector alpha) {
@@ -374,9 +314,6 @@ vector softmax_id(vector alpha) {
 }
 ```
 
-
-
-
 #### Adding priors {-}
 
 #### 添加先验概率 {-}
@@ -384,24 +321,18 @@ vector softmax_id(vector alpha) {
 So far, the models have been discussed as if the priors on the
 parameters were improper uniform priors.
 
-迄今为止，我们讨论的模型假设参数的先验概率是不正确的均匀先验概率。
-
-到目前为止，讨论的模型假设参数的先验分布是不合适的均匀先验分布。
+到目前为止，假设参数的先验分布是不正确的均匀先验分布的模型已经被讨论过。
 
 A more general Bayesian solution to these invariance problems is to
 impose proper priors on the parameters.  This approach can be used to
 solve problems arising from either additive or multiplicative
 invariance.
 
-解决这些不变性问题的更一般的贝叶斯方法是对参数施加适当的先验概率。这种方法可以用于解决由加法或乘法不变性引起的问题。
-
-对这些不变性问题的更一般的贝叶斯解决方案是对参数施加适当的先验分布。这种方法可以用来解决由加法或乘法不变性引起的问题。
+更一般的解决这些不变性问题的贝叶斯方法是对参数施加适当的先验概率。这种方法可以用于解决由加法或乘法不变性引起的问题。
 
 For example, normal priors on the multiple intercepts,
 
-例如，对于多个截距，可以使用正态先验概率：
-
-例如，在多个截距参数上使用正态先验分布， 
+例如，对于多个截距，可以使用正态先验分布：
 
 $$
 \lambda_1, \lambda_2 \sim \textsf{normal}(0,\tau),
@@ -411,10 +342,7 @@ located at a point where $\lambda_1 = \lambda_2$, because this
 minimizes $\log \textsf{normal}(\lambda_1 \mid 0,\tau) + \log
 \textsf{normal}(\lambda_2 \mid 0,\tau)$.^[A Laplace prior (or an L1 regularizer for penalized maximum likelihood estimation) is not sufficient to remove this additive invariance.  It provides shrinkage, but does not in and of itself identify the parameters because adding a constant to $\lambda_1$ and subtracting it from $\lambda_2$ results in the same value for the prior density.]
 
-其中$\tau$是一个常数标度，确保后验模式位于$\lambda_1 = \lambda_2$的点上，因为这最小化了$\log \textsf{normal}(\lambda_1 \mid 0,\tau) + \log
-\textsf{normal}(\lambda_2 \mid 0,\tau)$。^[Laplace先验（或用于惩罚最大似然估计的L1正则项）不足以消除这种加法不变性。它提供了收缩，但并不能自动识别参数，因为在$\lambda_1$上加上一个常数并从$\lambda_2$上减去该常数会得到相同的先验密度值。]
-
-通过在多个截距参数上使用具有常数尺度$\tau$的正态先验分布，可以确保后验模式位于使得$\lambda_1 = \lambda_2$的位置，因为这最小化了$\log \textsf{normal}(\lambda_1 \mid 0,\tau) + \log \textsf{normal}(\lambda_2 \mid 0,\tau)$。^[一个拉普拉斯先验（或者L1正则项用于惩罚最大似然估计）并不足以消除这种加法不变性。它可以提供收缩效果，但本身并不能识别参数，因为将一个常数加到 $\lambda_1$ 上并从 $\lambda_2$ 中减去相同的常数会导致先验密度得到相同的值。]
+其中 $\tau$ 是一个常数尺度，确保后验模式位于 $\lambda_1 = \lambda_2$ 的点上，因为这最小化了 $\log \textsf{normal}(\lambda_1 \mid 0,\tau) + \log \textsf{normal}(\lambda_2 \mid 0,\tau)$。^[一个拉普拉斯先验（或者L1正则项用于惩罚最大似然估计）并不足以消除这种加法不变性。它可以提供收缩效果，但本身并不能识别参数，因为在 $\lambda_1$ 上加上一个常数并从 $\lambda_2$ 上减去该常数会得到相同的先验密度值。]
 
 The following plots show the posteriors for two intercept
 parameterization without prior, two intercept parameterization with
@@ -422,41 +350,30 @@ standard normal prior, and one intercept reparameterization without
 prior.  For all three cases, the posterior is plotted for 100 data
 points drawn from a standard normal.
 
-下面的图示展示了没有先验概率的两个截距参数化、具有标准正态先验概率的两个截距参数化以及没有先验概率的一个截距重新参数化的后验概率。对于这三种情况，后验概率是基于从标准正态分布中抽取的100个数据点绘制的。
-
-下面的图示展示了没有先验的两个截距参数化、带有标准正态先验的两个截距参数化以及没有先验的一个截距重新参数化的后验分布。对于这三种情况，后验分布是基于从标准正态分布中抽取的100个数据点进行绘制的。
+下面的图示展示了没有先验分布的两个截距参数化、具有标准正态先验分布的两个截距参数化以及没有先验分布的一个截距重新参数化的后验分布。对于这三种情况，后验分布是基于从标准正态分布中抽取的100个数据点绘制的。
 
 The two intercept parameterization leads to an improper prior with a ridge extending infinitely to the northwest and southeast.
 
-两个截距参数化导致了一个不正确的先验概率，形成一个无限延伸到西北和东南的岭。
-
-两个截距参数化会导致一个不合适的先验分布，其中的岭无限延伸向西北和东南方向。
+两个截距参数化导致了一个不正确的先验概率，形成一个从西北向东南无限延伸的岭。
 
 ![Two intercepts with improper prior](img/non-identified.png)
 
 Adding a standard normal prior for the intercepts results in a proper posterior.
 
-通过为截距添加标准正态先验概率，可以得到一个正确的后验概率。
-
-为截距参数添加标准正态先验会导致一个合适的后验分布。
+通过为截距添加标准正态先验，可以得到一个正确的后验分布。
 
 ![Two intercepts with proper prior](img/non-identified-plus-prior.png)
 
 The single intercept parameterization with no prior also has a proper posterior.
 
-没有先验概率的单一截距参数化也具有正确的后验概率。
-
-没有先验的单个截距参数化也具有一个合适的后验分布。
+没有先验的单一截距参数化也具有一个合适的后验分布。
 
 ![Single intercepts with improper prior](img/one-param-identified.png)
-
 
 
 The addition of a prior to the two intercepts model is shown in the
 second plot; the final plot shows the result of reparameterizing to a
 single intercept.
-
-对于两个截距模型添加先验的结果显示在第二张图中；最后一张图显示了重新参数化为单一截距的结果。
 
 在第二张图中展示了对两个截距模型添加先验的结果；最后一张图展示了重新参数化为单个截距的结果。
 
@@ -471,9 +388,7 @@ pinned parameterization, on the other hand, is usually more efficient
 statistically because it does not have the extra degree of (prior
 constrained) wiggle room.
 
-另一种识别$K$-simplex参数化$\theta = \texttt{softmax}(\alpha)$的策略是在$\alpha$的各个分量上放置一个具有固定位置的先验概率（特别是避免具有可变位置的分层先验概率）。与将$\alpha_K = 0$固定不同，基于先验的方法对$K$个结果进行对称建模，而不是相对于第$K$个结果对$K-1$个结果进行建模。另一方面，固定参数化通常在统计上更有效，因为它没有额外的（由先验约束的）灵活性。
-
-对于将$K$-simplex参数化$\theta = \texttt{softmax}(\alpha)$识别为无约束$K$-向量$\alpha$的另一种策略是在$\alpha$的分量上放置先验分布，其中位置是固定的（即特别避免具有不同位置的层次先验）。与将$\alpha_K = 0$固定的方法不同，基于先验的方法以对称方式建模$K$个结果，而不是相对于第$K$个结果建模$K-1$个结果。另一方面，固定参数化通常在统计上更有效，因为它没有额外的（由先验约束的）摆动空间。
+另一种识别 $K$-simplex 参数化 $\theta = \texttt{softmax}(\alpha)$ 的策略是在 $\alpha$ 的各个分量上放置一个具有固定位置的先验概率（特别是避免具有可变位置的分层先验概率）。与将 $\alpha_K = 0$ 固定不同，基于先验的方法对 $K$ 个结果进行对称建模，而不是相对于第 $K$ 个结果对 $K-1$ 个结果进行建模。另一方面，固定参数化通常在统计上更有效，因为它没有额外的（由先验约束的）灵活性。
 
 #### Vague, strongly informative, and weakly informative priors {-}
 
@@ -483,18 +398,14 @@ Care must be used when adding a prior to resolve invariances.  If the
 prior is taken to be too broad (i.e., too vague), the resolution is in
 theory only, and samplers will still struggle.
 
-在解决不变性问题时，添加先验概率需要谨慎。如果先验概率选择得过于宽泛（即模糊），则解决方案仅在理论上成立，抽样器仍然会面临困难。
-
-在添加先验以解决不变性问题时，必须小心使用。如果先验选择过于宽泛（即过于模糊），解决仅仅停留在理论上，并且采样算法仍然会遇到困难。
+在添加先验以解决不变性问题时，需要谨慎。如果先验选择过于宽泛（即过于模糊），则解决方案仅在理论上成立，并且采样算法仍然会遇到困难。
 
 Ideally, a realistic prior will be formulated based on substantive
 knowledge of the problem being modeled.  Such a prior can be chosen to
 have the appropriate strength based on prior knowledge.  A strongly
 informative prior makes sense if there is strong prior information.
 
-理想情况下，应根据对所建模问题的实质性了解来制定现实的先验概率。可以根据先前知识选择适当的强度来选择这样的先验概率。如果存在强有力的先验信息，那么选择具有强信息量的先验概率是有意义的。
-
-理想情况下，基于问题的实质性知识制定一个真实的先验分布。这样的先验分布可以根据先前的知识选择适当的强度。如果存在强大的先验信息，那么选择一个强信息先验是合理的。
+理想情况下，应根据对所建模问题的实质性的了解来制定现实的先验概率。这样的先验分布可以根据先前的知识选择适当的强度。如果存在强有力的先验信息，那么选择一个强信息先验是合理的。
 
 When there is not strong prior information, a weakly informative prior
 strikes the proper balance between controlling computational inference
@@ -504,9 +415,7 @@ estimates and be able to choose a prior for identification purposes
 that does not dominate the data, but provides sufficient computational
 control on the posterior.
 
-当没有强先验信息时，弱信息量的先验概率能够在控制计算推断的同时不主导后验数据，找到合适的平衡点。在大多数问题中，建模者至少对估计值的预期范围有一定的概念，并且能够选择一个先验概率，用于识别目的，不会主导数据，但能对后验数据提供足够的计算控制。
-
-当没有强大的先验信息时，弱信息先验在控制计算推断的同时，不会主导后验数据，达到了适当的平衡。在大多数问题中，建模者至少会对估计值的预期范围有一定的了解，并能够选择一个不主导数据但在后验计算上提供足够控制的先验，以达到识别目的。
+当没有强先验信息时，弱信息量的先验概率能够在控制计算推断的同时，不主导后验数据，找到合适的平衡点。在大多数问题中，建模者至少会对估计值的预期范围有一定的了解，并能够选择一个不主导数据但在后验计算上提供足够控制的先验，以达到识别目的。
 
 Priors can also be used in the same way to control the additive
 invariance of the IRT model.  A typical approach is to place a strong
@@ -518,9 +427,7 @@ knowledge to the problem.  Then a prior on item difficulty can be
 chosen that is either informative or weakly informative based on prior
 knowledge of the problem.
 
-先验概率也可以以同样的方式用于控制IRT模型的加法不变性。一种典型的方法是在学生能力参数 $\alpha$ 上放置强先验概率，以控制尺度，从而控制基本IRT模型的加法不变性和扩展了项目辨别参数的乘法不变性；这样的先验概率不会为问题添加任何先前知识。然后，可以根据问题的先前知识选择对项目难度的先验概率，这可以是具有信息量或弱信息量的先验。
-
-先验概率也可以用于控制IRT模型的加法不变性。一种常见的方法是对学生能力参数$\alpha$设置强先验概率，仅仅是为了控制基本IRT模型的加法不变性和扩展了题目辨别参数的模型的乘法不变性；这样的先验概率不会为问题增加任何先验知识。然后可以根据问题的先前知识选择在题目难度上的先验概率，可以是具有信息性的先验概率，也可以是弱信息先验概率。
+先验概率也可以用于控制 IRT 模型的加法不变性。一种常见的方法是在学生能力参数 $\alpha$ 上放置强先验概率，以控制尺度，从而控制基本 IRT 模型的加法不变性，并扩展了项目辨别参数的乘法不变性；这样的先验概率不会为问题增加任何先验知识。然后，可以根据问题的先前知识选择对项目难度的先验概率，这可以是具有信息量或弱信息量的先验。
 
 ## Label switching in mixture models {#label-switching-problematic.section}
 
@@ -532,8 +439,6 @@ finitely many posterior maxima.
 
 在回归模型中，共线性可能导致无限多个后验最大值，而在混合模型中，交换成分会导致有限多个后验最大值。
 
-在回归模型中，如果存在共线性，可能会导致无限多个后验最大值；而在混合模型中，交换组件会导致有限个后验最大值。
-
 ### Mixture models {-}
 
 ### 混合模型 {-}
@@ -542,9 +447,7 @@ Consider a normal mixture model with two location parameters $\mu_1$
 and $\mu_2$, a shared scale $\sigma > 0$, a mixture ratio $\theta \in
 [0,1]$, and likelihood
 
-考虑一个带有两个位置参数 $\mu_1$ 和 $\mu_2$、共享尺度 $\sigma > 0$、混合比例 $\theta \in [0,1]$ 和似然函数的正态混合模型：
-
-考虑一个带有两个位置参数$\mu_1$和$\mu_2$，共享尺度$\sigma > 0$，混合比例$\theta \in [0,1]$的正态混合模型，以及似然函数。
+考虑一个带有两个位置参数 $\mu_1$ 和 $\mu_2$、共享尺度 $\sigma > 0$、混合比例 $\theta \in [0,1]$ 的正态混合模型，以及似然函数：
 
 $$
 p(y \mid \theta,\mu_1,\mu_2,\sigma)
@@ -555,8 +458,6 @@ The issue here is exchangeability of the mixture components, because
 
 这里的问题是混合成分的可交换性，因为
 
-问题在于混合组件的可交换性，因为 
-
 $$
 p(\theta,\mu_1,\mu_2,\sigma \mid y) = p\big((1-\theta),\mu_2,\mu_1,\sigma \mid y\big).
 $$
@@ -564,9 +465,7 @@ The problem is exacerbated as the number of mixture components $K$
 grows, as in clustering models, leading to $K!$ identical posterior
 maxima.
 
-随着混合成分数量 $K$ 的增加，问题会加剧，例如在聚类模型中，导致 $K!$ 个相同的后验最大值。
-
-随着混合组件数量$K$的增加（例如在聚类模型中），这个问题会变得更加严重，导致出现$K!$个相同的后验最大值。
+随着混合成分数量 $K$ 的增加（例如在聚类模型中），这个问题会变得更加严重，导致出现 $K!$ 个相同的后验最大值。
 
 ### Convergence monitoring and effective sample size {-}
 
@@ -581,9 +480,7 @@ computations, is affected by label switching, resulting in a posterior
 mean for $\mu_1$ that is equal to that of $\mu_2$, and a posterior
 mean for $\theta$ that is always 1/2, no matter what the data are.
 
-对于混合模型，后验收敛性和有效样本量的分析也很困难。例如，Stan 报告的 $\hat{R}$ 收敛统计量和有效样本量的计算都会受到标签交换的影响。问题在于后验均值，这些计算中的关键要素受到了标签交换的影响，导致 $\mu_1$ 的后验均值等于 $\mu_2$ 的后验均值，而 $\theta$ 的后验均值始终为 1/2，无论数据是什么。
-
-对于混合模型来说，分析后验收敛和有效样本量也是困难的。例如，Stan报告的$\hat{R}$收敛统计量和有效样本量的计算都会受到标签切换的影响。问题在于后验均值，在这些计算中是一个关键因素，受到了标签切换的影响，导致$\mu_1$的后验均值等于$\mu_2$的后验均值，并且$\theta$的后验均值始终为1/2，无论数据是什么。
+对于混合模型来说，分析后验收敛和有效样本量也是困难的。例如，Stan 报告的 $\hat{R}$ 收敛统计量和有效样本量的计算都会受到标签切换的影响。问题在于在这些计算中的关键要素后验均值，受到了标签交换的影响，导致 $\mu_1$ 的后验均值等于 $\mu_2$ 的后验均值，并且无论数据是什么，$\theta$ 的后验均值始终为1/2。
 
 ### Some inferences are invariant {-}
 
@@ -599,9 +496,7 @@ means for the parameters are meaningless because they are not
 invariant to label switching; for example, the posterior mean for
 $\theta$ in the two component mixture model will always be 1/2.
 
-在某种意义上，混合成分的指标（或标签）是无关紧要的。即使不确定混合成分的身份，后验预测推断仍然可以进行。例如，新观测的对数概率不依赖于混合成分的身份。在这种情况下，唯一可靠的贝叶斯推断是对标签交换具有不变性的推断。参数的后验均值是没有意义的，因为它们对标签交换不具有不变性；例如，在两个成分的混合模型中，$\theta$ 的后验均值总是 1/2。
-
-在某种意义上，混合模型中的分量索引（或标签）是不相关的。即使在不确定混合成分的情况下，仍然可以进行后验预测推断。例如，新观测值的对数概率不依赖于混合成分的身份。在这种模型中，唯一可靠的贝叶斯推断是对标签切换不变的推断。参数的后验均值是无意义的，因为它们对标签切换不具有不变性；例如，在两个组分混合模型中，$\theta$的后验均值始终为1/2。
+在某种意义上，混合成分的索引（或标签）是无关紧要的。即使不确定混合成分的情况下，后验预测推断仍然可以进行。例如，新观测的对数概率不依赖于混合成分的身份。在这种情况下，唯一可靠的贝叶斯推断是对标签交换具有不变性的推断。参数的后验均值是没有意义的，因为它们对标签交换不具有不变性；例如，在两个成分的混合模型中，$\theta$ 的后验均值始终为 1/2。
 
 ### Highly multimodal posteriors {-}
 
@@ -611,9 +506,7 @@ Theoretically, this should not present a problem for inference because
 all of the integrals involved in posterior predictive inference will
 be well behaved. The problem in practice is computation.
 
-从理论上讲，这对于推断来说不应该是一个问题，因为后验预测推断中涉及的所有积分都会表现良好。实际上的问题在于计算。
-
-理论上，这对推断应该不构成问题，因为后验预测推断中涉及的所有积分都将是良好的。实际上的问题在于计算。
+理论上，这对推断应该不构成问题，因为后验预测推断中涉及的所有积分都表现良好。实际上的问题在于计算。
 
 Being able to carry out such invariant inferences in practice is an
 altogether different matter.  It is almost always intractable to find
@@ -626,18 +519,14 @@ sampler gets stuck in one of the two "bowls" around the modes and
 cannot gather enough energy from random momentum assignment to move
 from one mode to another.
 
-在实践中能够进行这种不变推断是完全不同的问题。即使找到一个后验模式也几乎是难以解决的，更不用说根据概率质量平衡多个局部最大值的邻域的探索了。在 Gibbs 采样中，当在当前的 $\mu_2$ 和 $\theta$ 的值给定的条件下对 $\mu_1$ 进行采样时，$\mu_1$ 移动到新模式的概率是很低的。对于 HMC 和 NUTS，问题在于采样器陷入了围绕模式的两个"碗"之一，并且无法从随机动量分配中获得足够的能量来从一个模式转移到另一个模式。
-
-实际上能够进行这样的不变推断是一个完全不同的问题。寻找一个后验模态甚至是平衡对多个局部最大值邻域的探索，根据概率密度进行探索，几乎总是不可行的。在Gibbs采样中，当在当前$\mu_2$和$\theta$的条件下进行采样时，$\mu_1$很难移动到一个新的模态。对于HMC和NUTS，问题在于采样器陷入了围绕模态的两个"碗"之一，并且无法从随机动量分配中获得足够的能量以从一个模态移动到另一个模态。
+在实践中能够进行这样的不变推断是一个完全不同的问题。寻找一个后验模态甚至是平衡对多个局部最大值邻域的探索，根据概率密度进行探索，几乎总是不可行的。在 Gibbs 采样中，当在当前的 $\mu_2$ 和 $\theta$ 的值给定的条件下对 $\mu_1$ 进行采样时，$\mu_1$ 移动到新模态的概率是很低的。对于 HMC 和 NUTS，问题在于采样器陷入了围绕模式的两个"碗"之一，并且无法从随机动量分配中获得足够的能量来从一个模态转移到另一个模态。
 
 Even with a proper posterior, all known sampling and inference
 techniques are notoriously ineffective when the number of modes grows
 super-exponentially as it does for mixture models with increasing
 numbers of components.
 
-即使对于适当的后验分布，已知的所有采样和推断技术在模式的数量以超指数方式增长时（随着混合模型的成分数量增加），都因为效果不佳而闻名。
-
-即使存在适当的后验分布，对于模态数量随着组分数量的增加而呈超指数增长的混合模型，所有已知的采样和推断技术在实践中通常都效果不佳。
+即使选择了一个合适的先验分布,当模型中的成分数量增加时,可能出现的模式(mode)数量将呈现出超指数级的增长。这会导致所有已知的抽样和推断技术的效果都变得非常糟糕。这个问题在混合模型中表现得尤为突出,因为混合模型通常包含大量的成分。
 
 ### Hacks as fixes {-}
 
@@ -646,9 +535,7 @@ numbers of components.
 Several hacks (i.e., "tricks") have been suggested and employed to
 deal with the problems posed by label switching in practice.
 
-为了解决实际中标签交换问题所带来的困难，提出并采用了几种"技巧"。
-
-在实践中，已经提出并使用了一些技巧（即"技巧"）来解决标签切换所带来的问题。
+在实践中，已经提出并使用了一些技巧来解决标签交换所带来的问题。
 
 #### Parameter ordering constraints {-}
 
@@ -666,9 +553,7 @@ standard approaches to posterior inference for event probabilities is
 compromised.  For instance, attempting to use $M$ posterior samples to
 estimate $\Pr[\mu_1 > \mu_2]$, will fail, because the estimator
 
-一种常见的策略是对参数进行约束，以确定各个成分。例如，在上面讨论的两个成分的正态混合模型中，我们可以考虑对参数 $\mu_1$ 和 $\mu_2$ 施加约束 $\mu_1 < \mu_2$。这种方法可能会导致一个问题，即当相反排序 $\mu_1 > \mu_2$ 的概率质量较大时。在这些情况下，后验受到约束的影响，对 $\mu_1$ 和 $\mu_2$ 的真实后验不确定性无法被带有约束的模型捕捉到。此外，用于事件概率的后验推断的标准方法也会受到影响。例如，试图使用 $M$ 个后验样本估计 $\textsf{Pr}[\mu_1 > \mu_2]$ 将会失败，因为估计量
-
-一种常见的策略是对参数施加约束，以确定组分的顺序。例如，在上述的两个组分正态混合模型中，可以考虑对$\mu_1$和$\mu_2$施加约束$\mu_1 < \mu_2$。然而，这种方法可能会引发一个问题，即当相反的顺序$\mu_1 > \mu_2$具有相当大的概率质量时。在这种情况下，由于约束的存在，后验分布受到影响，并且对$\mu_1$和$\mu_2$的真实后验不确定性无法被具有约束的模型所捕捉。此外，对事件概率的后验推断的标准方法也会受到影响。例如，尝试使用$M$个后验样本来估计$\textsf{Pr}[\mu_1 > \mu_2]$，将会失败，因为估计量
+一种常见的策略是对参数进行约束，以确定各个成分。例如，在上面讨论的两个成分的正态混合模型中，我们可以考虑对参数 $\mu_1$ 和 $\mu_2$ 施加约束 $\mu_1 < \mu_2$。然而，这种方法可能会引发一个问题，即当相反的顺序 $\mu_1 > \mu_2$ 具有相当大的概率质量时。在这些情况下,后验分布会受到约束的影响,而 $\mu_1$ 和 $\mu_2$ 的真实后验不确定性无法被带约束的模型捕捉到。此外，用于事件概率的后验推断的标准方法也会受到影响。例如，试图使用 $M$ 个后验样本估计 $\textsf{Pr}[\mu_1 > \mu_2]$ 将会失败，因为估计量
 
 $$
 \Pr[\mu_1 > \mu_2]
@@ -680,8 +565,6 @@ constraint in the model.
 
 将得到一个估计值为0，因为后验符合模型中的约束条件。
 
-将得到一个估计值为0的结果，因为后验分布在模型中遵守了约束条件。
-
 #### Initialization around a single mode {-}
 
 #### 在单个峰周围进行初始化 {-}
@@ -692,18 +575,14 @@ parameters near realistic values.^[Tempering methods may be viewed as automated 
   continue to search for modes on an ongoing basis; see
   [@SwendsenWang:1986; @Neal:1996b].]
 
-另一种常见方法是运行单个链或将参数初始化在合理的值附近。^[退火方法可以视为自动执行此类模式搜索的方法，尽管大多数 MCMC 退火方法仍在不断进行模式搜索；详见 [@SwendsenWang:1986; @Neal:1996b]。]
-
-另一种常见的方法是运行单个链或将参数初始化为接近真实值的值。^[温度调节方法可以被视为自动化的方式来进行这种模式搜索，尽管大多数MCMC温度调节方法会持续进行模式搜索；参考[@SwendsenWang:1986; @Neal:1996b]。]
+另一种常见方法是运行单个马尔可夫链，或将参数初始化在合理的值附近。^[退火方法可以视为自动执行此类模式搜索的方法，尽管大多数 MCMC 退火方法仍在不断进行模式搜索；详见 [@SwendsenWang:1986; @Neal:1996b].]
 
 This can work better than the hard constraint approach if reasonable
 initial values can be found and the labels do not switch within a
 Markov chain.  The result is that all chains are glued to a
 neighborhood of a particular mode in the posterior.
 
-如果能够找到合理的初始值并且标签在马尔可夫链中不会交换，这种方法比硬约束方法更有效。结果是，所有链都与后验的某个特定模式的附近粘合在一起。
-
-如果能够找到合理的初始值并且标签在马尔可夫链内不会切换，这种方法可能比硬约束方法更有效。结果是所有链都与后验分布中特定模式的附近连接在一起。
+如果能够找到合理的初始值并且标签在马尔可夫链中不会交换，这种方法比硬约束方法更有效。其结果是,所有的马尔可夫链都被"粘住"在后验分布的特定模式邻域内。
 
 ## Component collapsing in mixture models
 
@@ -714,9 +593,7 @@ collapse to the same values during sampling or optimization.  For
 example, a mixture of $K$ normals might devolve to have $\mu_i =
 \mu_j$ and $\sigma_i = \sigma_j$ for $i \neq j$.
 
-在混合模型中，两个混合成分在采样或优化过程中可能会合并为相同的值。例如，$K$ 个正态分布的混合模型可能会演变为 $\mu_i = \mu_j$ 和 $\sigma_i = \sigma_j$（其中 $i \neq j$）。
-
-在混合模型中，两个分量在采样或优化过程中可能会崩溃到相同的数值。例如，一个包含K个正态分量的混合模型可能会出现$\mu_i = \mu_j$和$\sigma_i = \sigma_j$（其中$i \neq j$）的情况。
+在混合模型的采样或优化过程中,有可能出现两个混合成分退化为相同值的情况。例如,在一个包含 $K$ 个正态分布的混合模型中,可能会出现 $\mu_i = \mu_j$ 且 $\sigma_i = \sigma_j$ 的情况,其中 $i \neq j$。
 
 This will typically happen early in sampling due to initialization in
 MCMC or optimization or arise from random movement during MCMC.  Once
@@ -724,26 +601,20 @@ the parameters match for a given draw $(m)$, it can become hard to
 escape because there can be a trough of low-density mass between the
 current parameter values and the ones without collapsed components.
 
-这通常会在采样的早期阶段发生，这是由于MCMC或优化的初始化，或者由于MCMC过程中的随机移动而产生的。一旦参数在给定的抽样 $(m)$ 中匹配，就很难逃离，因为当前参数值和没有合并成分的参数值之间可能存在低密度的凹槽。
-
-这种情况通常会在MCMC的初始化阶段或优化过程中发生，或者是由于MCMC中的随机移动引起的。一旦参数在某次采样（$m$）中匹配，要摆脱这种情况就变得困难，因为当前参数值和没有发生崩溃分量的参数值之间可能存在低密度区域的凹槽。
+这种情况通常会在采样的早期阶段发生,原因可能是 MCMC 或优化算法中的初始化,或者是 MCMC 过程中的随机移动导致的。一旦在某次抽样 $(m)$ 中,两个成分的参数变得相同,就可能变得难以摆脱这种状态,因为在当前参数值与未退化成分的参数值之间,可能存在一个低密度概率质量的"洼地"。
 
 It may help to use a smaller step size during warmup, a stronger prior
 on each mixture component's membership responsibility.  A more extreme
 measure is to include additional mixture components to deal with the
 possibility that some of them may collapse.
 
-在预热阶段使用较小的步长，对每个混合成分的成员责任使用更强的先验，可能有助于解决这个问题。一个更极端的措施是增加额外的混合成分，以处理其中一些成分可能合并的情况。
-
-在预热阶段使用较小的步长、对每个混合成分的成员责任使用更强的先验，可能会有所帮助。更极端的措施是添加额外的混合成分，以处理其中一些可能崩溃的情况。
+在预热阶段使用较小的步长，对每个混合成分的成员责任（membership responsibility）使用更强的先验，可能有助于解决这个问题。一个更极端的措施是增加额外的混合成分，以处理其中一些成分可能退化的情况。
 
 In general, it is  difficult to recover exactly the right $K$
 mixture components in a mixture model as $K$ increases beyond one
 (yes, even a two-component mixture can have this problem).
 
-一般来说，当 $K$ 增加到超过1时（是的，即使是两个成分的混合模型也可能存在此问题），在混合模型中精确恢复正确的 $K$ 个混合成分是困难的。
-
-一般来说，随着混合成分数 $K$ 的增加，要精确地恢复出正确的 $K$ 个混合成分在混合模型中是困难的（是的，即使是两个混合成分的混合模型也可能存在这个问题）。
+一般来说，当 $K$ 增加到超过1时，在混合模型中精确恢复正确的 $K$ 个混合成分是困难的（是的，即使是两个成分的混合模型也可能存在此问题）。
 
 ## Posteriors with unbounded densities
 
@@ -755,8 +626,6 @@ are no posterior modes and numerical stability issues can arise as
 sampled parameters approach constraint boundaries.
 
 在某些情况下，随着参数接近某些极点或边界，后验密度会无限增长。在这种情况下，不存在后验模式，并且当采样参数接近约束边界时，可能会出现数值稳定性问题。
-
-在某些情况下，随着参数接近特定的极点或边界，后验密度会无限增长。在这种情况下，不存在后验模态，并且在采样的参数接近约束边界时可能会出现数值稳定性问题。
 
 ### Mixture models with varying scales {-}
 
@@ -771,11 +640,9 @@ around a single data item $y_n$.
 
 一个例子是具有不同尺度的二元混合模型，其中各个分量的尺度为 $\sigma_1$ 和 $\sigma_2$，对应于位置参数 $\mu_1$ 和 $\mu_2$。在这种情况下，当 $\sigma_1 \rightarrow 0$ 且 $\mu_1 \rightarrow y_n$（其中 $n$ 为某个值）时，密度会无限增长；换句话说，其中一个混合成分将其质量集中在单个数据项 $y_n$ 上。
 
-在这种情况下，当一个混合组件的尺度参数 $\sigma_1$ 趋近于零并且其位置参数 $\mu_1$ 趋近于某个数据项 $y_n$ 时，密度会无限增长。换句话说，混合模型的一个组件将其质量集中在单个数据项 $y_n$ 上。
-
 ### Beta-binomial models with skewed data and weak priors {-}
 
-### 具有偏态数据和弱先验的Beta-binomial模型 {-}
+### 具有偏态数据和弱先验的 Beta-binomial 模型 {-}
 
 Another example of unbounded densities arises with a posterior such as
 $\textsf{beta}(\phi \mid 0.5,0.5)$, which can arise if seemingly weak beta
@@ -785,8 +652,6 @@ a Bernoulli likelihood model coupled with a "weak" beta prior, leads
 to a posterior
 
 另一个无界密度的例子是后验分布 $\textsf{beta}(\phi \mid 0.5, 0.5)$，当对没有数据的群体使用看似弱的贝塔先验时，可能会出现这种情况。当 $\phi \rightarrow 0$ 和 $\phi \rightarrow 1$ 时，该密度是无界的。同样，与"弱"贝塔先验结合的伯努利似然模型会导致后验分布为
-
-另一个无界密度的例子是后验分布，如$\textsf{beta}(\phi \mid 0.5,0.5)$，当对没有数据的群体使用看似弱的贝塔先验时可能出现这种情况。这个密度在$\phi \rightarrow 0$和$\phi \rightarrow 1$时是无界的。类似地，伯努利似然模型结合“弱”贝塔先验，会导致后验分布
 
 \begin{align*}
 p(\phi \mid y)
@@ -802,9 +667,8 @@ $\textsf{beta}(\phi \mid 9.5,0,5)$.  This posterior is unbounded as $\phi
 there is no posterior mode, the posterior mean is well-defined with a
 value of exactly 0.95.
 
-如果 $N = 9$ 且每个 $y_n = 1$，后验分布将为 $\textsf{beta}(\phi \mid 9.5,0.5)$。当 $\phi \rightarrow 1$ 时，该后验分布是无界的。尽管没有后验模式，但后验均值是明确定义的，并且其值恰好为 0.95。
+如果 $N = 9$ 且每个 $y_n = 1$，后验分布将为 $\textsf{beta}(\phi \mid 9.5,0.5)$。当 $\phi \rightarrow 1$ 时，该后验分布是无界的。尽管没有后验模式，但后验均值是明确定义的，并且其值恰好为0.95。
 
-如果$N = 9$，且每个$y_n = 1$，则后验分布为$\textsf{beta}(\phi \mid 9.5,0.5)$。这个后验分布在$\phi \rightarrow 1$时是无界的。尽管如此，后验分布是合适的，虽然没有后验模态，但后验均值是明确定义的，其值恰好为0.95。
 
 #### Constrained vs.\ unconstrained scales {-}
 
@@ -819,9 +683,7 @@ Stan automatically applies ensures the unconstrained density is
 proper.  The adjustment for the particular case of $(0,1)$ is $\log
 \operatorname{logit}^{-1}(\phi) + \log \operatorname{logit}(1 - \phi)$.
 
-Stan在这个问题上不直接在受限制的$(0,1)$空间上进行采样，因此不直接处理非受限制的密度值。相反，概率值$\phi$经过逻辑(logit)变换转换为$(-\infty,\infty)$空间。0和1处的边界被推到$-\infty$和$\infty$。Stan自动应用的Jacobian调整确保了非受限制的密度是合适的。对于$(0,1)$的特定情况，调整为$\log \operatorname{logit}^{-1}(\phi) + \log \operatorname{logit}(1 - \phi)$。
-
-在这个问题中，Stan方法并不直接在受限制的$(0,1)$空间上采样，因此它不直接处理无限制的密度值。相反，概率值$\phi$经过logit变换后落在$(-\infty,\infty)$区间。边界0和1被推到$-\infty$和$\infty$。Stan自动应用的Jacobian调整确保了无限制的密度是合适的。对于特定情况$(0,1)$，调整为$\log \operatorname{logit}^{-1}(\phi) + \log \operatorname{logit}(1 - \phi)$。
+在这个问题中，Stan 方法并不直接在受限制的 $(0,1)$ 空间上采样，因此不直接处理非受限制的密度值。相反，概率值 $\phi$ 经过逻辑(logit)变换转换为 $(-\infty,\infty)$ 空间。0和1处的边界被推到 $-\infty$ 和 $\infty$。Stan 自动应用的 Jacobian 调整确保了非受限制的密度是合适的。对于 $(0,1)$ 的特定情况，调整为 $\log \operatorname{logit}^{-1}(\phi) + \log \operatorname{logit}(1 - \phi)$。
 
 There are two problems that still arise, though.  The first is that if
 the posterior mass for $\phi$ is near one of the boundaries, the
@@ -834,11 +696,7 @@ Similar problems arise for the expectation terms in logistic
 regression, which is why the logit-scale parameterizations of the
 Bernoulli and binomial distributions are more stable.
 
-然而，仍然存在两个问题。首先，如果$\phi$的后验质量接近其中一个边界，逻辑变换后的参数将需要扫过很长的路径，从而可能主导无转弯条件（no-U-turn sampler, NUTS）所施加的条件。第二个问题是，从非受限制空间到受限制空间的逆变换可能会下溢到0或上溢到1，即使非受限制的参数并非无穷大。类似的问题也会在逻辑回归的期望项中出现，这就是为什么伯努利分布和二项分布的logit-scale参数化更稳定的原因。
-
-然而，仍然存在两个问题。首先，如果$\phi$的后验质量接近边界之一，logit变换后的参数将需要扫描很长的路径，从而可能违反无U-turn采样器（NUTS）的U-turn条件。第二个问题是从无限制空间到受限制空间的逆变换可能会导致下溢到0或上溢到1，即使无限制参数并非无穷大。类似的问题也出现在逻辑回归的期望项中，这就是为什么伯努利分布和二项分布的logit-scale参数化更稳定的原因。
-
-
+然而，仍然存在两个问题。首先，如果 $\phi$ 的后验质量接近其中一个边界，logit 变换后的参数将需要扫描很长的路径，从而可能主导无转弯条件（no-U-turn sampler, NUTS）所施加的条件。第二个问题是，从非受限制空间到受限制空间的逆变换可能会下溢到0或上溢到1，即使非受限制的参数并非无穷大。类似的问题也会在逻辑回归的期望项中出现，这就是伯努利分布和二项分布的 logit-scale 参数化更稳定的原因。
 
 ## Posteriors with unbounded parameters
 
@@ -850,8 +708,6 @@ values.  Like the models discussed in the previous section that have
 densities that grow without bound, such models also have no posterior
 modes.
 
-在某些情况下，后验密度不会无限增长，但是参数会随着密度值的逐渐增加而无限增长。与前一节讨论的具有无界密度增长的模型类似，这样的模型也没有后验模式。
-
 在某些情况下，后验密度不会无限增长，但参数值会随着密度值的逐渐增加而无限增长。与前一节中讨论的密度无限增长的模型类似，这些模型也没有后验模态。
 
 
@@ -862,8 +718,6 @@ modes.
 Consider a logistic regression model with $N$ observed outcomes $y_n
 \in \{ 0, 1 \}$, an $N \times K$ matrix $x$ of predictors, a
 $K$-dimensional coefficient vector $\beta$, and sampling distribution
-
-考虑一个逻辑回归模型，其中有$N$个观测结果$y_n \in \{0, 1\}$，一个$N \times K$的预测变量矩阵$x$，一个$K$维系数向量$\beta$，以及采样分布
 
 考虑一个逻辑回归模型，其中有 $N$ 个观测结果 $y_n \in \{0, 1\}$，一个 $N \times K$ 的预测变量矩阵 $x$，一个 $K$ 维系数向量 $\beta$，以及采样分布
 
@@ -877,9 +731,8 @@ continue to improve as $\beta_k \rightarrow \infty$, because for cases
 with $y_n = 1$, $x_n \beta \rightarrow \infty$ and hence
 $\operatorname{logit}^{-1}(x_n \beta) \rightarrow 1$.
 
-现在假设预测变量矩阵的第$k$列满足当且仅当$y_n = 1$时$x_{n, k} > 0$的条件，这个条件被称为“可分离性”。在这种情况下，对于$y_n = 1$的情况，$x_n \beta \rightarrow \infty$，因此$\operatorname{logit}^{-1}(x_n \beta) \rightarrow 1$，导致在观测数据上的预测准确性会随着$\beta_k \rightarrow \infty$而继续提高。
+现在假设预测变量矩阵的第 $k$ 列满足条件：当且仅当 $y_n = 1$ 时，$x_{n,k} > 0$，这种情况被称为“可分离性”（separability）。在这种情况下，对于观测数据，预测准确性将随着$\beta_k \rightarrow \infty$ 而持续提高，因为对于 $y_n = 1$ 的情况，$x_n \beta \rightarrow \infty$，从而 $\operatorname{logit}^{-1}(x_n \beta) \rightarrow 1$。
 
-现在假设预测变量矩阵的第 $k$ 列满足条件：当且仅当 $y_n = 1$ 时，$x_{n,k} > 0$，这种情况被称为“可分性”（separability）。在这种情况下，对于观测数据，预测准确性将随着 $\beta_k \rightarrow \infty$ 而持续提高，因为对于 $y_n = 1$ 的情况，$x_n \beta \rightarrow \infty$，从而 $\operatorname{logit}^{-1}(x_n \beta) \rightarrow 1$。
 
 With separability, there is no maximum to the likelihood and hence no
 maximum likelihood estimate.  From the Bayesian perspective, the
@@ -888,10 +741,7 @@ $\beta_k$ is also not defined.  The usual solution to this problem in
 Bayesian models is to include a proper prior for $\beta$, which
 ensures a proper posterior.
 
-在可分离性情况下，似然函数没有最大值，因此没有最大似然估计。从贝叶斯的角度来看，后验分布是不合适的，因此$\beta_k$的边缘后验均值也没有定义。贝叶斯模型中通常解决这个问题的方法是为$\beta$引入一个合适的先验分布，以确保合适的后验分布。
-
-在可分性的情况下，似然函数没有最大值，因此也没有最大似然估计。从贝叶斯的角度来看，后验分布是不合适的，因此 $\beta_k$ 的边际后验均值也没有定义。在贝叶斯模型中解决这个问题的通常方法是为 $\beta$ 引入一个合适的先验分布，以确保后验分布的合适性。
-
+在可分离性的情况下，似然函数没有最大值，因此也没有最大似然估计。从贝叶斯的角度来看，后验分布是不合适的，因此 $\beta_k$ 的边际后验均值也没有定义。在贝叶斯模型中解决这个问题的通常方法是为 $\beta$ 引入一个合适的先验分布，以确保后验分布的合适性。
 
 ## Uniform posteriors
 
@@ -901,8 +751,6 @@ Suppose your model includes a parameter $\psi$ that is defined on
 $[0,1]$ and is given a flat prior $\textsf{uniform}(\psi \mid 0,1)$. Now if
 the data don't tell us anything about $\psi$, the posterior is also
 $\textsf{uniform}(\psi \mid 0,1)$.
-
-假设你的模型包含一个参数$\psi$，它在$[0, 1]$上定义，并且被赋予一个均匀先验$\textsf{uniform}(\psi \mid 0, 1)$。现在，如果数据对$\psi$没有提供任何信息，后验分布也将是$\textsf{uniform}(\psi \mid 0, 1)$。
 
 假设你的模型包含一个参数 $\psi$，其取值范围为 $[0,1]$，并且给定了一个均匀先验分布 $\textsf{uniform}(\psi \mid 0,1)$。如果数据对 $\psi$ 没有提供任何信息，那么后验分布也将是 $\textsf{uniform}(\psi \mid 0,1)$。
 
@@ -914,9 +762,7 @@ mode, posterior predictive inference may nevertheless do the right
 thing by simply integrating (i.e., averaging) over the predictions for
 $\psi$ at all points in $[0,1]$.
 
-尽管$\psi$没有最大似然估计，但后验分布在闭区间上是均匀的，因此是合适的。在均匀后验分布$[0, 1]$上，$\psi$的后验均值被定义为$1/2$。尽管没有后验模式，但通过对$[0, 1]$中所有点的$\psi$的预测进行积分（平均），后验预测推断仍然可以得到正确的结果。
-
-尽管对于 $\psi$ 没有最大似然估计值，但后验分布在闭区间上是均匀的，因此是合适的。在后验均匀分布在 $[0,1]$ 的情况下，$\psi$ 的后验均值是有定义的，其值为 $1/2$。虽然没有后验模式，但后验预测推断可能仍然能够正确处理问题，只需对 $[0,1]$ 中所有点上的 $\psi$ 预测进行积分（即取平均）。
+尽管对于 $\psi$ 没有最大似然估计值，但后验分布在闭区间上是均匀的，因此是合适的。在后验均匀分布在 $[0,1]$ 的情况下，$\psi$ 的后验均值是有定义的，其值为 $1/2$。尽管没有后验模式，但通过对 $[0, 1]$ 中所有点的 $\psi$ 的预测进行积分（平均），后验预测推断仍然可以得到正确的结果。
 
 ## Sampling difficulties with problematic priors
 
@@ -931,29 +777,25 @@ example such as the two intercept model discussed in
 the [collinearity section](#collinearity.section) and illustrated in
 the non-identifiable density plot.
 
-对于不合适的后验分布，理论上是不可能进行正确的后验探索的。然而，通过BUGS和JAGS执行的Gibbs抽样虽然无法正确地从这样的不合适的后验分布中抽样，但在实践中与Stan执行的Hamiltonian Monte Carlo抽样在面对像[多重共线性部分](#collinearity.section)中讨论的两个截距模型并在非可识别密度图中展示的例子时表现出不同的行为。
-
-在存在不合适后验分布的情况下，理论上无法正确地探索后验分布。然而，BUGS和JAGS等进行的Gibbs抽样在实践中与Stan进行的Hamiltonian Monte Carlo (HMC)抽样在面对类似于共线性部分中讨论的双截距模型时表现不同，这也在非可辨识密度图中进行了说明。
+对于不合适的后验分布，理论上是不可能进行正确的后验探索的。然而，BUGS 和
+JAGS 等进行的 Gibbs 抽样在实践中与 Stan 进行的 Hamiltonian Monte Carlo
+(HMC)抽样在面对[多重共线性部分](#collinearity.section)中讨论的双截距模型时表现不同，这也在非可辨识密度图中进行了说明。
 
 ### Gibbs sampling {-}
 
-### Gibbs抽样
+### Gibbs 抽样
 
 Gibbs sampling, as performed by BUGS and JAGS, may appear to be
 efficient and well behaved for this unidentified model, but as
 discussed in the previous subsection, will not actually explore the
 posterior properly.
 
-通过BUGS和JAGS执行的Gibbs抽样在这个不可识别模型中可能表现出高效和良好的行为，但正如前面的小节中讨论的那样，它实际上无法正确地探索后验分布。
-
-BUGS和JAGS等软件实现的Gibbs抽样可能在处理该不可辨识模型时表现出高效和良好的行为，但正如前面的子节中讨论的那样，它实际上无法正确地探索后验分布。虽然Gibbs抽样在表面上看起来效果良好，但它并不能提供对后验分布的准确估计。
+BUGS 和 JAGS 等软件实现的 Gibbs 抽样可能在处理该不可辨识模型时表现出高效和良好的行为，但正如前面的子节中讨论的那样，它实际上无法正确地探索后验分布。虽然 Gibbs 抽样在表面上看起来效果良好，但它并不能提供对后验分布的准确估计。
 
 Consider what happens with initial values $\lambda_1^{(0)}, \lambda_2^{(0)}$.
 Gibbs sampling proceeds in iteration $m$ by drawing
 
-考虑初始值$\lambda_1^{(0)}, \lambda_2^{(0)}$。Gibbs抽样在迭代$m$中通过抽取进行
-
-在Gibbs抽样中，通过迭代进行抽样。对于第$m$次迭代，我们从以下条件分布中抽取新的参数值：
+考虑初始值$\lambda_1^{(0)}, \lambda_2^{(0)}$。在 Gibbs 抽样中，通过迭代进行抽样。对于第 $m$ 次迭代，我们从以下条件分布中抽取新的参数值：
 
 \begin{align*}
 \lambda_1^{(m)} &\sim p(\lambda_1 \mid \lambda_2^{(m-1)}, \sigma^{(m-1)},  y) \\
@@ -975,11 +817,11 @@ for models with parameters correlated in the posterior.
 
 现在考虑对于$\lambda_1$的抽样（$\lambda_2$的抽样是对称的），在这个模型中，由于当前的$\lambda_2$和$\sigma$的值，下一个$\lambda_1$可以抽取的范围受到高度限制。Gibbs抽样将快速运行，并为$\lambda_1 + \lambda_2$提供看似合理的推论。但它不会探索后验的全部范围；它只会从初始值开始进行缓慢的随机漫步。这种随机漫步行为是Gibbs抽样在后验相关性较高的情况下的典型行为，也是选择Hamiltonian Monte Carlo而不是Gibbs抽样进行具有后验相关性的参数模型的主要原因。
 
-在这个模型中，$\lambda_1$的抽取是高度受限的，其范围由当前的$\lambda_2$和$\sigma$的取值决定。尽管Gibbs抽样在这种模型中会快速运行并给出似乎合理的$\lambda_1 + \lambda_2$的推断结果，但它并没有探索后验的完整范围，而只是从初始值开始进行缓慢的随机漫步。这种随机漫步行为在后验相关性高的情况下是Gibbs抽样的典型特征，也是在具有相关后验的模型中更倾向于选择Hamiltonian Monte Carlo而不是Gibbs抽样的主要原因。Hamiltonian Monte Carlo在处理高度相关的参数时具有更好的探索性质。
+在这个模型中，$\lambda_1$ 的抽取是高度受限的，其范围由当前的 $\lambda_2$ 和 $\sigma$ 的取值决定。尽管 Gibbs 抽样在这种模型中会快速运行并给出似乎合理的 $\lambda_1 + \lambda_2$ 的推断结果，但它并没有探索后验的完整范围，而只是从初始值开始进行缓慢的随机漫步。这种随机漫步行为在后验相关性高的情况下是 Gibbs 抽样的典型特征，也是在具有相关后验的模型中更倾向于选择 Hamiltonian Monte Carlo 而不是 Gibbs 抽样的主要原因。Hamiltonian Monte Carlo 在处理高度相关的参数时具有更好的探索性质。
 
 ### Hamiltonian Monte Carlo sampling {-}
 
-### Hamiltonian Monte Carlo抽样
+### Hamiltonian Monte Carlo 抽样
 
 Hamiltonian Monte Carlo (HMC), as performed by Stan, is much more
 efficient at exploring posteriors in models where parameters are
@@ -994,15 +836,11 @@ the correlation and the simulation will run $\lambda_1$ and
 $\lambda_2$ in opposite directions along the valley corresponding to
 the ridge in the posterior log density.
 
-Stan执行的Hamiltonian Monte Carlo (HMC)在探索参数后验分布中具有相关性的模型中更加高效。在这个特定的例子中，Hamiltonian动力学（即在由负对数后验定义的场中给定随机动量的虚拟粒子的运动）将沿着由势能定义的山谷上下运行（log后验的脊线对应势能的山谷）。在实践中，即使对于$\lambda_1$和$\lambda_2$有一个随机的动量，log后验的梯度将调整相关性，并且模拟将使$\lambda_1$和$\lambda_2$沿着对应于后验密度函数中的脊线相反的方向运行。
-
-Hamiltonian Monte Carlo (HMC)，如Stan所执行的那样，在处理后验中参数相关的模型时具有更高的效率。在这个特定的例子中，Hamiltonian动力学（即，在由负对数后验定义的场中给予随机动量的虚拟粒子的运动）将沿着由势能定义的山谷上下运行（log后验中的岭对应势能中的山谷）。实际上，即使对于$\lambda_1$和$\lambda_2$随机给定动量，对数后验的梯度也会调整以适应它们之间的相关性，从而使得模拟中的$\lambda_1$和$\lambda_2$沿着对应于后验密度中岭的山谷相反的方向运行。
-
-
+Stan 执行的 Hamiltonian Monte Carlo (HMC)在探索参数后验分布中具有相关性的模型中更加高效。在这个特定的例子中，Hamiltonian 动力学（即，在由负对数后验定义的场中，给予虚拟粒子随机动量后的运动）将沿着由势能定义的山谷上下运行（log 后验中的岭对应势能中的山谷）。实际上，即使对于 $\lambda_1$ 和 $\lambda_2$ 随机给定动量，对数后验的梯度也会调整以适应它们之间的相关性，从而使得模拟中的 $\lambda_1$ 和 $\lambda_2$ 沿着对应于后验密度中岭的山谷相反的方向运行。
 
 ### No-U-turn sampling {-}
 
-### No-U-turn抽样
+### No-U-turn 抽样
 
 Stan's default no-U-turn sampler (NUTS), is even more efficient at
 exploring the posterior [see @Hoffman-Gelman:2014].  NUTS simulates the
@@ -1021,17 +859,12 @@ in particular should be reassuring in that it will clearly fail in
 cases of improper posteriors, resulting in a clean diagnostic of
 sweeping out  large paths in the posterior.
 
-Stan的默认no-U-turn抽样器（NUTS）在探索后验分布方面更加高效[参见@Hoffman-Gelman:2014]。NUTS模拟了代表参数值的虚拟粒子的运动，直到它产生一个转向，但在大多数情况下，它将被击败，因为它只会无限地沿着势能山谷向下移动而不产生转向。在实践中，许多迭代中将达到模拟中的最大蛙跳步数，导致大量的对数概率和梯度评估（如果将最大树深度设置为10，则为1000次，与默认值相同）。因此，抽样将表现出较慢的特点。这表明后验是不合适的，而不是NUTS算法或其实现中的错误。从不合适的后验中抽样是不可能的！因此，HMC的行为以及NUTS的行为应该让人放心，因为在后验不合适的情况下，它们会明显失败，并在后验中扫除大路径以提供清晰的诊断信息。
-
-Stan的默认无U-turn采样器（NUTS）甚至比HMC更高效地探索后验分布[参见@Hoffman-Gelman:2014]。NUTS模拟了代表参数值的虚拟粒子的运动，直到它产生一个U-turn。然而，在大多数情况下，NUTS会失败，因为它将无限期地沿着势能山谷向下移动，而不会产生U-turn。实际上会发生的情况是，在许多迭代中会达到模拟的最大跃点步数，导致大量的对数概率和梯度计算（默认情况下，如果将最大树深度设置为10，则有1000个计算）。因此，采样看起来会很慢。这表明后验分布是不适当的，而不是NUTS算法或其实现中的错误。从不适当的后验分布中进行采样是不可能的！因此，HMC的行为一般而言，尤其是NUTS，应该是令人放心的，因为它们在不适当的后验分布的情况下会明显失败，导致在后验中扫描大路径的清晰诊断。
-
+Stan 默认的 no-U-turn 抽样器（NUTS）在探索后验分布方面更加高效\[参见\@Hoffman-Gelman:2014\]。NUTS 模拟了代表参数值的虚拟粒子的运动，直到它产生一个 U-turn。然而，在大多数情况下，NUTS 会失败，因为它将无限期地沿着势能山谷向下移动，而不会产生 U-turn。实际情况是,在许多迭代中,会达到模拟的最大"跳跃步"数，导致大量的对数概率和梯度计算（默认情况下，如果将最大树深度设置为10，则有1000个计算）。因此，采样看起来会很慢。这表明后验分布是不适当的，而不是 NUTS 算法或其实现存在问题。从不适当的后验分布中进行采样是不可能的！因此，HMC 的行为一般而言，尤其是 NUTS，应该是令人放心的，因为在后验不合适的情况下，它们会明显失效,这能给出清晰的诊断,即后验分布中存在较大范围的异常区域。
 
 Here are results of Stan runs with default parameters fit to
   $N=100$ data points generated from $y_n \sim \textsf{normal}(0,1)$:
 
-以下是使用默认参数拟合生成的$N=100$个数据点$y_n \sim \textsf{normal}(0,1)$的Stan运行结果：
-
-以下是使用默认参数在Stan中运行的结果，拟合了从$y_n \sim \textsf{normal}(0,1)$生成的$N=100$个数据点：
+以下是使用默认参数拟合生成的 $N=100$ 个数据点 $y_n \sim \textsf{normal}(0,1)$ 的 Stan 运行结果：
 
 *Two Scale Parameters, Improper Prior*
 
@@ -1090,14 +923,10 @@ On the top is the non-identified model with improper uniform priors
 and likelihood $y_n \sim \textsf{normal}(\lambda_1 + \lambda_2,
 \sigma)$.
 
-顶部是具有不合适的均匀先验和似然函数$y_n \sim \textsf{normal}(\lambda_1 + \lambda_2, \sigma)$的非可识别模型。
-
-在顶部的模型中，使用了不可识别的模型，具有不合适的均匀先验分布和似然函数 $y_n \sim \textsf{normal}(\lambda_1 + \lambda_2, \sigma)$。
+第一个是一个具有不合适的均匀先验和似然函数 $y_n \sim \textsf{normal}(\lambda_1 + \lambda_2, \sigma)$ 的不可识别模型。
 
 In the middle is the same likelihood as the middle plus priors
 $\lambda_k \sim \textsf{normal}(0,10)$.
-
-中间是具有与中间模型相同的似然函数以及先验分布$\lambda_k \sim \textsf{normal}(0,10)$。
 
 在中间的模型中，与上述模型相同的似然函数结合了先验分布 $\lambda_k \sim \textsf{normal}(0,10)$。
 
@@ -1107,14 +936,12 @@ estimate $\mu$ at roughly 0.16 with low Monte Carlo standard
 error, but a high posterior standard deviation of 0.1;  the true
 value $\mu=0$ is within the 90% posterior intervals in all three models.
 
-底部是一个具有不合适的先验、似然函数$y_n \sim \textsf{normal}(\mu,\sigma)$的可识别模型。所有模型都在约0.16左右估计出$\mu$，蒙特卡洛标准误较低，但后验标准差较高，为0.1；真实值$\mu=0$在这三个模型的90%后验区间内。
-
-在底部的模型中，采用了一个非识别的模型，其中的先验分布不合适，似然函数为 $y_n \sim \textsf{normal}(\mu,\sigma)$。所有模型对 $\mu$ 的估计大致在 0.16 左右，具有较低的蒙特卡洛标准误差，但后验标准差较高，为 0.1；真实值 $\mu=0$ 在所有三个模型的 90% 后验区间内。
+最后一个是一个具有不合适的先验、似然函数 $y_n \sim \textsf{normal}(\mu,\sigma)$ 的可识别模型。所有模型对 $\mu$ 的估计大致在0.16左右，具有较低的蒙特卡洛标准误差，但后验标准差较高，为 0.1；真实值 $\mu=0$ 在这三个模型的90%后验区间内。
 
 
 ### Examples: fits in Stan {-}
 
-## 例子：在stan中拟合 {-}
+## 例子：在 stan 中拟合 {-}
 
 To illustrate the issues with sampling from non-identified and only
 weakly identified models, we fit three models with increasing degrees
@@ -1123,9 +950,7 @@ models is illustrated in the non-identifiable density plot.  The
 first model is the unidentified model with two location parameters and
 no priors discussed in the [collinearity section](#collinearity.section).
 
-为了说明从非可识别模型和仅具有弱标识的模型中采样的问题，我们拟合了三个模型，其参数的可识别程度逐渐增加。这些模型的后验分布在非可识别密度图中进行了说明。第一个模型是在[共线性部分](#collinearity.section)讨论的没有先验的两个位置参数的非可识别模型。
-
-为了说明从非可识别和仅弱可识别的模型中进行采样的问题，我们拟合了三个具有不同程度参数可识别性的模型。这些模型的后验分布在非可识别密度图中进行了说明。第一个模型是在[collinearity section](#collinearity.section)中讨论的具有两个位置参数且没有先验分布的不可识别模型。
+为了说明从非可识别模型和仅具有弱标识的模型中采样的问题，我们拟合了三个模型，其参数的可识别程度逐渐增加。这些模型的后验分布在非可识别密度图中进行了说明。第一个模型是在[collinearity section](#collinearity.section)中讨论的具有两个位置参数且没有先验分布的不可识别模型。
 
 ```stan
 data {
@@ -1149,8 +974,6 @@ model {
 The second adds priors to the model block for `lambda1` and
 `lambda2` to the previous model.
 
-第二个模型在先前模型的模型块中为`lambda1`和`lambda2`添加了先验。
-
 第二个模型在前一个模型的基础上，在模型块中为 `lambda1` 和 `lambda2` 添加了先验分布。
 
 ```stan
@@ -1160,9 +983,7 @@ lambda2 ~ normal(0, 10);
 
 The third involves a single location parameter, but no priors.
 
-第三个模型只涉及一个位置参数，没有先验。
-
-第三个模型涉及单个位置参数，但没有使用先验分布。
+第三个模型只涉及一个位置参数，没有使用先验分布。
 
 ```stan
 data {
@@ -1184,23 +1005,17 @@ sampler with max tree depth of 10). The results are shown in the
 non-identified fits figure. The key statistics from these outputs are
 the following.
 
-这三个示例模型均使用Stan 2.1.0的默认参数进行拟合（1000个预热迭代、1000个抽样迭代，NUTS采样器，最大树深度为10）。结果显示在非可识别拟合图中。这些输出的关键统计数据如下所示。
-
-所有三个示例模型都使用默认参数（1000次预热迭代，1000次采样迭代，NUTS采样器，最大树深度为10）在Stan 2.1.0中进行了拟合。结果显示在非可辨识拟合图中。以下是这些输出的关键统计信息。
+这三个示例模型均使用 Stan 2.1.0的默认参数进行拟合（1000个预热迭代、1000个抽样迭代，NUTS 采样器，最大树深度为10）。结果显示在非可识别拟合图中。这些输出的关键统计数据如下所示。
 
 * As indicated by `R_hat` column, all parameters have
   converged other than $\lambda_1$ and $\lambda_2$ in the
   non-identified model.
 
-* 如`R_hat`列所示，在非可识别模型中，除了$\lambda_1$和$\lambda_2$之外，所有参数都已收敛。
-
-* 如`R_hat`列所示，除了非可辨识模型中的$\lambda_1$和$\lambda_2$之外，所有参数都已收敛。
+* 如`R_hat`列所示，除了非可辨识模型中的 $\lambda_1$ 和 $\lambda_2$ 之外，所有参数都已收敛。
 
 * The average number of leapfrog steps is roughly 3 in
   the identified model, 150 in the model identified by a weak prior, and
   1400 in the non-identified model.
-
-* 在可识别模型中，平均蛙跳步数约为3，使用弱先验标识的模型约为150，在非可识别模型中约为1400。
 
 * 在可辨识模型中，平均跳跃步数大约为3步；在通过弱先验得到可辨识的模型中，平均跳跃步数为150步；而在非可辨识模型中，平均跳跃步数为1400步。
 
@@ -1209,24 +1024,18 @@ the following.
   identified with weakly informative priors, and 200 in the
   non-identified model; the results are similar for $\sigma$.
 
-* 每秒有效样本数对于$\mu$在可识别模型中约为31,000，在使用弱信息先验进行标识的模型中约为1,900，在非可识别模型中约为200；$\sigma$的结果类似。
-
-* 在可辨识模型中，$\mu$的每秒有效样本数大约为31,000个；在通过弱先验得到可辨识的模型中，每秒有效样本数为1,900个；而在非可辨识模型中，每秒有效样本数为200个。对于$\sigma$的结果也类似。
+* 在可辨识模型中，$\mu$ 的每秒有效样本数大约为31,000个；在通过弱先验得到可辨识的模型中，每秒有效样本数为1,900个；而在非可辨识模型中，每秒有效样本数为200个。$\sigma$ 的结果类似。
 
 * In the non-identified model, the 95% interval for $\lambda_1$ is
   (-2300,6000), whereas it is only (-12,12) in the model identified with
   weakly informative priors.
 
-* 在非可识别模型中，$\lambda_1$的95%区间为(-2300,6000)，而在使用弱信息先验进行标识的模型中仅为(-12,12)。
-
-* 在非可辨识模型中，$\lambda_1$的95%置信区间为(-2300, 6000)，而在通过弱先验得到可辨识的模型中，该置信区间仅为(-12, 12)。
+* 在非可辨识模型中，$\lambda_1$ 的95%置信区间为(-2300,6000)，而在通过弱先验得到可辨识的模型中，该置信区间仅为(-12, 12)。
 
 * In all three models, the simulated value of $\mu=0$ and $\sigma=1$
   are well within the posterior 90% intervals.
 
-* 在这三个模型中，模拟得到的$\mu=0$和$\sigma=1$均在后验的90%区间内。
-
-* 在所有三个模型中，模拟得到的$\mu=0$和$\sigma=1$都在后验的90%置信区间内。
+* 在所有三个模型中，模拟得到的 $\mu=0$ 和 $\sigma=1$ 都在后验的90%置信区间内。
 
 The first two points, lack of convergence and hitting the maximum
 number of leapfrog steps (equivalently maximum tree depth) are
@@ -1235,6 +1044,4 @@ problem with poor sampling as may be done with Gibbs samplers,
 Hamiltonian Monte Carlo tries to explore the posterior and its failure
 is a clear indication that something is amiss in the model.
 
-前两点，收敛不足和达到最大蛙跳步数（等价于最大树深度）都表明后验分布是不合适的。因此，与Gibbs采样器可能通过低质量采样来掩盖问题不同，Hamiltonian Monte Carlo试图探索后验分布，而其失败明确表明模型存在问题。
-
-第一点和第二点，即缺乏收敛性和达到最大的跃点步数（或者最大的树深度），表明存在不正确的后验分布。因此，与Gibbs采样器可能会掩盖问题的情况不同，Hamiltonian Monte Carlo试图探索后验分布，而其失败清楚地表明模型存在问题。
+前两点，收敛不足和达到最大的跃点步数（等价于最大的树深度）都表明后验分布是不合适的。与 Gibbs 采样器可能通过低质量采样来掩盖问题的情况不同，Hamiltonian Monte Carlo 试图探索后验分布，而其失败清楚地表明了模型存在问题。
