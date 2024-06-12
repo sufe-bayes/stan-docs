@@ -4,24 +4,39 @@ pagetitle: Whitespace
 
 # Whitespace 
 
+# 空白
+
+本节译者：李泓玮
+
 ## Whitespace characters 
+
+## 空白字符
 
 The whitespace characters (and their ASCII code points) are the space
 (0x20), tab (0x09), carriage return (0x0D), and line feed (0x0A).
 
+空白字符（及其 ASCII 码点）包括空格（0x20）、制表符（0x09）、回车符（0x0D）和换行符（0x0A）。
+
 ## Whitespace neutrality 
+
+## 空白的中立性
 
 Stan treats all whitespace characters identically.  Specifically,
 there is no significance to indentation, to tabs, to carriage returns
 or line feeds, or to any vertical alignment of text.  Any whitespace
 character is exchangeable with any other.  
 
+Stan 对所有空白字符都一视同仁。具体来说，缩进、制表符、回车或换行符，以及文本的任何垂直对齐方式之间都没有差异。任何空白字符都可以与任何其他空白字符交换。
+
 Other than for readability, the number of whitespaces is also
 irrelevant.  One or more whitespace characters of any type are
 treated identically by the parser.
 
+除了可读性，空白字符的数量也无关紧要。解析器会对任意类型的一个或多个空白字符进行相同的处理。
 
 ## Whitespace location 
+
+## 空白字符的位置
 
 Zero or more whitespace characters may be placed between symbols in a
 Stan program.  For example, zero or more whitespace characters of any
@@ -30,6 +45,10 @@ variety may be included before and after a binary operation such as
 or brackets, before or after commas separating function arguments,
 etc.
 
+在 Stan 程序中，可以在符号之间添加零个或多个空白字符。例如，在二元操作（比如 `a * b` ）之前和之后，在语句结束分号之前，在圆括号或方括号周围，在分隔函数参数的逗号之前或之后，都可以有零个或多个任意类型的空白字符。
+
 Identifiers and literals may not be separated by whitespace.  Thus it
 is not legal to write the number `10000` as `10 000` or to
 write the identifier `normal_lpdf` as `normal _ lpdf`.
+
+标识符和字面量不能用空白字符分隔。因此，将数字 `10000` 写成 `10 000` 或者将标识符 `normal_lpdf` 写成 `normal _ lpdf` 都是不合法的。

@@ -4,14 +4,24 @@ pagetitle: Character Encoding
 
 # Character Encoding
 
+# 字符编码
+
+本节译者：李泓玮
+
 ## Content characters
+
+## 内容字符
 
 The content of a Stan program must be coded in ASCII.  All identifiers
 must consist of only ASCII alpha-numeric characters and the underscore
 character.  All arithmetic operators and punctuation must be coded in
 ASCII.
 
+Stan 程序的内容必须用 ASCII 编码。所有标识符必须仅由 ASCII 字母数字字符和下划线字符组成。所有的算术运算符和标点符号都必须用 ASCII 编码。
+
 ### Compatibility with Latin-1 and UTF-8 {-}
+
+### 兼容 Latin-1 和 UTF-8 {-}
 
 The UTF-8 encoding of Unicode and the Latin-1 (ISO-8859-1) encoding
 share the first 128 code points with ASCII and thus cannot be
@@ -19,18 +29,28 @@ distinguished from ASCII.  That means you can set editors, etc., to
 use UTF-8 or Latin-1 (or the other Latin-n variants) without worrying
 that the content of a Stan program will be destroyed.
 
+Unicode 的 UTF-8 编码和 Latin-1（ISO-8859-1） 编码与 ASCII 共享前128个码点，因此无法与 ASCII 区分开来。这意味着你可以设置编辑器等来使用 UTF-8 或 Latin-1（或其他 Latin-n 变体），而不必担心 Stan 程序的内容会被破坏。
+
 ## Comment characters
+
+## 注释字符
 
 Any bytes on a line after a line-comment sequence (`//` or
 `#`) are ignored up until the ASCII newline character
 (`\n`).  They may thus be written in any character encoding which
 is convenient.
 
+行注释序列（ `//`  或  `#` ）之后的任何字节都会被忽略，直到 ASCII 换行符（ `\n` ）。因此，它们可以写成任何方便的字符编码。
+
 Any content after a block comment open sequence in ASCII (`/*`)
 up to the closing block comment (`*/`) is ignored, and thus may
 also be written in whatever character set is convenient.
 
+从块注释开始（ `/*` ）到块注释结束（ `*/` ）之间的任何内容都会被忽略，因此也可以用任何方便的字符集来编写。
+
 ## String literals
+
+## 字符串字面量
 
 The raw byte sequence within a string literal is escaped according 
 to the C++ standard. In particular, this means that UTF-8 encoded 
@@ -42,6 +62,10 @@ two double quotes (`"`) when passing to C++. On compliant terminals,
 this allows the use of glyphs and other characters from encodings such as
 UTF-8 that fall outside the ASCII-compatible range.
 
+字符串字面量中的原始字节序列根据 C++ 标准进行转义。特别地，这意味着 UTF-8 编码的字符串是受支持的，系统不会检测它们是否是无效的字节序列。如果你的终端支持输入中使用的编码，那么 `print` 或 `reject` 语句应该正确地显示 Unicode 字符。换句话说，Stan 在传递给 C++ 时，只保留两个双引号（`"`）之间的任何字节串。在兼容的终端上，这允许使用符号（glyph）和其他编码的字符，例如超出 ASCII 兼容范围的 UTF-8 编码。
+
 ASCII is the recommended encoding for maximum portability, because it encodes
 the ASCII characters (Unicode code points 0--127) using the same sequence of
 bytes as the UTF-8 encoding of Unicode and common ISO-8859 extensions of Latin.
+
+为了获得最大的可移植性，推荐使用 ASCII 编码，因为它编码 ASCII 字符（ Unicode 码点0 -- 127）时使用的字节序列与 Unicode 的 UTF-8 编码和常见的 Latin ISO-8859 扩展相同。

@@ -4,14 +4,24 @@ pagetitle: Comments
 
 # Comments
 
+# 注释
+
+本节译者：李泓玮
+
 Stan supports C++-style line-based and bracketed comments.  Comments
 may be used anywhere whitespace is allowed in a Stan program.
 
+Stan 支持 C++ 风格的行内注释和多行注释。注释可以在 Stan 程序中允许空白的任何地方使用。
+
 ## Line-based comments 
+
+## 行内注释
 
 Any characters on a line following two forward slashes (`//`) is
 ignored along with the slashes.  These may be used, for example, to
 document variables,
+
+行内双斜杠之后的字符（`//`）会和斜杠一起被忽略。例如，它们可以用于解释变量的含义，
 
 ```stan
 data {
@@ -22,7 +32,10 @@ data {
 
 ## Bracketed comments 
 
+## 多行注释
+
 For bracketed comments, any text between a forward-slash and asterisk
 pair (`/*`) and an asterisk and forward-slash pair (`*/`) is
 ignored.
 
+对于多行注释，任何位于`/*`和`*/`之间的文本都会被忽略。
