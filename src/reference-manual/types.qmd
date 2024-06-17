@@ -953,7 +953,7 @@ a Dirichlet distribution.  Simplexes are declared with their full
 dimensionality.  For instance, `theta` is declared to
 be a unit $5$-simplex by
 
-单位单纯形是一个非负值向量，其元素之和为1。例如，$[0.2,0.3,0.4,0.1]^{\mathsf{T}}$ 是一个4维单位单纯形。单位单纯形通常用作分类或多项分布中的参数，并且它们也是狄利克雷分布中的采样变量。单纯形需要声明其完整的维数。例如，`theta` 被声明为一个5维单位单纯形：
+单位单纯形是一个非负值向量，其元素之和为1。例如，$[0.2,0.3,0.4,0.1]^{\top}$ 是一个4维单位单纯形。单位单纯形通常用作分类或多项分布中的参数，并且它们也是狄利克雷分布中的采样变量。单纯形需要声明其完整的维数。例如，`theta` 被声明为一个5维单位单纯形：
 
 
 ```stan
@@ -992,7 +992,7 @@ used in directional statistics.  Unit vectors are declared with their
 full dimensionality.  For instance, `theta` is declared to be a unit
 $5$-vector by
 
-单位向量是一个范数为1的向量。例如，$[0.5,0.5,0.5,0.5]^{\mathsf{T}}$ 是一个4维单位向量。单位向量有时用于方向统计。单位向量需要声明其完整的维度。例如，theta 被声明为一个5维单位向量：
+单位向量是一个范数为1的向量。例如，$[0.5,0.5, 0.5, 0.5]^{\top}$ 是一个4维单位向量。单位向量有时用于方向统计。单位向量需要声明其完整的维度。例如，theta 被声明为一个5维单位向量：
 
 ```stan
 unit_vector[5] theta;
@@ -1019,7 +1019,7 @@ an ordered 3-vector.  Ordered vectors are most often employed as cut
 points in ordered logistic regression models (see
 [section](https://mc-stan.org/docs/stan-users-guide/regression.html#ordered-logistic.section)).
 
-Stan中的有序向量类型表示一个其条目按升序排序的向量。例如，$[-1.3,2.7,2.71]^{\mathsf{T}}$ 是一个有序的3维向量。有序向量最常用作有序逻辑回归模型中的切点（见[章节](https://mc-stan.org/docs/stan-users-guide/regression.html#ordered-logistic.section)）。
+Stan中的有序向量类型表示一个其条目按升序排序的向量。例如，$(-1.3,2.7,2.71)^{\top}$ 是一个有序的3维向量。有序向量最常用作有序逻辑回归模型中的切点（见[章节](https://mc-stan.org/docs/stan-users-guide/regression.html#ordered-logistic.section)）。
 
 
 The variable `c` is declared as an ordered 5-vector by
@@ -1231,7 +1231,7 @@ A matrix is a covariance matrix if it is symmetric and positive
 definite.  Like correlation matrices, covariance matrices only need a
 single dimension in their declaration.  For instance,
 
-矩阵变量可以被约束用来表示协方差矩阵。如果一个矩阵是对称的且正定的，则它是一个协方巧矩阵。与相关矩阵一样，协方差矩阵在声明时只需要一个维度。例如，
+矩阵变量可以被约束用来表示协方差矩阵。如果一个矩阵是对称的且正定的，则它是一个协方差矩阵。与相关矩阵一样，协方差矩阵在声明时只需要一个维度。例如，
 
 ```stan
 cov_matrix[K] Omega;
