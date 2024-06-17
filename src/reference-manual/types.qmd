@@ -737,7 +737,7 @@ This declares a positive integer data variable `N`, an array
 `y` of real-valued data of length `N`, and then a parameter
 ranging between the minimum and maximum value of `y`.  As shown
 in the example code, the functions `min()` and `max()` may
-be applied to containers such as arrays
+be applied to containers such as arrays.
 
 这声明了一个正整数数据变量 `N`，一个长度为 `N` 的实数数据数组 `y`，然后声明了一个参数，其取值范围在 `y` 的最小值和最大值之间。如示例代码所示，函数 `min()` 和 `max()` 可以应用于诸如数组之类的容器。
 
