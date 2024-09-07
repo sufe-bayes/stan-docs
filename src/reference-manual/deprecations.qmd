@@ -9,7 +9,7 @@ to replace it.
 
 Starting with Stan 2.29, minor (syntax-level) deprecations can be removed 3
 versions after release; e.g., syntax deprecated in Stan 2.20 will be removed in
-Stan 2.23 and placed in [Removed Features]. The Stan compiler can
+Stan 2.23 and placed in [Removed Features](removals.qmd). The Stan compiler can
 [automatically update](https://mc-stan.org/docs/stan-users-guide/using-stanc.html#stanc-pretty-printing)
 many of these on the behalf of the user for at least one version after they are
 removed.
@@ -52,6 +52,23 @@ would use Cholesky factors rather than full correlation matrix types.
 
 *Scheduled Removal*: Stan 3.0 or later.
 
+## Use of `_lp` functions in `transformed parameters`
+
+*Deprecated*: Using [functions that end in `_lp`](user-functions.qmd#log-probability-access-in-functions)
+in the `transformed parameters` block.
+
+*Replacement*: Use `_jacobian` functions and the `jacobian +=` statement instead. These allow for change-of-variable
+adjustments which can be conditionally enabled by Stan's algorithms.
+
+## New Keywords
+
+*Deprecated*: The following identifiers will become reserved in the language in the specified version.
+
+*Replacement*: Rename any variables or functions with these names.
+
+| Identifier | Version |
+|------------|---------|
+| jacobian   | 2.38    |
 
 ## Deprecated Functions
 

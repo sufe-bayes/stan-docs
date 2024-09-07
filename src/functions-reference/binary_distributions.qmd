@@ -21,7 +21,7 @@ If $\theta \in [0,1]$, then for $y \in \{0,1\}$,
 \end{array} \right.
 \end{equation*}
 
-### Sampling statement
+### Distribution statement
 
 `y ~ ` **`bernoulli`**`(theta)`
 
@@ -75,9 +75,10 @@ function of y given chance of success `theta`
 <!-- R; bernoulli_rng; (reals theta); -->
 \index{{\tt \bfseries bernoulli\_rng  }!{\tt (reals theta): R}|hyperpage}
 
-`R` **`bernoulli_rng`**`(reals theta)`<br>\newline
-Generate a Bernoulli variate with chance of success `theta`; may only be
-used in transformed data and generated quantities blocks.
+`ints` **`bernoulli_rng`**`(reals theta)`<br>\newline
+Generate a Bernoulli variate with chance of success `theta` or an
+array of Bernoulli variates given an array of `thetas` of the same dimensions;
+may only be used in transformed data and generated quantities blocks.
 For a description of argument and return types, see section
 [vectorized PRNG functions](conventions_for_probability_functions.qmd#prng-vectorization).
 {{< since 2.18 >}}
@@ -100,7 +101,7 @@ If $\alpha \in \mathbb{R}$, then for $y \in \{0,1\}$,
 \text{logit}^{-1}(\alpha) &  \text{if } y = 0. \end{array} \right.
 \end{equation*}
 
-### Sampling statement
+### Distribution statement
 
 `y ~ ` **`bernoulli_logit`**`(alpha)`
 
@@ -141,10 +142,10 @@ quantities blocks. For a description of argument and return types, see section
 ## Bernoulli-logit generalized linear model (Logistic Regression) {#bernoulli-logit-glm}
 
 Stan also supplies a single function for a generalized linear model
-with Bernoulli likelihood and logit link function, i.e. a function
+with Bernoulli distribution and logit link function, i.e. a function
 for a logistic regression. This provides a more efficient
 implementation of logistic regression than a manually written
-regression in terms of a Bernoulli likelihood and matrix
+regression in terms of a Bernoulli distribution and matrix
 multiplication.
 
 ### Probability mass function
@@ -159,7 +160,7 @@ n}\text{Bernoulli}(y_i~|~\text{logit}^{-1}(\alpha_i + x_i\cdot
 \sum_{1\leq j\leq m}x_{ij}\cdot \beta_j) & \text{if } y_i = 0.
 \end{array} \right. \end{align*}
 
-### Sampling statement
+### Distribution statement
 
 `y ~ ` **`bernoulli_logit_glm`**`(x, alpha, beta)`
 

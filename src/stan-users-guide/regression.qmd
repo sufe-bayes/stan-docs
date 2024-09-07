@@ -79,9 +79,9 @@ improper priors for the two regression coefficients.
 
 ### 矩阵符号和向量化 {- #vectorization.section--cn}
 
-The sampling statement in the previous model is vectorized, with
+The distribution statement in the previous model is vectorized, with
 
-前面模型中的采样形式进行向量化处理后，有如下表达形式，
+前面模型中的分布语句进行向量化处理后，有如下表达形式，
 
 ```stan
 y ~ normal(alpha + beta * x, sigma);
@@ -130,7 +130,7 @@ parameters {
   real<lower=0> sigma;  // error scale
 }
 model {
-  y ~ normal(x * beta + alpha, sigma);  // likelihood
+  y ~ normal(x * beta + alpha, sigma);  // data model
 }
 ```
 
@@ -152,11 +152,11 @@ remove the `alpha` parameter.
 
 在上述模型中 `x` 是一个 $N \times K$ 的自变量矩阵或数据矩阵，`beta` 是一个 $K$ 维的系数向量，因此 `x * beta` 是一个 $N$ 维的预测值向量，每个元素对应于 $N$ 个数据项中的一个。这些预测值与 $N$ 维向量 `y` 中的观测结果对应，因此整个模型可以使用矩阵运算来表示。如果想要去掉 `alpha` 参数，也可以在数据矩阵 `x` 中加入一列全为1的向量。
 
-The sampling statement in the model above is just a more efficient,
+The distribution statement in the model above is just a more efficient,
 vector-based approach to coding the model with a loop, as in the
 following statistically equivalent model.
 
-上述模型中的采样语句只是一种基于向量的更高效的代码写法。在统计学意义上，上述写法与下面这一使用循环语句写成的版本是等价的。
+上述模型中的分布语句只是一种基于向量的更高效的代码写法。在统计学意义上，上述写法与下面这一使用循环语句写成的版本是等价的。
 
 ```stan
 model {
@@ -245,7 +245,7 @@ parameters {
   real<lower=0> sigma;  // error scale
 }
 model {
-  y ~ normal(Q_ast * theta + alpha, sigma);  // likelihood
+  y ~ normal(Q_ast * theta + alpha, sigma);  // data model
 }
 generated quantities {
   vector[K] beta;
@@ -333,7 +333,7 @@ term $\epsilon$ as having a normal distribution.  From Stan's
 perspective, there is nothing special about normally distributed
 noise.  For instance, robust regression can be accommodated by giving
 the noise term a Student-$t$ distribution.  To code this in Stan, the
-sampling distribution is changed to the following.
+distribution distribution is changed to the following.
 
 线性回归的标准方法是将噪声项 $\epsilon$ 建模为服从正态分布。从 Stan 的角度来看，正态分布的噪声没有什么特别之处。例如，鲁棒回归中可以让噪声项服从学生 $t$ 分布。为了在 Stan 中编码这个模型，需要将采样分布更改为以下形式。
 
@@ -454,7 +454,7 @@ $$
 
 The cumulative standard normal distribution function $\Phi$ is implemented
 in Stan as the function `Phi`.  The probit regression model
-may be coded in Stan by replacing the logistic model's sampling
+may be coded in Stan by replacing the logistic model's distribution
 statement with the following.
 
 在 Stan 中，标准正态的累积分布函数 $\Phi$ 通过函数 `Phi` 来实现。要在 Stan 中实现概率回归模型，只需用以下语句替换逻辑回归模型的采样语句即可。
@@ -1001,14 +1001,14 @@ recommendations on priors for regression coefficients and scales.
 
 #### 模型优化 {-}
 
-Where possible, vectorizing sampling statements leads to faster log
+Where possible, vectorizing distribution statements leads to faster log
 probability and derivative evaluations.  The speed boost is not
 because loops are eliminated, but because vectorization allows sharing
 subcomputations in the log probability and gradient calculations and
 because it reduces the size of the expression tree required for
 gradient calculations.
 
-在可能的情况下，向量化采样语句可以加快对数概率和导数的计算速度。速度提升不是因为消除了循环，而是因为向量化允许在对数概率和梯度计算中共享子计算过程，并且减少了梯度计算所需的表达式树的大小。
+在可能的情况下，向量化分布语句可以加快对数概率和导数的计算速度。速度提升不是因为消除了循环，而是因为向量化允许在对数概率和梯度计算中共享子计算过程，并且减少了梯度计算所需的表达式树的大小。
 
 The first optimization vectorizes the for-loop over `D` as
 
@@ -1048,7 +1048,7 @@ Stan because they are translated directly to C++.  In most cases, the
 cost of allocating and assigning to a container is more than made up
 for by the increased efficiency due to vectorizing the log probability
 and gradient calculations.  Thus the following version is faster than
-the original formulation as a loop over a sampling statement.
+the original formulation as a loop over a distribution statement.
 
 与 R 或 BUGS 不同，Stan 中的循环、数组访问和赋值速度很快，因为它们直接转化为 C++ 代码。在大多数情况下，分配和赋值容器的成本被向量化的对数概率和梯度计算带来的效率提升所抵消。因此，以下版本比原始的循环采样语句更快。
 
@@ -1322,7 +1322,7 @@ $$
 \textsf{normal}\left(y \mid 0, 1\right).
 $$
 
-The sampling statement is also vectorized using elementwise
+The distribution statement is also vectorized using elementwise
 multiplication;  it is equivalent to
 
 采样语句还使用了逐元素乘法进行向量化处理；其等价于以下形式：
@@ -1510,15 +1510,15 @@ observed outcome $y_n$ taking on real values.
 
 @GelmanHill:2007 [, Chapter 13, Chapter 17] 讨论了一个具有 $N$ 个个体并分成 $J$ 组的分层模型。每个个体都有一个大小为 $K$ 的预测行向量 $x_n$；为了统一符号，他们假设 $x_{n,1} = 1$ 是一个固定的“截距”预测变量。为了编码群体成员关系，他们假设个体 $n$ 属于群体 $jj[n] \in \{ 1, \dotsc, J \}$。每个个体 $n$ 还具有一个取实值的观测结果 $y_n$。
 
-#### Likelihood {-}
+#### Data model {-}
 
-#### 似然 {-}
+#### 数据模型 {-}
 
 The model is a linear regression with slope and intercept coefficients
 varying by group, so that $\beta_j$ is the coefficient $K$-vector for
-group $j$.  The likelihood function for individual $n$ is then just
+group $j$.  The data model for individual $n$ is then just
 
-该模型是一个具有不同群体间斜率和截距系数的线性回归模型，其中 $\beta_j$ 是第 $j$ 组的回归系数向量，大小为 $K$。对于个体 $n$，其似然函数可以表示为：
+该模型是一个具有不同群体间斜率和截距系数的线性回归模型，其中 $\beta_j$ 是第 $j$ 组的回归系数向量，大小为 $K$。对于个体 $n$，其数据模型可以表示为：
 
 $$
 y_n \sim \textsf{normal}(x_n \, \beta_{jj[n]}, \, \sigma)
@@ -1750,9 +1750,9 @@ functions, see the function reference manual.
 
 #### 向量化优化 {-}
 
-The code in the Stan program above can be sped up dramatically by replacing:
+The code in the Stan program above can be sped up dramatically by replacing the the distribution statement inside the for loop:
 
-上述的 Stan 程序中的代码可以通过替换以下部分来大幅提速：
+上述的 Stan 程序中的代码可以通过替换循环语句中的分布语句来大幅提速：
 
 ```stan
 for (n in 1:N) {
@@ -1760,7 +1760,7 @@ for (n in 1:N) {
 }
 ```
 
-with the vectorized form:
+with the vectorized distribution statement:
 
 其向量化形式为：
 
@@ -1776,15 +1776,15 @@ with the vectorized form:
 
 The outer brackets create a local scope in which to define the
 variable `x_beta_jj`, which is then filled in a loop and used
-to define a vectorized sampling statement.  The reason this is such a
+to define a vectorized distribution statement.  The reason this is such a
 big win is that it allows us to take the log of sigma only once and it
 greatly reduces the size of the resulting expression graph by packing
-all of the work into a single density function.
+all of the work into a single distribution function.
 
 外层括号创建了一个局部作用域,在其中定义变量 `x_beta_jj`,然后在循环中为其赋值,并用于定义一个向量化的采样语句。这样做的原因是它可以使我们只对 sigma 进行一次对数运算，并且通过将所有工作打包到一个密度函数中，大大减少了结果表达式图的大小。
 
 Although it is tempting to redeclare `beta` and include a revised
-model block sampling statement,
+model block distribution statement,
 
 尽管重新声明 `beta` 并包含修订后的模型块采样语句看起来很有诱惑力，
 
@@ -1799,7 +1799,7 @@ model {
 }
 ```
 
-this fails because it breaks the vectorization of sampling for
+this fails because it breaks the vectorization for
 `beta`,^[Thanks to Mike Lawrence for pointing this out in the GitHub issue for the manual.]
 
 这样做会失败,因为它破坏了 `beta` 采样的向量化。。^[感谢 Mike Lawrence 在 GitHub 上的问题反馈。]

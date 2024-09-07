@@ -13,8 +13,10 @@ For the Stan CSV files, data is strictly numerical,
 however, possible values include both positive and negative
 infinity and "Not-a-Number" which are represented as
 the strings `NaN`, `inf`, `+inf`, `-inf`.
-All other values are written in decimal notation with
-at most 6 digits of precision.
+All other values are written in decimal notation by default with
+at most 6 digits of precision. The number of significant digits 
+written can be controlled with argument `sig_figs=<int>`. See more 
+in [Output control arguments section](command_line_options.qmd#output-control.section).
 
 Stan CSV files have a header row containing the column names.
 They also make extensive use of CSV comments,
@@ -160,7 +162,7 @@ will also be included in this initial comment header.
 **Column headers**
 
 The CSV header row lists all sampler parameters, model parameters, transformed parameters, and quantities of interest.
-The sampler parameters are described in detail in the [output file](mcmc_sampling_intro.qmd#mcmc_output_csv) section of the Quickstart Guide chapter on MCMC Sampling.
+The sampler parameters are described in detail in the [output file](mcmc_config.qmd#mcmc_output_csv) section of the chapter on MCMC Sampling.
 The example model `bernoulli.stan` only contains one parameter `theta`, therefore the CSV file data table
 consists of 7 sampler parameter columns and one column for the model parameter:
 ```

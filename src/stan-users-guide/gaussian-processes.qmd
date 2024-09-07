@@ -39,9 +39,9 @@ functions drawn from the process.
 <!-- 提供与从过程中提取的函数中的那些输入点相对应的输出的均值和协方差。 -->
 
 Gaussian processes can be encoded in Stan by implementing their mean and
-covariance functions and plugging the result into the Gaussian form of their
-sampling distribution, or by using the specialized covariance functions
-outlined below.  This form of model is straightforward and may be used for
+covariance functions or by using the specialized covariance functions
+outlined below, and plugging the result into the Gaussian model.  
+This form of model is straightforward and may be used for
 simulation, model fitting, or posterior predictive inference. A more efficient
 Stan implementation for the GP with a normally distributed outcome marginalizes
 over the latent Gaussian process, and applies a Cholesky-factor
@@ -60,6 +60,16 @@ only touches on some basic models.  For more information, see
 
 定义高斯过程后，本章将介绍单变量回归、多元回归和多元逻辑回归的模拟、超参数估计和后验预测推理的基本实现。高斯过程是一般的过程，本章必然只涉及一些基本模型。 有关详细信息，请参阅 @RasmussenWilliams:2006.
 
+Note that fitting Gaussian processes as described below using exact
+inference by computing Cholesky of the covariance matrix scales
+cubicly with the size of data. Due to how Stan autodiff is
+implemented, Stan is also slower than Gaussian process specialized
+software. It is likely that Gaussian processes using exact inference
+by computing Cholesky of the covariance matrix with $N>1000$ are too
+slow for practical purposes in Stan. There are many approximations to
+speed-up Gaussian process computation, from which the basis function
+approaches for 1-3 dimensional $x$ are easiest to implement in Stan
+(see, e.g., @Riutort-Mayol:2023:HSGP).
 
 ## Gaussian process regression
 
@@ -451,7 +461,7 @@ constrained to be non-negative.  The computation of the covariance matrix
 `K` is now in the model block because it involves unknown parameters and
 thus can't simply be precomputed as transformed data.  The rest of the model
 consists of the priors for the hyperparameters and the multivariate
-Cholesky-parameterized normal likelihood, only now the value `y` is known
+Cholesky-parameterized normal distribution, only now the value `y` is known
 and the covariance matrix `K` is an unknown dependent on the
 hyperparameters, allowing us to learn the hyperparameters.
 
@@ -532,10 +542,10 @@ a new parameter vector of length $N$ called `eta`. This is used in the model
 block to generate a multivariate normal vector called $f$, corresponding to the
 latent GP. We put a $\textsf{normal}(0,1)$ prior on `eta` like we did in the
 Cholesky-parameterized GP in the simulation section.  The second difference is
-that our likelihood is now univariate, though we could code $N$ likelihood
-terms as one $N$-dimensional multivariate normal with an identity covariance
-matrix multiplied by $\sigma^2$. However, it is more efficient to use the
-vectorized statement as shown above.
+that although we could code the distribution statement for $y$ with
+one $N$-dimensional multivariate normal with an identity covariance
+matrix multiplied by $\sigma^2$, we instead use vectorized univariate
+normal distribution, which is equivalent but more efficient to use.
 
 潜变量 GP 和边际似然 GP 之间的两个差异值得注意。第一个是我们将参数块增加了一个长度为 $N$ 的新参数向量 `eta`。在模型块中，它用于生成对应于潜在 GP 的多元正态向量 $f$。我们对 `eta` 使用 $\textsf{normal}(0,1)$ 先验，就像在模拟部分中 Cholesky 参数化的 GP 中所做的那样。第二个区别是我们的似然现在是单变量的，虽然我们可以将 $N$ 个似然项编码为一个具有恒等协方差矩阵乘以 $\sigma^2$ 的 $N$ 维多元正态分布。但是，使用像上面显示的向量化语句更有效率。
 
@@ -554,7 +564,8 @@ discrete data models.
 #### 泊松分布 GP {-}
 
 If we want to model count data, we can remove the $\sigma$ parameter, and use
-`poisson_log`, which implements a log link, for our likelihood rather
+`poisson_log`, which implements a Poisson distribution with log link function,
+rather
 than `normal`. We can also add an overall mean parameter, $a$, which
 will account for the marginal expected value for $y$. We do this because we
 cannot center count data like we would for normally distributed data.
@@ -675,7 +686,7 @@ covariance matrix called `L_cov_exp_quad_ARD`.
 
 ```stan
 functions {
-  matrix L_cov_exp_quad_ARD(vector[] x,
+  matrix L_cov_exp_quad_ARD(array[] vector x,
                             real alpha,
                             vector rho,
                             real delta) {
@@ -977,13 +988,13 @@ vector `f`, which consists of the concatenation of the conditional mean
 for known outputs `y1` and unknown outputs `y2`.  Thus the
 combined output vector `f` is aligned with the combined
 input vector `x`.  All that is left is to define the univariate
-normal sampling statement for `y`.
+normal distribution statement for `y`.
 
 模型块声明并定义了一个本地变量，用于合并输出向量 `f`，其中包括已知输出 `y1` 和未知输出 `y2` 的条件均值的串联。因此，合并后的输出向量 `f` 与合并后的输入向量 `x` 对齐。现在只需要为 `y` 定义单变量正态分布采样语句。
 
 The generated quantities block defines the quantity `y2`. We generate
-`y2` by sampling `N2` univariate normals with each mean corresponding
-to the appropriate element in `f`.
+`y2` by randomly generating `N2` values from univariate normals with 
+each mean corresponding to the appropriate element in `f`.
 
 生成量块定义了量 `y2`。我们通过采样 `N2` 个单变量正态分布，其中每个均值对应于 `y` 中相应元素来生成 `y2`。
 

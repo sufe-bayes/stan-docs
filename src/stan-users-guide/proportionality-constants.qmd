@@ -25,17 +25,18 @@ bit cheaper.
 类似地，当进行变分推理或优化时，所需要的分布也不需要归一化.
 而使用非归一化分布的好处是，它们可以使计算成本大大降低.
 
-There are three different syntaxes to work with distributions in Stan. The way
+There are three different syntaxes to build the model in Stan. The way
 to select between them is by determining if the proportionality constants are
-necessary. If performance is not a problem, it is always safe to use the normalized
-densities.
+necessary. If performance is not a problem, it is always safe to use the 
+normalized densities.
 
-在 Stan 中的发行版有中有三种不同的语法.
+在 Stan 中有三种不同的语法来建立模型.
 我们可以根据问题是否需要比例常数，来选择不同的语法.
 如果性能不是问题，使用归一化密度总是谨慎的.
 
-The first two syntaxes use unnormalized densities (dropping proportionality
-constants):
+The distribution statement (`~`) and log density increment statement
+(`target +=`) with `_lupdf()` use unnormalized densities for $x$
+(dropping proportionality constants):
 
 前两种语法使用非归一化的密度(即去掉比例常数):
 
@@ -44,7 +45,8 @@ x ~ normal(0, 1);
 target += normal_lupdf(x | 0, 1); // the 'u' is for unnormalized
 ```
 
-The final syntax uses the full normalized density (dropping no constants):
+The log density increment statement (`target +=`) with `_lpdf()`
+uses the full normalized density for $x$ (dropping no constants):
 
 最后的语法使用完整的归一化密度(即不去掉比例常量):
 
@@ -52,8 +54,8 @@ The final syntax uses the full normalized density (dropping no constants):
 target += normal_lpdf(x | 0, 1);
 ```
 
-For discrete distributions, the `target +=` syntax is `_lupmf` and `_lpmf`
-instead:
+For discrete distributions, the `target +=` syntax is using `_lupmf`
+and `_lpmf` instead:
 
 对于离散分布，`target +=` 语法应为 `_lupmf` 与 `_lpmf`:
 
@@ -87,7 +89,7 @@ because it will not affect the results.
 则不需要计算它，因为它不会影响结果.
 
 Stan takes advantage of the proportionality constant fact with the `~` syntax.
-Take for instance the normal likelihood:
+Take for instance the normal data model:
 
 Stan 正是通过 `~` 语法利用了比例常数的不影响结果的事实.
 以正态似然为例:
@@ -136,7 +138,7 @@ statement here is:
 $$
 \textsf{normal\_lpdf}(x | \mu, \sigma) =
 -\log \left( \sigma \sqrt{2 \pi} \right)
--\frac{1}{2} \left( \frac{x - \mu}{\sigma} \right)^2
+-\frac{1}{2} \left( \frac{x - \mu}{\sigma} \right)^2.
 $$
 
 Now because the density here is only a function of $x$, the additive terms in
@@ -149,7 +151,7 @@ is enough to know only the quadratic term:
 
 $$
 \textsf{normal\_lupdf}(x | \mu, \sigma) =
--\frac{1}{2} \left( \frac{x - \mu}{\sigma} \right)^2
+-\frac{1}{2} \left( \frac{x - \mu}{\sigma} \right)^2.
 $$
 
 ## Keeping Proportionality Constants

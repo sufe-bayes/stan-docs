@@ -104,13 +104,13 @@ better or optimization algorithms require less adaptation.
 
 ## 模型条件和曲率
 
-Because Stan's algorithms (other than Riemannian Hamiltonian Monte
-Carlo) rely on step-based gradient-based approximations of the density
+Because Stan's algorithms rely on step-based gradient-based
+approximations of the density
 (or penalized maximum likelihood) being fitted, posterior curvature
 not captured by this first-order approximation plays a central role in
 determining the statistical efficiency of Stan's algorithms.
 
-由于 Stan 的算法（除了黎曼哈密顿蒙特卡罗）依赖于所拟合的基于阶跃和梯度的密度（或惩罚最大似然）近似，因此这种一阶近似没有捕捉到的后验曲率在决定 Stan 算法的统计效率方面起着核心作用。
+由于 Stan 的算法依赖于所拟合的基于阶跃和梯度的密度（或惩罚最大似然）近似，因此这种一阶近似没有捕捉到的后验曲率在决定 Stan 算法的统计效率方面起着核心作用。
 
 A second-order approximation to curvature is provided by the
 Hessian, the matrix of second derivatives of the log density $\log
@@ -162,9 +162,7 @@ scale and so that posterior correlation is reduced; together, these
 properties mean that there is no rotation or scaling required for
 optimal performance of Stan's algorithms.  For Hamiltonian Monte
 Carlo, this implies a unit mass matrix, which requires no adaptation
-as it is where the algorithm initializes.  Riemannian Hamiltonian
-Monte Carlo performs this conditioning on the fly at every step, but
-such conditioning is  expensive computationally.
+as it is where the algorithm initializes.
 
 理想情况下，所有参数都应该进行编程，以具有单位尺度并减少后验相关性；总之，这些性质意味着 Stan 算法的最佳性能不需要旋转或缩放。对于哈密顿蒙特卡罗，这意味着一个单位质量矩阵，它不需要自适应，因为它是算法初始化的地方。黎曼哈密顿蒙特卡罗在每一步都在动态地执行这种条件反射，但这种条件反射在计算上是昂贵的。
 
@@ -176,9 +174,8 @@ In all but very simple models (such as multivariate normals), the
 Hessian will vary as $\theta$ varies (an extreme example is Neal's
 funnel, as naturally arises in hierarchical models with little or no
 data).  The more the curvature varies, the harder it is for all of the
-algorithms with fixed adaptation parameters (that is, everything but
-Riemannian Hamiltonian Monte Carlo) to find adaptations that cover the
-entire density well.  Many of the variable transforms proposed are
+algorithms with fixed adaptation parameters to find adaptations that
+cover the entire density well.  Many of the variable transforms proposed are
 aimed at improving the conditioning of the Hessian and/or making it
 more consistent across the relevant portions of the density (or
 penalized maximum likelihood function) being fit.
@@ -438,7 +435,7 @@ transformed parameter.
 
 Sampling from heavy tailed distributions such as the Cauchy is
 difficult for Hamiltonian Monte Carlo, which operates within a
-Euclidean geometry.^[Riemannian Manifold Hamiltonian Monte Carlo (RMHMC) overcomes this difficulty by simulating the Hamiltonian dynamics in a space with a position-dependent metric; see @GirolamiCalderhead:2011 and @Betancourt:2012.]
+Euclidean geometry.
 
 从 Cauchy 等重尾分布中取样对哈密顿蒙特卡洛来说是困难的，它是在欧几里得几何中运行的。^[黎曼曼福哈密顿蒙特卡洛（RRMMC）通过在具有位置相关度量的空间中模拟哈密顿动力学来克服这一困难；见 @GirolamiCalderhead:2011 和 @Betancourt:2012。]
 
@@ -587,7 +584,7 @@ $$
 \times
 \textsf{Gamma}\left(\tau \middle| \nu/2, \nu/2\right)
 \
-\textsf{d} \tau.
+\text{d} \tau.
 $$
 
 
@@ -673,8 +670,8 @@ distribution approaches a normal distribution.  Thus the parameter
 
 Unfortunately, the usual situation in applied Bayesian modeling
 involves complex geometries and interactions that are not known
-analytically.  Nevertheless, reparameterization can still be
-effective for separating parameters.
+analytically.  Nevertheless, the non-centered parameterization
+can still be effective for separating parameters.
 
 然而，在应用贝叶斯建模中，通常涉及复杂的几何形状和相互作用，而这些都是无法用分析方法知道的。尽管如此，重新参数化对于分离参数仍然是有效的。
 
@@ -742,6 +739,8 @@ necessary to achieve convergence.
 
 ```stan
 parameters {
+  real mu_beta;
+  real<lower=0> sigma_beta;
   vector[K] beta_raw;
   // ...
 }
@@ -760,6 +759,23 @@ Any priors defined for `mu_beta` and `sigma_beta` remain as
 defined in the original model.
 
 任何为 `mu_beta` 和 `sigma_beta` 定义的预设值都与原始模型中的定义相同。
+
+Alternatively, Stan's
+[affine transform](https://mc-stan.org/docs/reference-manual/types.html#affinely-transformed-real)
+can be used to decouple `sigma` and `beta`:
+
+```stan
+parameters {
+  real mu_beta;
+  real<lower=0> sigma_beta;
+  vector<offset=mu_beta, multiplier=sigma_beta>[K] beta;
+  // ...
+}
+model {
+  beta ~ normal(mu_beta, sigma_beta);
+  // ...
+}
+```
 
 Reparameterization of hierarchical models is not limited to the normal
 distribution, although the normal distribution is the best candidate
@@ -1445,8 +1461,14 @@ should be faster.
 
 In some cases, models can be recoded to exploit sufficient statistics
 in estimation.  This can lead to large efficiency gains compared to an
-expanded model.  For example, consider the following Bernoulli
-sampling model.
+expanded model.   This section provides examples for Bernoulli
+and normal distributions, but the same approach can be applied to
+other members of the exponential family.
+
+
+### Bernoulli sufficient statistics {-}
+
+Consider the following Bernoulli sampling model.
 
 在某些情况下，模型可以重新编码以利用估计中的充分统计量。这可能与扩展模型相比，会导致大量的效率提升。例如，考虑以下伯努利抽样模型。
 
@@ -1515,6 +1537,95 @@ should be counted once in the transformed data block and stored.
 
 得到的程序看起来像是一个"加权"回归，但这里的权重 `f[k]` 是计数，因此是 PMF 的充分统计量，并仅相当于相同似然性的另一种更有效的编码。为了效率，应在转换数据块中计算一次频率 `f[k]` 并存储它们。
 
+The same trick works for combining multiple binomial observations.
+
+
+### Normal sufficient statistics {-}
+
+Consider the following Stan model for fitting a normal distribution to data.
+
+```stan
+data {
+  int N;
+  vector[N] y;
+}
+parameters {
+  real mu;
+  real<lower=0> sigma;
+}
+model {
+  y ~ normal(mu, sigma);
+}
+```
+
+With the vectorized form used for `y`, Stan is clever enough to only
+evaluate `log(sigma)` once, but it still has to evaluate the normal
+for all of `y[1]` to `y[N]`, which involves adding up all the squared
+differences from the mean and then dividing by `sigma` squared.
+
+An equivalent density to the one above (up to normalizing constants
+that do not depend on parameters), is given in the following Stan
+program.
+
+```stan
+data {
+  int N;
+  vector[N] y;
+}
+transformed data {
+  real mean_y = mean(y);
+  real<lower=0> var_y = variance(y);
+  real nm1_over2 = 0.5 * (N - 1);
+  real sqrt_N = sqrt(N);
+}
+parameters {
+  real mu;
+  real<lower=0> sigma;
+}
+model {
+  mean_y ~ normal(mu, sigma / sqrt_N);
+  var_y ~ gamma(nm1_over2, nm1_over2 / sigma^2);
+}
+```
+
+The data and parameters are the same in this program as in the first.
+The second version adds a transformed data block to compute the mean
+and variance of the data, which are the sufficient statistics here.
+These are stored along with two other useful constants.  Then the
+program can define distributions over the mean and variance, both of
+which are scalars here.
+
+The original Stan program and this one define the same model in the
+sense that they define the same log density up to a constant additive
+term that does not depend on the parameters.  The priors on `mu` and
+`sigma` are both improper, but proper priors could be added as
+additional statements in the model block without affecting the
+sufficiency.
+
+This transform explicitly relies on aggregating the data.  Using this
+trick on parameters leads to more computation than just computing the
+normal log density, even before accounting for the non-linear change
+of variables in the variance.
+
+### Poisson sufficient statistics {-}
+
+The Poisson distribution is the easiest case, because the sum of
+observations is sufficient.  Specifically, we can replace
+
+```stan
+y ~ poisson(lambda);
+```
+
+with
+
+```stan
+sum(y) ~ poisson(size(y) * lambda);
+```
+
+This will work even if `y` is a parameter vector because no Jacobian
+adjustment is required for summation.
+
+
 ## Aggregating common subexpressions
 
 ## 聚合常见子表达式
@@ -1551,7 +1662,7 @@ Then the sum can be replaced with `a_b[ii[n], jj[n]]`.
 ## 利用共轭性
 
 Continuing the model from the previous section, the conjugacy of the
-beta prior and binomial sampling distribution allow the model to be
+beta prior and binomial distribution allow the model to be
 further optimized to the following equivalent form.
 
 继续上一节中的模型，贝塔先验和二项抽样分布的共扼性允许进一步优化模型为以下等效形式。
@@ -1565,18 +1676,23 @@ defined to be `sum(y)` could be used in the place of `sum(y)`.
 
 为了使模型更加高效，可以使用定义为 `sum(y)` 的变换数据变量来代替 `sum(y)`。
 
-## Standardizing predictors and outputs
+## Standardizing predictors
 
 ## 标准化预测变量和输出变量
 
-Stan programs will run faster if the input is standardized to have a
-zero sample mean and unit sample variance.  This section illustrates
-the principle with a simple linear regression.
+Standardizing the data so that all predictors have a zero sample mean and
+unit sample variance has the following potential benefits:
 
-如果输入数据是零均值和单位方差的标准化数据，Stan 程序将会运行得更快。本节将通过一个简单的线性回归来说明这个原理。
+* It helps in faster convergence of MCMC chains.
+* It makes the model less sensitive to the specifics of the parameterization.
+* It aids in the interpretation and comparison of the importance of coefficients across different predictors.
 
-Suppose that $y = (y_1,\dotsc,y_N)$ is a sequence of $N$ outcomes and
-$x = (x_1,\dotsc,x_N)$ a parallel sequence of $N$ predictors.  A
+When there are large differences between the units and scales of the predictors,
+standardizing the predictors is especially useful.
+This section illustrates the principle for a simple linear regression.
+
+Suppose that $y = (y_1,\dotsc,y_N)$ is a vector of $N$ outcomes and
+$x = (x_1,\dotsc,x_N)$ the corresponding vector of $N$ predictors.  A
 simple linear regression involving an intercept coefficient $\alpha$
 and slope coefficient $\beta$ can be expressed as
 $$
@@ -1587,68 +1703,43 @@ $$
 \epsilon_n \sim \textsf{normal}(0,\sigma).
 $$
 
-假设 $y =(y_1,dotsc,y_N)$ 是 $N$ 个观测值的序列，$x = (x_1,dotsc,X_N)$ 是 $N$ 个相应预测变量的序列。涉及截距系数 $alpha$ 和斜率系数 $beta$ 的简单线性回归可以表示为
+If $x$ has very large or very small values
+or if the mean of the values is far away from 0 (on the scale of the values),
+then it can be more efficient to standardize the predictor values $x_n$.
+First the elements of $x$ are zero-centered by subtracting the mean,
+then scaled by dividing by the standard deviation.
+
+The mean of $x$ is given by:
+
 $$
-y_n = \alpha + \beta x_n + \epsilon_n,
-$$，其中
-$$
-\epsilon_n \sim \textsf{normal}(0,\sigma).
+mean_x = \frac{1}{N} \sum_{n=1}^{N} x_n
 $$
 
-If either vector $x$ or $y$ has very large or very small values or if the
-sample mean of the values is far away from 0 (on the scale of the values),
-then it can be more efficient to standardize the outputs $y_n$ and
-predictors $x_n$.  The data are first centered by subtracting the
-sample mean, and then scaled by dividing by the sample deviation.
-Thus a data point $u$ is standardized with respect to
-a vector $y$  by the function $\textsf{z}_y$, defined by
+The standard deviation of $x$ is calculated as:
 $$
-\textsf{z}_y(u) = \frac{u - \bar{y}}{\texttt{sd}(y)}
+sd_x = {\left({\frac{1}{N} \sum_{n=1}^{N} (x_n - mean_x)^2}\right)}^{1/2}
 $$
-where the sample mean of $y$ is
+
+With these, we compute the $z$, the standardized predictors
+
 $$
-\bar{y}
-= \frac{1}{N} \sum_{n=1}^N y_n,
+z_n = \frac{x_n - mean_x}{sd_x}
 $$
-and the sample standard deviation of $y$ is
-$$
-\texttt{sd}(y)
-= \left(
-\frac{1}{N} \sum_{n=1}^N (y_n - \bar{y})^2
-\right)^{1/2}.
-$$
+
+where $z_n$ is the standardized value corresponding to $x_n$.
+
 The inverse transform is
 defined by reversing the two normalization steps, first rescaling by
-the same deviation and relocating by the sample mean,
+the same deviation and relocating by the sample mean.
+
 $$
-\textrm{z}_y^{-1}(v) = \texttt{sd}(y) v + \bar{y}.
+x_n = z_n sd_x + mean_x
 $$
 
-如果向量 $x$ 或 svs 中有很大或很小的值，或者样本均值远离0(基于值的度量)，则标准化输出变量 $y_n$ 和预测变量 $x_n$ 可能更有效。数据首先通过减去样本均值来居中，然后通过除以样本标准差来缩放。因此，数据点 $u$ 关于向量 $v$ 的标准化函数 $\textsf{z}_y$定义为
-$$
-\textsf{z}_y(u) = \frac{u - \bar{y}}{\texttt{sd}(y)}
-$$ 
-其中，向量 $y$ 的样本均值为
-$$
-\bar{y}
-= \frac{1}{N} \sum_{n=1}^N y_n,
-$$ 
-向量 $y$ 的样本标准差为
-$$
-\texttt{sd}(y)
-= \left(
-\frac{1}{N} \sum_{n=1}^N (y_n - \bar{y})^2
-\right)^{1/2}.
-$$ 
-逆变换通过颠倒两个归一化步骤来定义，首先通过相同的标准差重新缩放，然后通过样本均值重新定位，
-$$
-\textrm{z}_y^{-1}(v) = \texttt{sd}(y) v + \bar{y}.
-$$
+Standardizing the predictors standardizes the scale of the variables,
+and hence the scale of the priors.
 
-To standardize a regression problem, the predictors and outcomes are
-standardized.  This changes the scale of the variables, and hence
-changes the scale of the priors.  Consider the following initial
-model.
+Consider the following initial model.
 
 要标准化回归问题，需要对预测变量和输出变量进行标准化。这将改变变量的尺度，从而改变先验的尺度。考虑以下初始模型。
 
@@ -1667,18 +1758,15 @@ model {
   // priors
   alpha ~ normal(0, 10);
   beta ~ normal(0, 10);
-  sigma ~ cauchy(0, 5);
+  sigma ~ normal(0, 5);
   // likelihood
-  for (n in 1:N) {
-    y[n] ~ normal(alpha + beta * x[n], sigma);
-  }
+  y ~ normal(x * beta + alpha, sigma);
 }
 ```
 
-
-The data block for the standardized model is identical.  The
-standardized predictors and outputs are defined in the transformed
-data block.
+The data block for the standardized model is identical.
+The mean and standard deviation of the data are defined
+in the transformed data block, along with the standardized predictors.
 
 标准化模型的数据块是相同的。标准化预测变量和输出变量在变换数据块中定义。
 
@@ -1689,10 +1777,9 @@ data {
   vector[N] x;
 }
 transformed data {
-  vector[N] x_std;
-  vector[N] y_std;
-  x_std = (x - mean(x)) / sd(x);
-  y_std = (y - mean(y)) / sd(y);
+  real mean_x = mean(x);
+  real sd_x = sd(x);
+  vector[N] x_std = (x - mean_x) / sd_x;
 }
 parameters {
   real alpha_std;
@@ -1702,67 +1789,43 @@ parameters {
 model {
   alpha_std ~ normal(0, 10);
   beta_std ~ normal(0, 10);
-  sigma_std ~ cauchy(0, 5);
-  for (n in 1:N) {
-    y_std[n] ~ normal(alpha_std + beta_std * x_std[n],
-                      sigma_std);
-  }
+  sigma_std ~ normal(0, 5);
+  y ~ normal(x_std * beta_std + alpha_std, sigma_std);
 }
 ```
 
-The parameters are renamed to indicate that they aren't the
-"natural" parameters, but the model is otherwise identical.  In
-particular, the fairly diffuse priors on the coefficients and error
-scale are the same.  These could have been transformed as well, but
+The parameters are renamed to indicate that they aren't the "natural" parameters.
+The transformed data `x_std` is defined in terms of variables `mean_x` and `sd_x`;
+by declaring these variables in the `transformed data` block, they will be available
+in all following blocks, and therefore can be used in the `generated quantities` block
+to record the "natural" parameters `alpha` and `beta`.
+
+The fairly diffuse priors on the coefficients are the same.
+These could have been transformed as well, but
 here they are left as is, because the scales make sense as
-diffuse priors for standardized data; the priors could be made more
-informative.  For instance, because the outputs $y$ have been
-standardized, the error $\sigma$ should not be greater than 1, because
-that's the scale of the noise for predictors $\alpha = \beta = 0$.
+diffuse priors for standardized data.
 
 参数被重新命名以表示它们不是"自然"参数，但模型本质上是相同的。特别是，对系数和误差尺度的相当扩散的先验是相同的。这些也可以被转换，但是在这里保持原样，因为对于标准化数据来说，这些尺度作为扩散先验是有意义的;可以使先验更加信息丰富。例如，由于输出 $y$ 已被标准化，误差 $\sigma$ 不应大于1，因为这是预测变量 $\alpha = \beta = 0$ 的噪声尺度。
 
 The original regression
 $$
-y_n
-= \alpha + \beta x_n + \epsilon_n
+y_n = \alpha + \beta x_n + \epsilon_n
 $$
-has been transformed to a regression on the standardized variables,
+has been transformed to a regression on the standardized data variable $z$,
+
 $$
-\textrm{z}_y(y_n)
-= \alpha'
-+ \beta' \textrm{z}_x(x_n)
-+ \epsilon'_n.
+y_n = \alpha' + \beta' z_n + \epsilon_n.
 $$
-The original parameters can be recovered with a little algebra,
+
+The likelihood is specified in terms of the standardized parameters.
+The original slope $\beta$ is the standardized slope $\beta'$ scaled by the inverse of the standard deviation of $x$.
+The original intercept $\alpha$ is the intercept from the standardized model $\alpha'$, corrected for the effect of scaling and centering $x$.
+Thus, the formulas to retrieve $\alpha$ and $\beta$ from $\alpha'$ and $\beta'$ are:
+
 \begin{align*}
-y_n &= \textrm{z}_y^{-1}(\textrm{z}_y(y_n)) \\
-    &= \textrm{z}_y^{-1}
-\left( \alpha' + \beta' \textrm{z}_x(x_n) + \epsilon_n' \right) \\
-    &= \textrm{z}_y^{-1}
-\left( \alpha' + \beta' \left( \frac{x_n - \bar{x}}{\texttt{sd}(x)} \right) + \epsilon_n' \right) \\
-    &= \texttt{sd}(y)
-\left( \alpha' + \beta' \left( \frac{x_n - \bar{x}}{\texttt{sd}(x)} \right) + \epsilon_n' \right) + \bar{y} \\
-    &=
-\left( \texttt{sd}(y) \left( \alpha' - \beta' \frac{\bar{x}}{\texttt{sd}(x)} \right) + \bar{y} \right)
-+ \left( \beta' \frac{\texttt{sd}(y)}{\texttt{sd}(x)} \right) x_n
-+ \texttt{sd}(y) \epsilon'_n,
+\beta = \frac{\beta'}{\sigma_x} \\
+\alpha = \alpha' - \beta' \frac{\mu_x}{\sigma_x}
 \end{align*}
-from which the original scale parameter values can be read off,
-$$
-\alpha
-=
-\texttt{sd}(y)
-      \left(
-          \alpha'
-          - \beta' \frac{\bar{x}}{\texttt{sd}(x)}
-      \right)
-  + \bar{y};
-\qquad
-\beta = \beta' \frac{\texttt{sd}(y)}{\texttt{sd}(x)};
-\qquad
-\sigma = \texttt{sd}(y) \sigma'.
-$$
 
 原始回归
 $$
@@ -1815,27 +1878,21 @@ the model block,
 
 ```stan
 generated quantities {
-  real alpha;
-  real beta;
-  real<lower=0> sigma;
-  alpha = sd(y) * (alpha_std - beta_std * mean(x) / sd(x))
-           + mean(y);
-  beta = beta_std * sd(y) / sd(x);
-  sigma = sd(y) * sigma_std;
+  real beta = beta_std / sd_x;
+  real alpha = alpha_std - beta_std * mean_x / sd_x;
+
 }
 ```
 
-It is inefficient to compute all of the means and standard
-deviations every iteration; for more efficiency, these can be
-calculated once and stored as transformed data.  Furthermore, the
-model sampling statement can be easily vectorized, for instance, in
-the transformed model, to
+When there are multiple real-valued predictors, i.e.,
+when `K` is the number of predictors, `x` is an $N \times K$ matrix,
+and `beta` ia $K$-vector of coefficients,
+then `x * beta` is an $N$-vector of predictions, one for each of the $N$ data items.
+When $K \ll N$
+the [QR reparameterization](regression.qmd#QR-reparameterization.section)
+is recommended for linear and generalized linear models
+unless there is an informative prior on the location of $\beta$.
 
-每次迭代计算所有均值和标准差效率低下 ;为了提高效率，这些可以计算一次 存储为转换后的数据。此外，模型抽样声明 ，在转换后的模型中，可以很容易地矢量化为
-
-```stan
-y_std ~ normal(alpha_std + beta_std * x_std, sigma_std);
-```
 
 ### Standard normal distribution {-}
 

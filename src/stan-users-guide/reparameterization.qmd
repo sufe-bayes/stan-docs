@@ -502,7 +502,7 @@ Jacobian adjustment.
 本节说明了变量变换和简单变量转换之间的区别。变量转换采样参数，然后进行转换，而变量变换则是先对参数进行变换，再进行采样。只有后者需要进行 Jacobian 调整。
 
 It does not matter whether the probability function is
-expressed using a sampling statement, such as
+expressed using a distribution statement, such as
 
 无论概率函数是使用采样语句表示，例如：
 
@@ -529,10 +529,10 @@ of variables.
 
 与对数正态分布一样，逆伽马分布是一类变量的分布，其倒数具有伽马分布。本节对比了两种方法，第一种是使用变换，第二种是使用变量变换。
 
-The transform based approach to sampling `y_inv` with an inverse
+The transform based approach to defining `y_inv` to have an inverse
 gamma distribution can be coded as follows.
 
-基于变换的方法，使用逆伽马分布对 `y_inv` 进行采样，可以编写如下代码。
+在基于变换的方法中，让 `y_inv` 具有逆伽马分布的代码如下。
 
 ```stan
 parameters {
@@ -547,7 +547,7 @@ model {
 }
 ```
 
-The change-of-variables approach to sampling `y_inv` with an
+The change-of-variables approach to defining `y_inv` to have an
 inverse gamma distribution can be coded as follows.
 
 ```stan
@@ -557,10 +557,10 @@ parameters {
 transformed parameters {
   real<lower=0> y;
   y = 1 / y_inv;  // change variables
+  jacobian += -2 * log(y_inv); // Jacobian adjustment
 }
 model {
   y ~ gamma(2,4);
-  target +=  -2 * log(y_inv);  //  Jacobian adjustment;
 }
 ```
 
@@ -598,7 +598,7 @@ transformed parameters {
   matrix[K, K] J;   // Jacobian matrix of transform
   // ... compute v as a function of u ...
   // ... compute J[m, n] = d.v[m] / d.u[n] ...
-  target += log(abs(determinant(J)));
+  jacobian += log(abs(determinant(J)));
   // ...
 }
 model {
@@ -631,7 +631,7 @@ transformed parameters {
   vector[K] J_diag;  // diagonals of Jacobian matrix
   // ...
   // ... compute J[k, k] = d.v[k] / d.u[k] ...
-  target += sum(log(J_diag));
+  jacobian += sum(log(J_diag));
   // ...
 }
 ```
@@ -740,10 +740,10 @@ parameters {
 }
 transformed parameters {
   vector[N] alpha = L + exp(alpha_raw);
+  jacobian += sum(alpha_raw); // log Jacobian
   // ...
 }
 model {
-  target += sum(alpha_raw);  // log Jacobian
   // ...
 }
 ```

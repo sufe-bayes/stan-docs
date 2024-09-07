@@ -134,7 +134,7 @@ and declares `z` to be a $12 \times 8 \times 15$ array of complex numbers.
 指定 `x` 为一个包含实数值的一维数组，大小为 10；指定 `m` 为一个包含 $3 \times 3$ 矩阵的值的二维数组，大小为 $6\times7$；指定 `z` 为一个复数的 $12 \times 8 \times 5$ 数组。
 
 Prior to 2.26 Stan models used a different syntax which has since been removed.
-See the [Removed Features] chapter for more details.
+See the [Removed Features](removals.qmd) chapter for more details.
 
 在 2.26 版本之前，Stan模型采用了一种不同的语法，此后已将其移除。有关更多详细信息，请参阅 [Removed Features] 章节。
 
@@ -251,7 +251,8 @@ as an integer is $2^{31}-1$; the minimum value is $-(2^{31})$.
 
 Stan 在其所有整数表示中使用 32 位（4 字节）整数。可以表示为整数的最大值是 $2^{31} - 1$；最小值是 $(-2^{31})$。
 
-When integers overflow, their values wrap.  Thus it is up to the Stan
+When integers overflow, their value is determined by the underlying architecture.
+On most, their values wrap, but this cannot be guaranteed.  Thus it is up to the Stan
 programmer to make sure the integer values in their programs stay in
 range.  In particular, every intermediate expression must have an
 integer value that is in range.
@@ -259,7 +260,7 @@ integer value that is in range.
 当整数溢出时，它们的值由底层架构决定。在大多数情况下，它们的值会回绕，但这不能保证。因此，Stan程序员必须确保他们程序中的整数值保持在范围内。特别是，每个中间表达式都必须有一个在范围内的整数值。
 
 Integer arithmetic works in the expected way for addition,
-subtraction, and multiplication, but rounds the result of division
+subtraction, and multiplication, but truncates the result of division
 (see [the Stan Functions Reference integer-valued arithmetic operators
 section](https://mc-stan.org/docs/functions-reference/integer-valued_basic_functions.html#int-arithmetic)
 for more information).
@@ -588,14 +589,13 @@ real<lower=-1, upper=1> rho;
 Lower bounds that are negative infinity or upper bounds that are
 positive infinity are ignored.  Stan provides constants
 `positive_infinity()` and `negative_infinity()` which may
-be used for this purpose, or they may be read as data in the dump
-format.
+be used for this purpose, or they may be supplied as data.
 
 下界为负无穷大或上界为正无穷大的情况将被忽略。Stan 提供了常数 `positive_infinity()` 和 `negative_infinity()`，可以用于此目的，或者它们可以作为数据以转储格式进行读取。
 
 
 
-### Affinely transformed real {-}
+### Affinely transformed real {#affine-transform.section}
 
 ### 仿射变换实数
 
@@ -1234,10 +1234,10 @@ single dimension in their declaration.  For instance,
 矩阵变量可以被约束用来表示协方差矩阵。如果一个矩阵是对称的且正定的，则它是一个协方差矩阵。与相关矩阵一样，协方差矩阵在声明时只需要一个维度。例如，
 
 ```stan
-cov_matrix[K] Omega;
+cov_matrix[K] Sigma;
 ```
 
-declares `Omega` to be a $K \times K$ covariance matrix, where
+declares `Sigma` to be a $K \times K$ covariance matrix, where
 $K$ is the value of the data variable `K`.
 
 声明 `Omega` 为一个 $K \times K$ 的协方差矩阵，其中 $K$ 是数据变量 `K` 的值。
@@ -1257,10 +1257,10 @@ to be declared.  For example,
 
 
 ```stan
-corr_matrix[3] Sigma;
+corr_matrix[3] Omega;
 ```
 
-declares `Sigma` to be a $3 \times 3$ correlation matrix.
+declares `Omega` to be a $3 \times 3$ correlation matrix.
 
 声明 `Sigma` 为一个 $3 \times 3$ 的相关矩阵。
 
@@ -2213,9 +2213,8 @@ Sizes are determined dynamically (at run time) and thus cannot be
 type-checked statically when the program is compiled.  As a result,
 any conformance error on size will raise a run-time error.  For
 example, trying to assign an array of size 5 to an array of size 6
-will cause a run-time error.  Similarly, multiplying an $N
-\times M$ by a $J \times K$ matrix will raise a run-time error if $M
-\neq J$.
+will cause a run-time error.  Similarly, multiplying an $N \times M$
+by a $J \times K$ matrix will raise a run-time error if $M \neq J$.
 
 大小是在（运行时）动态确定的，所以无法在程序编译时进行静态类型检查。因此，关于大小的任何一致性错误将引发运行时错误。例如，尝试将大小为5 的数组赋给大小为 6 的数组将导致运行时错误。类似地，如果 $M \neq J$，将$N \times M$ 矩阵乘以 $J \times K$ 矩阵将引发运行时错误。
 
@@ -2312,7 +2311,7 @@ vectors.
 
 
 
-## Variable declaration
+## Variable declaration {#variable-declaration.section}
 
 ## 变量声明
 
@@ -2335,14 +2334,19 @@ matrix.
 
 声明了一个变量 `N`，它是一个整数，一个变量`y`，它是长度为`N`（之前声明的变量）的向量，以及一个变量 `A`，它是长度为5 的数组，数组中每个元素都是一个 3 行 4 列的矩阵。
 
+The size of top-level variables in the `parameters`, `transformed parameters`, and `generated quantities`
+must remain constant across all iterations, therefore only data variables can be used in top-level size declarations.
 
-There are several different places a variable is declared in Stan. They are
-block variables, like those inside `data`, which can have
-[constraints](#constrained-data-types) and must include sizes for their types,
-like in the above examples. Local variables, like those defined inside loops
-or local blocks cannot be constrained, but still include sizes. Finally,
-variables declared as [function parameters](user-functions.qmd#argument-types-and-qualifiers)
-are not constrained types and _exclude_ sizes.
+```stan
+// illegal and will be flagged by the compiler:
+generated quantities {
+  int N = 10;
+  array[N] int foo;
+```
+
+Depending on where the variable is declared in the Stan program,
+it either must or cannot have size information, and constraints
+are either optional or not allowed.
 
 在 Stan 中，变量可以在几个不同的地方声明。它们是代码块变量，比如在`data`内部的变量，可以有[约束](#constrained-data-types)并且它们的类型必须包含大小，就像上面的例子一样。局部变量，比如在循环或局部代码块内定义的变量不能被约束，但仍然包括大小。最后，声明为[函数参数](user-functions.qmd#argument-types-and-qualifiers)的变量不是带约束类型，并且*不包括*大小。
 
@@ -2358,16 +2362,11 @@ array[3] int is;
 void pretty_print_tri_lower(matrix x) { ... }
 ```
 
-``` stan
-// 有效的代码块变量，但不是局部变量或函数参数
-vector<lower=0>[N] u;
-
-// 作为代码块或局部变量有效，是不是函数参数
-array[3] int is;
-
-// 函数参数不包括大小并且不能被约束
-void pretty_print_tri_lower(matrix x) { ... }
-```
+Top-level variables can have [constraints](#constrained-data-types) and
+must include sizes for their types, as in the above examples.
+Local variables, like those defined inside loops or local blocks cannot be constrained, but still include sizes.
+Finally, variables declared as [function parameters](user-functions.qmd#argument-types-and-qualifiers)
+are not constrained types and _exclude_ sizes.
 
 In the following table, the leftmost column is a list of the
 unconstrained and undimensioned basic types; these are used as
@@ -2464,7 +2463,7 @@ dimensions `matrix[K, K]` types.
 +---------------------+-------------------------+----------------------------------------------+
 |                     |                         | `matrix[M, N]<upper=U>`                      |
 +---------------------+-------------------------+----------------------------------------------+
-|                     |                         | `matrix[M, N]<lower=L, uppers=U>`            |
+|                     |                         | `matrix[M, N]<lower=L, upper=U>`            |
 +---------------------+-------------------------+----------------------------------------------+
 |                     |                         | `matrix[M, N]<offset=O>`                     |
 +---------------------+-------------------------+----------------------------------------------+

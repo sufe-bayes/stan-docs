@@ -29,7 +29,7 @@ which can later be applied to others by the symbol `<list(<expression>)>`.
 
 The following representation is constructed directly from the OCaml
 [reference
-parser](https://github.com/stan-dev/stanc3/blob/release/v2.27.0/src/frontend/parser.mly)
+parser](https://github.com/stan-dev/stanc3/blob/master/src/frontend/parser.mly)
 using a tool called [Obelisk](https://github.com/Lelio-Brun/Obelisk).
 The raw output is available [here](https://raw.githubusercontent.com/stan-dev/docs/master/src/reference-manual/grammar.txt).
 
@@ -300,10 +300,12 @@ The raw output is available [here](https://raw.githubusercontent.com/stan-dev/do
                      | <expression> TILDE <identifier> LPAREN [<expression>
                        (COMMA <expression>)*] RPAREN [<truncation>] SEMICOLON
                      | TARGET PLUSASSIGN <expression> SEMICOLON
+                     | JACOBIAN PLUSASSIGN <expression> SEMICOLON
                      | BREAK SEMICOLON
                      | CONTINUE SEMICOLON
                      | PRINT LPAREN <printables> RPAREN SEMICOLON
                      | REJECT LPAREN <printables> RPAREN SEMICOLON
+                     | FATAL_ERROR LPAREN <printables> RPAREN SEMICOLON
                      | RETURN <expression> SEMICOLON
                      | RETURN SEMICOLON
                      | SEMICOLON
@@ -475,6 +477,9 @@ of other user defined functions which end in `_lp`.
 Sampling statements (using `~`) can only be used in the `model` block or in the
 bodies of user-defined functions which end in `_lp`.
 
+`jacobian +=` statements can only be used inside of the `transformed parameters` block
+or in functions that end with `_jacobian`.
+
 ### Probability function naming {-}
 
 A probability function literal must have one of the following
@@ -492,6 +497,6 @@ A second condition is that there not be more indexes provided than
 dimensions of the underlying expression (in general) or variable (on
 the left side of assignments) being indexed.  A vector or row vector
 adds 1 to the array dimension and a matrix adds 2.  That is, the type
-`matrix[ , , ]`, a three-dimensional array of matrices, has five
+`array[ , , ] matrix`, a three-dimensional array of matrices, has five
 index positions: three for the array, one for the row of the matrix
 and one for the column.

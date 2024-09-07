@@ -288,15 +288,17 @@ of $\tilde{y}$ given the predictors and training data,
 考虑一个简单的线性回归模型，截距 $\alpha$ 和斜率 $\beta$ 的参数，以及预测因子
 $\tilde{x}_n$。
 标准贝叶斯估计是给定预测因子和训练数据的 $\tilde{y}$ 的期望值，
+
 \begin{eqnarray*}
 \hat{\tilde{y}}_n
 & = & \mathbb{E}[\tilde{y}_n \mid \tilde{x}_n, x, y]
 \\[4pt]
 & \approx & \frac{1}{M} \sum_{m = 1}^M \tilde{y}_n^{(m)}
 \end{eqnarray*}
-where $\tilde{y}_n^{(m)}$ is drawn from the sampling distribution
+where $\tilde{y}_n^{(m)}$ is drawn from the data model
 
-其中 $\tilde{y}_n^{(m)}$ 是从抽样分布中抽取的
+其中 $\tilde{y}_n^{(m)}$ 是从数据模型中抽取的
+
 $$
 \tilde{y}_n^{(m)}
 \sim p(\tilde{y}_n \mid \tilde{x}_n, \alpha^{(m)}, \beta^{(m)}),
@@ -324,7 +326,7 @@ the same result is obtained by averaging linear predictions,
 \\[4pt]
 & \approx &
 \frac{1}{M} \sum_{m = 1}^M
-  \alpha^{(m)} + \beta^{(m)} \cdot \tilde{x}_n
+  \alpha^{(m)} + \beta^{(m)} \cdot \tilde{x}_n.
 \end{eqnarray*}
 This is possible because
 

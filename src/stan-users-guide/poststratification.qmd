@@ -122,9 +122,10 @@ Considering the same polling data from the previous section in a
 Bayesian setting, the uncertainty in the estimation of subgroup
 support is pushed through predictive inference in order to get some
 idea of the uncertainty of estimated support.  Continuing the example
-of the previous section, the likelihood remains the same,
+of the previous section, the data model remains the same,
 
-在贝叶斯框架中考虑上一章节的同样的民调数据，子群体支持的估计中的不确定性会通过预测推理传递，以便得到对支持估计不确定性的一些理解。继续上一章节的例子，$y_n$ 的分布保持不变，
+在贝叶斯框架中考虑上一章节的同样的民调数据，子群体支持的估计中的不确定性会通过预测推理传递，以便得到对支持估计不确定性的一些理解。继续上一章节的例子，数据模型保持不变，
+
 $$
 y_n \sim \textrm{bernoulli}(\theta_{jj[n]}),
 $$
@@ -136,9 +137,10 @@ $\theta_j$ is the proportion of support in group $j$.
 This can be reformulated from a Bernoulli model to a binomial model in
 the usual way.  Letting $A_j$ be the number of respondents in group
 $j$ and $a_j$ be the number of positive responses in group $j$, the
-likelihood may be reduced to the form
+data model may be reduced to the form
 
 这通常用伯努利模型重新构建为二项模型。设 $A_j$ 为群体 $j$ 中的回应者数量，$a_j$ 为群体 $j$ 中的正反馈数量，其分布可以简化为以下形式：
+
 $$
 a_j \sim \textrm{binomial}(A_j, \theta_j).
 $$
@@ -201,8 +203,8 @@ generated quantities {t
   real<lower=0, upper=1> phi = dot(N, theta) / sum(N);
 }
 ```
-
-The likelihood is vectorized, and implicitly sums over the $j$.
+The binomial distribution statement is vectorized, and implicitly generates 
+the joint likelihood for the $J$ terms.
 The prior is implicitly uniform on $(0, 1),$ the support of $\theta.$
 The summation is computed using a dot product and the sum function,
 which is why `N` was declared as a vector rather than as an array of
@@ -306,9 +308,10 @@ hyperpriors.
 
 在具有大量人口特征的情况下，每个单元可能只有很少的项目来估计回归系数。例如，即使在全国范围内的10,000个受访者的民意测验中，如果他们被分为50个州，那么平均每个州只有200个回应者。当数据量较小时，可以通过提供层次性先验来稳定和提高参数估计的精度。通过层次性先验，数据决定了各组之间的部分池化程度。唯一的缺点是，如果组的数量较少，那么在没有强超参数的情况下很难拟合这些模型。
 
-The model introduced in the previous section had likelihood
+The model introduced in the previous section had the data model
 
-在上一节中引入的模型的分布为
+在上一节中引入的数据模型为
+
 $$
 y_n \sim
 \textrm{bernoulli}(\textrm{logit}^{-1}(
@@ -335,7 +338,7 @@ The other regression parameters can be given hierarchical priors,
 \\[2pt]
 \delta_{1:5} & \sim & \textrm{normal}(0, \sigma^{\delta})
 \\[2pt]
-\epsilon_{1:50} & \sim & \textrm{normal}(0, \sigma^{\epsilon})
+\epsilon_{1:50} & \sim & \textrm{normal}(0, \sigma^{\epsilon}).
 \end{eqnarray*}
 
 
@@ -559,10 +562,9 @@ collected into two parallel arrays indexed by group.
 array[G] int<lower=0> pos_votes;
 array[G] int<lower=0> total_votes;
 ```
+Finally, the data model is converted to binomial.
 
-Finally, the likelihood is converted to binomial.
-
-最后，分布转化为二项分布。
+最后，数据模型转化为二项分布。
 
 ```stan
 pos_votes ~ binomial_logit(total_votes,
@@ -605,10 +607,9 @@ In the log odds calculation, introduce a new term
 ```
 [epsilon, -epsilon][sex]';
 ```
+That is, the data model will now look like
 
-That is, the likelihood will now look like
-
-也就是说，现在的分布看起来会像这样
+也就是说，现在的数据模型看起来会像这样
 
 ```stan
   y ~ bernoulli_logit(alpha + beta[age] + gamma[income] + delta[state]
@@ -696,6 +697,6 @@ expect_pos
 ```
 
 Here `d` is the loop variable looping over states.  This ensures that
-the poststratification formula matches the likelihood formula.
+the poststratification formula matches the model formula.
 
-这里的 `d` 是循环变量，遍历各州。这确保了后分层公式与似然公式匹配。
+这里的 `d` 是循环变量，遍历各州。这确保了后分层公式与模型公式匹配。

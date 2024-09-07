@@ -52,17 +52,17 @@ also be written in whatever character set is convenient.
 
 ## 字符串字面量
 
-The raw byte sequence within a string literal is escaped according 
-to the C++ standard. In particular, this means that UTF-8 encoded 
-strings are supported, however they are not tested for invalid byte 
-sequences. A `print` or `reject` statement should properly display 
-Unicode characters if your terminal supports the encoding used in the
-input. In other words, Stan simply preserves any string of bytes between 
-two double quotes (`"`) when passing to C++. On compliant terminals,
-this allows the use of glyphs and other characters from encodings such as
-UTF-8 that fall outside the ASCII-compatible range.
+The raw byte sequence within a string literal is escaped according
+to the C++ standard. In particular, this means that UTF-8 encoded
+strings are supported, however they are not tested for invalid byte
+sequences. A `print`, `reject`, or `fatal_error` statement should
+properly display Unicode characters if your terminal supports the
+encoding used in the input. In other words, Stan simply preserves
+any string of bytes between two double quotes (`"`) when passing to C++.
+On compliant terminals, this allows the use of glyphs and other characters
+from encodings such as UTF-8 that fall outside the ASCII-compatible range.
 
-字符串字面量中的原始字节序列根据 C++ 标准进行转义。特别地，这意味着 UTF-8 编码的字符串是受支持的，系统不会检测它们是否是无效的字节序列。如果你的终端支持输入中使用的编码，那么 `print` 或 `reject` 语句应该正确地显示 Unicode 字符。换句话说，Stan 在传递给 C++ 时，只保留两个双引号（`"`）之间的任何字节串。在兼容的终端上，这允许使用符号（glyph）和其他编码的字符，例如超出 ASCII 兼容范围的 UTF-8 编码。
+字符串字面量中的原始字节序列根据 C++ 标准进行转义。特别地，这意味着 UTF-8 编码的字符串是受支持的，系统不会检测它们是否是无效的字节序列。如果你的终端支持输入中使用的编码，那么 `print`、`reject` 或 `fatal_error` 语句应该正确地显示 Unicode 字符。换句话说，Stan 在传递给 C++ 时，只保留两个双引号（`"`）之间的任何字节串。在兼容的终端上，这允许使用符号（glyph）和其他编码的字符，例如超出 ASCII 兼容范围的 UTF-8 编码。
 
 ASCII is the recommended encoding for maximum portability, because it encodes
 the ASCII characters (Unicode code points 0--127) using the same sequence of

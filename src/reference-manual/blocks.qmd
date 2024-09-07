@@ -93,7 +93,7 @@ Log-probability modifying functions to blocks where the log
 probability accumulator is in scope (transformed parameters and
 model); such functions are suffixed with `_lp`.
 
-Density functions defined in the program may be used in sampling
+Density functions defined in the program may be used in distribution
 statements.
 
 
@@ -171,7 +171,7 @@ applied once per chain.*
 `model` | yes | evaluate / leapfrog step
 `generated quantities` | yes | eval / sample
 &nbsp; | &nbsp; | write / sample
-`\slshape (initialization)` | n/a | read, transform / chain
+*`(initialization)`* | n/a | read, transform / chain
 
 **Variable Declaration Table.**
 <a id="where-to-declare-table"></a>
@@ -271,7 +271,7 @@ generated quantities {
 }
 ```
 
-In this example, `y[N]` is a modeled data vector.  Although it is
+In this example, `y` is an array of modeled data.  Although it is
 specified in the `data` block, and thus must have a known value
 before the program may be run, it is modeled as if it were generated
 randomly as described by the model.
@@ -393,8 +393,9 @@ in the `transformed data` block.
 
 The statements in the transformed data block are designed to be
 executed once and have a deterministic result.  Therefore, log
-probability is not accumulated and sampling statements may not be
-used.
+probability is not accumulated and 
+[distribution statements](statements.qmd#distribution-statements.section)
+may not be used.
 
 
 ### Variable constraint checking {-}
@@ -528,7 +529,7 @@ no well-defined way to have them be both flexible and easy to
 validate.
 
 The statements in the model block typically define the model.  This is
-the block in which probability (sampling notation) statements are
+the block in which probability (distribution notation) statements are
 allowed.  These are typically used when programming in the BUGS idiom
 to define the probability model.
 

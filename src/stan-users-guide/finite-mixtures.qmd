@@ -328,7 +328,7 @@ The model declares a local array variable `lps` to be size
 mixture components.  The main action is in the loop over data points
 `n`.  For each such point, the log of $\theta_k \times
 \textsf{normal}\left(y_n \mid \mu_k,\sigma_k\right)$ is calculated and added to the
-array `lpps`.  Then the log probability is incremented with the log
+array `lps`.  Then the log probability is incremented with the log
 sum of exponentials of those values.
 
 该模型声明一个大小为 `K` 的局部数组变量 `lps`，并使用它来累积混合成分的对数贡献值。主要操作发生在对数据点 `n` 的循环中。对于每个这样的点，计算 $\theta_k \times
@@ -491,14 +491,14 @@ subsection considers a pair of examples.
 
 在混合成分不可识别的情况下，由于标签会在不同的 MCMC 链或不同的优化运行中切换或排列，因此诊断采样或优化算法的收敛性可能会很困难。幸运的是，不涉及特定成分标签的后验推断在标签切换下是不变的，可以直接使用。本小节考虑了一对示例。
 
-#### Predictive likelihood {-}
+#### Posterior predictive distribution {-}
 
-#### 预测似然函数 {-}
+#### 后验预测分布 {-}
 
-Predictive likelihood for a new observation $\tilde{y}$ given the
+Posterior predictive distribution for a new observation $\tilde{y}$ given the
 complete parameter vector $\theta$ will be
 
-给定完整的参数向量 $\theta$，对一个新观测 $\tilde{y}$ 的预测似然函数将是
+给定完整的参数向量 $\theta$，对一个新观测 $\tilde{y}$ 的后验预测分布将是
 
 $$
 p(\tilde{y} \mid y)
@@ -510,7 +510,7 @@ p(\tilde{y} \mid \theta)
 $$
 
 The normal mixture example from the previous section, with $\theta =
-(\mu, \sigma, \lambda)$, shows that the likelihood returns the same
+(\mu, \sigma, \lambda)$, shows that the model returns the same
 density under label switching and thus the predictive inference is
 sound.  In Stan, that predictive inference can be done either by
 computing $p(\tilde{y} \mid y)$, which is more efficient
@@ -576,9 +576,9 @@ $$
 As with other event probabilities, this can be calculated in the
 generated quantities block either by sampling $z_i$ and $z_j$ and
 using the indicator function on their equality, or by computing the
-term inside the integral as a generated quantity.  As with predictive
-likelihood, working in expectation is more statistically efficient than
-sampling.
+term inside the integral as a generated quantity.  As with posterior
+predictive distribute, working in expectation is more statistically
+efficient than sampling.
 
 与其他事件概率一样，这可以在 generated quantities 块中通过对 $z_i$ 和 $z_j$ 进行抽样并使用让它们相等的示性函数，或者通过计算积分内的项作为 generated quantities 来计算。与预测似然函数一样，计算期望比采样更具统计效率。
 
@@ -621,17 +621,14 @@ and the intensity $\lambda$, the distribution for $y_n$ can be written as
 
 考虑以下关于零膨胀泊松分布的例子。存在一个概率 $\theta$ 观测到一个零，和一个概率 $1 - \theta$ 观测到一个$\textsf{Poisson}(\lambda)$ 分布的计数（现在使用 $\theta$ 作为混合比例，因为 $\lambda$ 是泊松分布的传统均值参数符号）。给定概率 $\theta$ 和强度 $\lambda$，$y_n$ 的分布可以写成
 
-$$
-y_n \sim
-\begin{cases}
- 0 & \quad\text{with probability } \theta, \text{ and}\\
- \textsf{Poisson}(y_n \mid \lambda) & \quad\text{with probability } 1-\theta.
-\end{cases}
-$$
+\begin{align*}
+y_n & = 0 & \quad\text{with probability } \theta, \text{ and}\\
+y_n & \sim \textsf{Poisson}(y_n \mid \lambda) & \quad\text{with probability } 1-\theta.
+\end{align*}
 
-Stan does not support conditional sampling statements (with `~`) conditional on some parameter, and we need to consider the corresponding likelihood
+Stan does not support conditional distribution statements (with `~`) conditional on some parameter, and we need to consider the corresponding likelihood
 
-Stan 不支持条件抽样语句（使用 `~`）在某些参数上进行条件抽样，我们需要考虑相应的似然函数。
+Stan 不支持条件分布语句（使用 `~`）在某些参数上进行条件抽样，我们需要考虑相应的似然函数。
 
 $$
 p(y_n \mid \theta,\lambda)
@@ -641,7 +638,7 @@ p(y_n \mid \theta,\lambda)
 (1-\theta) \times \textsf{Poisson}(y_n \mid \lambda) &\quad\text{if } y_n > 0.
 \end{cases}
 $$
-The log likelihood can be implemented directly in Stan (with `target +=`) as follows.
+The log likelihood can be coded directly in Stan (with `target +=`) as follows.
 
 对数似然函数可以直接在 Stan 中实现（使用`target +=`）如下。
 
@@ -748,13 +745,12 @@ the distribution for $y_n$ can be written as
 
 障碍模型类似于零膨胀模型，但在处理零结果时更加灵活，既可以膨胀也可以缩小零值的概率。给定概率 $\theta$ 和强度 $\lambda$，$y_n$ 的分布可以写成
 
-$$
-y_n \sim
-\begin{cases}
- 0 & \quad\text{with probability } \theta, \text{and }\\
- \textsf{Poisson}_{x\neq 0}(y_n \mid \lambda) & \quad\text{with probability } 1-\theta,
-\end{cases}
-$$
+\[
+\begin{align*}
+y_n & = 0 \quad\text{with probability } \theta, \text{ and}\\
+y_n & \sim \textsf{Poisson}_{x\neq 0}(y_n \mid \lambda) \quad\text{with probability } 1-\theta,
+\end{align*}
+\]
 Where $\textsf{Poisson}_{x\neq 0}$ is a truncated Poisson distribution, truncated at $0$.
 
 其中 $\textsf{Poisson}_{x\neq 0}$ 是在0处截断的泊松分布。

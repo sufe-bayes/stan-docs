@@ -81,7 +81,8 @@ of well-formed real literals include the following.
 
 The notation `e` or `E` followed by a positive or negative
 integer denotes a power of 10 to multiply.  For instance, `2.7e3`
-and `2.7e+3` denote $2.7 \times 10^3$, whereas `-2E-5` denotes $-2 \times10^{-5}$.
+and `2.7e+3` denote $2.7 \times 10^3$, whereas `-2E-5` denotes $-2 \times
+10^{-5}$.
 
 符号 `e` 或 `E` 后跟着一个正整数或负整数表示要乘的10的幂。例如，`2.7e3` 和 `2.7e+3` 表示$2.7 \times 10^3$，而`-2E-5`表示$-2 \times10^{-5}$
 
@@ -218,8 +219,7 @@ cannot be used as variable names:
 以下内置函数也是保留的，不能用作变量名：
 
 ```
-print, reject, profile, get_lp, increment_log_prob,
-target
+print, reject, profile, fatal_error, target
 ```
 
 The following block identifiers are reserved and cannot be used as variable names:
@@ -411,6 +411,19 @@ allowed and similarly expressions such as `[ [ ] ]` or
 
 空表达式`[ ]`是模棱两可的，因此不允许，类似地，表达式如`[ [ ] ]`或`[ [ ], [ ] ]`也是不被允许的。
 
+### Empty vectors and matrices {-}
+
+If needed, it is possible to create an empty vector with
+```stan
+rep_vector(e, 0)
+```
+where the first expression `e` needs to scalar of type `real`.
+
+If needed, it is possible to create an empty matrix with
+```stan
+rep_matrix(e, 0, 0)
+```
+where the first expression `e` needs to scalar of type `real`.
 
 ### Array expressions {-}
 
@@ -453,6 +466,21 @@ of the resulting two dimensional array.
 array[2, 3] int b = { { 1, 2, 3 },
                 { 4, 5, 6 } };
 ```
+
+### Empty arrays {-}
+
+The empty array expression (`{ }`) is not allowed. See more about restrictions on array expressions in subsection [Restrictions on values](#array-expressions).
+
+If needed, it is possible to create an empty array with
+```stan
+rep_array(e, 0)
+```
+where the first expression `e` determines the type of the array. For
+example, `rep_array(0.0, 0)` returns an empty real array of type
+`real[]`, whereas `rep_array({123}, 0)` returns an empty two
+dimensional integer array of type `int[ , ]`. Only the type of the
+first argument is used, so the integer arrays `{123}` and `{0}`
+produce equivalent values.
 
 
 ### Array expression types {-}
@@ -638,7 +666,8 @@ corresponding return types is detailed in the list of functions.
 否定、加法、减法和乘法操作被扩展到矩阵、向量和行向量。转置操作，使用撇号 (`'`) 编写，也适用于向量、行向量和矩阵。矩阵操作的返回类型是可以静态保证包含结果的最小类型。允许的输入类型及其对应的返回类型的完整列表详见函数列表。
 
 For example, if `y` and `mu` are variables of type `vector` and
-`Sigma` is a variable of type `matrix`, then `(y - mu)' * Sigma * (y -mu)` is a well-formed expression of type `real`.  The type of the
+`Sigma` is a variable of type `matrix`, then `(y - mu)' * Sigma * (y -
+mu)` is a well-formed expression of type `real`.  The type of the
 complete expression is inferred working outward from the
 subexpressions.  The subexpression(s) `y - mu` are of type `vector`
 because the variables `y` and `mu` are of type `vector`.  The
@@ -1087,8 +1116,10 @@ In addition to single integer indexes, as described in
 [the language indexing section](#language-indexing.section), Stan supports multiple indexing.
 Multiple indexes can be integer arrays of indexes, lower
 bounds, upper bounds, lower and upper bounds, or simply shorthand for
-all of the indexes.  A complete table of index types is given in the
-following table.
+all of the indexes.  If the upper bound is smaller than the lower bound, 
+the range is empty (unlike, e.g., in R). The upper bound and lower bound can be 
+expressions that evaluate to integer. A complete list of index types is 
+given in the following table.
 
 除了单个整数索引（如[语言索引部分](#language-indexing.section)中所述）外，
 Stan 还支持多重索引。多重索引可以是整数数组索引、下界、上界、下界和上界，
@@ -1110,6 +1141,8 @@ Stan 还支持多重索引。多重索引可以是整数数组索引、下界、
  |  lower bound  | `a[3:]`  |     `a[3]`, ..., `a[N]`     |
  |  upper bound  | `a[:5]`  |     `a[1]`, ..., `a[5]`     |
  |     range     | `a[2:7]` |    `a[2]`, ...,  `a[7]`     |
+ |     range     | `a[7:2]` |             []              |
+ |     range     | `a[5-3:5+2]` |    `a[2]`, ...,  `a[7]`     |
  |      all      |  `a[:]`  |     `a[1]`, ..., `a[N]`     |
  |      all      |  `a[]`   |     `a[1]`, ..., `a[N]`     |
 
@@ -1123,6 +1156,13 @@ Stan 还支持多重索引。多重索引可以是整数数组索引、下界、
  | 全部         | `a[:]`  | `a[1]` 至 `a[N]`        |
  | 全部         | `a[]`   | `a[1]` 至 `a[N]`        |
 
+The range indexing with `:` allows only increasing sequences. Indexing
+with a decereasing sequence can be made by creating an integer array in
+the following way:
+```stan
+  array[6] int ii = reverse(linspaced_int_array(6, 2, 7));
+```
+Then `a[ii]` evaluates to `a[7]`, ...,  `a[2]`.
 
 ### Multiple index semantics {-}
 
@@ -1191,7 +1231,7 @@ indexes.*
   | `a[i, js]`  |  单一   |   多重    | 行向量    |
   | `a[is, j]`  | 多重    |   单一    | 向量      |
   | `a[is, js]` | 多重    |   多重    | 矩阵      |
-  
+
 Evaluation of matrices with multiple indexes is defined to respect the
 following distributivity conditions.
 
@@ -1424,11 +1464,12 @@ posterior predictive checks.
 有关后验预测检验的更多信息，请参见[@GelmanEtAl:2013]的第6章。
 
 
-## Type inference {-}
+## Type inference
 
-## 类型推断 {-}
+## 类型推断
 
-Stan is strongly statically typed, meaning that the implementation type of an expression can be resolved at compile time.
+Stan is strongly statically typed, meaning that the implementation
+type of an expression can be resolved at compile time.
 
 Stan是强类型静态语言，这意味着表达式的实现类型可以在编译时解析。
 
@@ -1441,47 +1482,61 @@ The primitive implementation types for Stan are
 Stan的基本实现类型为：
 
 ```
-int, real, complex, vector, row_vector, matrix, complex_vector,
+int, real, complex, vector, row_vector,  matrix, complex_vector,
 complex_row_vector, complex_matrix
 ```
 
-Every basic declared type corresponds to a primitive type; the following table shows the mapping from types to their primitive types.
+Every basic declared type corresponds to a primitive type;
+the following table shows the mapping from types to their primitive types.
 
 每个基础声明类型都对应一个基本类型；下表显示了从类型到基本类型的映射。
 
-#### Primitive Type Table {- #primitive-type-table}
+##### Primitive Type Table {- #primitive-type-table}
 
-#### 基本类型表格 {- #primitive-type-table}
+##### 基本类型表格 {- #primitive-type-table--cn}
 
-*The table shows the variable declaration types of Stan and their corresponding primitive implementation type. Stan functions, operators, and probability functions have argument and result types declared in terms of primitive types plus array dimensionality.*
+*The table shows the variable declaration types of Stan
+  and their corresponding primitive implementation type.  Stan
+  functions, operators, and probability functions have argument and
+  result types declared in terms of primitive types plus array
+  dimensionality.*
 
 *该表显示了Stan的变量声明类型及其对应的基本实现类型。Stan函数、运算符和概率函数的参数和结果类型是根据基本类型和数组维度声明的。*
 
-|  type            | primitive type         |
-|------------------|------------------------|
-| `int`            | `int`                  |
-| `real`           | `real`                 |
-| `vector`         | `vector`               |
-| `simplex`        | `vector`               |
-| `unit_vector`    | `vector`               |
-| `ordered`        | `vector`               |
-| `positive_ordered` | `vector`             |
-| `row_vector`     | `row_vector`           |
-| `matrix`         | `matrix`               |
-| `cov_matrix`     | `matrix`               |
-| `corr_matrix`    | `matrix`               |
-| `cholesky_factor_cov` | `matrix`          |
-| `cholesky_factor_corr` | `matrix`         |
-| `complex_vector` | `complex_vector`       |
-| `complex_row_vector` | `complex_row_vector` |
-| `complex_matrix` | `complex_matrix`       |
+   | type                   | primitive type       |
+   | :--------------------- | :------------------- |
+   | `int`                  | `int`                |
+   | `real`                 | `real`               |
+   | `vector`               | `vector`             |
+   | `simplex`              | `vector`             |
+   | `unit_vector`          | `vector`             |
+   | `ordered`              | `vector`             |
+   | `positive_ordered`     | `vector`             |
+   | `row_vector`           | `row_vector`         |
+   | `matrix`               | `matrix`             |
+   | `cov_matrix`           | `matrix`             |
+   | `corr_matrix`          | `matrix`             |
+   | `cholesky_factor_cov`  | `matrix`             |
+   | `cholesky_factor_corr` | `matrix`             |
+   | `complex_vector`       | `complex_vector`     |
+   | `complex_row_vector`   | `complex_row_vector` |
+   | `complex_matrix`       | `complex_matrix`     |
 
 
-A full implementation type consists of a primitive implementation type and an integer array dimensionality greater than or equal to zero. These will be written to emphasize their array-like nature. For example, `array [] real` has an array dimensionality of 1, `int` an array dimensionality of 0, and `array [,,] int` an array dimensionality of 3. The implementation type `matrix[ , , ]` has a total of five dimensions and takes up to five indices, three from the array and two from the matrix.  
+A full implementation type consists of a primitive implementation type
+and an integer array dimensionality greater than or equal to zero.
+These will be written to emphasize their array-like nature.  For
+example, `array [] real` has an array dimensionality of 1, `int` an
+array dimensionality of 0, and `array [,,] int` an array dimensionality
+of 3. The implementation type `matrix[ , , ]` has a total of five
+dimensions and takes up to five indices, three from the array and two
+from the matrix.
 
 一个完整的实现类型由一个基本实现类型和一个大于或等于零的整数数组维度组成。这些类型的写法将强调其类似于数组的性质。例如，`array [] real` 的数组维度为 1，`int` 的数组维度为 0，`array [,,] int` 的数组维度为 3。实现类型 `matrix[ , , ]` 总共有五个维度，并且最多可以有五个索引，其中三个来自数组，两个来自矩阵。  
 
-Recall that the array dimensions come before the matrix or vector dimensions in an expression such as the following declaration of a three-dimensional array of matrices.
+Recall that the array dimensions come before the matrix or vector
+dimensions in an expression such as the following declaration of a
+three-dimensional array of matrices.
 
 回想一下，在表达式中，数组的维数排在矩阵或矢量的维数之前，例如下面的三维矩阵数组声明：
 
@@ -1489,81 +1544,102 @@ Recall that the array dimensions come before the matrix or vector dimensions in 
 array[I, J, K] matrix[M, N] a;
 ```
 
-The matrix a is indexed as `a[i, j, k, m, n]` with the array indices first, followed by the matrix indices, with `a[i, j, k]` being a matrix and `a[i, j, k, m]` being a row vector.
+The matrix `a` is indexed as `a[i, j, k, m, n]` with the array
+indices first, followed by the matrix indices, with `a[i, j, k]`
+being a matrix and `a[i, j, k, m]` being a row vector.
 
-矩阵 a 的索引为 `a[i, j, k, m, n]`，首先是数组索引，然后是矩阵索引，其中 `a[i, j, k]` 是一个矩阵，`a[i, j, k, m]` 是一个行向量。
+矩阵 `a` 的索引为 `a[i, j, k, m, n]`，首先是数组索引，然后是矩阵索引，其中 `a[i, j, k]` 是一个矩阵，`a[i, j, k, m]` 是一个行向量。
 
 ### Type inference rules {-}
 
 ### 类型推断规则{-}
 
-Stan’s type inference rules define the implementation type of an expression based on a background set of variable declarations. The rules work bottom up from primitive literal and variable expressions to complex expressions.
+Stan's type inference rules define the implementation type of an
+expression based on a background set of variable declarations.  The
+rules work bottom up from primitive literal and variable expressions
+to complex expressions.
 
 Stan的类型推断规则根据变量声明的背景集定义表达式的实现类型。规则从原始文字和变量表达式向上逐步推导到复杂表达式。
 
-### Promotion{-}
+### Promotion {-}
 
-### 提升{-}
+### 提升 {-}
 
 There are two basic promotion rules,
 
-    1. `int` types may be promoted to `real`, and
-    2. `real` types may be promoted to `complex`.
+1. `int` types may be promoted to `real`, and
+2. `real` types may be promoted to `complex`.
 
 两条基本的提升规则如下，
 
-    1. `int` 类型可以提升为 `real` 类型，
-    2. `real` 类型可以提升为 `complex` 类型。
+1. `int` 类型可以提升为 `real` 类型，
+2. `real` 类型可以提升为 `complex` 类型。
 
 Plus, promotion is transitive, so that
 
-    3. if type `U` can be promoted to type `V` and type `V` can be promoted to type `T`, then `U` can be promoted to `T`.
+3.  if type `U` can be promoted to type `V` and type `V` can be
+promoted to type `T`, then `U` can be promoted to `T`.
     
 此外，提升是传递性的，即
 
-    3. 如果类型 `U` 可以提升为类型 `V`，且类型 `V` 可以提升为类型 `T`，则类型 `U` 可以提升为类型 `T`。
+3. 如果类型 `U` 可以提升为类型 `V`，且类型 `V` 可以提升为类型 `T`，则类型 `U` 可以提升为类型 `T`。
 
-The first rule means that expressions of type `int` may be used anywhere an expression of type `real` is specified, namely in assignment or function argument passing. An integer is promoted to `real` by casting it in the underlying C++ code.
+The first rule means that expressions of type `int` may be used
+anywhere an expression of type `real` is specified, namely in
+assignment or function argument passing.  An integer is promoted to
+real by casting it in the underlying C++ code.
 
 第一条规则意味着 `int` 类型的表达式可以在赋值或函数参数传递等指定 `real` 类型表达式的任何地方使用。整数通过在底层 C++ 代码中进行类型转换而提升为 `real` 类型。
 
-The remaining rules have to do with covariant typing rules, which say that a container of type `U` may be promoted to a container of the same shape of type `T` if `U` can be promoted to `T`. For vector and matrix types, this induces three rules,
+The remaining rules have to do with covariant typing rules, which say
+that a container of type `U` may be promoted to a container of the
+same shape of type `T` if `U` can be promoted to `T`.  For vector and
+matrix types, this induces three rules,
 
-    4. `vector` may be promoted to `complex_vector`,
-    5. `row_vector` may be promoted to `complex_row_vector`
-    6. `matrix` may be promoted to `complex_matrix`.
+4. `vector` may be promoted to `complex_vector`,
+5. `row_vector` may be promoted to `complex_row_vector`
+6. `matrix` may be promoted to `complex_matrix`.
 
 其余规则涉及协变类型规则，即如果类型 `U` 可以提升为类型 `T` ，则类型为 `U` 的容器可以提升为形状相同的类型为 `T` 的容器。对于向量和矩阵类型，这引出了三条规则，
 
-    4. `vector` 可以提升为 `complex_vector`、
-    5. `row_vector` 可以提升为 `complex_row_vector`.
-    6. `matrix` 可以提升为 `complex_matrix`.
+4. `vector` 可以提升为 `complex_vector`、
+5. `row_vector` 可以提升为 `complex_row_vector`.
+6. `matrix` 可以提升为 `complex_matrix`.
 
-For array types, there’s a single rule
+For array types, there's a single rule
 
-    7. `array[...] U` may be promoted to `array[...] T` if `U` can be promoted to `T`.
+7. `array[...] U` may be promoted to `array[...] T` if `U` can be
+promoted to `T`.
 
 对于数组类型，有一条规则
 
-    7. 如果 `U` 可以提升为 `T`，则 `array[...] U` 可以提升为 `array[...] T`。
+7. 如果 `U` 可以提升为 `T`，则 `array[...] U` 可以提升为 `array[...] T`。
 
-For example, this means `array[,] int` may be used where `array [,] real` or `array [,] complex` is required; as another example, `array[] real` may be used anywhere `array[] complex` is required.
+For example, this means `array[,] int` may be used where `array [,]
+real` or `array [,] complex` is required; as another example, `array[]
+real` may be used anywhere `array[] complex` is required.
 
 例如，这意味着 `array[,] int` 可以在需要 `array [,] real` 或 `array [,] complex` 的地方使用；另一个例子，`array[] real` 可以在任何需要 `array[] complex` 的地方使用。
 
-Tuples have the natural extension of the above rules, applied to all sub-types at once
+Tuples have the natural extension of the above rules, applied to all
+sub-types at once
 
-    8. A `tuple(U1, ..., UN)` may be promoted to a `tuple(T1, ..., TN)` if every `Un` can be promoted to `Tn` for `n` in `1:N`
+8. A `tuple(U1, ..., UN)` may be promoted to a `tuple(T1, ..., TN)` if
+ every `Un` can be promoted to `Tn` for `n` in `1:N`
 
 元组是上述规则的自然延伸，同时适用于所有子类型
 
-    8. 如果对于`n` 从 1 到 `N`，每个 `Un` 可以提升为 `Tn`，则`tuple(U1, ..., UN)` 可以提升为`tuple(T1, ..., TN)`。
+8. 如果对于`n` 从 1 到 `N`，每个 `Un` 可以提升为 `Tn`，则`tuple(U1, ..., UN)` 可以提升为`tuple(T1, ..., TN)`。
 
 #### Literals {-}
 
 #### 字面量 {-}
 
-An integer literal expression such as `42` is of type `int`. Real literals such as `42.0` are of type `real`. Imaginary literals such as `-17i` are of type `complex`. the expression `7 - 2i` acts like a `complex` literal, but technically it combines a real literal `7` and an imaginary literal `2i` through subtraction.
+An integer literal expression such as `42` is of type `int`.
+Real literals such as `42.0` are of type `real`.  Imaginary literals
+such as `-17i` are of type `complex`.  the expression `7 - 2i` acts
+like a complex literal, but technically it combines a real literal `7`
+and an imaginary literal `2i` through subtraction.
 
 整数字面量表达式，如 `42` ，属于 `int` 类型。实数字面量表达式，如 `42.0` ，是 `real` 类型。虚数字面表达式，如 `17i`，属于 `complex` 类型。表达式 `7 - 2i` 类似于 `complex` 字面量表达式，但从技术上讲，它通过减法结合了实数字面量表达式 `7` 和虚数字面量表达式 `2i`。
 
@@ -1571,86 +1647,126 @@ An integer literal expression such as `42` is of type `int`. Real literals such 
 
 #### 变量 {-}
 
-The type of a variable declared locally or in a previous block is determined by its declaration. The type of a loop variable is `int`.
+The type of a variable declared locally or in a previous block is
+determined by its declaration.  The type of a loop variable is
+`int`.
 
 本地或前一个代码块中声明的变量的类型由其声明决定。循环变量的类型为 `int`。
 
-There is always a unique declaration for each variable in each scope because Stan prohibits the redeclaration of an already-declared variables. [<sup>1</sup>](#footnote1){#sup1}
+There is always a unique declaration for each variable in each scope
+because Stan prohibits the redeclaration of an already-declared
+variables.^[Languages such as C++ and R allow the declaration of a variable of a given name in a narrower scope to hide (take precedence over for evaluation) a variable defined in a containing scope.]
 
-在每个作用域中，每个变量都有一个唯一的声明，因为 Stan 禁止对已声明的变量进行重新声明。[<sup>1</sup>](#footnote1){#sup1}
+在每个作用域中，每个变量都有一个唯一的声明，因为 Stan 禁止对已声明的变量进行重新声明。^[]
 
 #### Indexing {-}
 
 #### 索引 {-}
 
-If `x` is an expression of total dimensionality greater than or equal to \(N\), then the type of expression `e[i1, i2, ..., iN]` is the same as that of `e[i1][i2]...[iN]`, so it suffices to define the type of a singly-indexed function. Suppose `e` is an expression and `i` is an expression of primitive type `int`. Then
+If `x` is an expression of total dimensionality greater than or equal
+to $N$, then the type of expression `e[i1, i2, ..., iN]` is the same as
+that of `e[i1][i2]...[iN]`, so it suffices to define the type of a
+singly-indexed function.  Suppose `e` is an expression and `i` is an
+expression of primitive type `int`.  Then
 
-如果 `x` 是一个总维度大于或等于 \(N\) 的表达式，那么表达式 `e[i1, i2, ..., iN]` 的类型与 `e[i1][i2]...[iN]` 的类型相同，因此只需定义单索引函数的类型即可。假设 `e` 是一个表达式，而 `i` 是一个原始类型为 `int` 的表达式。那么
+如果 `x` 是一个总维度大于或等于 $N$ 的表达式，那么表达式 `e[i1, i2, ..., iN]` 的类型与 `e[i1][i2]...[iN]` 的类型相同，因此只需定义单索引函数的类型即可。假设 `e` 是一个表达式，而 `i` 是一个原始类型为 `int` 的表达式。那么
 
-- if `e` is an expression of type `array[i1, i2, ..., iN] T` and `k, i1, …, iN `are expressions of type `int`, then `e[k]` is an expression of type `array[i2, ..., iN] T`,
-- if `e` is an expression of type `array[i] T` with `i` and `k` expressions of type `int`, then `e[k]` is of type `T`,
-- if `e` has implementation type `vector` or `row_vector`, dimensionality 0, then `e[i]` has implementation type `real`,
-- if `e` has implementation type `matrix`, then `e[i]` has type `row_vector`,
-- if `e` has implementation type `complex_vector` or `complex_row_vector` and `i` is an expression of type `int`, then `e[i]` is an expression of type `complex`, and
-- if `e` has implementation type `complex_matrix`, and `i` is an expression of type `int`, then `e[i]` is an expression of type `complex_row_vector`.
+* if `e` is an expression of type `array[i1, i2, ..., iN] T` and `k,` `i1`,
+  ..., `iN` are expressions of type `int`, then
+  `e[k]` is an expression of type `array[i2, ..., iN] T`,
+* if `e` is an expression of type `array[i] T` with `i` and `k`
+  expressions of type `int`, then `e[k]` is of type `T`,
+* if `e` has implementation type `vector` or `row_vector`,
+    dimensionality 0, then `e[i]` has implementation type `real`,
+* if `e` has implementation type `matrix`, then `e[i]` has type
+  `row_vector`,
+* if `e` has implementation type `complex_vector` or
+  `complex_row_vector` and `i` is an expression of type `int`, then
+  `e[i]` is an expression of type `complex`, and
+* if `e` has implementation type `complex_matrix`, and `i` is an
+  expression of type `int`, then `e[i]` is an expression of type
+  `complex_row_vector`.
 
-- 如果 `e` 是 `array[i1, i2, ..., iN] T` 类型的表达式，并且 `k, i1, ..., iN ` 是 `int` 类型的表达式，那么 `e[k]` 是 `array[i2, ..., iN] T` 类型的表达式；
-- 如果 `e` 是 `array[i] T` 类型的表达式，且 `i` 和 `k` 是 `int` 类型的表达式，则 `e[k]` 是 `T` 类型的表达式；
-- 如果 `e` 的实现类型是 `vector` 或 `row_vector`，维数为 0，那么 `e[i]` 的实现类型是 `real`；
-- 如果 `e` 的实现类型为 `matrix`，则 `e[i]` 的类型为 `row_vector`；
-- 如果 `e` 的实现类型是 `complex_vector` 或 `complex_row_vector` 且 `i` 是 `int` 类型的表达式，则 `e[i]` 是 `complex` 类型的表达式；
-- 如果 `e` 的实现类型是 `complex_matrix` 且 `i` 是 `int` 类型的表达式，则 `e[i]` 是 `complex_row_vector` 类型的表达式。
+* 如果 `e` 是 `array[i1, i2, ..., iN] T` 类型的表达式，并且 `k, i1, ..., iN ` 是 `int` 类型的表达式，那么 `e[k]` 是 `array[i2, ..., iN] T` 类型的表达式；
+* 如果 `e` 是 `array[i] T` 类型的表达式，且 `i` 和 `k` 是 `int` 类型的表达式，则 `e[k]` 是 `T` 类型的表达式；
+* 如果 `e` 的实现类型是 `vector` 或 `row_vector`，维数为 0，那么 `e[i]` 的实现类型是 `real`；
+* 如果 `e` 的实现类型为 `matrix`，则 `e[i]` 的类型为 `row_vector`；
+* 如果 `e` 的实现类型是 `complex_vector` 或 `complex_row_vector` 且 `i` 是 `int` 类型的表达式，则 `e[i]` 是 `complex` 类型的表达式；
+* 如果 `e` 的实现类型是 `complex_matrix` 且 `i` 是 `int` 类型的表达式，则 `e[i]` 是 `complex_row_vector` 类型的表达式。
 
-#### Function application {#function-application.section}
+#### Function application {-}
 
-#### 函数应用 {#function-application.section}
+#### 函数应用 {-}
 
-If `f` is the name of a function and `e1,...,eN` are expressions for \(N \geq 0\), then `f(e1,...,eN)` is an expression whose type is determined by the return type in the function signature for `f` given `e1` through `eN`. Recall that a function signature is a declaration of the argument types and the result type.
 
-如果 `f` 是一个函数的名称，对\(N \geq 0\)，`e1,...,eN` 是表达式，那么 `f(e1,...,eN)` 是一个表达式，其类型由给定 `e1` 到 `eN` 的 `f` 的函数签名中的返回类型决定。回想一下，函数签名是参数类型和结果类型的声明。
+If `f` is the name of a function and `e1,...,eN` are
+expressions for $N \geq 0$, then `f(e1,...,eN)` is an expression
+whose type is determined by the return type in the function signature
+for `f` given `e1` through `eN`.  Recall that a
+function signature is a declaration of the argument types and the
+result type.
 
-In looking up functions, binary operators like `real * real` are defined as `operator*(real, real)` in the documentation and index.
+如果 `f` 是一个函数的名称，对 $N \geq 0$，`e1,...,eN` 是表达式，那么 `f(e1,...,eN)` 是一个表达式，其类型由给定 `e1` 到 `eN` 的 `f` 的函数签名中的返回类型决定。回想一下，函数签名是参数类型和结果类型的声明。
+
+In looking up functions, binary operators like `real * real` are
+defined as `operator*(real, real)` in the documentation and index.
 
 在查找函数时，像 `real * real` 这样的二元运算符在文档和索引中被定义为 `operator*(real, real)`。
 
-In matching a function definition, all of the promotion rules are in play (integers may be promoted to reals, reals to complex, and containers may be promoted if their types are promoted). For example, arguments of type `int` may be promoted to type `real` or `complex` if necessary (see the subsection on type promotion in [the function application section](#function-application.section), a `real` argument will be promoted to `complex` if necessary, a `vector` will be promoted to `complex_vector` if necessary, and so on.
+In matching a function definition, all of the promotion rules are in
+play (integers may be promoted to reals, reals to complex, and
+containers may be promoted if their types are promoted).  For example,
+arguments of type `int` may be promoted to type `real` or `complex` if
+necessary (see the subsection on type promotion in [the function
+application section](#function-application), a `real` argument will be
+promoted to `complex` if necessary, a `vector` will be promoted to
+`complex_vector` if necessary, and so on.
 
-在匹配函数定义时，所有的提升规则都适用（整数可以提升为实数，实数可以提升为复数，如果它们的类型被提升，则容器也可以被提升）。例如，如果需要，`int` 类型的参数可以提升为 `real` 或 `complex` 类型（参见[函数应用部分](#function-application.section)的类型提升小节，如果需要，一个`real`参数将被提升为`complex` ，一个`vector`将被提升为`complex_vector`，依此类推）。
+在匹配函数定义时，所有的提升规则都适用（整数可以提升为实数，实数可以提升为复数，如果它们的类型被提升，则容器也可以被提升）。例如，如果需要，`int` 类型的参数可以提升为 `real` 或 `complex` 类型（参见[函数应用部分](#function-application)的类型提升小节，如果需要，一个`real`参数将被提升为`complex` ，一个`vector`将被提升为`complex_vector`，依此类推）。
 
-In general, matrix operations return the lowest inferable type. For example, `row_vector * vector` returns a value of type `real`, which is declared in the function documentation and index as `real operator*(row_vector, vector)`.
+In general, matrix operations return the lowest inferable type.  For
+example, `row_vector * vector` returns a value of type
+`real`, which is declared in the function documentation and index
+as `real operator*(row_vector, vector)`.
 
 一般来说，矩阵运算会返回可推断的最低类型。例如，`row_vector * vector` 返回`real`类型的值，这在函数文档和索引中声明为`real operator*(row_vector, vector)`。
 
-## Higher-order functions {-}
+## Higher-order functions
 
-## 高阶函数 {-}
+## 高阶函数
 
-There are several expression constructions in Stan that act as higher-order functions.[<sup>2</sup>](#footnote2){#sup2}
+There are several expression constructions in Stan that act as
+higher-order functions.^[Internally, they are implemented as their own expression types because Stan doesn't have object-level functional types (yet).]
 
-在 Stan 中有几种表达式构造可以作为高阶函数。[<sup>2</sup>](#footnote2){#sup2}
+在 Stan 中有几种表达式构造可以作为高阶函数。^[]
 
-The higher-order functions and the signature of their argument functions are listed in the following pair of tables.
+The higher-order functions and the signature of their argument
+functions are listed in the following pair of tables.
 
 高阶函数及其参数函数的签名列在下面一对表格中。
 
-#### Higher-order Functions Table {- #higher-order-functions-table}
+##### Higher-order Functions Table {- #higher-order-functions-table}
 
-#### 高阶函数表格{- #higher-order-functions-table}
+##### 高阶函数表格{- #higher-order-functions-table--cn}
 
-*Higher-order functions in Stan with their argument function types. The first group of arguments can be a function of parameters or data. The second group of arguments, consisting of a real and integer array in all cases, must be expressions involving only data and literals.*
+*Higher-order functions in Stan with their argument
+function types.  The first group of arguments can be a function of parameters
+or data. The second group of arguments, consisting of a real and integer
+array in all cases, must be expressions involving only data and
+literals.*
 
 *Stan 中的高阶函数及其参数函数类型。第一组参数可以是参数或数据的函数。第二组参数，在所有情况下都由一个实数和一个整数数组组成，必须是仅涉及数据和字面量的表达式。*
 
-| Function           | Parameter or Data Args  | Data Args | Return Type  |
-|----------------------|----------------------------|--------------|----------------|
-| `algebra_solver`     | `vector, vector`          | `array [] real, array [] real`  | `vector`  |
-| `algebra_solver_newton` | `vector, vector`       | `array [] real, array [] real`  | `vector`  |
-| `integrate_1d`      | `real, real, array [] real`  | `array [] real, array [] real`  | `real`  |
-| `integrate_ode_X`   | `real, array [] real, array [] real`  | `array [] real, array [] real`  | `array [] real`  |
-| `map_rect`           | `vector, vector`          | `array [] real, array [] real`  | `vector`  |
+  |                function |        parameter or data args        |           data args            |   return type   |
+  | ----------------------: | :----------------------------------: | :----------------------------: | :-------------: |
+  |        `algebra_solver` |           `vector, vector`           | `array [] real, array [] real` |    `vector`     |
+  | `algebra_solver_newton` |           `vector, vector`           | `array [] real, array [] real` |    `vector`     |
+  |         `integrate_1d`, |     `real, real, array [] real`      | `array [] real, array [] real` |     `real`      |
+  |      `integrate_ode_X`, | `real, array [] real, array [] real` | `array [] real, array [] real` | `array [] real` |
+  |              `map_rect` |           `vector, vector`           | `array [] real, array [] real` |    `vector`     |
 
-
-For example, the `integrate_ode_rk45` function can be used to integrate differential equations in Stan:
+For example, the `integrate_ode_rk45` function can be used to integrate
+differential equations in Stan:
 
 例如，`integrate_ode_rk45` 函数可用于在 Stan 中积分微分方程：
 
@@ -1677,28 +1793,33 @@ array[T, 2] real y_hat = integrate_ode_rk45(foo, y0, t0,
                                               ts, theta, x_r, x_i);
 ```
 
-The function argument is `foo`, the name of the user-defined function; as shown in the [higher-order functions table](#higher-order-functions-table), `integrate_ode_rk45` takes a real array, a real, three more real arrays, and an integer array as arguments and returns 2D real array.
+The function argument is `foo`, the name of the user-defined
+function;  as shown in the [higher-order functions table](#higher-order-functions),
+`integrate_ode_rk45` takes a real array, a real, three more real arrays, and
+an integer array as arguments and returns 2D real array.
 
-函数参数是用户定义函数的名称 `foo`；如 [高阶函数表](#higher-order-functions-table) 所示，`integrate_ode_rk45` 接收一个实数数组、一个实数数组、另外三个实数数组和一个整数数组作为参数，并返回二维实数数组。
+函数参数是用户定义函数的名称 `foo`；如 [高阶函数表](#higher-order-functions) 所示，`integrate_ode_rk45` 接收一个实数数组、一个实数数组、另外三个实数数组和一个整数数组作为参数，并返回二维实数数组。
 
-#### Variadic Higher-order Functions Table{- #variadic-higher-order-functions-table}
+##### Variadic Higher-order Functions Table {- #variadic-higher-order-functions-table}
 
-#### 可变参数高阶函数表格{- #variadic-higher-order-functions-table}
+##### 可变参数高阶函数表格{- #variadic-higher-order-functions-table--cn}
 
-*Variadic Higher-order functions in Stan with their argument function types. The first group of arguments are restricted in type. The sequence of trailing arguments can be of any length with any types.*
+*Variadic Higher-order functions in Stan with their argument
+function types.  The first group of arguments are restricted in type.
+The sequence of trailing arguments can be of any length with any types.*
 
-*在 Stan 中的可变参数高阶函数及其参数函数类型。第一组参数类型受限制。尾随参数序列可以具有任意长度和任意类型。
-*
+*在 Stan 中的可变参数高阶函数及其参数函数类型。第一组参数类型受限制。尾随参数序列可以具有任意长度和任意类型。*
 
-| Function       | Restricted Args      | Return Type  |
-|----------------|----------------------|--------------|
-| `solve_X`      | `vector`             | `vector`     |
-| `ode_X`        | `vector, real, array [] real`  | `vector[]`  |
-| `reduce_sum`   | `array[] T, T1, T2`  | `real`       |
+  |     function |        restricted args        | return type |
+  | -----------: | :---------------------------: | :---------: |
+  |    `solve_X` | `vector`                      | `vector`    |
+  |     `ode_X`, | `vector, real, array [] real` | `vector[]`  |
+  | `reduce_sum` |    ```array[] T, T1, T2```    |   `real`    |
 
 `T`, `T1`, and `T2` can be any Stan type.
 
-For example, the `ode_rk45` function can be used to integrate differential equations in Stan:
+For example, the `ode_rk45` function can be used to integrate
+differential equations in Stan:
 
 `T`、`T1`和 `T2`可以是任何 Stan 类型。
 
@@ -1725,7 +1846,12 @@ vector[2] y_hat[T] = ode_rk45(foo, y0, t0, ts, theta,
                               beta, x_i, index);
 ```
 
-The function argument is `foo`, the name of the user-defined function. As shown in the [variadic higher-order functions table](#higher-order-functions-table), `ode_rk45` takes a real, a vector, a real, a real array, and a sequence of arguments whose types match those at the end of `foo` and returns an array of vectors.
+The function argument is `foo`, the name of the user-defined
+function. As shown in the
+[variadic higher-order functions table](#variadic-higher-order-functions-table),
+`ode_rk45` takes a real, a vector, a real, a real array, and a sequence of
+arguments whose types match those at the end of `foo` and returns an array of
+vectors.
 
 函数参数是 `foo`，即用户定义函数的名称。如[可变参数高阶函数表](#higher-order-functions-table)所示，`ode_rk45`接收一个实数、一个向量、一个实数、一个实数数组和一个参数序列，这些参数的类型与`foo`末尾的类型一致，并返回一个向量数组。
 
@@ -1733,7 +1859,10 @@ The function argument is `foo`, the name of the user-defined function. As shown 
 
 ### 通过引用传递的函数 {-}
 
-The function argument to higher-order functions is always passed as the first argument. This function argument must be provided as the name of a user-defined or built-in function. No quotes are necessary.
+The function argument to higher-order functions is always passed as
+the first argument.  This function argument must be provided as the
+name of a user-defined or built-in function.  No quotes are
+necessary.
 
 传递给高阶函数的函数参数始终作为第一个参数传递。该函数参数必须提供为用户定义或内置函数的名称。不需要使用引号。
 
@@ -1741,19 +1870,28 @@ The function argument to higher-order functions is always passed as the first ar
 
 ### 受限于数据的参数 {-}
 
-Some of the arguments to higher-order functions are restricted to data. This means they must be expressions containing only data variables, transformed data variables, or literals; they may contain arbitrary functions applied to data variables or literals, but must not contain parameters, transformed parameters, or local variables from any block other than transformed data.
+Some of the arguments to higher-order functions are restricted to
+data.  This means they must be expressions containing only data
+variables, transformed data variables, or literals;  the may contain
+arbitrary functions applied to data variables or literals, but must
+not contain parameters, transformed parameters, or local variables
+from any block other than transformed data.
 
 高阶函数的部分参数受到数据的限制。这意味着它们必须是只包含数据变量、转换数据变量或字面量的表达式；它们可以包含应用于数据变量或字面量的任意函数，但不得包含参数、转换后的参数或来自转换后数据以外的任何块的局部变量。
 
-For user-defined functions the qualifier `data` may be prepended to the type to restrict the argument to data-only variables.
+For user-defined functions the qualifier `data` may be prepended
+to the type to restrict the argument to data-only variables.
 
 对于用户定义的函数，可以在类型前加上限定符`data`，以将参数限制为只包含数据的变量。
 
-## Chain rule and derivatives {-}
+## Chain rule and derivatives
 
-## 链式法则和导数 {-}
+## 链式法则和导数
 
-Derivatives of the log probability function defined by a model are used in several ways by Stan. The Hamiltonian Monte Carlo samplers, including NUTS, use gradients to guide updates. The BFGS optimizers also use gradients to guide search for posterior modes.
+Derivatives of the log probability function defined by a model are
+used in several ways by Stan.  The Hamiltonian Monte Carlo samplers,
+including NUTS, use gradients to guide updates.  The BFGS optimizers
+also use gradients to guide search for posterior modes.
 
 模型定义的对数概率函数的导数在 Stan 中以多种方式使用。包括 NUTS 在内的哈密顿蒙特卡洛采样器使用梯度来指导更新。BFGS 优化器也使用梯度来指导寻找后验模式的搜索。
 
@@ -1761,7 +1899,11 @@ Derivatives of the log probability function defined by a model are used in sever
 
 ### 链式法则引起的错误 {-}
 
-Unlike evaluations in pure mathematics, evaluation of derivatives in Stan is done by applying the chain rule on an expression-by-expression basis, evaluating using floating-point arithmetic. As a result, models such as the following are problematic for inference involving derivatives.
+Unlike evaluations in pure mathematics, evaluation of derivatives in
+Stan is done by applying the chain rule on an expression-by-expression
+basis, evaluating using floating-point arithmetic.  As a result,
+models such as the following are problematic for inference involving
+derivatives.
 
 与纯数学中的求值不同，Stan 中导数的求值是在逐个表达式的基础上应用链式法则，使用浮点运算进行求值的。因此，下列模型在涉及导数的推断中会出现问题。
 
@@ -1774,25 +1916,48 @@ model {
 }
 ```
 
-Algebraically, the sampling statement in the model could be reduced to
+Algebraically, 
+[the distribution statement](statements.qmd#distribution-statements.section)
+in the model could be reduced to
 
-从代数角度看，模型中的抽样语句可以简化为：
+从代数角度看，模型中的[分布语句](statements.qmd#distribution-statements.section)可以简化为：
 
 ```stan
   x ~ normal(0, 1);
 ```
 
-and it would seem the model should produce unit normal draws for `x`. But rather than canceling, the expression `sqrt(x - x)` causes a problem for derivatives. The cause is the mechanistic evaluation of the chain rule,
+and it would seem the model should produce unit normal draws for
+`x`.  But rather than canceling, the expression `sqrt(x -
+  x)` causes a problem for derivatives.  The cause is the mechanistic
+evaluation of the chain rule,
 
 模型似乎应该为 `x` 生成单位正态分布。但是，`sqrt(x - x)`表达式不但没有抵消，反而导致导数问题。原因在于链式法则的机械求值，
 
-\[ \begin{array}{rcl} \frac{d}{dx} \sqrt{x - x} & = & \frac{1}{2 \sqrt{x - x}} \times \frac{d}{dx} (x - x) \\[4pt] & = & \frac{1}{0} \times (1 - 1) \\[4pt] & = & \infty \times 0 \\[4pt] & = & \mathrm{NaN}. \end{array} \]
+$$
+\begin{array}{rcl}
+\frac{d}{dx} \sqrt{x - x}
+& = &
+\frac{1}{2 \sqrt{x - x}} \times \frac{d}{dx} (x - x)
+\\[4pt]
+& = &
+\frac{1}{0} \times (1 - 1)
+\\[4pt]
+& = &
+\infty \times 0
+\\[4pt]
+& = & \mathrm{NaN}.
+\end{array}
+$$
 
-Rather than the \(x - x\) canceling out, it introduces a 0 into the numerator and denominator of the chain-rule evaluation.
+Rather than the $x - x$ canceling out, it introduces a 0 into the
+numerator and denominator of the chain-rule evaluation.
 
-\(x - x\) 并没有抵消，而是在链式法则计算的分子和分母中引入了一个 0。
+$x - x$ 并没有抵消，而是在链式法则计算的分子和分母中引入了一个 0。
 
-The only way to avoid this kind problem is to be careful to do the necessary algebraic reductions as part of the model and not introduce expressions like `sqrt(x - x)` for which the chain rule produces not-a-number values.
+The only way to avoid this kind problem is to be careful to do the
+necessary algebraic reductions as part of the model and not introduce
+expressions like `sqrt(x - x)` for which the chain rule produces
+not-a-number values.
 
 避免这种问题的唯一方法是在模型中小心地进行必要的代数化简，并且不要引入像 `sqrt(x - x)` 这样的表达式，因为链式法则会产生非数字值。
 
@@ -1800,11 +1965,16 @@ The only way to avoid this kind problem is to be careful to do the necessary alg
 
 ### 诊断导数问题 {-}
 
-The best way to diagnose whether something is going wrong with the derivatives is to use the test-gradient option to the sampler or optimizer inputs; this option is available in both Stan and RStan (though it may be slow, because it relies on finite differences to make a comparison to the built-in automatic differentiation).
+The best way to diagnose whether something is going wrong with the
+derivatives is to use the test-gradient option to the sampler or
+optimizer inputs; this option is available in both Stan and RStan
+(though it may be slow, because it relies on finite differences to
+make a comparison to the built-in automatic differentiation).
 
 诊断导数问题的最佳方法是使用采样器或优化器输入的测试梯度选项；Stan 和 RStan 中都有这个选项（不过它可能会比较慢，因为它依赖于有限差分来与内置的自动微分进行比较）。
 
-For example, compiling the above model to an executable `sqrt-x-minus-x` in CmdStan, the test can be run as
+For example, compiling the above model to an executable
+`sqrt-x-minus-x` in CmdStan, the test can be run as
 
 例如，将上面的模型编译为 CmdStan 中的可执行文件 `sqrt-x-minus-x`，测试可以运行为
 
@@ -1825,18 +1995,8 @@ TEST GRADIENT MODE
  param idx           value           model     finite diff           error
          0       -0.887393             nan               0             nan
 ```
-Even though finite differences calculates the right gradient of 0, automatic differentiation follows the chain rule and produces a not-a-number output.
+Even though finite differences calculates the right gradient of 0,
+automatic differentiation follows the chain rule and produces a
+not-a-number output.
 
 即使有限差分计算出正确的梯度为 0，但自动微分遵循链式法则并产生一个非数字的输出。
-
-## References {-}
-
-Gelman, Andrew, J. B. Carlin, Hal S. Stern, David B. Dunson, Aki Vehtari, and Donald B. Rubin. 2013. Bayesian Data Analysis. Third Edition. London: Chapman & Hall / CRC Press.
-
-## Footnotes {-}
-
-1. Languages such as C++ and R allow the declaration of a variable of a given name in a narrower scope to hide (take precedence over for evaluation) a variable defined in a containing scope.[↩](#sup1){#footnote1}
-2. Internally, they are implemented as their own expression types because Stan doesn’t have object-level functional types (yet).[↩](#sup2){#footnote2}
-
-
-

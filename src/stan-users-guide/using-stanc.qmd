@@ -623,7 +623,7 @@ Warning:
 
 When a parameter is transformed in a non-linear fashion, an adjustment must be
 applied to account for distortion caused by the transform. This is discussed in
-depth in the [Changes of variables] section.
+depth in the [Changes of variables](reparameterization.qmd) section.
 
 This portion of pedantic mode tries to detect instances where such an adjustment
 would be necessary and remind the user.
@@ -644,10 +644,12 @@ Pedantic mode produces the following warning.
 
 ```
 Warning:
-    Left-hand side of sampling statement (~) may contain a non-linear
+    Left-hand side of distribution statement (~) may contain a non-linear
     transform of a parameter or local variable. If it does, you need
     to include a target += statement with the log absolute determinant
-    of the Jacobian of the transform.
+    of the Jacobian of the transform. You could also consider defining
+    a transformed parameter and using jacobian += in the transformed
+    parameters block.
 ```
 
 ### Pedantic mode limitations {-}
@@ -696,7 +698,7 @@ file.
 
 Invoking `stanc --auto-format <model_file>` will print a version of your model
 which has been re-formatted. The goal is to have this automatic formatting stay
-as close as possible to the [Stan Program Style Guide]. This means spacing,
+as close as possible to the [Stan Program Style Guide](style-guide.qmd). This means spacing,
 indentation, and line length are all regularized. _Some_ deprecated features,
 like the use of `#` for line comments, are replaced, but the goal is mainly to
 preserve the program while formatting it.
@@ -810,17 +812,18 @@ The levels include these optimizations:
 
 -   **O0** includes no optimizations.
 -   **O1** includes:
-    -   [Dead code elimination]
-    -   [Copy propagation]
-    -   [Constant propagation]
+    -   [Dead code elimination](#dead-code-elimination)
+    -   [Copy propagation](#copy-propagation)
+    -   [Constant propagation](#constant-propagation)
+    -   [Partial evaluation](#partial-evaluation)
+    -   [Function inlining](#function-inlining)
+    -   [Matrix memory layout optimization](#memory-patterns)
 -   **Oexperimental** includes optimizations specified by **O1** and also:
-    -   [Automatic-differentiation level optimization]
-    -   [One step loop unrolling]
-    -   [Expression propagation]
-    -   [Partial evaluation]
-    -   [Lazy code motion]
-    -   [Function inlining]
-    -   [Static loop unrolling]
+    -   [Automatic-differentiation level optimization](#automatic-differentiation-level-optimization)
+    -   [One step loop unrolling](#one-step-loop-unrolling)
+    -   [Expression propagation](#expression-propagation)
+    -   [Lazy code motion](#lazy-code-motion)
+    -   [Static loop unrolling](#static-loop-unrolling)
 
 In addition, **Oexperimental** will apply more repetitions of the optimizations,
 which may increase compile times.
@@ -924,9 +927,9 @@ prepare_data {
 
 #### Copy propagation {-}
 
-Copy propagation is similar to [expression propagation], but only
-propagates variables rather than arbitrary expressions. This can reduce the
-complexity of the code for other optimizations such as expression propagation.
+Copy propagation is similar to [expression propagation](#expression-propagation),
+but only propagates variables rather than arbitrary expressions. This can reduce
+the complexity of the code for other optimizations such as expression propagation.
 
 Example Stan program:
 
@@ -998,226 +1001,6 @@ log_prob {
 }
 ```
 
-### **0experimental** Optimizations {-}
-
-#### Automatic-differentiation level optimization {-}
-
-Stan variables can have two auto-differentiation (AD) *levels*: AD or non-AD. AD
-variables carry gradient information with them, which allows Stan to calculate
-the log-density gradient, but they also have more overhead than non-AD
-variables. It is therefore inefficient for a variable to be AD unnecessarily.
-AD-level optimization sets every variable to be a floating point type unless its
-gradient is necessary.
-
-Example Stan program:
-
-```stan
-data {
-  real y;
-}
-model {
-  real x = y + 1;
-}
-```
-
-Compiler representation of program **before AD-level optimization** (simplified
-from the output of `--debug-transformed-mir-pretty`):
-
-```
-input_vars {
-  real y;
-}
-
-log_prob {
-  real x = (y + 1);
-}
-```
-
-Compiler representation of program **after AD-level optimization** (simplified
-from the output of `--debug-optimized-mir-pretty`):
-
-```
-input_vars {
-  real y;
-}
-
-log_prob {
-  data real x = (y + 1);
-}
-```
-
-#### One step loop unrolling {-}
-
-One step loop unrolling is similar to [static loop unrolling].
-However, this optimization only 'unrolls' the first loop iteration, and can
-therefore work even when the total number of iterations is not predictable. This
-can speed up a program by providing more opportunities for further optimizations
-such as partial evaluation and lazy code motion.
-
-Example Stan program:
-
-```stan
-data {
-  int n;
-}
-transformed data {
-  int x = 0;
-  for (i in 1:n) {
-    x += i;
-  }
-}
-```
-
-Compiler representation of program **before one step static loop unrolling**
-(simplified from the output of `--debug-transformed-mir-pretty`):
-
-```
-prepare_data {
-  data int n = FnReadData__("n")[1];
-  data int x = 0;
-  for(i in 1:n) {
-    x = (x + i);
-  }
-}
-```
-
-Compiler representation of program **after one step static loop unrolling**
-(simplified from the output of `--debug-optimized-mir-pretty`):
-
-```
-prepare_data {
-  data int n = FnReadData__("n")[1];
-  int x = 0;
-  if((n >= 1)) {
-    x = (x + 1);
-    for(i in (1 + 1):n) {
-      x = (x + i);
-    }
-  }
-}
-```
-
-#### Expression propagation {-}
-
-Constant propagation replaces the uses of a variable which
-is known to have a constant value `E` with that constant `E`. This often results
-in recalculating the expression, but provides more opportunities for further
-optimizations such as partial evaluation. Expression propagation is always
-followed by [lazy code motion] to avoid unnecessarily recomputing
-expressions.
-
-Example Stan program:
-
-```stan
-data {
-  int m;
-}
-transformed data {
-  int n = m+1;
-  int a[n];
-  for (i in 1:n-1) {
-    a[i] = i;
-  }
-}
-```
-
-Compiler representation of program **before expression propagation** (simplified
-from the output of `--debug-transformed-mir-pretty`):
-
-```
-prepare_data {
-  data int m = FnReadData__("m")[1];
-  data int n = (m + 1);
-  data array[int, n] a;
-  for(i in 1:(n - 1)) {
-    a[i] = i;
-  }
-}
-```
-
-Compiler representation of program **after expression propagation** (simplified
-from the output of `--debug-optimized-mir-pretty`):
-
-```
-prepare_data {
-  data int m = FnReadData__("m")[1];
-  data int n = (m + 1);
-  data array[int, (m + 1)] a;
-  for(i in 1:((m + 1) - 1)) {
-    a[i] = i;
-  }
-}
-```
-
-#### Lazy code motion {-}
-
-Lazy code motion rearranges the statements and expressions in a program with the
-goals of:
-
--   Avoiding computing expressions more than once, and
--   Computing expressions as late as possible (to minimize the strain on the
-    working memory set).
-
-To accomplish these goals, lazy code motion will perform optimizations such as:
-
--   Moving a repeatedly calculated expression to its own variable (also referred
-    to as *common-subexpression elimination*)
--   Moving an expression outside of a loop if it does not need to be in the loop
-    (also referred to as *loop-invariant code motion*)
-
-Lazy code motion can make some programs significantly more efficient by avoiding
-redundant or early computations.
-
-Example Stan program:
-
-```stan
-model {
-  real x;
-  real y;
-  real z;
-
-  for (i in 1:10) {
-    x = sqrt(10);
-    y = sqrt(i);
-  }
-  z = sqrt(10);
-}
-```
-
-Compiler representation of program before lazy code motion (simplified from the
-output of `--debug-transformed-mir-pretty`):
-
-```
-log_prob {
-  real x;
-  real y;
-  real z;
-  for(i in 1:10) {
-    x = sqrt(10);
-    y = sqrt(i);
-  }
-  z = sqrt(10);
-}
-```
-
-Compiler representation of program after lazy code motion (simplified from the
-output of `--debug-optimized-mir-pretty`):
-
-```
-log_prob {
-  data real lcm_sym4__;
-  data real lcm_sym3__;
-  real x;
-  real y;
-  lcm_sym4__ = sqrt(10);
-  real z;
-  for(i in 1:10) {
-    x = lcm_sym4__;
-    y = sqrt(i);
-  }
-  z = lcm_sym4__;
-}
-```
 
 #### Function inlining {-}
 
@@ -1287,6 +1070,260 @@ flag variable `inline_sym3__` indicates whether a return has occurred and is
 necessary to handle `return` statements nested inside loops within the function
 body.
 
+#### Matrix memory layout optimization { - #memory-patterns}
+
+Matrices and vector variables which require automatic-differentiation (AD) in Stan
+can be represented in two different forms.
+
+The first (and default) representation is the "Array of Structs" (AoS) or "Matrix of vars" (matvar)
+layout. A "var" is the term used in the Stan implementation of autodiff for a single real. It is represented as a
+structure containing it's value and its adjoint.
+The AoS representation constructs matrices and vectors by simply using those structures as the elements of the matrix
+internally. This is flexible and very general, but many operations want to deal with the values or the adjoints as blocks,
+requiring expensive memory access patterns.
+
+The second representation is the "Struct of Arrays" (SoA) or "Var of matrices" (varmat) layout.
+Rather than a matrix containing tiny structures of one value and one adjoint each, this representation
+uses a single structure which contains separately a matrix of values and a matrix of adjoints. Some operations,
+like iterating over elements or assigning to specific indices, become more expensive, but many matrix operations
+like multiplications become much faster in this representation.
+
+*More general reading on AoS vs SoA can be found on [Wikipedia](https://en.wikipedia.org/wiki/AoS_and_SoA)*
+
+
+This optimization pass attempts to identify which matrix or vector variables in the Stan
+program are candidates for using the SoA representation. The conditions change over time,
+but broadly speaking:
+
+- Any Stan Math Library functions the matrix is passed to must be able to support it.
+- The matrix should not be accessed/assigned elementwise in a loop.
+
+The debug flag `--debug-mem-patterns` will list each variable and whether it is
+using the AoS representation or the SoA representation.
+
+### **0experimental** Optimizations {-}
+
+#### Automatic-differentiation level optimization {-}
+
+Stan variables can have two auto-differentiation (AD) *levels*: AD or non-AD. AD
+variables carry gradient information with them, which allows Stan to calculate
+the log-density gradient, but they also have more overhead than non-AD
+variables. It is therefore inefficient for a variable to be AD unnecessarily.
+AD-level optimization sets every variable to be a floating point type unless its
+gradient is necessary.
+
+Example Stan program:
+
+```stan
+data {
+  real y;
+}
+model {
+  real x = y + 1;
+}
+```
+
+Compiler representation of program **before AD-level optimization** (simplified
+from the output of `--debug-transformed-mir-pretty`):
+
+```
+input_vars {
+  real y;
+}
+
+log_prob {
+  real x = (y + 1);
+}
+```
+
+Compiler representation of program **after AD-level optimization** (simplified
+from the output of `--debug-optimized-mir-pretty`):
+
+```
+input_vars {
+  real y;
+}
+
+log_prob {
+  data real x = (y + 1);
+}
+```
+
+#### One step loop unrolling {-}
+
+One step loop unrolling is similar to [static loop unrolling](#static-loop-unrolling).
+However, this optimization only 'unrolls' the first loop iteration, and can
+therefore work even when the total number of iterations is not predictable. This
+can speed up a program by providing more opportunities for further optimizations
+such as partial evaluation and lazy code motion.
+
+Example Stan program:
+
+```stan
+data {
+  int n;
+}
+transformed data {
+  int x = 0;
+  for (i in 1:n) {
+    x += i;
+  }
+}
+```
+
+Compiler representation of program **before one step static loop unrolling**
+(simplified from the output of `--debug-transformed-mir-pretty`):
+
+```
+prepare_data {
+  data int n = FnReadData__("n")[1];
+  data int x = 0;
+  for(i in 1:n) {
+    x = (x + i);
+  }
+}
+```
+
+Compiler representation of program **after one step static loop unrolling**
+(simplified from the output of `--debug-optimized-mir-pretty`):
+
+```
+prepare_data {
+  data int n = FnReadData__("n")[1];
+  int x = 0;
+  if((n >= 1)) {
+    x = (x + 1);
+    for(i in (1 + 1):n) {
+      x = (x + i);
+    }
+  }
+}
+```
+
+#### Expression propagation {-}
+
+Constant propagation replaces the uses of a variable which
+is known to have a constant value `E` with that constant `E`. This often results
+in recalculating the expression, but provides more opportunities for further
+optimizations such as partial evaluation. Expression propagation is always
+followed by [lazy code motion](#lazy-code-motion) to avoid unnecessarily recomputing
+expressions.
+
+Example Stan program:
+
+```stan
+data {
+  int m;
+}
+transformed data {
+  int n = m+1;
+  int a[n];
+  for (i in 1:n-1) {
+    a[i] = i;
+  }
+}
+```
+
+Compiler representation of program **before expression propagation** (simplified
+from the output of `--debug-transformed-mir-pretty`):
+
+```
+prepare_data {
+  data int m = FnReadData__("m")[1];
+  data int n = (m + 1);
+  data array[int, n] a;
+  for(i in 1:(n - 1)) {
+    a[i] = i;
+  }
+}
+```
+
+Compiler representation of program **after expression propagation** (simplified
+from the output of `--debug-optimized-mir-pretty`):
+
+```
+prepare_data {
+  data int m = FnReadData__("m")[1];
+  data int n = (m + 1);
+  data array[int, (m + 1)] a;
+  for(i in 1:((m + 1) - 1)) {
+    a[i] = i;
+  }
+}
+```
+
+#### Lazy code motion {-}
+
+Lazy code motion rearranges the statements and expressions in a program with the
+goals of:
+
+-   Avoiding computing expressions more than once, and
+-   Computing expressions as late as possible (to minimize the strain on the
+    working memory set).
+
+To accomplish these goals, lazy code motion will perform optimizations such as:
+
+-   Moving a repeatedly calculated expression to its own variable (also referred
+    to as *common-subexpression elimination*)
+-   Moving an expression outside of a loop if it does not need to be in the loop
+    (also referred to as *loop-invariant code motion*)
+
+Lazy code motion can make some programs significantly more efficient by avoiding
+redundant or early computations.
+
+As currently implemented in the compiler, it may move items between blocks
+in a way that actually increases overall computation. Improving this is an ongoing project.
+
+Example Stan program:
+
+```stan
+model {
+  real x;
+  real y;
+  real z;
+
+  for (i in 1:10) {
+    x = sqrt(10);
+    y = sqrt(i);
+  }
+  z = sqrt(10);
+}
+```
+
+Compiler representation of program before lazy code motion (simplified from the
+output of `--debug-transformed-mir-pretty`):
+
+```
+log_prob {
+  real x;
+  real y;
+  real z;
+  for(i in 1:10) {
+    x = sqrt(10);
+    y = sqrt(i);
+  }
+  z = sqrt(10);
+}
+```
+
+Compiler representation of program after lazy code motion (simplified from the
+output of `--debug-optimized-mir-pretty`):
+
+```
+log_prob {
+  data real lcm_sym4__;
+  data real lcm_sym3__;
+  real x;
+  real y;
+  lcm_sym4__ = sqrt(10);
+  real z;
+  for(i in 1:10) {
+    x = lcm_sym4__;
+    y = sqrt(i);
+  }
+  z = lcm_sym4__;
+}
+```
 
 #### Static loop unrolling {-}
 

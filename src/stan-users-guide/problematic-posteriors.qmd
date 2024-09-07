@@ -50,10 +50,10 @@ McElreath 在 Stan 用户组中提出的,他询问了 BUGS 和 JAGS 中使用的
 
 Suppose there are observations $y_n$ for $n \in \{1,\dotsc,N\}$,
 two intercept parameters $\lambda_1$ and
-$\lambda_2$, a scale parameter $\sigma > 0$, and the sampling distribution
+$\lambda_2$, a scale parameter $\sigma > 0$, and the data model
 
 假设有对于 $n\in {1,\cdots,N}$ 的观测值 $y_n$，两个截距参数 $\lambda_1$
-和 $\lambda_2$，一个尺度参数 $\sigma > 0$\$，以及采样分布
+和 $\lambda_2$，一个尺度参数 $\sigma > 0$\$，以及数据模型
 
 $$
 y_n \sim \textsf{normal}(\lambda_1 + \lambda_2, \sigma).
@@ -101,9 +101,9 @@ $c$.
 $\lambda_2 = \lambda_1 + c$ 这条直线，其中 $c$ 是一个常数。
 
 Contrast this model with a simple regression with a single intercept
-parameter $\mu$ and sampling distribution
+parameter $\mu$ and data model
 
-将这个模型与一个简单的回归模型进行对比，后者只有一个截距参数 $\mu$ 和采样分布
+将这个模型与一个简单的回归模型进行对比，后者只有一个截距参数 $\mu$ 和数据模型
 
 $$
 y_n \sim \textsf{normal}(\mu,\sigma).
@@ -153,9 +153,9 @@ regression with two intercepts discussed above.
 
 The general form of the collinearity problem arises when predictors
 for a regression are collinear.  For example, consider a linear
-regression sampling distribution
+regression data model
 
-共线性问题的一般形式出现在回归中的预测因子存在共线性的情况下。比如，考虑一个线性回归的抽样分布。
+共线性问题的一般形式出现在回归中的预测因子存在共线性的情况下。比如，考虑一个线性回归的数据模型。
 
 $$
 y_n \sim \textsf{normal}(x_n \beta, \sigma)
@@ -191,9 +191,9 @@ nearly collinear.
 #### IRT 中关于区分度的乘法问题 {-}
 
 Consider adding a discrimination parameter $\delta_i$ for each
-question in an IRT model, with data sampling model
+question in an IRT model, with data model
 
-在 IRT 模型中，考虑为每个问题添加一个区分参数 $\delta_i$，并使用数据采样模型进行建模。
+在 IRT 模型中，考虑为每个问题添加一个区分参数 $\delta_i$，并使用数据模型进行建模。
 
 $$
 y_{i, j} \sim \textsf{Bernoulli}(\operatorname{logit}^{-1}(\delta_i(\alpha_j - \beta_i))).
@@ -445,9 +445,9 @@ finitely many posterior maxima.
 
 Consider a normal mixture model with two location parameters $\mu_1$
 and $\mu_2$, a shared scale $\sigma > 0$, a mixture ratio $\theta \in
-[0,1]$, and likelihood
+[0,1]$, and data model
 
-考虑一个带有两个位置参数 $\mu_1$ 和 $\mu_2$、共享尺度 $\sigma > 0$、混合比例 $\theta \in [0,1]$ 的正态混合模型，以及似然函数：
+考虑一个带有两个位置参数 $\mu_1$ 和 $\mu_2$、共享尺度 $\sigma > 0$、混合比例 $\theta \in [0,1]$ 的正态混合模型，以及数据模型：
 
 $$
 p(y \mid \theta,\mu_1,\mu_2,\sigma)
@@ -648,7 +648,7 @@ Another example of unbounded densities arises with a posterior such as
 $\textsf{beta}(\phi \mid 0.5,0.5)$, which can arise if seemingly weak beta
 priors are used for groups that have no data. This density is
 unbounded as $\phi \rightarrow 0$ and $\phi \rightarrow 1$. Similarly,
-a Bernoulli likelihood model coupled with a "weak" beta prior, leads
+a Bernoulli data model coupled with a "weak" beta prior, leads
 to a posterior
 
 另一个无界密度的例子是后验分布 $\textsf{beta}(\phi \mid 0.5, 0.5)$，当对没有数据的群体使用看似弱的贝塔先验时，可能会出现这种情况。当 $\phi \rightarrow 0$ 和 $\phi \rightarrow 1$ 时，该密度是无界的。同样，与"弱"贝塔先验结合的伯努利似然模型会导致后验分布为
@@ -717,9 +717,9 @@ modes.
 
 Consider a logistic regression model with $N$ observed outcomes $y_n
 \in \{ 0, 1 \}$, an $N \times K$ matrix $x$ of predictors, a
-$K$-dimensional coefficient vector $\beta$, and sampling distribution
+$K$-dimensional coefficient vector $\beta$, and data model
 
-考虑一个逻辑回归模型，其中有 $N$ 个观测结果 $y_n \in \{0, 1\}$，一个 $N \times K$ 的预测变量矩阵 $x$，一个 $K$ 维系数向量 $\beta$，以及采样分布
+考虑一个逻辑回归模型，其中有 $N$ 个观测结果 $y_n \in \{0, 1\}$，一个 $N \times K$ 的预测变量矩阵 $x$，一个 $K$ 维系数向量 $\beta$，以及数据模型
 
 $$
 y_n \sim \textsf{Bernoulli}(\operatorname{logit}^{-1}(x_n \beta)).
@@ -920,18 +920,18 @@ sigma            1.0  1.6e-03   0.071   9.3e-01   1.0   1.2   2094    27321    1
 ```
 
 On the top is the non-identified model with improper uniform priors
-and likelihood $y_n \sim \textsf{normal}(\lambda_1 + \lambda_2,
+and data model $y_n \sim \textsf{normal}(\lambda_1 + \lambda_2,
 \sigma)$.
 
 第一个是一个具有不合适的均匀先验和似然函数 $y_n \sim \textsf{normal}(\lambda_1 + \lambda_2, \sigma)$ 的不可识别模型。
 
-In the middle is the same likelihood as the middle plus priors
+In the middle is the same data model as in top plus priors
 $\lambda_k \sim \textsf{normal}(0,10)$.
 
-在中间的模型中，与上述模型相同的似然函数结合了先验分布 $\lambda_k \sim \textsf{normal}(0,10)$。
+在中间的模型中，与上述模型相同的数据模型结合了先验分布 $\lambda_k \sim \textsf{normal}(0,10)$。
 
 On the bottom is an identified model with an improper prior, with
-likelihood  $y_n \sim \textsf{normal}(\mu,\sigma)$.  All models
+data model  $y_n \sim \textsf{normal}(\mu,\sigma)$.  All models
 estimate $\mu$ at roughly 0.16 with low Monte Carlo standard
 error, but a high posterior standard deviation of 0.1;  the true
 value $\mu=0$ is within the 90% posterior intervals in all three models.

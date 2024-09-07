@@ -154,8 +154,8 @@ series are observed.
 data {
   int<lower=0> N_obs;
   int<lower=0> N_mis;
-  int<lower=1, upper=N_obs + N_mis> ii_obs[N_obs];
-  int<lower=1, upper=N_obs + N_mis> ii_mis[N_mis];
+  array[N_obs] int<lower=1, upper=N_obs + N_mis> ii_obs;
+  array[N_mis] int<lower=1, upper=N_obs + N_mis> ii_mis;
   array[N_obs] real y_obs;
 }
 transformed data {
@@ -306,7 +306,7 @@ for (n in 1:N) {
 ```
 
 It's a bit more work, but much more efficient to vectorize these
-sampling statements.  In transformed data, build up three vectors of
+distribution statements.  In transformed data, build up three vectors of
 indices, for the three cases above:
 
 虽然要做更多工作,但将这些采样语句向量化可以更有效率。在 transformed data 块中，针对上述三种情况，建立三个索引向量：
@@ -320,7 +320,7 @@ transformed data {
 ```
 
 You will need to write functions that pull out the count of
-observations in each of the three sampling situations.  This must be
+observations in each of the three situations.  This must be
 done with functions because the result needs to go in top-level block
 variable size declaration.  Then the rest of transformed data just
 fills in the values using three counters.
