@@ -234,7 +234,7 @@ exp(b))` in numerically more stable way.
 
 Alternatively, the model may be defined with latent parameters for the
 unrounded measurements $z_n$.  The Stan code in this case uses a
-distribution statement for $z_n$ directly while respecting the 
+distribution statement for $z_n$ directly while respecting the
 constraint $z_n \in (y_n - 0.5, y_n + 0.5)$.
 
 或者，模型也可以使用潜参数（latent parameters）来定义未经舍入的测量值 $z_n$。在这种情况下，Stan 代码直接使用 $z_n$ 的似然函数来保证 $z_n \in (y_n - 0.5, y_n + 0.5)$ 这一约束条件。由于 Stan 不允许对向量（或数组）的元素设置不同的上下界约束条件，因此将参数设定为舍入误差 $y - z$，然后将 z 定义为转换后的参数。
@@ -341,7 +341,7 @@ $$
 $$
 
 The log odds and standard errors can be defined in a transformed
-parameter block, though care must be taken not to use integer
+data block, though care must be taken not to use integer
 division.^[When dividing two integers, the result type is an integer and rounding will ensue if the result is not exact.  See the discussion of primitive arithmetic types in the reference manual for more information.]
 
 对数几率和标准误可以在 transformed data 模块中定义，但需要注意不要使用整数除法 （integer division）。^[当对两个整数进行除法运算时，结果类型为整数，并且如果结果不精确，则会进行舍入。更多相关信息，请参阅参考手册中原始算术类型的讨论。]
@@ -463,5 +463,3 @@ transforming the binomial data.
 If trial-specific predictors are available, these can be included
 directly in a regression model for the per-trial treatment effects
 $\theta_j$.
-
-如果可以使用特定于试验的预测变量，可以将其直接包含在用于每个试验治疗效果 $\theta_j$ 的回归模型中。

@@ -162,7 +162,7 @@ That is, it computes
 作为用户定义函数的另一个例子，考虑以下定义的双变量正态累积分布函数（CDF），其中均值为零，方差为单位，并且具有相关性 `rho`。也就是说，它计算的是以下概率：
 
 $$
-\texttt{binormal}\mathtt{\_}\texttt{cdf}(z_1, z_2, \rho) = \Pr[Z_1 > z_1 \text{ and } Z_2 > z_2]
+\texttt{binormal}\mathtt{\_}\texttt{cdf}(z_1, z_2, \rho) = \Pr[Z_1 \leq z_1 \text{ and } Z_2 \leq z_2]
 $$
 where the random 2-vector $Z$ has the distribution
 

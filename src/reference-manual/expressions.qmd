@@ -32,6 +32,7 @@ numerical value.
 
 表达式的最简单的形式是表示原始数值的文字。
 
+
 ### Integer literals {-}
 
 ### 整数文字 {-}
@@ -107,6 +108,7 @@ literal.  The unit imaginary number must be written as `1i`.
 
 请注意，字符`i`本身不是一个符合语法规则的虚数文字。单位虚数必须写为`1i`。
 
+
 ### Complex literals {-}
 
 ### 复数文字 {-}
@@ -116,6 +118,7 @@ literal can be added to an imaginary literal to derive an expression
 that behaves like a complex literal.  Examples include the following.
 
 Stan不直接包含复数文字，但是可以将实数或整数文字与虚数文字相加，得到类似复数文字的表达式。示例包括以下内容。
+
 ```
 1 + 2i, -3.2e9 + 1e10i
 ```
@@ -192,7 +195,7 @@ The following list contains reserved words for Stan's programming
 language.  Not all of these features are implemented in Stan yet, but
 the tokens are reserved for future use.
 
-以下列表包含Stan编程语言的保留字。尽管并非所有这些功能都已经在Stan中实现，但是这些标记已保留以供将来使用，
+以下列表包含Stan编程语言的保留字。尽管并非所有这些功能都已经在Stan中实现，但是这些标记已保留以供将来使用。
 
 ```
 for, in, while, repeat, until, if, then, else,
@@ -208,9 +211,10 @@ any of the following.
 
 ```
 int, real, complex, vector, simplex, unit_vector,
-ordered, positive_ordered, row_vector, matrix,
-cholesky_factor_corr, cholesky_factor_cov,
-corr_matrix, cov_matrix, array
+sum_to_zero_vector, ordered, positive_ordered,
+row_vector, matrix, cholesky_factor_corr,
+column_stochastic_matrix,row_stochastic_matrix,
+cholesky_factor_cov, corr_matrix, cov_matrix, array
 ```
 
 The following built in functions are also reserved and
@@ -320,6 +324,7 @@ encoding, such as ASCII itself, UTF-8, or Latin1.  It is up to user
 shells and editors to display them properly.
 
 在注释中，Stan可以使用任何ASCII兼容的字符编码，例如ASCII本身、UTF-8或Latin1。如何正确显示它们取决于用户的shell和编辑器。
+
 
 ## Container expressions {#vector-matrix-array-expressions.section}
 
@@ -454,8 +459,6 @@ array[2, 3] int b = { { 1, 2, 3 }, { 4, 5, 6 } };
 This way, `b[1]` is `{ 1, 2, 3 }` and `b[2]` is
 `{ 4, 5, 6 }`.
 
-这样，`b[1]`是`{ 1, 2, 3 }`，而`b[2]`是`{ 4, 5, 6 }`。
-
 Whitespace is always interchangeable in Stan, so the above can be laid
 out as follows to more clearly indicate the row and column structure
 of the resulting two dimensional array.
@@ -484,6 +487,7 @@ produce equivalent values.
 
 
 ### Array expression types {-}
+
 ### 数组表达式类型 {-}
 
 Any type of expression may be used within braces to form an array
@@ -621,7 +625,7 @@ has a subexpression `2 * 3` and evaluates to 7.  With
 parentheses, this grouping may be made explicit with the expression
 `1 + (2 * 3)`.  More importantly, the expression `(1 + 2) *
   3` has `1 + 2` as a subexpression and evaluates to 9.
-  
+
 使用括号可以显式地对带有运算符的子表达式进行分组。没有括号的情况下，表达式 `1 + 2 * 3` 有一个子表达式 `2 * 3` 并求值为7。有了括号，可以使用表达式 `1 + (2 * 3)` 显式地进行分组。更重要的是，表达式 `(1 + 2) *
   3` 有 `1 + 2` 作为子表达式并求值为 9。
 
@@ -740,7 +744,6 @@ Exponentiation is right associative, so the expression `2 ^ 3 ^ 4`
 is equivalent to the fully specified form `2 ^ (3 ^ 4)`.
 
 指数运算是右结合的，因此表达式 `2 ^ 3 ^ 4` 等同于完全指定的形式 `2 ^ (3 ^ 4)`。
-
 
 
 ### Operator precedence and associativity {-}
@@ -863,7 +866,6 @@ For integer and reals, `-n ^ 3` is interpreted as `-(n ^ 3)`.
 
 
 ## Conditional operator {#conditional-operator.section}
-
 
 ## 条件运算符 {#conditional-operator.section}
 
@@ -1084,7 +1086,6 @@ type `row_vector`.
 
 如果 `Sigma` 是类型为 `matrix` 的变量，那么 `Sigma[1]` 表示 `Sigma` 的第一行，且类型为 `row_vector`。
 
-
 ### Mixing array and vector/matrix indexes {-}
 
 ### 混合数组和向量/矩阵索引 {-}
@@ -1116,9 +1117,9 @@ In addition to single integer indexes, as described in
 [the language indexing section](#language-indexing.section), Stan supports multiple indexing.
 Multiple indexes can be integer arrays of indexes, lower
 bounds, upper bounds, lower and upper bounds, or simply shorthand for
-all of the indexes.  If the upper bound is smaller than the lower bound, 
-the range is empty (unlike, e.g., in R). The upper bound and lower bound can be 
-expressions that evaluate to integer. A complete list of index types is 
+all of the indexes.  If the upper bound is smaller than the lower bound,
+the range is empty (unlike, e.g., in R). The upper bound and lower bound can be
+expressions that evaluate to integer. A complete list of index types is
 given in the following table.
 
 除了单个整数索引（如[语言索引部分](#language-indexing.section)中所述）外，
@@ -1501,26 +1502,27 @@ the following table shows the mapping from types to their primitive types.
   result types declared in terms of primitive types plus array
   dimensionality.*
 
-*该表显示了Stan的变量声明类型及其对应的基本实现类型。Stan函数、运算符和概率函数的参数和结果类型是根据基本类型和数组维度声明的。*
-
-   | type                   | primitive type       |
-   | :--------------------- | :------------------- |
-   | `int`                  | `int`                |
-   | `real`                 | `real`               |
-   | `vector`               | `vector`             |
-   | `simplex`              | `vector`             |
-   | `unit_vector`          | `vector`             |
-   | `ordered`              | `vector`             |
-   | `positive_ordered`     | `vector`             |
-   | `row_vector`           | `row_vector`         |
-   | `matrix`               | `matrix`             |
-   | `cov_matrix`           | `matrix`             |
-   | `corr_matrix`          | `matrix`             |
-   | `cholesky_factor_cov`  | `matrix`             |
-   | `cholesky_factor_corr` | `matrix`             |
-   | `complex_vector`       | `complex_vector`     |
-   | `complex_row_vector`   | `complex_row_vector` |
-   | `complex_matrix`       | `complex_matrix`     |
+   |            type            |    primitive type    |
+   | :------------------------- | :------------------- |
+   | `int`                      | `int`                |
+   | `real`                     | `real`               |
+   | `vector`                   | `vector`             |
+   | `simplex`                  | `vector`             |
+   | `unit_vector`              | `vector`             |
+   | `sum_to_zero_vector`       | `vector`             |
+   | `ordered`                  | `vector`             |
+   | `positive_ordered`         | `vector`             |
+   | `row_vector`               | `row_vector`         |
+   | `matrix`                   | `matrix`             |
+   | `cov_matrix`               | `matrix`             |
+   | `corr_matrix`              | `matrix`             |
+   | `cholesky_factor_cov`      | `matrix`             |
+   | `cholesky_factor_corr`     | `matrix`             |
+   | `column_stochastic_matrix` | `matrix`             |
+   | `row_stochastic_matrix`    | `matrix`             |
+   | `complex_vector`           | `complex_vector`     |
+   | `complex_row_vector`       | `complex_row_vector` |
+   | `complex_matrix`           | `complex_matrix`     |
 
 
 A full implementation type consists of a primitive implementation type
@@ -1884,6 +1886,7 @@ to the type to restrict the argument to data-only variables.
 
 对于用户定义的函数，可以在类型前加上限定符`data`，以将参数限制为只包含数据的变量。
 
+
 ## Chain rule and derivatives
 
 ## 链式法则和导数
@@ -1995,6 +1998,7 @@ TEST GRADIENT MODE
  param idx           value           model     finite diff           error
          0       -0.887393             nan               0             nan
 ```
+
 Even though finite differences calculates the right gradient of 0,
 automatic differentiation follows the chain rule and produces a
 not-a-number output.

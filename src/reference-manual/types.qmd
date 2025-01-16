@@ -182,9 +182,10 @@ vector<lower=-1, upper=1>[3] rho;
 ```
 
 There are also special data types for structured vectors and
-matrices. There are four constrained vector data types, `simplex`
+matrices. There are five constrained vector data types, `simplex`
 for unit simplexes, `unit_vector` for unit-length vectors,
-`ordered` for ordered vectors of scalars and
+`sum_to_zero_vector` for vectors that sum to zero,
+`ordered` for ordered vectors of scalars, and
 `positive_ordered` for vectors of positive ordered
 scalars. There are specialized matrix data types `corr_matrix`
 and `cov_matrix` for correlation matrices (symmetric, positive
@@ -981,6 +982,83 @@ priors for some parameters.
 在高维问题中，为了保持稳定，单纯形可能需要在推理算法中使用更小的步长；这可以通过采样器的更高目标接受率和更长的预热期、优化时更严格的容忍度和更多的迭代次数来实现，并且在任何情况下，都可以通过较少分散的参数初始化或自定义初始化来实现，尤其是当某些参数存在信息性先验时。
 
 
+### Stochastic Matrices {-}
+
+A stochastic matrix is a matrix where each column or row is a
+unit simplex, meaning that each column (row) vector has non-negative
+values that sum to 1. The following example is a $3 \times 4$
+column-stochastic matrix.
+
+$$
+\begin{bmatrix}
+0.2 & 0.5 & 0.1 & 0.3 \\
+0.3 & 0.3 & 0.6 & 0.4 \\
+0.5 & 0.2 & 0.3 & 0.3
+\end{bmatrix}
+$$
+
+An example of a $3 \times 4$ row-stochastic matrix is the following.
+
+$$
+\begin{bmatrix}
+0.2 & 0.5 & 0.1 & 0.2 \\
+0.2 & 0.1 & 0.6 & 0.1 \\
+0.5 & 0.2 & 0.2 & 0.1
+\end{bmatrix}
+$$
+
+
+In the examples above, each column (or row) sums to 1, making the matrices
+valid `column_stochastic_matrix` and `row_stochastic_matrix` types.
+
+Column-stochastic matrices are often used in models where
+each column represents a probability distribution across a
+set of categories such as in multiple multinomial distributions,
+factor models, transition matrices in Markov models,
+or compositional data analysis.
+They can also be used in situations where you need multiple simplexes
+of the same dimensionality.
+
+The `column_stochastic_matrix` and `row_stochastic_matrix` types are declared
+with row and column sizes. For instance, a matrix `theta` with
+3 rows and 4 columns, where each
+column is a 3-simplex, is declared like a matrix with 3 rows and 4 columns.
+
+```stan
+column_stochastic_matrix[3, 4] theta;
+```
+
+A matrix `theta` with 3 rows and 4 columns, where each row is a 4-simplex,
+is similarly declared as a matrix with 3 rows and 4 columns.
+
+```stan
+row_stochastic_matrix[3, 4] theta;
+```
+
+As with simplexes, `column_stochastic_matrix` and `row_stochastic_matrix`
+variables are subject to validation, ensuring that each column (row)
+satisfies the simplex constraints. This validation accounts for
+floating-point imprecision, with checks performed up to a statically
+specified accuracy threshold $\epsilon$.
+
+#### Stability Considerations {-}
+
+In high-dimensional settings, `column_stochastic_matrix` and `row_stochastic_matrix`
+types may require careful tuning of the inference
+algorithms. To ensure stability:
+
+- **Smaller Step Sizes:** In samplers like Hamiltonian Monte Carlo (HMC),
+smaller step sizes can help maintain stability, especially in high dimensions.
+- **Higher Target Acceptance Rates:** Setting higher target acceptance
+rates can improve the robustness of the sampling process.
+- **Longer Warmup Periods:** Increasing the warmup period allows the sampler
+to better explore the parameter space before the actual sampling begins.
+- **Tighter Optimization Tolerances:** For optimization-based inference,
+tighter tolerances with more iterations can yield more accurate results.
+- **Custom Initialization:** If prior information about the parameters is
+available, custom initialization or less dispersed initialization can lead
+to more efficient inference.
+
 ### Unit vectors {-}
 
 ### 单位向量
@@ -1007,6 +1085,25 @@ imprecision.
 
 单位向量作为向量实现，可以赋值给其他向量，反之亦然。像其他受约束变量一样，单位向量变量也会经过验证，以确保它们确实是单位长度；对于单位向量，这种验证只在静态指定的精度阈值 $\epsilon$ 范围内进行，以补偿浮点不精确带来的错误。
 
+### Vectors that sum to zero {-}
+
+A zero-sum vector is constrained such that the
+sum of its elements is always $0$. These are sometimes useful
+for resolving identifiability issues in regression models.
+While the underlying vector has only $N - 1$ degrees of freedom,
+zero sum vectors are declared with their full dimensionality.
+For instance, `beta` is declared to be a zero-sum $5$-vector (4 DoF) by
+
+```stan
+sum_to_zero_vector[5] beta;
+```
+
+Zero sum vectors are implemented as vectors and may be assigned to other
+vectors and vice-versa.  Zero sum vector variables, like other constrained
+variables, are validated to ensure that they are indeed unit length; for
+zero sum  vectors, this is only done up to a statically specified accuracy
+threshold $\epsilon$ to account for errors arising from floating-point
+imprecision.
 
 ### Ordered vectors {-}
 
@@ -2443,6 +2540,8 @@ dimensions `matrix[K, K]` types.
 +---------------------+-------------------------+----------------------------------------------+
 |                     |                         | `unit_vector[N]`                             |
 +---------------------+-------------------------+----------------------------------------------+
+|                     |                         | `sum_to_zero_vector[N]`                      |
++---------------------+-------------------------+----------------------------------------------+
 | `row_vector`        | `row_vector[N]`         | `row_vector[N]`                              |
 +---------------------+-------------------------+----------------------------------------------+
 |                     |                         | `row_vector[N]<lower=L>`                     |
@@ -2470,6 +2569,10 @@ dimensions `matrix[K, K]` types.
 |                     |                         | `matrix[M, N]<multiplier=M>`                 |
 +---------------------+-------------------------+----------------------------------------------+
 |                     |                         | `matrix[M, N]<offset=O, multiplier=M>`       |
++---------------------+-------------------------+----------------------------------------------+
+|                     |                         | `column_stochastic_matrix[M, N]`             |
++---------------------+-------------------------+----------------------------------------------+
+|                     |                         | `row_stochastic_matrix[M, N]`                |
 +---------------------+-------------------------+----------------------------------------------+
 |                     | `matrix[K, K]`          | `corr_matrix[K]`                             |
 +---------------------+-------------------------+----------------------------------------------+
@@ -2506,6 +2609,8 @@ dimensions `matrix[K, K]` types.
 |                     |                         | `array[M] simplex[N]`                        |
 +---------------------+-------------------------+----------------------------------------------+
 |                     |                         | `array[M] unit_vector[N]`                    |
++---------------------+-------------------------+----------------------------------------------+
+|                     |                         | `array[M] sum_to_zero_vector[N]`             |
 +---------------------+-------------------------+----------------------------------------------+
 
 <a name="id:constrained-types.figure"></a>
